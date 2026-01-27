@@ -1,0 +1,1075 @@
+:root {
+    /* Default neutral theme – colours kept simple for fallback */
+    --primary-color: #333333;
+    --secondary-color: #f3f3f3;
+    --header-bg-color: #eaeaea;
+    --header-text-color: #333333;
+    --table-header-bg-color: #d0d0d0;
+    --input-border-color: #666666;
+    --accent-color: #888888;
+    /* New variables for improved legibility and typographic hierarchy */
+    --body-text-color: #333333;
+    --panel-bg-color: #ffffff;
+    --panel-text-color: #333333;
+    --chip-bg-color: rgba(0,0,0,0.03);
+    --title-font: 'Arial Black', 'Arial', sans-serif;
+    --body-font: 'Verdana', 'Arial', sans-serif;
+  }
+
+  /* Ninja theme */
+  [data-theme="ninja"] {
+    /* A dark palette with strong red highlights */
+    --primary-color: #bb292a;           /* used for borders and accents */
+    --secondary-color: #0f0f0f;         /* page background */
+    --header-bg-color: #551416;         /* section header background */
+    --header-text-color: #f7dede;       /* text on header background */
+    --table-header-bg-color: #551416;
+    --input-border-color: #bb292a;
+    --accent-color: #8c1e22;            /* deeper accent for flourishes */
+    --body-text-color: #f7dede;         /* light text on dark page background */
+    --panel-text-color: #7a1a1c;        /* dark text on light panels */
+    --title-font: 'Trebuchet MS', 'Verdana', sans-serif;
+    --body-font: 'Verdana', 'Arial', sans-serif;
+  }
+
+  /* Magical Guardian theme */
+  [data-theme="magicalguardian"] {
+    /* Palette uses rich purples with gold accents */
+    --primary-color: #5e154f;           /* deep purple for borders */
+    --secondary-color: #faf0f8;         /* pale warm pink background */
+    --header-bg-color: #e0b7df;         /* soft purple for headers */
+    --header-text-color: #5e154f;       /* dark purple for header text */
+    --table-header-bg-color: #d7a9c5;
+    --input-border-color: #8c3571;      /* medium purple for input underline */
+    --accent-color: #d69c35;            /* warm gold accent */
+    --body-text-color: #5e154f;         /* dark purple for text on white panels */
+    --panel-text-color: var(--body-text-color);        /* light text on coloured panels */
+    --title-font: 'Palatino Linotype', 'Georgia', serif;
+    --body-font: 'Verdana', 'Arial', sans-serif;
+  }
+
+  /* Monster Tamer theme */
+  [data-theme="monstertamer"] {
+    /* Earthy greens paired with brown accents */
+    --primary-color: #234f34;           /* deep forest green */
+    --secondary-color: #f5f7f3;         /* soft parchment */
+    --header-bg-color: #c8e3c3;         /* light green */
+    --header-text-color: #234f34;
+    --table-header-bg-color: #b1d9a8;
+    --input-border-color: #4f7250;
+    --accent-color: #7a5c2e;            /* earthy brown */
+    --body-text-color: #2a4225;         /* dark green for body text */
+    --panel-text-color: var(--body-text-color);
+    --title-font: 'Lucida Sans', 'Verdana', sans-serif;
+    --body-font: 'Verdana', 'Arial', sans-serif;
+  }
+
+  /* Spirit Warrior theme */
+  [data-theme="spiritwarrior"] {
+    /* Dynamic energy colours: blue and orange */
+    --primary-color: #274b89;           /* dark blue for borders */
+    --secondary-color: #f9f4ef;         /* pale cream background */
+    --header-bg-color: #e6b87d;         /* warm orange headers */
+    --header-text-color: #274b89;       /* dark blue on orange */
+    --table-header-bg-color: #d7a35c;   /* muted orange */
+    --input-border-color: #c3712b;      /* warm brown/orange */
+    --accent-color: #f49e42;            /* bright orange accent */
+    --body-text-color: #274b89;         /* dark blue for text on panels */
+    --panel-text-color: var(--body-text-color);        /* white text on panels */
+    --title-font: 'Book Antiqua', 'Georgia', serif;
+    --body-font: 'Verdana', 'Arial', sans-serif;
+  }
+
+  /* Technologist theme */
+  [data-theme="technologist"] {
+    /* Cool blues and silvers reminiscent of digital UIs */
+    --primary-color: #12395c;
+    --secondary-color: #f2f7fd;
+    --header-bg-color: #a8c5e8;
+    --header-text-color: #12395c;
+    --table-header-bg-color: #93b0d4;
+    --input-border-color: #3c6f9b;
+    --accent-color: #6ba1d6;
+    --body-text-color: #0f2e5a;
+    --panel-text-color: var(--body-text-color);
+    --title-font: 'Consolas', 'Courier New', monospace;
+    --body-font: 'Verdana', 'Arial', sans-serif;
+  }
+
+  /* Psychic theme */
+  [data-theme="psychic"] {
+    /* Mysterious purples with soft violet undertones */
+    --primary-color: #472053;
+    --secondary-color: #f2eaf8;
+    --header-bg-color: #d2b1e1;
+    --header-text-color: #472053;
+    --table-header-bg-color: #b996c7;
+    --input-border-color: #7e369a;
+    --accent-color: #9f6ab3;
+    --body-text-color: #2e144d;
+    --panel-text-color: var(--body-text-color);
+    --title-font: 'Palatino Linotype', 'Palatino', serif;
+    --body-font: 'Verdana', 'Arial', sans-serif;
+  }
+
+  /* Elementalist theme */
+  [data-theme="elementalist"] {
+    /* Base palette evokes earth and fire, with per-section overrides below */
+    --primary-color: #6a3b1c;
+    --secondary-color: #faf5ec;
+    --header-bg-color: #f0c987;
+    --header-text-color: #6a3b1c;
+    --table-header-bg-color: #e4b76a;
+    --input-border-color: #c58c38;
+    --accent-color: #a45f2b;
+    --body-text-color: #6a3b1c;
+    --panel-text-color: var(--body-text-color);
+    --title-font: 'Optima', 'Segoe UI', sans-serif;
+    --body-font: 'Verdana', 'Arial', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    font-family: var(--body-font);
+    margin: 0;
+    padding: 20px;
+    background-color: var(--secondary-color);
+    color: var(--panel-text-color);
+  }
+
+  #sheet {
+    width: 100%;
+    max-width: 1020px;
+    margin: 0 auto;
+    padding: 20px 25px;
+    border: 4px double var(--primary-color);
+    border-radius: 12px;
+    background-color: var(--secondary-color);
+    position: relative;
+    box-shadow: 0 0 10px rgba(0,0,0,0.25);
+  }
+
+  /* Decorative corner flourishes */
+  #sheet::before, #sheet::after {
+    content: "✦";
+    font-size: 32px;
+    color: var(--accent-color);
+    position: absolute;
+    font-family: 'Georgia', serif;
+  }
+  #sheet::before {
+    top: -22px;
+    left: -22px;
+  }
+  #sheet::after {
+    bottom: -22px;
+    right: -22px;
+    transform: rotate(180deg);
+  }
+
+  .section {
+    border: 2px solid var(--primary-color);
+    padding: 15px;
+    margin-bottom: 20px;
+    background-color: var(--panel-bg-color);
+    color: var(--panel-text-color);
+    border-radius: 6px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1), 0 0 10px var(--primary-color);
+  }
+  .section h2 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 1.3em;
+    /* Use header text colour for panel headers */
+    color: var(--header-text-color);
+    font-family: var(--title-font);
+    background-color: var(--header-bg-color);
+    border-radius: 4px;
+    padding: 6px 8px;
+    border-bottom: 2px solid var(--primary-color);
+    position: relative;
+    padding-left: 34px;
+  }
+
+  /* Icons for section headings */
+  #identity h2::before,
+  #attributes h2::before,
+  #resources h2::before,
+  #skills h2::before,
+  #abilities h2::before,
+  #bonds h2::before,
+  #notes h2::before {
+    position: absolute;
+    top: 50%;
+    left: 8px;
+    transform: translateY(-50%);
+    font-size: 1.4em;
+    color: var(--primary-color);
+  }
+  #identity h2::before { content: "★"; }
+  #attributes h2::before { content: "⚔"; }
+  #resources h2::before { content: "♥"; }
+  #skills h2::before { content: "⚙"; }
+  #abilities h2::before { content: "✦"; }
+  #bonds h2::before { content: "♠"; }
+  #notes h2::before { content: "✎"; }
+
+  /* Identity */
+  .identity-grid {
+    display: grid;
+    grid-template-columns: 1fr 150px;
+    gap: 10px;
+    align-items: start;
+  }
+  .identity-fields {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .identity-field {
+    display: flex;
+    flex-direction: column;
+  }
+  .identity-field label {
+    font-weight: bold;
+    margin-bottom: 2px;
+    font-family: var(--title-font);
+    color: var(--panel-text-color);
+  }
+  .identity-field input, .identity-field select {
+    border: none;
+    border-bottom: 1px solid var(--input-border-color);
+    padding: 4px;
+    background: transparent;
+    outline: none;
+    color: var(--panel-text-color);
+  }
+  .identity-field input::placeholder {
+    color: var(--accent-color);
+  }
+  .portrait-box {
+    width: 150px;
+    height: 150px;
+    border: 2px solid var(--primary-color);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .portrait-box:focus {
+    outline: 3px solid var(--accent-color);
+    outline-offset: 3px;
+  }
+  #portraitPreview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+  }
+  .portrait-placeholder {
+    font-size: 0.8em;
+    color: var(--accent-color);
+    text-align: center;
+    padding: 8px;
+    user-select: none;
+  }
+  #portraitUpload {
+    display: none;
+  }
+  .portrait-clear {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 26px;
+    height: 26px;
+    border: 1px solid var(--primary-color);
+    border-radius: 4px;
+    background: rgba(255,255,255,0.92);
+    color: var(--panel-text-color);
+    font-size: 18px;
+    line-height: 22px;
+    padding: 0;
+    cursor: pointer;
+    display: none;
+  }
+  .portrait-clear:hover {
+    background: #ffffff;
+  }
+
+/* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  th, td {
+    padding: 8px;
+    border: 1px solid var(--primary-color);
+    vertical-align: top;
+    font-family: var(--body-font);
+    color: inherit;
+    word-wrap: break-word;
+  }
+  th {
+    background-color: var(--table-header-bg-color);
+    color: var(--header-text-color);
+    font-family: var(--title-font);
+  }
+
+  /* Inputs inside tables */
+  .attr-input, .resource-input, .skill-rank-input, .bond-input, .skill-rank-select, .bond-rank-select {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid var(--input-border-color);
+    padding: 3px;
+    background: transparent;
+    outline: none;
+    color: var(--panel-text-color);
+  }
+  .skill-name-input {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid var(--input-border-color);
+    padding: 3px;
+    background: transparent;
+    outline: none;
+    color: var(--panel-text-color);
+  }
+  .skill-name-input::placeholder {
+    color: var(--accent-color);
+  }
+
+  /* Selects styled like inputs */
+  .skill-rank-select {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid var(--input-border-color);
+    padding: 3px;
+    background: transparent;
+    outline: none;
+    color: var(--panel-text-color);
+    font-family: var(--body-font);
+  }
+
+  /* Compact 3-across grids for dynamic skill lists */
+  .skill-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px 10px;
+  }
+  .skill-grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .skill-chip {
+    width: 100%;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 140px) 28px;
+    column-gap: 10px;
+    row-gap: 6px;
+    align-items: end;
+    border: 1px solid var(--primary-color);
+    border-radius: 4px;
+    padding: 6px;
+    background: var(--chip-bg-color);
+  }
+  .skill-chip .skill-rank-select {
+    padding-left: 10px;
+    border-left: 1px solid var(--input-border-color);
+  }
+  .skill-chip .mini-btn {
+    width: 30px;
+    padding: 2px 0;
+    line-height: 1.1;
+  }
+
+  /* Keep resource inputs on one line */
+  .resource-inline {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+  }
+  .resource-inline .resource-input {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .resource-inline .check-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    margin-left: 8px;
+    font-family: var(--body-font);
+    color: var(--panel-text-color);
+  }
+  textarea {
+    width: 100%;
+    min-height: 120px;
+    border: 1px solid var(--primary-color);
+    padding: 8px;
+    border-radius: 4px;
+    resize: vertical;
+    outline: none;
+    color: var(--panel-text-color);
+    font-family: var(--body-font);
+    background: transparent;
+  }
+  textarea::placeholder {
+    color: var(--accent-color);
+  }
+
+  /*
+   * Icon overrides per class. Each theme assigns a different glyph to the
+   * section headers via the ::before pseudo-element. These selections help
+   * support the flavour of each class without affecting layout. If a glyph
+   * is unavailable on a given system, the browser will fall back to a
+   * similar character.
+   */
+  /* Ninja icons */
+  [data-theme="ninja"] #identity h2::before { content: "★"; }
+  [data-theme="ninja"] #attributes h2::before { content: "⚔"; }
+  [data-theme="ninja"] #resources h2::before { content: "♥"; }
+  [data-theme="ninja"] #skills h2::before { content: "✦"; }
+  [data-theme="ninja"] #abilities h2::before { content: "✪"; }
+  [data-theme="ninja"] #bonds h2::before { content: "⛓"; }
+  [data-theme="ninja"] #notes h2::before { content: "✎"; }
+  [data-theme="henshinhero"] #identity h2::before { content: "⚡"; }
+  [data-theme="henshinhero"] #attributes h2::before { content: "⛨"; }
+  [data-theme="henshinhero"] #resources h2::before { content: "♥"; }
+  [data-theme="henshinhero"] #skills h2::before { content: "✦"; }
+  [data-theme="henshinhero"] #techniques h2::before { content: "✪"; }
+  [data-theme="henshinhero"] #abilities h2::before { content: "✧"; }
+  [data-theme="henshinhero"] #keystones h2::before { content: "◆"; }
+  [data-theme="henshinhero"] #notes h2::before { content: "✎"; }
+
+  [data-theme="weaponmaster"] #identity h2::before { content: "⚔"; }
+  [data-theme="weaponmaster"] #attributes h2::before { content: "⛭"; }
+  [data-theme="weaponmaster"] #resources h2::before { content: "♥"; }
+  [data-theme="weaponmaster"] #skills h2::before { content: "✦"; }
+  [data-theme="weaponmaster"] #techniques h2::before { content: "✪"; }
+  [data-theme="weaponmaster"] #abilities h2::before { content: "✧"; }
+  [data-theme="weaponmaster"] #keystones h2::before { content: "◆"; }
+  [data-theme="weaponmaster"] #notes h2::before { content: "✎"; }
+
+  [data-theme="metamorph"] #identity h2::before { content: "✶"; }
+  [data-theme="metamorph"] #attributes h2::before { content: "☣"; }
+  [data-theme="metamorph"] #resources h2::before { content: "♥"; }
+  [data-theme="metamorph"] #skills h2::before { content: "✦"; }
+  [data-theme="metamorph"] #techniques h2::before { content: "✪"; }
+  [data-theme="metamorph"] #abilities h2::before { content: "✧"; }
+  [data-theme="metamorph"] #keystones h2::before { content: "◆"; }
+  [data-theme="metamorph"] #notes h2::before { content: "✎"; }
+
+  [data-theme="mechpilot"] #identity h2::before { content: "⚙"; }
+  [data-theme="mechpilot"] #attributes h2::before { content: "⚙"; }
+  [data-theme="mechpilot"] #resources h2::before { content: "⚡"; }
+  [data-theme="mechpilot"] #skills h2::before { content: "⚙"; }
+  [data-theme="mechpilot"] #techniques h2::before { content: "✪"; }
+  [data-theme="mechpilot"] #abilities h2::before { content: "✦"; }
+  [data-theme="mechpilot"] #keystones h2::before { content: "◆"; }
+  [data-theme="mechpilot"] #notes h2::before { content: "✎"; }
+
+
+
+  /* Magical Guardian icons */
+  [data-theme="magicalguardian"] #identity h2::before { content: "✿"; }
+  [data-theme="magicalguardian"] #attributes h2::before { content: "⚚"; }
+  [data-theme="magicalguardian"] #resources h2::before { content: "♡"; }
+  [data-theme="magicalguardian"] #skills h2::before { content: "♢"; }
+  [data-theme="magicalguardian"] #abilities h2::before { content: "✧"; }
+  [data-theme="magicalguardian"] #bonds h2::before { content: "❤"; }
+  [data-theme="magicalguardian"] #notes h2::before { content: "✎"; }
+
+  /* Monster Tamer icons */
+  [data-theme="monstertamer"] #identity h2::before { content: "♘"; }
+  [data-theme="monstertamer"] #attributes h2::before { content: "♞"; }
+  [data-theme="monstertamer"] #resources h2::before { content: "♣"; }
+  [data-theme="monstertamer"] #skills h2::before { content: "⚡"; }
+  [data-theme="monstertamer"] #abilities h2::before { content: "⚔"; }
+  [data-theme="monstertamer"] #bonds h2::before { content: "♣"; }
+  [data-theme="monstertamer"] #notes h2::before { content: "✎"; }
+
+  /* Spirit Warrior icons */
+  [data-theme="spiritwarrior"] #identity h2::before { content: "⚡"; }
+  [data-theme="spiritwarrior"] #attributes h2::before { content: "⚔"; }
+  [data-theme="spiritwarrior"] #resources h2::before { content: "♥"; }
+  [data-theme="spiritwarrior"] #skills h2::before { content: "✪"; }
+  [data-theme="spiritwarrior"] #abilities h2::before { content: "☯"; }
+  [data-theme="spiritwarrior"] #bonds h2::before { content: "⚝"; }
+  [data-theme="spiritwarrior"] #notes h2::before { content: "✎"; }
+
+  /* Technologist icons */
+  [data-theme="technologist"] #identity h2::before { content: "⚙"; }
+  [data-theme="technologist"] #attributes h2::before { content: "⚙"; }
+  [data-theme="technologist"] #resources h2::before { content: "⚡"; }
+  [data-theme="technologist"] #skills h2::before { content: "⚙"; }
+  [data-theme="technologist"] #abilities h2::before { content: "✦"; }
+  [data-theme="technologist"] #bonds h2::before { content: "∞"; }
+  [data-theme="technologist"] #notes h2::before { content: "✎"; }
+
+  /* Psychic icons */
+  [data-theme="psychic"] #identity h2::before { content: "☾"; }
+  [data-theme="psychic"] #attributes h2::before { content: "☯"; }
+  [data-theme="psychic"] #resources h2::before { content: "♡"; }
+  [data-theme="psychic"] #skills h2::before { content: "✦"; }
+  [data-theme="psychic"] #abilities h2::before { content: "⛤"; }
+  [data-theme="psychic"] #bonds h2::before { content: "⚝"; }
+  [data-theme="psychic"] #notes h2::before { content: "✎"; }
+
+  /* Elementalist icons */
+  [data-theme="elementalist"] #identity h2::before { content: "☀"; }
+  [data-theme="elementalist"] #attributes h2::before { content: "❄"; }
+  [data-theme="elementalist"] #resources h2::before { content: "♆"; }
+  [data-theme="elementalist"] #skills h2::before { content: "⚡"; }
+  [data-theme="elementalist"] #abilities h2::before { content: "⚗"; }
+  [data-theme="elementalist"] #bonds h2::before { content: "⚛"; }
+  [data-theme="elementalist"] #notes h2::before { content: "✎"; }
+
+  /*
+   * Elementalist per-section header colours. Each section header gets
+   * a distinct colour representing a different element. We also set the
+   * border colour to match so the panel integrates with the theme. The
+   * text colour is white to ensure readability on the saturated
+   * backgrounds.
+   */
+  [data-theme="elementalist"] #identity h2 {
+    background-color: #e67300; /* Fire */
+    border-color: #e67300;
+    color: #ffffff;
+  }
+  [data-theme="elementalist"] #attributes h2 {
+    background-color: #3fa9f5; /* Water */
+    border-color: #3fa9f5;
+    color: #ffffff;
+  }
+  [data-theme="elementalist"] #resources h2 {
+    background-color: #7cb342; /* Earth */
+    border-color: #7cb342;
+    color: #ffffff;
+  }
+  [data-theme="elementalist"] #skills h2 {
+    background-color: #b39ddb; /* Air */
+    border-color: #b39ddb;
+    color: #ffffff;
+  }
+  [data-theme="elementalist"] #abilities h2 {
+    background-color: #e7bb41; /* Spirit */
+    border-color: #e7bb41;
+    color: #ffffff;
+  }
+  [data-theme="elementalist"] #bonds h2 {
+    background-color: #f06292; /* Love */
+    border-color: #f06292;
+    color: #ffffff;
+  }
+  [data-theme="elementalist"] #notes h2 {
+    background-color: #9575cd; /* Magic */
+    border-color: #9575cd;
+    color: #ffffff;
+  }
+
+  /* Checkbox styling for resource overstrained indicator */
+  .resource-check {
+    accent-color: var(--primary-color);
+    width: 16px;
+    height: 16px;
+    /* Slightly enlarge checkbox for visibility */
+    transform: scale(1.2);
+    margin: 0;
+  }
+
+  /* Attribute groups styling */
+  .attribute-groups {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .attribute-group {
+    flex: 1;
+    border: 1px solid var(--primary-color);
+    border-radius: 8px;
+    /* Attribute groups always have a light background for readability */
+    background-color: var(--panel-bg-color);
+    padding: 8px;
+    box-shadow: 0 0 4px rgba(0,0,0,0.1);
+  }
+  .attribute-group-header {
+    font-family: var(--title-font);
+    font-size: 1.1em;
+    /* Use header text colour for attribute group headings */
+    color: var(--header-text-color);
+    background-color: var(--header-bg-color);
+    border-bottom: 2px solid var(--primary-color);
+    border-radius: 6px 6px 0 0;
+    padding: 4px 6px;
+    text-align: center;
+    margin: -8px -8px 6px -8px;
+  }
+  .attribute-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 4px 0;
+    font-family: var(--body-font);
+    /* Use body text colour for attribute rows */
+    color: var(--panel-text-color);
+  }
+  .attribute-item span {
+    flex: 1;
+    margin-right: 6px;
+  }
+  .attribute-item input {
+    width: 50px;
+    border: none;
+    border-bottom: 1px solid var(--input-border-color);
+    text-align: right;
+    padding: 2px;
+    background: transparent;
+    outline: none;
+    color: var(--panel-text-color);
+    font-family: var(--body-font);
+  }
+
+
+
+  /* Sheet tools (save/export/import) */
+  .sheet-tools {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding: 10px 12px;
+    border: 2px solid var(--primary-color);
+    border-radius: 6px;
+    background-color: var(--panel-bg-color);
+    color: var(--panel-text-color);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1), 0 0 10px var(--primary-color);
+  }
+  .sheet-tools .tools-left {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .sheet-tools button {
+    border: 1px solid var(--input-border-color);
+    background-color: var(--header-bg-color);
+    color: var(--header-text-color);
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: var(--body-font);
+    font-size: 0.95em;
+  }
+  .sheet-tools button:hover {
+    filter: brightness(0.98);
+  }
+  .sheet-tools .save-status {
+    font-size: 0.95em;
+    color: var(--panel-text-color);
+    font-family: var(--body-font);
+  }
+  .sheet-tools .save-status.error {
+    color: #b00020;
+    font-weight: 600;
+  }
+  .sheet-tools .hint {
+    font-size: 0.85em;
+    color: var(--accent-color);
+    margin-left: 6px;
+  }
+
+  /* Subsections + repeatables (Pass 2) */
+  .subsection { margin-top: 14px; }
+  .subhead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 4px 0 8px 0;
+  }
+  .subhead h3 {
+    margin: 0;
+    font-size: 1.05em;
+    font-family: var(--title-font);
+    color: var(--panel-text-color);
+  }
+  .subhint {
+    font-size: 0.9em;
+    color: var(--accent-color);
+    margin-left: 8px;
+    font-family: var(--body-font);
+  }
+  .mini-btn {
+    border: 1px solid var(--input-border-color);
+    background-color: var(--header-bg-color);
+    color: var(--header-text-color);
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: var(--body-font);
+    font-size: 0.9em;
+    line-height: 1.1;
+  }
+  .mini-btn:hover { filter: brightness(0.98); }
+  .mini-btn.danger {
+    background-color: #fff0f0;
+    color: #7a0000;
+    border-color: #b66;
+  }
+
+  .repeatable-table.compact th, .repeatable-table.compact td { padding: 6px; }
+  .repeatable-table td input {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid var(--input-border-color);
+    padding: 2px;
+    background: transparent;
+    outline: none;
+    color: var(--panel-text-color);
+    font-family: var(--body-font);
+  }
+
+  .cards { display: grid; gap: 10px; }
+  .ability-card {
+    border: 1px solid var(--primary-color);
+    border-radius: 8px;
+    padding: 10px;
+    background: var(--chip-bg-color);
+  }
+  .ability-card-head {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .ability-name {
+    flex: 1;
+    border: none;
+    border-bottom: 1px solid var(--input-border-color);
+    padding: 2px;
+    background: transparent;
+    outline: none;
+    color: var(--panel-text-color);
+    font-family: var(--body-font);
+    font-weight: 600;
+  }
+  .ability-text {
+    width: 100%;
+    border: 1px solid var(--input-border-color);
+    border-radius: 6px;
+    padding: 8px;
+    font-family: var(--body-font);
+    resize: vertical;
+    color: var(--panel-text-color);
+  }
+
+  @media print {
+    .mini-btn { display: none !important; }
+    .subhint { display: none !important; }
+    .ability-card { break-inside: avoid; }
+    table, .subsection { break-inside: avoid; }
+  }
+
+  /* Print-friendly adjustments: simplify colours and remove shadows to conserve ink */
+  @media print {
+    body {
+      background-color: #ffffff !important;
+      color: #000000 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+    #sheet {
+      border-color: #000000 !important;
+      box-shadow: none !important;
+      width: 100% !important;
+      max-width: none !important;
+      padding: 12px 14px !important;
+      margin: 0 !important;
+    }
+    .section {
+      background-color: #ffffff !important;
+      border-color: #000000 !important;
+      box-shadow: none !important;
+    }
+    .section h2 {
+      background-color: #f0f0f0 !important;
+      color: #000000 !important;
+      border-color: #000000 !important;
+    }
+    th {
+      background-color: #e5e5e5 !important;
+      color: #000000 !important;
+      border-color: #000000 !important;
+    }
+    td {
+      border-color: #000000 !important;
+      color: #000000 !important;
+    }
+    input, textarea {
+      color: #000000 !important;
+      border-color: #000000 !important;
+    }
+    .resource-check {
+      accent-color: #000000 !important;
+    }
+
+    /* Portrait UI controls shouldn't print */
+    .sheet-tools { display: none !important; }
+    .portrait-placeholder, .portrait-clear { display: none !important; }
+    #portraitPreview { display: block !important; }
+
+    /* Compact print spacing */
+    .section { padding: 10px !important; margin-bottom: 12px !important; }
+    .section h2 { font-size: 1.05em !important; padding: 4px 6px !important; margin-bottom: 8px !important; }
+    th, td { padding: 6px !important; }
+    .identity-fields { gap: 8px !important; }
+    .resource-input { max-width: 80px !important; }
+
+    /* Smaller text for printing so more fits on one page */
+    body { font-size: 12px !important; line-height: 1.15 !important; }
+    input, textarea, select { font-size: 0.95em !important; }
+
+    /* Hide decorative sheet flourishes and header icons in print */
+    #sheet::before, #sheet::after { content: none !important; display: none !important; }
+    .section h2::before { content: "" !important; display: none !important; }
+    .section h2 { padding-left: 10px !important; }
+  }
+
+  .repeatable-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .repeatable-header .hint {
+    font-size: 0.85rem;
+    line-height: 1.2;
+    opacity: 0.85;
+  }
+
+  .conditions-list, .weapons-list {
+    display: grid;
+    gap: 8px;
+  }
+
+  .condition-row, .weapon-row {
+    display: grid;
+    grid-template-columns: 1fr 70px 1.4fr 30px;
+    gap: 10px;
+    align-items: end;
+    border: 1px solid var(--primary-color);
+    border-radius: 4px;
+    padding: 6px;
+    background: var(--chip-bg-color);
+  }
+
+  .weapon-row {
+    grid-template-columns: 1fr 1fr 1.4fr 30px;
+  }
+
+  .condition-name, .weapon-name, .weapon-skill, .weapon-notes, .condition-notes {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid var(--input-border-color);
+    padding: 3px;
+    background: transparent;
+    outline: none;
+    color: var(--panel-text-color);
+  }
+
+  .condition-n {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid var(--input-border-color);
+    padding: 3px;
+    background: transparent;
+    outline: none;
+    color: var(--panel-text-color);
+    text-align: center;
+  }
+
+
+
+  /* Accessibility helpers */
+  .visually-hidden {
+    position: absolute !important;
+    height: 1px; width: 1px;
+    overflow: hidden;
+    clip: rect(1px, 1px, 1px, 1px);
+    white-space: nowrap;
+  }
+
+  .skip-link {
+    position: absolute;
+    left: -999px;
+    top: 10px;
+    background: #ffffff;
+    color: #000;
+    padding: 8px 10px;
+    border: 2px solid var(--primary-color);
+    border-radius: 6px;
+    z-index: 9999;
+  }
+  .skip-link:focus { left: 10px; }
+
+  /* Make keyboard focus obvious */
+  input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible, [role="button"]:focus-visible, a:focus-visible {
+    outline: 3px solid var(--accent-color);
+    outline-offset: 2px;
+  }
+  input:focus:not(:focus-visible), select:focus:not(:focus-visible), textarea:focus:not(:focus-visible), button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible), a:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* Layout tweaks for quick-scan combat stats */
+  #resources {
+    background: var(--panel-bg-color);
+  }
+  #resources table th:first-child { font-size: 1.05em; }
+  #resources .resource-inline { gap: 6px; }
+  #resources .resource-input { max-width: 90px; }
+
+  /* Improve spacing inside skill chips (name vs rank) */
+  .skill-chip { align-items: end; }
+  .skill-chip select { min-width: 0; }
+.tech-meta { display: flex; gap: 8px; align-items: center; }
+  .tech-select { border: none; border-bottom: 1px solid var(--input-border-color); background: transparent; padding: 3px; color: var(--panel-text-color); }
+  .tech-number { width: 90px; border: none; border-bottom: 1px solid var(--input-border-color); background: transparent; padding: 3px; color: var(--panel-text-color); text-align: center; }
+
+
+  /* Mech Pilot theme (formerly Technologist) */
+  [data-theme="mechpilot"], [data-theme="technologist"] {
+    --primary-color: #1f6feb;
+    --secondary-color: #07121f;
+    --header-bg-color: #0b1d33;
+    --header-text-color: #e6f0ff;
+    --table-header-bg-color: #123a66;
+    --input-border-color: #5aa7ff;
+    --accent-color: #2f81f7;
+    --body-text-color: #d7e7ff;
+    --panel-text-color: #ffffff;
+    --panel-bg-color: #0b1d33;
+    --panel-text-color: #e6f0ff;
+    --chip-bg-color: rgba(255,255,255,0.06);
+  }
+
+  /* Weapon Master theme */
+  [data-theme="weaponmaster"] {
+    --primary-color: #c28b2c;
+    --secondary-color: #16110a;
+    --header-bg-color: #2a1d0b;
+    --header-text-color: #fff2d6;
+    --table-header-bg-color: #3a2a12;
+    --input-border-color: #d6a14a;
+    --accent-color: #f0b35a;
+    --body-text-color: #f5e7cf;
+    --panel-text-color: #ffffff;
+    --panel-bg-color: #22180c;
+    --panel-text-color: #fff2d6;
+    --chip-bg-color: rgba(255,255,255,0.06);
+  }
+
+  /* Henshin Hero theme */
+  [data-theme="henshinhero"] {
+    --primary-color: #ff2d55;
+    --secondary-color: #12060a;
+    --header-bg-color: #2a0b14;
+    --header-text-color: #ffe6ec;
+    --table-header-bg-color: #3b0f1c;
+    --input-border-color: #ff7a91;
+    --accent-color: #ff3b63;
+    --body-text-color: #ffe3ea;
+    --panel-text-color: #ffffff;
+    --panel-bg-color: #1c0810;
+    --panel-text-color: #ffe6ec;
+    --chip-bg-color: rgba(255,255,255,0.06);
+  }
+
+  /* Metamorph theme */
+  [data-theme="metamorph"] {
+    --primary-color: #8a2be2;
+    --secondary-color: #0d0616;
+    --header-bg-color: #1b0b2e;
+    --header-text-color: #f1e8ff;
+    --table-header-bg-color: #2a114a;
+    --input-border-color: #b48cff;
+    --accent-color: #a855f7;
+    --body-text-color: #efe6ff;
+    --panel-text-color: #ffffff;
+    --panel-bg-color: #160a25;
+    --panel-text-color: #f1e8ff;
+    --chip-bg-color: rgba(255,255,255,0.06);
+  }
+
+
+  /* --- Usability tweaks (tooltips + defense training) --- */
+  .derived-input {
+    background: rgba(0,0,0,0.03);
+  }
+
+  .defense-training-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 10px 14px;
+    margin: 10px 0 16px;
+  }
+
+  .defense-training-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 10px;
+    background: var(--chip-bg-color);
+    border: 1px solid rgba(0,0,0,0.10);
+    border-radius: 12px;
+  }
+
+  .defense-training-item select {
+    min-width: 170px;
+  }
+
+  /* Accessible tooltip (avoids relying on the HTML title attribute on touch devices). */
+  .gx-tooltip {
+    position: fixed;
+    z-index: 9999;
+    max-width: 360px;
+    padding: 8px 10px;
+    border: 1px solid rgba(0,0,0,0.25);
+    border-radius: 10px;
+    background: #ffffff;
+    color: #222222;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    font-size: 12px;
+    line-height: 1.35;
+    white-space: pre-line;
+    display: none;
+  }
+  .gx-tooltip[data-show="1"] { display: block; }
+
+  @media print {
+    .gx-tooltip { display: none !important; }
+  }
+
+/* --- Firebase auth controls --- */
+.auth-controls{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-left:12px;
+  flex-wrap:wrap;
+}
+.auth-user, .cloud-status{
+  font-size:0.9rem;
+  opacity:0.9;
+}

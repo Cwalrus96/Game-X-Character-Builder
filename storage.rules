@@ -1,0 +1,15 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isSignedIn() { return request.auth != null; }
+    function isGM() { return isSignedIn() && request.auth.token.gm == true; }
+
+    match /portraits/{userId}/{charId}/{fileName} {
+      allow read, write: if isGM() || (isSignedIn() && request.auth.uid == userId);
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

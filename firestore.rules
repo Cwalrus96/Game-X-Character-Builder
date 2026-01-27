@@ -1,0 +1,31 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() { return request.auth != null; }
+    function isGM() { return isSignedIn() && request.auth.token.gm == true; }
+
+    match /characters/{userId} {
+      // Players can access only their own doc (keyed by uid), regardless of existence.
+      allow read: if isGM() || (isSignedIn() && request.auth.uid == userId);
+
+      // Create: must be creating their own doc, and ownerUid must match.
+      allow create: if isSignedIn()
+                    && request.auth.uid == userId
+                    && request.resource.data.ownerUid == request.auth.uid;
+
+      // Update: must be their own doc, and cannot change ownerUid.
+      allow update: if isGM()
+                    || (isSignedIn()
+                        && request.auth.uid == userId
+                        && request.resource.data.ownerUid == resource.data.ownerUid);
+
+      // Delete: same ownership rule.
+      allow delete: if isGM() || (isSignedIn() && request.auth.uid == userId);
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
