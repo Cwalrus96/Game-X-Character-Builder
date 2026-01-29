@@ -668,6 +668,21 @@
     font-family: var(--body-font);
     font-size: 0.95em;
   }
+  .sheet-tools .tool-link {
+    display: inline-block;
+    border: 1px solid var(--input-border-color);
+    background-color: var(--header-bg-color);
+    color: var(--header-text-color);
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: var(--body-font);
+    font-size: 0.95em;
+    text-decoration: none;
+  }
+  .sheet-tools .tool-link:hover {
+    filter: brightness(0.98);
+  }
   .sheet-tools button:hover {
     filter: brightness(0.98);
   }

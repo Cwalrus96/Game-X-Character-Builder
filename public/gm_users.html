@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Game X Character Builder – GM Users</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body { background: var(--secondary-color); color: var(--body-text-color); }
+    .page { max-width: 900px; margin: 32px auto; padding: 0 16px 48px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; }
+    .brand { font-family: var(--title-font); font-size: 20px; }
+    .btn { padding: 10px 14px; border: 2px solid var(--primary-color); background: var(--header-bg-color); color: var(--header-text-color); border-radius: 8px; cursor: pointer; font-weight: 700; text-decoration: none; display: inline-block; }
+    .btn.secondary { background: transparent; color: var(--body-text-color); }
+    .card { background: var(--panel-bg-color); border: 2px solid var(--primary-color); border-radius: 10px; padding: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+    .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .muted { opacity: 0.82; }
+    .error { color: #b00020; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px 8px; border-bottom: 1px solid rgba(0,0,0,0.10); vertical-align: top; }
+    th { text-align: left; background: var(--table-header-bg-color); color: var(--header-text-color); }
+    .small { font-size: 12px; opacity: 0.85; }
+  </style>
+</head>
+<body data-theme="na">
+  <div class="page">
+    <div class="topbar">
+      <div class="brand">GM: Users</div>
+      <div class="row">
+        <a class="btn secondary" href="characters.html">Back</a>
+        <button class="btn secondary" id="signOutBtn" type="button">Sign out</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="muted" style="margin-top:0">Select a user to view their character list.</p>
+      <div id="status" class="muted">Loading…</div>
+      <div id="error" class="error" style="display:none"></div>
+
+      <div style="overflow:auto">
+        <table aria-label="User list">
+          <thead>
+            <tr>
+              <th>Display Name</th>
+              <th>Email</th>
+              <th class="small">UID</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="userRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="gm_users.js"></script>
+</body>
+</html>

@@ -1,26 +1,54 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isSignedIn() { return request.auth != null; }
-    function isGM() { return isSignedIn() && request.auth.token.gm == true; }
+    function signedIn() {
+      return request.auth != null;
+    }
 
-    match /characters/{userId} {
-      // Players can access only their own doc (keyed by uid), regardless of existence.
-      allow read: if isGM() || (isSignedIn() && request.auth.uid == userId);
+    // Custom claim (set via Admin SDK / Cloud Functions / CLI)
+    function isGM() {
+      return signedIn() && request.auth.token.gm == true;
+    }
 
-      // Create: must be creating their own doc, and ownerUid must match.
-      allow create: if isSignedIn()
-                    && request.auth.uid == userId
-                    && request.resource.data.ownerUid == request.auth.uid;
+    function isSelf(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
 
-      // Update: must be their own doc, and cannot change ownerUid.
-      allow update: if isGM()
-                    || (isSignedIn()
-                        && request.auth.uid == userId
-                        && request.resource.data.ownerUid == resource.data.ownerUid);
+    function gmOrSelf(uid) {
+      return isGM() || isSelf(uid);
+    }
 
-      // Delete: same ownership rule.
-      allow delete: if isGM() || (isSignedIn() && request.auth.uid == userId);
+    // --- New schema ---
+    // users/{uid}
+    // users/{uid}/characters/{characterId}
+    match /users/{uid} {
+      allow get, create, update, delete: if gmOrSelf(uid);
+      allow list: if isGM();
+
+      match /characters/{characterId} {
+        allow read, write: if gmOrSelf(uid);
+      }
+
+      // Default deny for anything else under /users
+      match /{subpath=**} {
+        allow read, write: if false;
+      }
+    }
+
+    // --- Legacy (single doc per user) ---
+    // characters/{uid}
+    match /characters/{uid} {
+      allow read, write: if gmOrSelf(uid);
+    }
+
+    // --- Campaigns (future) ---
+    // Locked to GM-only until the campaign membership flow is implemented.
+    match /campaigns/{campaignId} {
+      allow read, write: if isGM();
+      match /{subpath=**} {
+        allow read, write: if isGM();
+      }
     }
 
     // Default deny
