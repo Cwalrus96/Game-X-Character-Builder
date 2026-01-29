@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Game X Character Builder – Sign In</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body { background: var(--secondary-color); color: var(--body-text-color); }
+    .page { max-width: 760px; margin: 48px auto; padding: 24px; }
+    .card { background: var(--panel-bg-color); border: 2px solid var(--primary-color); border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+    .row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .spacer { height: 12px; }
+    .muted { opacity: 0.8; }
+    .error { color: #b00020; font-weight: 600; }
+    .btn { padding: 10px 14px; border: 2px solid var(--primary-color); background: var(--header-bg-color); color: var(--header-text-color); border-radius: 8px; cursor: pointer; font-weight: 700; }
+    .btn.secondary { background: transparent; color: var(--body-text-color); }
+  </style>
+</head>
+<body data-theme="na">
+  <main class="page">
+    <div class="card">
+      <h1 style="margin-top:0">Game X Character Builder</h1>
+      <p class="muted" style="margin-bottom:0">
+        Sign in to create and manage multiple characters, and (if you have GM access) review player rosters.
+      </p>
+
+      <div class="spacer"></div>
+
+      <div class="row">
+        <button id="signInBtn" class="btn" type="button">Sign in with Google</button>
+        <a id="continueLink" class="btn secondary" href="characters.html" style="display:none">Continue</a>
+      </div>
+
+      <div class="spacer"></div>
+      <div id="status" class="muted">Checking sign-in status…</div>
+      <div id="error" class="error" style="display:none"></div>
+    </div>
+  </main>
+
+  <script type="module" src="login.js"></script>
+</body>
+</html>

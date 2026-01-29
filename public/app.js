@@ -1,7 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import {
-  getAuth,
-  GoogleAuthProvider,
   signInWithRedirect,
   signInWithPopup,
   getRedirectResult,
@@ -9,35 +6,32 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 import {
-  getFirestore,
   doc,
   getDoc,
   setDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
+import { auth, db, googleProvider, isMobileLike } from "./firebase.js";
+
 (() => {
   'use strict';
 
+  // This page expects to be opened from the character list.
+  const urlParams = new URLSearchParams(window.location.search);
+  const charIdParam = urlParams.get('charId');
+  const requestedUidParam = urlParams.get('uid');
+
+  if (!charIdParam) {
+    window.location.replace('characters.html');
+    return;
+  }
+
+  let editingUid = null;           // resolved after auth (may be GM-selected)
+  const editingCharId = charIdParam;
+  let isGMUser = false;
+
 // ---------- Firebase (Auth + Firestore) ----------
-  // NOTE: This config is required by the client SDK and is not a secret.
-  const firebaseConfig = {
-  "apiKey": "AIzaSyC1rGZVKmr3kdNLSGvh0eHDg78TKv1xptg",
-  "authDomain": "game-x-character-builder.firebaseapp.com",
-  "projectId": "game-x-character-builder",
-  "storageBucket": "game-x-character-builder.firebasestorage.app",
-  "messagingSenderId": "994625181702",
-  "appId": "1:994625181702:web:866737d8164124ae4b0b87",
-  "measurementId": "G-HBDTGGWY3R"
-};
-
-  // Helps redirect fallback on web.app/custom domains by keeping auth helpers same-domain.
-  firebaseConfig.authDomain = window.location.hostname;
-
-  const firebaseApp = initializeApp(firebaseConfig);
-  const auth = getAuth(firebaseApp);
-  const db = getFirestore(firebaseApp);
-  const googleProvider = new GoogleAuthProvider();
 
   const signInBtn = document.getElementById('signInBtn');
   const signOutBtn = document.getElementById('signOutBtn');
@@ -45,7 +39,7 @@ import {
   const cloudStatusEl = document.getElementById('cloudStatus');
 
   let currentUser = null;
-  let cloudDocRef = null;          // characters/<uid> (single character per user for MVP)
+  let cloudDocRef = null;          // users/<uid>/characters/<charId>
   let cloudReady = false;
   let cloudSaveTimer = null;
   const CLOUD_SAVE_DEBOUNCE_MS = 1200;
@@ -100,7 +94,7 @@ import {
       const sheetForCloud = sanitizeStateForCloud(state);
 
       await setDoc(cloudDocRef, {
-        ownerUid: currentUser.uid,
+        ownerUid: editingUid,
         name: (sheetForCloud.fields && sheetForCloud.fields.charName) ? String(sheetForCloud.fields.charName) : 'Character',
         sheet: sheetForCloud,
         createdAt: serverTimestamp(),
@@ -124,7 +118,7 @@ import {
       const sheetForCloud = sanitizeStateForCloud(state);
 
       await setDoc(cloudDocRef, {
-        ownerUid: currentUser.uid,
+        ownerUid: editingUid,
         name: (sheetForCloud.fields && sheetForCloud.fields.charName) ? String(sheetForCloud.fields.charName) : 'Character',
         sheet: sheetForCloud,
         updatedAt: serverTimestamp()
@@ -136,13 +130,6 @@ import {
     }
   }
   
-  function isMobileLike() {
-    if (navigator.userAgentData && typeof navigator.userAgentData.mobile === "boolean") {
-      return navigator.userAgentData.mobile;
-    }
-    return /Android|iPhone|iPad|iPod|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  }
-
   async function initAuth() {
     // Handle redirect result (no-op if not coming back from a redirect)
     try {
@@ -180,20 +167,60 @@ import {
 
     onAuthStateChanged(auth, async (user) => {
       currentUser = user;
-      cloudDocRef = user ? doc(db, 'characters', user.uid) : null;
+      cloudDocRef = null;
       cloudReady = false;
       updateAuthUi();
 
       if (!user) {
         setCloudStatus('Cloud: Off');
+        // Require auth for editing (D&D Beyond-style flow)
+        const next = encodeURIComponent(window.location.href);
+        window.location.href = `login.html?next=${next}`;
         return;
+      }
+
+      // Read custom claims (GM) and resolve which user's character doc we are editing.
+      try {
+        // Force refresh so a newly-set GM claim is picked up immediately.
+        await user.getIdToken(true);
+        const tokenResult = await user.getIdTokenResult();
+        isGMUser = !!tokenResult?.claims?.gm;
+      } catch (e) {
+        isGMUser = false;
+      }
+
+      editingUid = (isGMUser && requestedUidParam) ? requestedUidParam : user.uid;
+      cloudDocRef = doc(db, 'users', editingUid, 'characters', editingCharId);
+
+      // Make the "Characters" link return to the correct list view.
+      const back = document.getElementById('backToCharactersLink');
+      if (back) {
+        back.href = (isGMUser && requestedUidParam) ? `characters.html?uid=${encodeURIComponent(requestedUidParam)}` : 'characters.html';
+      }
+
+      // Update local storage key now that we know the effective uid.
+      const finalKey = `gameX_characterSheet_v2_${editingUid}_${editingCharId}`;
+      if (storageOk && storage) {
+        try {
+          const hasFinal = !!storage.getItem(finalKey);
+          const provisionalRaw = storage.getItem(STORAGE_KEY);
+          if (!hasFinal && provisionalRaw) {
+            storage.setItem(finalKey, provisionalRaw);
+          }
+          STORAGE_KEY = finalKey;
+          // Prefer the final key if it exists.
+          loadSaved();
+        } catch (e) {
+          // ignore
+        }
       }
 
       await loadCloudOrInit();
     });
   }
 
-  const STORAGE_KEY = 'gameX_characterSheet_v1';
+  // Storage key is per-character (and per effective user when known)
+  let STORAGE_KEY = `gameX_characterSheet_v2_${editingCharId}`;
   const LEGACY_PORTRAIT_KEY = 'gameX_portrait';
   const SAVE_DEBOUNCE_MS = 400;
 

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Game X Character Builder – Characters</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body { background: var(--secondary-color); color: var(--body-text-color); }
+    .page { max-width: 900px; margin: 32px auto; padding: 0 16px 48px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; }
+    .brand { font-family: var(--title-font); font-size: 20px; }
+    .pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; border: 2px solid var(--primary-color); border-radius: 999px; background: var(--panel-bg-color); }
+    .btn { padding: 10px 14px; border: 2px solid var(--primary-color); background: var(--header-bg-color); color: var(--header-text-color); border-radius: 8px; cursor: pointer; font-weight: 700; text-decoration: none; display: inline-block; }
+    .btn.secondary { background: transparent; color: var(--body-text-color); }
+    .card { background: var(--panel-bg-color); border: 2px solid var(--primary-color); border-radius: 10px; padding: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+    .grid { display: grid; gap: 16px; }
+    .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .muted { opacity: 0.82; }
+    .error { color: #b00020; font-weight: 700; }
+    .list { margin: 0; padding: 0; list-style: none; }
+    .list li { border-top: 1px solid rgba(0,0,0,0.08); padding: 12px 0; }
+    .list li:first-child { border-top: none; }
+    .name { font-weight: 800; }
+    .sub { font-size: 13px; opacity: 0.8; }
+    .input { padding: 10px 12px; border-radius: 8px; border: 2px solid var(--input-border-color); min-width: 240px; }
+    .right { margin-left: auto; }
+  </style>
+</head>
+<body data-theme="na">
+  <div class="page">
+    <div class="topbar">
+      <div class="brand">Game X Character Builder</div>
+      <div class="row">
+        <span class="pill" id="whoami">Checking sign-in…</span>
+        <a class="btn secondary" href="login.html" id="loginLink" style="display:none">Sign in</a>
+        <button class="btn secondary" id="signOutBtn" type="button" style="display:none">Sign out</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card" id="profileCard" style="display:none">
+        <h2 style="margin-top:0">Profile</h2>
+        <p class="muted" id="profileHint" style="margin-top:0"></p>
+
+        <div id="displayNameSetup" style="display:none">
+          <div class="row">
+            <label>
+              <div class="sub">Choose a display name (shown to GMs and campaign members)</div>
+              <input class="input" id="displayNameInput" type="text" maxlength="32" placeholder="Display name" />
+            </label>
+            <button class="btn" id="saveDisplayNameBtn" type="button">Save</button>
+          </div>
+          <div class="sub muted">Tip: You can change this later.</div>
+        </div>
+
+        <div id="profileView" style="display:none">
+          <div class="row">
+            <div>
+              <div class="name" id="displayNameLabel"></div>
+              <div class="sub" id="emailLabel"></div>
+            </div>
+            <span class="pill right" id="gmPill" style="display:none">GM</span>
+            <a class="btn secondary" href="gm_users.html" id="gmUsersLink" style="display:none">GM: Users</a>
+          </div>
+        </div>
+
+        <div id="profileError" class="error" style="display:none"></div>
+      </div>
+
+      <div class="card" id="charactersCard" style="display:none">
+        <div class="row" style="justify-content: space-between;">
+          <div>
+            <h2 style="margin:0">Characters</h2>
+            <div class="sub" id="charactersSub"></div>
+          </div>
+          <button class="btn" id="createCharacterBtn" type="button">Create New Character</button>
+        </div>
+
+        <div style="height: 10px"></div>
+        <div id="charactersStatus" class="muted">Loading…</div>
+        <ul class="list" id="charactersList"></ul>
+        <div id="charactersError" class="error" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="characters.js"></script>
+</body>
+</html>
