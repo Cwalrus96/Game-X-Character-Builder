@@ -80,8 +80,39 @@ import { auth, db, googleProvider, isMobileLike } from "./firebase.js";
       const snap = await getDoc(cloudDocRef);
       if (snap.exists()) {
         const data = snap.data() || {};
-        if (data.sheet) {
-          applyState(data.sheet);
+        // If the new Builder flow has saved level/attributes, treat those as the
+        // source of truth and mirror them into the sheet on load.
+        const merged = (() => {
+          const sheet = data.sheet || { fields: {} };
+          const fields = sheet.fields || (sheet.fields = {});
+
+          // Prefer the sheet's own triggering fields when present; otherwise
+          // backfill from the Builder + top-level character fields.
+          const isSheetMissing = !data.sheet;
+          if (!fields.charName && data.name) fields.charName = data.name;
+
+          const b = data.builder || null;
+          if (b && isSheetMissing) {
+            if (typeof b.level === 'number') fields.level = b.level;
+            if (b.attributes && typeof b.attributes === 'object') {
+              const a = b.attributes;
+              if (typeof a.strength === 'number') fields.strength = a.strength;
+              if (typeof a.agility === 'number') fields.agility = a.agility;
+              if (typeof a.intellect === 'number') fields.intellect = a.intellect;
+              if (typeof a.willpower === 'number') fields.willpower = a.willpower;
+              if (typeof a.attunement === 'number') fields.attunement = a.attunement;
+              if (typeof a.heart === 'number') fields.heart = a.heart;
+            }
+          }
+
+          // Portrait is stored in Cloud Storage; we store a download URL in the sheet.
+          if (data.portraitUrl && !sheet.portrait) sheet.portrait = data.portraitUrl;
+
+          return sheet;
+        })();
+
+        if (merged) {
+          applyState(merged);
           setStatus('Loaded from cloud');
         }
         cloudReady = true;

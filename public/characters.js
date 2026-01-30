@@ -204,7 +204,7 @@ function renderCharacters(docs) {
     const a = document.createElement("a");
     a.className = "btn";
     a.textContent = "Continue";
-    const url = new URL("editor.html", window.location.href);
+    const url = new URL("builder.html", window.location.href);
     url.searchParams.set("charId", d.id);
     // Only set uid param when GM viewing another user (or if the character doc owner differs)
     if (!isViewingSelf && claims.gm) {
@@ -259,19 +259,19 @@ async function createCharacter() {
   const canCreate = isViewingSelf || claims.gm;
   if (!canCreate) return;
 
-  const name = (prompt("Character name:") || "").trim();
-  if (!name) return;
-
   const col = collection(db, "users", viewingUid, "characters");
   const docRef = await addDoc(col, {
     ownerUid: viewingUid,
-    name,
-    sheet: null,
+	// Name and portrait are selected in the Builder (step 1).
+    name: "",
+    portraitPath: "",
+    // Make this a map (not null) so Builder can update nested fields safely.
+    sheet: { fields: {} },
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
 
-  const url = new URL("editor.html", window.location.href);
+  const url = new URL("builder.html", window.location.href);
   url.searchParams.set("charId", docRef.id);
   if (!isViewingSelf && claims.gm) url.searchParams.set("uid", viewingUid);
   window.location.href = url.toString();
