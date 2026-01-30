@@ -248,8 +248,8 @@
     color: var(--accent-color);
   }
   .portrait-box {
-    width: 150px;
-    height: 150px;
+    width: clamp(96px, 22vw, 150px);
+    height: clamp(96px, 22vw, 150px);
     border: 2px solid var(--primary-color);
     border-radius: 4px;
     position: relative;
