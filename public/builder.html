@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game X — Character Builder</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="builder.css" />
+  </head>
+  <body>
+    <div class="topbar">
+      <div>
+        <a class="btn" href="characters.html">← Characters</a>
+        <span class="muted" id="gmHint" style="display:none; margin-left: 8px;"></span>
+      </div>
+      <div class="right">
+        <span class="muted" id="whoami">Loading…</span>
+        <button id="signOutBtn" class="btn" style="display:none; margin-left: 8px;">Sign out</button>
+      </div>
+    </div>
+
+    <main class="builder">
+      <header class="builderHeader">
+        <div>
+          <h1>Character Builder</h1>
+          <p class="muted" id="status">Loading…</p>
+          <p class="error" id="error" style="display:none"></p>
+        </div>
+      </header>
+
+      <section class="card">
+        <h2>Step 1 — Basics</h2>
+
+        <div class="grid2">
+          <div>
+            <label class="label" for="charName">Character Name</label>
+            <input id="charName" class="input" type="text" maxlength="64" placeholder="e.g., Kazuma" />
+            <p class="help">This is the name shown on the character list and the sheet.</p>
+          </div>
+
+          <div>
+            <label class="label" for="portraitFile">Portrait</label>
+            <input id="portraitFile" class="input" type="file" accept="image/*" />
+            <div class="portraitRow">
+              <div class="portrait-box" aria-label="Portrait preview">
+                <img id="portraitPreview" class="portraitPreview" alt="Portrait preview" />
+              </div>
+              <div>
+                <button id="uploadPortraitBtn" class="btn" type="button">Upload</button>
+                <button id="clearPortraitBtn" class="btn secondary" type="button">Clear</button>
+                <p class="help">Stored in Firebase Cloud Storage (not Firestore). Selecting a file does <em>not</em> upload until you click Upload or Save.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Step 2 — Level &amp; Attributes</h2>
+
+        <p class="help">Attributes are grouped by type. Hover or focus the ⓘ icons for what each attribute does mechanically.</p>
+
+        <div class="grid2">
+          <div>
+            <label class="label" for="level">Level</label>
+            <select id="level" class="input">
+              <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
+              <option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option>
+              <option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+            </select>
+
+            <div class="pillRow">
+              <span class="pill">Points to spend: <strong id="points">—</strong></span>
+              <span class="pill" id="remainingPill">Remaining: <strong id="remaining">—</strong></span>
+              <span class="pill">Attribute cap (final): <strong id="cap">—</strong></span>
+              <span class="pill">Max this step: <strong id="stepCap">—</strong></span>
+            </div>
+
+            <p class="help" id="capNote" style="display:none"></p>
+            <p class="warn" id="zeroNote" style="display:none"></p>
+          </div>
+
+          <div>
+            <div class="attrTable" role="table">
+              <div class="attrHead" role="row">
+                <div role="columnheader">Attribute</div>
+                <div role="columnheader">Value</div>
+              </div>
+
+              <div class="attrGroup" role="rowgroup">
+                <div class="attrGroupHeader" role="row">Physical</div>
+
+                <div class="attrRow" data-attr="strength" role="row">
+                  <div>
+                    <div class="attrName">
+                      Strength
+                      <button class="tipBtn" type="button" aria-label="Strength mechanics" data-tip="HP scales with Strength. When you increase Strength you gain HP equal to Level + 2. Strength is also used for most melee and unarmed attacks.">ⓘ</button>
+                    </div>
+                    <div class="attrDesc">Physical power, toughness, and muscular endurance.</div>
+                  </div>
+                  <div><input class="attrInput" type="number" min="0" step="1" value="0" /></div>
+                </div>
+
+                <div class="attrRow" data-attr="agility" role="row">
+                  <div>
+                    <div class="attrName">
+                      Agility
+                      <button class="tipBtn" type="button" aria-label="Agility mechanics" data-tip="Speed = 4 + Agility. Increasing Agility increases Speed by +1. Used for most ranged attacks and many reactions (like Dodge).">ⓘ</button>
+                    </div>
+                    <div class="attrDesc">Speed, reflexes, balance, and coordination.</div>
+                  </div>
+                  <div><input class="attrInput" type="number" min="0" step="1" value="0" /></div>
+                </div>
+              </div>
+
+              <div class="attrGroup" role="rowgroup">
+                <div class="attrGroupHeader" role="row">Mental</div>
+
+                <div class="attrRow" data-attr="intellect" role="row">
+                  <div>
+                    <div class="attrName">
+                      Intellect
+                      <button class="tipBtn" type="button" aria-label="Intellect mechanics" data-tip="When you increase Intellect, you gain +2 Skill Points. Intellect is also used for Investigation actions.">ⓘ</button>
+                    </div>
+                    <div class="attrDesc">Logic, education, memory, and analytical ability.</div>
+                  </div>
+                  <div><input class="attrInput" type="number" min="0" step="1" value="0" /></div>
+                </div>
+
+                <div class="attrRow" data-attr="willpower" role="row">
+                  <div>
+                    <div class="attrName">
+                      Willpower
+                      <button class="tipBtn" type="button" aria-label="Willpower mechanics" data-tip="Willpower helps you accumulate Strain without becoming Overstrained and resist mental effects.">ⓘ</button>
+                    </div>
+                    <div class="attrDesc">Mental fortitude, discipline, and resistance to fear and stress.</div>
+                  </div>
+                  <div><input class="attrInput" type="number" min="0" step="1" value="0" /></div>
+                </div>
+              </div>
+
+              <div class="attrGroup" role="rowgroup">
+                <div class="attrGroupHeader" role="row">Spiritual</div>
+
+                <div class="attrRow" data-attr="attunement" role="row">
+                  <div>
+                    <div class="attrName">
+                      Attunement
+                      <button class="tipBtn" type="button" aria-label="Attunement mechanics" data-tip="Attunement sets your starting Power Die (outside combat, Power Die = Attunement). Increasing Attunement increases your Power Die by +1.">ⓘ</button>
+                    </div>
+                    <div class="attrDesc">Connection to Spirit Energy and the spirit world; sensing and channeling it.</div>
+                  </div>
+                  <div><input class="attrInput" type="number" min="0" step="1" value="0" /></div>
+                </div>
+
+                <div class="attrRow" data-attr="heart" role="row">
+                  <div>
+                    <div class="attrName">
+                      Heart
+                      <button class="tipBtn" type="button" aria-label="Heart mechanics" data-tip="Heart affects Bonds (you start with a number of Rank 1 bonds up to your Heart). Heart is also used for bond actions like Assist.">ⓘ</button>
+                    </div>
+                    <div class="attrDesc">Empathy, presence, courage, and social intuition.</div>
+                  </div>
+                  <div><input class="attrInput" type="number" min="0" step="1" value="0" /></div>
+                </div>
+              </div>
+            </div>
+
+            <p class="help" style="margin-top:10px;">
+              Tip: You can tweak these later, but the builder will enforce point totals and caps.
+            </p>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="saveBtn" class="btn" type="button">Save</button>
+          <button id="saveAndOpenBtn" class="btn secondary" type="button">Save &amp; Open Character Sheet</button>
+        </div>
+      </section>
+
+      <div id="confirmModal" class="modalOverlay" style="display:none">
+        <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMsg">
+          <h3 id="confirmTitle">Save anyway?</h3>
+          <p id="confirmMsg" class="muted"></p>
+          <div class="modalActions">
+            <button id="confirmCancelBtn" class="btn secondary" type="button">Cancel</button>
+            <button id="confirmOkBtn" class="btn" type="button">Save anyway</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script type="module" src="builder.js"></script>
+  </body>
+</html>

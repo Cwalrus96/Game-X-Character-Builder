@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+import { getStorage } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-storage.js";
 
 // NOTE: Client-side Firebase config is required by the SDK and is not a secret.
 const firebaseConfig = {
@@ -19,6 +20,7 @@ firebaseConfig.authDomain = window.location.hostname;
 export const firebaseApp = initializeApp(firebaseConfig);
 export const auth = getAuth(firebaseApp);
 export const db = getFirestore(firebaseApp);
+export const storage = getStorage(firebaseApp);
 export const googleProvider = new GoogleAuthProvider();
 
 export function isMobileLike() {
