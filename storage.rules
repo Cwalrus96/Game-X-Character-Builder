@@ -1,15 +1,36 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    function isSignedIn() { return request.auth != null; }
-    function isGM() { return isSignedIn() && request.auth.token.gm == true; }
-
-    match /portraits/{userId}/{charId}/{fileName} {
-      allow read, write: if isGM() || (isSignedIn() && request.auth.uid == userId);
+    function isSignedIn() {
+      return request.auth != null;
     }
 
-    match /{allPaths=**} {
-      allow read, write: if false;
+    function isGM() {
+      return request.auth.token.gm == true;
+    }
+
+    function isSelf(uid) {
+      return request.auth.uid == uid;
+    }
+
+    // "Good enough" validation for portrait uploads.
+    // - Restrict type to common raster image formats (avoid SVG for now)
+    // - Restrict size to a reasonable max (5MB)
+    function isValidPortraitUpload() {
+      return request.resource != null
+        && request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/(png|jpeg|webp|gif)');
+    }
+
+    match /portraits/{userId}/{charId}/{fileName} {
+      // Only the owner or a GM can read portraits.
+      allow read: if isSignedIn() && (isGM() || isSelf(userId));
+
+      // Deletion requests don't have request.resource, so validate separately.
+      allow delete: if isSignedIn() && (isGM() || isSelf(userId));
+
+      // Only allow uploads/overwrites for valid portrait files.
+      allow create, update: if isSignedIn() && (isGM() || isSelf(userId)) && isValidPortraitUpload();
     }
   }
 }

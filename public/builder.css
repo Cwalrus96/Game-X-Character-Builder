@@ -314,3 +314,69 @@ body {
   gap: 10px;
   flex-wrap: wrap;
 }
+
+/* --- Builder step navigation (orientation + prev/next) --- */
+.builderNav {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 12px;
+  margin: 12px 0 20px;
+}
+
+.builderStepList {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  padding: 0;
+  margin: 0 0 12px;
+}
+
+.builderStep {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.builderStepNum {
+  width: 1.7em;
+  height: 1.7em;
+  border-radius: 999px;
+  border: 1px solid #aaa;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85em;
+}
+
+.builderStep.locked {
+  opacity: 0.55;
+}
+
+.builderStep.current .builderStepLabel {
+  font-weight: 600;
+}
+
+.builderNavControls {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.builderNavSpacer {
+  flex: 1;
+}
+
+/* Screen-reader only text (for “current/visited”) */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+

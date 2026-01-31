@@ -14,6 +14,14 @@ import {
 
 import { auth, db, googleProvider, isMobileLike } from "./firebase.js";
 
+import {
+  CHARACTER_SCHEMA_VERSION,
+  createDefaultCharacterDoc,
+  normalizeCharacterDoc,
+  getSheetStateForEditor,
+  sanitizeCharName,
+} from "./character-schema.js";
+
 (() => {
   'use strict';
 
@@ -79,42 +87,11 @@ import { auth, db, googleProvider, isMobileLike } from "./firebase.js";
     try {
       const snap = await getDoc(cloudDocRef);
       if (snap.exists()) {
-        const data = snap.data() || {};
-        // If the new Builder flow has saved level/attributes, treat those as the
-        // source of truth and mirror them into the sheet on load.
-        const merged = (() => {
-          const sheet = data.sheet || { fields: {} };
-          const fields = sheet.fields || (sheet.fields = {});
-
-          // Prefer the sheet's own triggering fields when present; otherwise
-          // backfill from the Builder + top-level character fields.
-          const isSheetMissing = !data.sheet;
-          if (!fields.charName && data.name) fields.charName = data.name;
-
-          const b = data.builder || null;
-          if (b && isSheetMissing) {
-            if (typeof b.level === 'number') fields.level = b.level;
-            if (b.attributes && typeof b.attributes === 'object') {
-              const a = b.attributes;
-              if (typeof a.strength === 'number') fields.strength = a.strength;
-              if (typeof a.agility === 'number') fields.agility = a.agility;
-              if (typeof a.intellect === 'number') fields.intellect = a.intellect;
-              if (typeof a.willpower === 'number') fields.willpower = a.willpower;
-              if (typeof a.attunement === 'number') fields.attunement = a.attunement;
-              if (typeof a.heart === 'number') fields.heart = a.heart;
-            }
-          }
-
-          // Portrait is stored in Cloud Storage; we store a download URL in the sheet.
-          if (data.portraitUrl && !sheet.portrait) sheet.portrait = data.portraitUrl;
-
-          return sheet;
-        })();
-
-        if (merged) {
-          applyState(merged);
-          setStatus('Loaded from cloud');
-        }
+        const raw = snap.data() || {};
+        const normalized = normalizeCharacterDoc(raw);
+        const sheetState = getSheetStateForEditor(normalized);
+        applyState(sheetState);
+        setStatus('Loaded from cloud');
         cloudReady = true;
         setCloudStatus('Cloud: Ready');
         return;
@@ -124,13 +101,22 @@ import { auth, db, googleProvider, isMobileLike } from "./firebase.js";
       const state = collectState();
       const sheetForCloud = sanitizeStateForCloud(state);
 
-      await setDoc(cloudDocRef, {
+      const baseline = createDefaultCharacterDoc({
         ownerUid: editingUid,
-        name: (sheetForCloud.fields && sheetForCloud.fields.charName) ? String(sheetForCloud.fields.charName) : 'Character',
-        sheet: sheetForCloud,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      }, { merge: true });
+        name: sanitizeCharName(sheetForCloud?.fields?.charName || 'Character'),
+      });
+      baseline.sheet = sheetForCloud;
+
+      await setDoc(
+        cloudDocRef,
+        {
+          ...baseline,
+          schemaVersion: CHARACTER_SCHEMA_VERSION,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true }
+      );
 
       cloudReady = true;
       setCloudStatus('Cloud: Ready');
@@ -148,12 +134,19 @@ import { auth, db, googleProvider, isMobileLike } from "./firebase.js";
       const state = collectState();
       const sheetForCloud = sanitizeStateForCloud(state);
 
-      await setDoc(cloudDocRef, {
-        ownerUid: editingUid,
-        name: (sheetForCloud.fields && sheetForCloud.fields.charName) ? String(sheetForCloud.fields.charName) : 'Character',
-        sheet: sheetForCloud,
-        updatedAt: serverTimestamp()
-      }, { merge: true });
+      const displayName = sanitizeCharName(sheetForCloud?.fields?.charName || 'Character');
+
+      await setDoc(
+        cloudDocRef,
+        {
+          schemaVersion: CHARACTER_SCHEMA_VERSION,
+          ownerUid: editingUid,
+          name: displayName,
+          sheet: sheetForCloud,
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true }
+      );
 
       setCloudStatus('Cloud: Saved');
     } catch (e) {
