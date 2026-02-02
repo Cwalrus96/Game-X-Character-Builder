@@ -1,0 +1,305 @@
+[
+  {
+    "classKey": "elementalist",
+    "name": "Elementalist",
+    "pitch": "The elementalist uses Spirit Energy to manipulate various forms of matter - traditionally water, fire, earth, and air.",
+    "examples": "Avatar: The Last Airbender, Fullmetal Alchemist, Gaara (Naruto)",
+    "hpProgression": "",
+    "primaryAttributeA": "",
+    "primaryAttributeB": "",
+    "combatTechniqueSkill": "",
+    "combatSkills": [],
+    "utilitySkillOptions": [],
+    "notes": "OUTDATED: table-based class data; update to universal class benefits + features."
+  },
+  {
+    "classKey": "henshin-hero",
+    "name": "Henshin Hero",
+    "pitch": "The Henshin Hero, similar to the Magical Guardian, has two forms. They spend most of their time in their average human forms, but transform for battle. The Henshin Hero is more combat oriented than the Magical Guardian, usually having some innate armor and weapons when they transform.",
+    "examples": "Ultraman, Kamen Rider, Super Sentai",
+    "hpProgression": "High",
+    "primaryAttributeA": "Strength",
+    "primaryAttributeB": "Heart",
+    "combatTechniqueSkill": "Henshin Arts",
+    "combatSkills": [
+      {
+        "name": "Henshin Arts",
+        "progression": "fast"
+      },
+      {
+        "name": "Mental Defense",
+        "progression": "slow"
+      },
+      {
+        "name": "Physical Defense",
+        "progression": "fast"
+      },
+      {
+        "name": "Spiritual Defense",
+        "progression": "medium"
+      }
+    ],
+    "utilitySkillOptions": [
+      "Athletics",
+      "Performance",
+      "Technology",
+      "Science",
+      "Vehicles"
+    ],
+    "notes": ""
+  },
+  {
+    "classKey": "magical-guardian",
+    "name": "Magical Guardian",
+    "pitch": "The Magical Guardian uses spirit energy to defend, heal, and enhance their allies. They are primarily a support class, and their magic can provide a wide range of utility.",
+    "examples": "Sailor Moon, Cardcaptor Sakura, Puella Magi Madoka Magica",
+    "hpProgression": "Low",
+    "primaryAttributeA": "Attunement",
+    "primaryAttributeB": "Heart",
+    "combatTechniqueSkill": "Spellcasting",
+    "combatSkills": [
+      {
+        "name": "Mental Defense",
+        "progression": "medium"
+      },
+      {
+        "name": "Physical Defense",
+        "progression": "slow"
+      },
+      {
+        "name": "Spellcasting",
+        "progression": "fast"
+      },
+      {
+        "name": "Spiritual Defense",
+        "progression": "fast"
+      }
+    ],
+    "utilitySkillOptions": [
+      "Spirituality",
+      "Performance",
+      "Medicine",
+      "Influence",
+      "Nature"
+    ],
+    "notes": ""
+  },
+  {
+    "classKey": "mech-pilot",
+    "name": "Mech Pilot",
+    "pitch": "The Mech Pilot class revolves around channeling their spiritual energy through technology - particularly a piloted robotic vehicle known as a mech.",
+    "examples": "Kamina (Gurren Lagann), Shinji (Evangelion), Amuro (Gundam)",
+    "hpProgression": "",
+    "primaryAttributeA": "",
+    "primaryAttributeB": "",
+    "combatTechniqueSkill": "",
+    "combatSkills": [],
+    "utilitySkillOptions": [],
+    "notes": "OUTDATED: table-based class data; update to universal class benefits + features."
+  },
+  {
+    "classKey": "metamorph",
+    "name": "Metamorph",
+    "pitch": "The Metamorph uses spiritual energy to modify their own bodies - either whole or in part - into new forms. These new forms include elemental transformations, bestial or alien forms, growing giant, changing their body’s composition to have new material properties, etc.",
+    "examples": "Titan Shifters (Attack on Titan), Luffy (One Piece - Rubber material), Ben 10, Kirby",
+    "hpProgression": "High",
+    "primaryAttributeA": "Strength",
+    "primaryAttributeB": "Willpower",
+    "combatTechniqueSkill": "Metamorphosis",
+    "combatSkills": [
+      {
+        "name": "Mental Defense",
+        "progression": "medium"
+      },
+      {
+        "name": "Metamorphosis",
+        "progression": "fast"
+      },
+      {
+        "name": "Physical Defense",
+        "progression": "fast"
+      },
+      {
+        "name": "Spiritual Defense",
+        "progression": "slow"
+      }
+    ],
+    "utilitySkillOptions": [
+      "Nature",
+      "Spirituality",
+      "Deception",
+      "Performance",
+      "Roguery"
+    ],
+    "notes": ""
+  },
+  {
+    "classKey": "monster-tamer",
+    "name": "Monster Tamer",
+    "pitch": "A monster tamer shares a special bond with one or more creatures that helps them both to grow stronger.",
+    "examples": "Ash (Pokemon), Tai (Digimon), Yugi Muto (Yu-Gi-Oh), Final Fantasy, etc.",
+    "hpProgression": "Medium",
+    "primaryAttributeA": "Willpower",
+    "primaryAttributeB": "Heart",
+    "combatTechniqueSkill": "Monster Taming",
+    "combatSkills": [
+      {
+        "name": "Mental Defense",
+        "progression": "fast"
+      },
+      {
+        "name": "Monster Taming",
+        "progression": "fast"
+      },
+      {
+        "name": "Physical Defense",
+        "progression": "slow"
+      },
+      {
+        "name": "Spiritual Defense",
+        "progression": "medium"
+      }
+    ],
+    "utilitySkillOptions": [
+      "Medicine",
+      "Nature",
+      "Influence",
+      "Athletics",
+      "Stealth"
+    ],
+    "notes": ""
+  },
+  {
+    "classKey": "ninja",
+    "name": "Ninja",
+    "pitch": "A character who uses spirit energy to enhance their stealth, deception, and infiltration. Ninjas are fast, tricky, mysterious, and deadly.",
+    "examples": "most characters from Naruto.",
+    "hpProgression": "Medium",
+    "primaryAttributeA": "Agility",
+    "primaryAttributeB": "Intellect",
+    "combatTechniqueSkill": "Ninjutsu",
+    "combatSkills": [
+      {
+        "name": "Mental Defense",
+        "progression": "fast"
+      },
+      {
+        "name": "Ninjutsu",
+        "progression": "fast"
+      },
+      {
+        "name": "Physical Defense",
+        "progression": "slow"
+      },
+      {
+        "name": "Spiritual Defense",
+        "progression": "medium"
+      }
+    ],
+    "utilitySkillOptions": [
+      "Athletics",
+      "Deception",
+      "Medicine",
+      "Roguery",
+      "Nature"
+    ],
+    "notes": ""
+  },
+  {
+    "classKey": "psychic",
+    "name": "Psychic",
+    "pitch": "The psychic primarily uses spirit energy to enhance their minds, not their bodies. They can use their minds to manipulate objects, read and project thoughts, and eventually even stop time.",
+    "examples": "Mob Psycho 100, Akira, Jojo’s Bizarre Adventure (Arguably)",
+    "hpProgression": "",
+    "primaryAttributeA": "",
+    "primaryAttributeB": "",
+    "combatTechniqueSkill": "",
+    "combatSkills": [],
+    "utilitySkillOptions": [],
+    "notes": "OUTDATED: table-based class data; update to universal class benefits + features."
+  },
+  {
+    "classKey": "spirit-warrior",
+    "name": "Spirit Warrior",
+    "pitch": "A Spirit Warrior channels Spirit Energy to enhance their physical abilities, and can also release their Spirit Energy in various forms of attack. Focuses on close-combat against a single target. High single-target damage and good bulk. Struggles more with multiple targets and ranged abilities.",
+    "examples": "Goku (Dragonball), Ryu (Street Fighter), Rock Lee (Naruto), Kenshiro (Fist of the North Star)",
+    "hpProgression": "High",
+    "primaryAttributeA": "Strength",
+    "primaryAttributeB": "Agility",
+    "combatTechniqueSkill": "Martial Arts",
+    "combatSkills": [
+      {
+        "name": "Martial Arts",
+        "progression": "fast"
+      },
+      {
+        "name": "Mental Defense",
+        "progression": "slow"
+      },
+      {
+        "name": "Physical Defense",
+        "progression": "fast"
+      },
+      {
+        "name": "Spiritual Defense",
+        "progression": "medium"
+      }
+    ],
+    "utilitySkillOptions": [
+      "Spirituality",
+      "Athletics",
+      "Medicine",
+      "Culinary",
+      "Insight"
+    ],
+    "notes": ""
+  },
+  {
+    "classKey": "weapon-master",
+    "name": "Weapon Master",
+    "pitch": "The weapon master is a master of weapons and armor. They use spirit energy to enhance their abilities both offensively and defensively. They channel energy through their weapons to perform incredible feats, such as slicing a boulder in half, deflecting bullets in midair, or swinging weapons with ease that a normal person couldn’t even lift. The weapon master focuses on battlefield control and multi-target damage. Their single-target damage isn’t bad, but doesn’t match up to classes that focus on single combat.",
+    "examples": "Goemon (Lupin III), Guts (Berserk), Rurouni Kenshin, Ichigo (Bleach)",
+    "hpProgression": "High",
+    "primaryAttributeA": "Strength",
+    "primaryAttributeB": "Agility",
+    "combatTechniqueSkill": "Melee Weapons, Targeting",
+    "combatSkills": [
+      {
+        "name": "Melee Weapons:Fast (Strength Primary)",
+        "progression": null
+      },
+      {
+        "name": "Medium (Agility Primary)",
+        "progression": null
+      },
+      {
+        "name": "Mental Defense",
+        "progression": "medium"
+      },
+      {
+        "name": "Physical Defense",
+        "progression": "fast"
+      },
+      {
+        "name": "Spiritual Defense",
+        "progression": "slow"
+      },
+      {
+        "name": "Targeting:Medium (Strength Primary)",
+        "progression": null
+      },
+      {
+        "name": "Fast (Agility Primary)",
+        "progression": null
+      }
+    ],
+    "utilitySkillOptions": [
+      "Athletics",
+      "Society",
+      "Influence",
+      "Observation",
+      "Crafting"
+    ],
+    "notes": ""
+  }
+]

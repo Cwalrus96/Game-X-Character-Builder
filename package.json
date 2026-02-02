@@ -1,0 +1,7 @@
+{
+  "name": "game-x-character-builder",
+  "private": true,
+  "scripts": {
+    "export:data": "node scripts/export-game-data.mjs data/game-x-class-data.xlsx public/data/game-x"
+  }
+}
