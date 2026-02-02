@@ -1,0 +1,1079 @@
+{
+  "henshin-hero": [
+    {
+      "type": "feature",
+      "classKey": "henshin-hero",
+      "level": 1,
+      "name": "Hero Transformation",
+      "description": "You have an object - such as a Crystal, Technological Device, a watch, or a weapon, that serves as your Transformation object. This object channels your energy, and allows you to transform into a powerful new form. As an action while holding this item you can transform into your Henshin Hero form. This transformation usually involves a costume change, the user being enveloped in energy, and possibly explosions. When you transform into your Hero form, increment your Power Die by 1, and you gain 1 Armor. You also gain the following ability:",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "henshin-hero",
+      "level": 1,
+      "name": "Inspiring Aura",
+      "description": "Your heroic presence and cinematic fighting style inspires your allies. While transformed, you have an aura that affects allies within 3 squares of you (including yourself). Allies in this aura gain a +1D Status Bonus to Mental Defense rolls. You leave this transformation when you drop to 0 HP, or you spend an action to transform back into your civilian form. Once you have transformed in this way, you cannot do so again until you take a short rest.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "optionGroup",
+      "classKey": "henshin-hero",
+      "level": 1,
+      "name": "Heroic Combat Training",
+      "description": "Choose one of the following combat skills: Targeting, Melee Weapons, or Martial Arts. You have a Medium skill progression in the chosen skill. If you choose Targeting or Melee Weapons, you gain 1 Rank 1 weapon that uses that skill.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null,
+      "chooseCount": 1,
+      "options": [
+        {
+          "classKey": "henshin-hero",
+          "level": 1,
+          "name": "Targeting",
+          "description": null,
+          "prereqs": null,
+          "grantsSkills": [
+            "Targeting"
+          ],
+          "grantsTechniques": [],
+          "grantsNotes": null,
+          "type": "option"
+        },
+        {
+          "classKey": "henshin-hero",
+          "level": 1,
+          "name": "Melee Weapons",
+          "description": null,
+          "prereqs": null,
+          "grantsSkills": [
+            "Melee Weapons"
+          ],
+          "grantsTechniques": [],
+          "grantsNotes": null,
+          "type": "option"
+        },
+        {
+          "classKey": "henshin-hero",
+          "level": 1,
+          "name": "Martial Arts",
+          "description": null,
+          "prereqs": null,
+          "grantsSkills": [
+            "Martial Arts"
+          ],
+          "grantsTechniques": [],
+          "grantsNotes": null,
+          "type": "option"
+        }
+      ]
+    },
+    {
+      "type": "optionGroup",
+      "classKey": "henshin-hero",
+      "level": 1,
+      "name": "Emblem",
+      "description": "Choose one of the following Emblems. This emblem represents the “theme” of your transformation. Each emblem provides a benefit to the user, as well as an aura that provides a benefit to allies near you.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null,
+      "chooseCount": 1,
+      "options": [
+        {
+          "classKey": "henshin-hero",
+          "level": 1,
+          "name": "Wild Animal",
+          "description": "This emblem takes the form of a wild animal such as a lion, shark, or eagle. You gain the following action: Mark Prey (1 Action) - You choose 1 creature you can see within 10 squares as your prey. That creature becomes “Marked”. Your attacks against the marked creature deal +3 damage. If you attempt to use this ability and already have a creature marked, the previous mark ends. Your enhanced animalist senses allow you to detect signs of danger - allies within your inspiring aura also gain a +1D Status Bonus to Observation.",
+          "prereqs": null,
+          "grantsSkills": [],
+          "grantsTechniques": [],
+          "grantsNotes": null,
+          "type": "option"
+        },
+        {
+          "classKey": "henshin-hero",
+          "level": 1,
+          "name": "Prehistoric Beast",
+          "description": "This emblem takes the form of an extinct prehistoric animal, such as a Dinosaur, Pteranodon, or Mammoth. Titanic Strength - You channel the massive strength and size of a prehistoric beast. Your scale is treated as +1 for the purposes of forced movement. Whenever you would forcibly push or pull another creature, increase the maximum distance by 1 square. When another creature would try to move you, you may choose to reduce that distance by 1 square. Allies in your inspiring aura gain a +1D Status Bonus to Athletics, as they channel the awe-inspiring strength of these ancient creatures.",
+          "prereqs": null,
+          "grantsSkills": [],
+          "grantsTechniques": [],
+          "grantsNotes": null,
+          "type": "option"
+        },
+        {
+          "classKey": "henshin-hero",
+          "level": 1,
+          "name": "Mythical Creature",
+          "description": "This emblem takes the form of a legendary being such as a dragon, phoenix, or unicorn. You gain the following reaction:",
+          "prereqs": null,
+          "grantsSkills": [],
+          "grantsTechniques": [
+            "Mythic Rebirth"
+          ],
+          "grantsNotes": null,
+          "type": "option"
+        },
+        {
+          "classKey": "henshin-hero",
+          "level": 1,
+          "name": "Insect",
+          "description": "This emblem takes the form of an inconspicuous and adaptable insect, such as a Stag Beetle, Grasshopper, or Butterfly. You gain the following ability:\n\nExtra: Beetle Armor - You gain Armor 5 to Bleeding and Poison\nAllies in your inspiring aura gain a +1D status bonus to stealth, as your aura helps camouflage them into their surroundings.",
+          "prereqs": null,
+          "grantsSkills": [],
+          "grantsTechniques": [],
+          "grantsNotes": null,
+          "type": "option"
+        },
+        {
+          "classKey": "henshin-hero",
+          "level": 1,
+          "name": "Element",
+          "description": "This emblem takes the form of a primal element, such as Water, Fire, Earth, or Wind. Choose one of these elements. You gain Rank 1 (Beginner) training in the Elementalism skill using the chosen element, and a “Slow” skill progression with this skill. See the “Elemental Powers” section for details. Allies in your inspiring aura gain Armor 5 against attacks with the chosen element trait.",
+          "prereqs": null,
+          "grantsSkills": [],
+          "grantsTechniques": [],
+          "grantsNotes": null,
+          "type": "option"
+        },
+        {
+          "classKey": "henshin-hero",
+          "level": 1,
+          "name": "Vehicle",
+          "description": "This emblem takes the form of a mechanical vehicle, such as a race-car, fire-truck, or fighter jet. You gain a Rank 1 Vehicle (see the “Vehicles” section for details). While transformed into your Hero form, you can summon your vehicle to you using an action. If you do so, it appears in the nearest unoccupied location to you that is large enough to fit the vehicle. Channeling the speed of a motorized vehicle, allies that start their turns in your aura gain +2 movement speed that turn.",
+          "prereqs": null,
+          "grantsSkills": [],
+          "grantsTechniques": [],
+          "grantsNotes": null,
+          "type": "option"
+        },
+        {
+          "classKey": "henshin-hero",
+          "level": 1,
+          "name": "Ancient Warriors",
+          "description": "This emblem takes the form of a legendary warrior from history, such as a Samurai, Knight, or Gladiator. You gain the following action: Know your Enemy - Channeling the spirit of highly trained warriors, you can adapt to any fighting style. Whenever you critically fail an attack against an enemy, you may make an “Analyze Enemy” investigation action against that creature (no action required). Bolstered by the discipline of these ancient warriors, allies in your Inspiring Aura gain immunity to the charmed,  frightened, and taunted conditions.",
+          "prereqs": null,
+          "grantsSkills": [],
+          "grantsTechniques": [],
+          "grantsNotes": null,
+          "type": "option"
+        }
+      ]
+    }
+  ],
+  "magical-guardian": [
+    {
+      "type": "feature",
+      "classKey": "magical-guardian",
+      "level": 1,
+      "name": "Guardian Transformation",
+      "description": "As an action while holding your Guardian Accessory, you can speak your transformation phrase to transform into your Magical Guardian form. This transformation usually involves a costume change, the user being enveloped in bright light, and cool particle effects. When you activate your Guardian Transformation, increment your Power Die by 1. You also gain a number of “Charms” equal to your Primary Attribute. When an ally you can see makes a defense roll, you may choose to spend one “Charm” to add +1D to that ally’s roll (after seeing the result of their roll, but before determining the outcome). You can also spend an action to touch a willing creature and expend any number of “Charms” to heal that creature by 5 times the number of charms spent. Once you’ve transformed into your guardian form, you can’t do so again until you take a short rest.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "optionGroup",
+      "classKey": "magical-guardian",
+      "level": 1,
+      "name": "Guardian Accessory",
+      "description": "You have an important object - maybe an old family heirloom, personal treasure, or mysterious artifact given by a stranger. This object channels your energy, and allows you to transform.When you transform, your Accessory changes into one of the following forms.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null,
+      "chooseCount": 1,
+      "options": [
+        {
+          "classKey": "magical-guardian",
+          "level": 1,
+          "name": "Dazzling Wand",
+          "description": "Your transformation item takes the form of a beautiful, ornate wand. You learn 1 additional Guardian Spell.",
+          "prereqs": null,
+          "grantsSkills": [],
+          "grantsTechniques": [],
+          "grantsNotes": null,
+          "type": "option"
+        },
+        {
+          "classKey": "magical-guardian",
+          "level": 1,
+          "name": "Shining Weapon",
+          "description": "Choose a Rank 1 weapon - your Transformation Item takes the form of a glowing, ethereal weapon of that type. If you choose a Melee Weapon, you gain Beginner training in the Melee Weapons skill for that weapon. If you choose a Ranged Weapon, you gain Beginner training in Targeting for that weapon. Whichever option you chose, you gain a “Slow” progression in that skill.",
+          "prereqs": null,
+          "grantsSkills": [],
+          "grantsTechniques": [],
+          "grantsNotes": null,
+          "type": "option"
+        },
+        {
+          "classKey": "magical-guardian",
+          "level": 1,
+          "name": "Magnificent Gadget",
+          "description": "Choose a skill you have at least Beginner training in. Your Transformation Object takes a form related to that skill. For example, if you choose the “Medicine” skill, it may transform into a Stethoscope. While holding the object, you have a +1D Item bonus to all rolls using that skill.",
+          "prereqs": null,
+          "grantsSkills": [],
+          "grantsTechniques": [],
+          "grantsNotes": null,
+          "type": "option"
+        }
+      ]
+    },
+    {
+      "type": "feature",
+      "classKey": "magical-guardian",
+      "level": 1,
+      "name": "Magical Familiar",
+      "description": "You have a magical familiar. This familiar may be a magical spirit who grants you powers, a pet who is transformed by your magical abilities, or any number of other whimsical beasts. Create a Rank 0 Familiar using the Familiar Subsystem.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    }
+  ],
+  "metamorph": [
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Metamorphic Transformations",
+      "description": "You know one of the following forms. You can choose to transform into your chosen form as an action. Each form has a number of unique adaptations, and you can choose which adaptations to activate when you transform. You may only have one of these forms active at a time. While transformed, you may spend an action to modify your chosen adaptations, or to switch into a different form (if you have multiple forms known).",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Beast Form",
+      "description": "You take on the properties of animals and beasts. When you transform into this form, choose 2 of the following adaptations: Gliding: You do not take damage from falling. For every square you fall, you may also move horizontally 1 square. Tough Hide: You gain 1 armor. Spikes: Your body is covered in dangerous spikes. Whenever an enemy deals Melee damage to you, they also take damage equal to 1 + your Metamorphosis Rank. Savage Claws: Your melee attacks deal additional damage equal to 1 + your Metamorphosis Rank. Enhanced Senses: You gain a +1D bonus to Perception, and you know the location of creatures within 10 squares of you (even if you cannot see them). Creatures you cannot see are Obscured but not Concealed. Amphibious: You can breathe both air and water, and gain a swim speed equal to your movement speed. Climber: You gain a climbing speed and can move freely on vertical surfaces. Burrower: You gain a burrowing speed equal to half your movement speed. Quadrupedal: You gain +2 Movement Speed Natural Camouflage: You gain a +1D Bonus to Stealth. You are Obscured to Ranged attacks.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Material Form",
+      "description": "Your body takes on the properties of various materials. When you transform, choose 2 of the following adaptations: Elastic: Your melee attacks gain +1 reach. High Density: Whenever you would be pushed or pulled, reduce the distance by 2 squares. Magnetic: You can push and pull nearby metal objects. Metal weapons have a -1D penalty to attacks against you. If you hit a creature made of metal (or wearing metal armor) with an attack, you can push that creature a number of squares away from you equal to your Metamorphosis rank. Liquid: You can squeeze through small openings and cracks, and can share spaces with other creatures. Slippery: You cannot be immobilized. Sticky: When you succeed on a melee attack against a single target, you may choose to have that creature become grappled. Variable Hardness: When you take damage, gain 1 armor until the beginning of your next turn. If you take damage while you already have an armor bonus due to this ability, increase that bonus by 1.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Elemental Form",
+      "description": "Your body takes on the properties of various elemental powers. Choose one of the following elements: Water, Fire, Earth, Air, Metal, Ice, Electricity. You gain the following traits for that element: Elemental Resistance: You gain Armor 5 against attacks with the chosen trait. Elemental Strikes: Your attacks gain the chosen trait, and have the “Attack Modifiers” of that element (see the Elemental Powers Subsystem).",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Monstrous Mimicry",
+      "description": "If you are in a square adjacent do a defeated enemy whose Threat Level is less than or equal to your Level, you may spend 1 action to absorb that enemy’s spirit energy. If you do so, you can temporarily transform into a copy of that enemy. This transformation lasts until the end of the combat, or until you spend an action to transform again. TBD - Need Willpower / Strain Hooks",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Higher Level Features",
+      "description": "Elemental movement: gain a movement ability based on the element (flight for air, swimming for water, some may be more difficult to come up with). Elemental Bubble: surround an enemy with a bubble of the element Elemental Beam: A line of elemental power Elemental Aura: The user is surrounded by an aura of elemental energy Careful Elements: You can choose certain creatures to be unaffected by your elemental abilities. Elemental Burst: An AOE elemental ability centered on the user Elemental Wall: Create a barrier made of the element Elemental Immunity: Immunity to damage from the element Elemental Healing: Can absorb element to restore HP Energizing Elements: Can absorb element to gain Energy Elemental Transmutation: Convert one element to another (e.g. wood to earth, metal to water, etc) Elemental Destruction: Destroy / vanish a certain amount of the element from existence Conjure Element: Produce a certain amount of the element from nothing Elemental Storm: A large, damaging “storm” of the element Elemental Transformation: Transform yourself into a new form, where you are entirely made of the element Elemental Teleportation: Teleport through the element, from one instance to another Elemental Summoning: Create a creature made of the corresponding element Elemental Domination: Control and manipulate creatures with the corresponding elemental tag Advanced Element: Gain access to an advanced form of an element you can control Combined Element: Gain access to a new element, formed from a combination of two elements you can control Notes: Should Elementalists be able to perform Elemental Telekinesis without spending Energy (while other classes *do* require energy)?",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Basic Rules",
+      "description": "A mech is a giant robot, usually humanoid, that is piloted by one or more characters.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Mental Link",
+      "description": "The mech is controlled by a neural link - while the pilot is in the cockpit, their brainwaves are monitored and integrated directly into the mech’s controls. This allows for incredibly fast and precise maneuvering, and also prevents anyone other than the pilot from controlling the mech. However, the link goes both ways - any damage suffered by the mech is also suffered by the pilot. This is represented by the mech and pilot having a shared pool of HP.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Mech Storage",
+      "description": "The pilot can store the mech when not in use, and summon it as needed. Example forms of storage include shrinking the mech down to the size of an action figure, storing it in an extradimensional plane, or teleporting it to a storage hangar. Regardless of the method chosen, it always requires a single action to summon or banish the mech. It also takes an action to enter or exit the mech, but this can be done as part of the same action in which the mech is summoned or banished.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Mech Actions and Abilities",
+      "description": "Your mech has a roughly humanoid shape, and is assumed to be able to perform any action a normal human can perform - no check required. However, actions that require fine motor control or interacting with small objects may require a check. They can also perform any special actions that the pilot has access to, as long as that action does not require touch or line of effect. While inside the mech the pilot is enclosed, and line of effect is broken. This also means that the pilot cannot be affected by abilities that require touch or “line of effect” cannot target the pilot (but may target the mech, if applicable). Because the mech is scale 2 or larger, equipment such as weapons and armor that are designed for Scale 1 creatures cannot be used by the mech. While piloting the mech, the pilot is assumed to retain any skills, stats, and abilities that aren’t explicitly modified or overwritten by the mech. Whether it is reasonable for them to be able to use a given ability while piloting is up to the GM.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Standard Features",
+      "description": "The mech is assumed to have a number of standard features including an airtight climate controlled cabin, speakers and wireless capabilities for communication.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Mech Frames",
+      "description": "A mech frame determines the basic size, shape, and stats for the mech.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "GD-MS Genesis-01 Frame",
+      "description": "Scale: 2 Speed: 7 squares movement Upgrade Slots: 2 Strength: +2 Agility: -1 Hit Points: +20 Armor: +1 Damage Weakneses: TBD Damage Resistances: TBD Tags: Technology +1D Equipment Bonus to Physical and Spiritual Defenses",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Giant Weapon",
+      "description": "Your mech gains a Rank 1 weapon. This weapon is large enough to be used by the mech, meaning that it is too large to reasonably be used by a normal scale 1 humanoid. The mech also learns 1 Weapon Technique that the weapon qualifies for.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Martial Mech",
+      "description": "The Mech can perform Martial Arts Techniques, using the Pilot’s Driving Skill, and learns a single Rank 1 technique.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Grappling Hook",
+      "description": "Your mech has a built-in grappling hook. As an action, you can launch the hook a number of squares equal to 4 times your Scale and reel in the grappling hook. If your target is a creature, you must make an Agility (Targeting) test against their physical defense. If the target’s scale is less than yours, it is pulled towards you. If its scale is greater than yours, you are pulled towards it. If your scale is equal to the target’s, you choose.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Targeting Computer (Beginner)",
+      "description": "Your mech has an integrated computer aiming system that helps with ranged attacks. You can use your “Technology” skill for rolls that normally use “Targeting”.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Reinforced Frame (Beginner)",
+      "description": "Thick metal plating that makes the mech more durable - increasing HP bonus or granting additional armor.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Firewalls (Beginner)",
+      "description": "Grants a +1D equipment bonus against attempts to hack the mech or otherwise interfere with its electronic components",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Jump Thrusters",
+      "description": "The mech gains a set of boosters that grant it a limited form of flight - more akin to enhanced jumps. During your movement you can spend X Energy to fly up to X squares. This distance still counts against your normal movement. If you are not on a stable surface when this flight ends, you fall.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Hexapede Chassis",
+      "description": "The mech has 6 legs instead of 2, granting it additional mobility and stability. It gains +1 movement, ignores difficult terrain, and cannot be knocked prone. However, it cannot jump.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Amphibious Hull",
+      "description": "Your mech is adapted to be able to operate underwater. It is watertight, provides a steady supply of breathable air, and is reinforced to withstand underwater pressures. The mech can operate underwater with no penalties, and has a swim speed equal to its movement speed.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Integrated Weapon",
+      "description": "A one-handed, mech-scale weapon is built directly into the mech’s chassis. This weapon does not require the mech’s hand(s) to operate, and does not require any actions to draw or stow.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Additional Arms",
+      "description": "Your mech has 4 arms instead of 2. The additional arms have all the functionality of normal arms - they can carry objects, perform attacks, manipulate the environment, etc.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Rocket Punch",
+      "description": "When making unarmed strikes with your mech, you can propel the mech’s fist forward to increase the power and distance of the attack. You can spend 2X energy to increase the distance by 2X and the damage by X.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Pile Bunker",
+      "description": "Your mech has the ability to launch a powerful, armor piercing spike, which is integrated with one of their arms. Tags: Reach 1, one-handed, sharp, Integrated Basic Attack: (1 Action + X Energy). Strength(Melee Weapons) or Strength(Martial Arts) vs Physical Defense. Melee, 1 target. Damage: 7 + Hits. Ignores 2X points of armor.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Chest Beam (Advanced)",
+      "description": "The mech has a powerful integrated beam, which it can use to consolidate and launch all of its energy in a concentrated beam Tags: Energy, Integrated Basic Attack: (1 Action + X Energy). Agility (Targeting) vs Spiritual Defense. Area - 1 by 5 squares. Damage: 5 + Hits + X.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Rocket Barrage (Advanced)",
+      "description": "The mech launches a swarm of rockets, peppering an entire area of the battlefield. Tags: Explosive, Volley, Integrated Basic Attack: (2 Actions + X Energy). Agility (Targeting) vs Physical Defense. Area - 3 by 3 squares. Damage: 6 + Hits + X",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Energy Barrier",
+      "description": "The mech has a protective forcefield that protects it from energy-based attacks. When you would take damage from an attack that targets spiritual defense, you may spend X energy to prevent up to X points of that damage (no action required).",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Psionic Shielding",
+      "description": "The mech has a special layer of integrated shielding that interferes with incoming psionic attacks. Add +1 to the pilot’s Mental Defense while inside the mech.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Flight Systems",
+      "description": "The mech gains a flying speed equal to its ground movement speed.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Electronic Jammer",
+      "description": "The mech can project an electrical field that interferes with the electronic systems around it. This affects a 3 square aura around the mech. All actions with the “electronic” tag, or performed by a creature with the “electronic” tag, take a -1D Circumstance penalty while within the aura. Requires 1 action and 2 energy to activate, and 2 energy per turn to sustain.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Sensor Suite (Advanced)",
+      "description": "The mech’s sensors are upgraded to be able to view different spectrums, including infrared and spiritual energy signatures. You know the location of invisible enemies, and enemies behind less than 1 square of full cover.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Self-Repairing Nanites (Master)",
+      "description": "The mech is constructed of millions of tiny nanomachines, which can operate independently and repair damaged parts. The mech regains 5 HP at the end of each of its turns.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Spaceflight (Higher Rank than Flight)",
+      "description": "Combination ability - can form a larger robot by combining with other Mechs / Vehicles Remote Control Drones (e.g. “Bits” and “Funnels”). What’s actually the difference? “Bit Suits” - Additional Remote Controlled mecha that can be controlled simultaneously (upgrade to “Bits” or “Funnels”)? A.T. Field Projector - Shield tied to Strain, instead of Energy? Berserk Mode - lose control of mech, deals high damage. Consequence of overstrain while using A.T. Field? Special Generator - Provides energy, or reduces energy costs? E.g. “S2 engine”",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Future-Predicting Computer Interface",
+      "description": "“Spiral Power Converter” - Converts Willpower into Energy for the mech?",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Size Increases",
+      "description": "Rocket Barrage - Launch a bunch of rockets.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Extendable Arms",
+      "description": "Med Bay - Can board and heal another player (requires min scale 3?) Thrusters - Temporary Movement Speed boost? Extended Shield Projectors - larger area shields that protect nearby allies as well as the mech itself? Overclocked / Boosted State - A high powered mode (e.g. “Trans-am”) that temporarily improves the mech’s performance at the expense of Strain",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "metamorph",
+      "level": 1,
+      "name": "Giga-Drill - Giant drill that can bust through any obstacle",
+      "description": "Mech-Ception - The mech gets a larger mech that it can pilot from inside? Meta-Mech - The mech is surrounded by a powerful aura of energy, that coalesces into the form of a bigger mech",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    }
+  ],
+  "monster-tamer": [
+    {
+      "type": "feature",
+      "classKey": "monster-tamer",
+      "level": 1,
+      "name": "Monster Companion",
+      "description": "You have a Familiar - a creature formed from a strong bond and the power of your spirit energy. Use the Familiar Subsystem to determine the statistics for your familiar. You can choose any archetype and template, as well as 2 Rank 1 or lower Familiar Traits.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "monster-tamer",
+      "level": 1,
+      "name": "Creature Summoning",
+      "description": "As an action, you can choose to summon or dismiss your bonded creature. When your creature is not summoned they may disappear to another dimension, or they may be stored in a physical object (such as an orb, figurine, or a card). Your creature disappears when it drops to 0 hit points, and it cannot be summoned again until you take a short rest.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "monster-tamer",
+      "level": 1,
+      "name": "Beginner Monster Taming",
+      "description": "You gain Rank 1 (Beginner) training in the “Monster Taming” skill. This skill can be used to perform the following action: Tame Monster (1 Action) - Charisma (Monster Taming) vs Mental Defense. Targets 1 adjacent creature. If the creature does not have the “Monster” tag, they automatically succeed on their defense roll against this ability. On a failed defense roll, the creature’s attitude towards you increases by 1 stage (e.g. from Hostile to Neutral, or Neutral to Friendly). On a critical failure, the creature’s attitude towards you becomes friendly, and it is willing to fight for you. This effect ends if you or your allies take any hostile actions towards the creature. You can also make “Investigate Enemy” actions using Intellect (Monster Taming). If you do so, you can ask the question “Can I tame this enemy”, in addition to the normal questions available to the “Investigate Enemy” action.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "monster-tamer",
+      "level": 1,
+      "name": "Tamer Bond",
+      "description": "You have a Rank 1 Bond with your Monster Companion. This bond increases automatically as you level up, and is always equal to your Monster Taming skill Rank. If you have multiple Monster Companions, they are considered to have a bond of this same rank with each other. This bond also applies towards any Monsters that critically failed against your “Tame Monster” action. You gain 1 Bond Technique.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    }
+  ],
+  "ninja": [
+    {
+      "type": "optionGroup",
+      "classKey": "ninja",
+      "level": 1,
+      "name": "Ninja Combat Training",
+      "description": "Choose one of the following combat skills: Targeting, Melee Weapons, or Martial Arts. You have a Medium skill progression in the chosen skill. If you chose Targeting or Melee Weapons, you gain 1 Rank 1 weapon that uses that skill.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null,
+      "chooseCount": 1,
+      "options": [
+        {
+          "classKey": "ninja",
+          "level": 1,
+          "name": "Targeting",
+          "description": null,
+          "prereqs": null,
+          "grantsSkills": [
+            "Targeting"
+          ],
+          "grantsTechniques": [],
+          "grantsNotes": null,
+          "type": "option"
+        },
+        {
+          "classKey": "ninja",
+          "level": 1,
+          "name": "Melee Weapons",
+          "description": null,
+          "prereqs": null,
+          "grantsSkills": [
+            "Melee Weapons"
+          ],
+          "grantsTechniques": [],
+          "grantsNotes": null,
+          "type": "option"
+        },
+        {
+          "classKey": "ninja",
+          "level": 1,
+          "name": "Martial Arts",
+          "description": null,
+          "prereqs": null,
+          "grantsSkills": [
+            "Martial Arts"
+          ],
+          "grantsTechniques": [],
+          "grantsNotes": null,
+          "type": "option"
+        }
+      ]
+    },
+    {
+      "type": "feature",
+      "classKey": "ninja",
+      "level": 1,
+      "name": "Exceptional Stealth",
+      "description": "Your Stealth Skill is exceptional - you get Advanced training at level 1, and you are allowed to train the Stealth skill up to 1 rank higher than the standard skill rank cap.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "ninja",
+      "level": 1,
+      "name": "Stealth Attack",
+      "description": "If you make an attack against a single target while Concealed to that target, increase the degree of success by 1.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    }
+  ],
+  "spirit-warrior": [
+    {
+      "type": "feature",
+      "classKey": "spirit-warrior",
+      "level": 1,
+      "name": "Reactive Strikes",
+      "description": "When an enemy leaves your melee range, you can use a reaction to make a Martial Arts attack against that enemy. On a success, the target’s movement ends (in addition to the attack’s other effects).",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "spirit-warrior",
+      "level": 1,
+      "name": "Martial Arts Specialist",
+      "description": "Choose one “Martial Arts Tag” from those listed in the Martial Arts section of the document. You gain a +1D specialization bonus when performing a technique with the chosen tag.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "spirit-warrior",
+      "level": 1,
+      "name": "Combo System",
+      "description": "Your mastery of Martial Arts allows you to string multiple techniques together to perform devastating combos. To perform a combo, you must declare all of the techniques you wish to perform, the targets of those techniques, and spend 3 actions and any required energy up-front. If you do so, the entire combo is treated as a single Activity, and therefore does not suffer from any repeated action penalties. A combo must start with an “Opener”, can contain any number of “Follow-Up”s, and may end with a “Finisher”. It is not required for a combo to contain all three types of moves - the only restrictions are that it must begin with an Opener, and if a finisher is used it must be at the end of the combo. At level 1, if you choose to perform a combo you must spend all 3 actions to do so.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "spirit-warrior",
+      "level": 1,
+      "name": "Warrior’s Mark",
+      "description": "When you hit an enemy with a melee attack, you can choose to mark that enemy as your chosen target. Only 1 enemy may be marked this way at a time, and you cannot switch targets until the current target is knocked out or surrenders. While an enemy is marked in this way, both you and the enemy have a -1D status penalty to attack anyone besides the other. Also, you may make a reactive strike against the marked enemy if they attack a target other than you.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "optionGroup",
+      "classKey": "spirit-warrior",
+      "level": 1,
+      "name": "Stances",
+      "description": "Your character knows 2 of the following Stances.. Each stance grants a passive benefit, as well as a drawback. Entering a stance, or switching between stances, requires an action.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null,
+      "chooseCount": 2,
+      "options": [
+        {
+          "classKey": "spirit-warrior",
+          "level": 1,
+          "name": "Emulate the steadfastness of the tortoise - slow but sturdy",
+          "description": "Passive: Gain +1D Status Bonus to all defenses. If you would be pushed or pulled by an enemy ability, reduce the number of squares of movement by your Martial Arts rank. Drawback: Your Speed is halved, and you take a -1D status penalty to attacks.",
+          "prereqs": null,
+          "grantsSkills": [],
+          "grantsTechniques": [],
+          "grantsNotes": null,
+          "type": "option"
+        },
+        {
+          "classKey": "spirit-warrior",
+          "level": 1,
+          "name": "Tiger Stance",
+          "description": "Strike with the single-minded ferocity of a hunting tiger. Passive: Add +2 damage to all unarmed strikes Drawback: When you enter this stance you gain the “off guard 1” condition, and this condition cannot be cleared as long as you are in this stance.",
+          "prereqs": null,
+          "grantsSkills": [],
+          "grantsTechniques": [],
+          "grantsNotes": null,
+          "type": "option"
+        },
+        {
+          "classKey": "spirit-warrior",
+          "level": 1,
+          "name": "Shark Stance",
+          "description": "Channel the surging speed of a shark, endlessly chasing its prey. Passive: Increase your movement speed by 2. You gain a +1D circumstance bonus to dodge rolls. Drawback: You cannot use “grapple” techniques, and must use at least half of your movement each turn, if possible.",
+          "prereqs": null,
+          "grantsSkills": [],
+          "grantsTechniques": [],
+          "grantsNotes": null,
+          "type": "option"
+        },
+        {
+          "classKey": "spirit-warrior",
+          "level": 1,
+          "name": "Crane Stance",
+          "description": "Soar and gently float, like a majestic but fragile crane. Passive: You may expend your movement to perform incredible leaps. You may leap to a maximum height equal to half your movement (rounded down). While in this stance, you do not take fall damage. Drawback: You have a -1D penalty to resist being pushed, pulled, or grappled. When you would be pushed or pulled, you are moved 1 additional square.",
+          "prereqs": null,
+          "grantsSkills": [],
+          "grantsTechniques": [],
+          "grantsNotes": null,
+          "type": "option"
+        },
+        {
+          "classKey": "spirit-warrior",
+          "level": 1,
+          "name": "Python Stance",
+          "description": "Restrain and crush your enemies like a powerful constrictor snake. Passive: You gain a +1D status bonus to techniques with the “grapple” tag, you can grapple creatures up to 2 scales larger than you, and moving while grappling does not cost extra movement. Drawback: You cannot use techniques with the “aerial” or “mobile” tags.",
+          "prereqs": null,
+          "grantsSkills": [],
+          "grantsTechniques": [],
+          "grantsNotes": null,
+          "type": "option"
+        },
+        {
+          "classKey": "spirit-warrior",
+          "level": 1,
+          "name": "Gorilla Stance",
+          "description": "Like a cornered silverback, you lash out against multiple enemies surrounding you. Passive: When you perform a technique with the “flurry” or “push” tags, you may perform 1 additional unarmed strike or shove on a different target. Your Martial Arts rank is treated as 1 lower for the purpose of this additional attack. Drawback: You cannot mark enemies, and all current marks end.",
+          "prereqs": null,
+          "grantsSkills": [],
+          "grantsTechniques": [],
+          "grantsNotes": null,
+          "type": "option"
+        }
+      ]
+    }
+  ],
+  "weapon-master": [
+    {
+      "type": "feature",
+      "classKey": "weapon-master",
+      "level": 1,
+      "name": "Soulbound Weapon",
+      "description": "You have a special connection with a particular weapon, and can easily channel your spirit energy through it. You gain a level 1 weapon of your choice. You gain a Specialization in the chosen weapon type (+1D Specialization Bonus). The weapon gains the “soulbound” enhancement (This enhancement does not count towards your weapon’s enhancement slots). Its rank automatically increases, and is always equal to the rank of the skill used to attack with this weapon.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "weapon-master",
+      "level": 1,
+      "name": "Soulbound",
+      "description": "As an action, you can cause the weapon to teleport from its current location and materialize in your hands, or disappear into a higher-dimensional space. This enhancement CANNOT be removed or exchanged by abilities that allow you to modify your weapon’s enhancements. A soulbound weapon does not take up a weapon slot.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "weapon-master",
+      "level": 1,
+      "name": "Weapon Enhancement",
+      "description": "Your soulbound weapon is no ordinary weapon. Choose one additional Level 1 weapon enhancement (from the “Weapon” section) to apply to your Soulbound Weapon.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "weapon-master",
+      "level": 1,
+      "name": "Fighting Styles",
+      "description": "Choose one of the following fighting styles. Each style has a prerequisite, based on your chosen Soulbound weapon. Each fighting style provides a passive buff to weapons of that type, and a recommended technique that fits the style.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "weapon-master",
+      "level": 1,
+      "name": "Sentinel Style",
+      "description": "Prerequisite: Soulbound Weapon with 'Reach 2+' tag. Sweet-spot : When you hit a creature that is not adjacent to you with a melee attack using a weapon with the 'Reach 2+' tag, you deal an additional amount of damage equal to 2 times your Melee Weapons Skill Rank. Recommended Technique: Keep At Bay",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "weapon-master",
+      "level": 1,
+      "name": "Paired Weapons Style",
+      "description": "Prerequisites: Soulbound weapon with the “One-handed” tag Two-point defense: You gain access to an additional Rank 1 weapon with the one-handed trait. While wielding a one-handed weapon in both hands, Treat the number of enemies adjacent to you as one fewer for the purposes of flanking. Techniques: Dual-Strike",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "weapon-master",
+      "level": 1,
+      "name": "Barrage Style",
+      "description": "Prerequisites: Soulbound Weapon with the 'Thrown' tag. Passive Benefit: While wielding a thrown weapon, all thrown weapons you wield gain the 'Returning' tag for as long as you wield them and have this fighting style. Recommended Technique: Spread Volley",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "weapon-master",
+      "level": 1,
+      "name": "Marksman Style",
+      "description": "Prerequisites: Soulbound Weapon with the 'Ranged' tag. Sharpshooter’s aim: When you take the “Aim” action, also double the range of your ranged weapon attacks. Recommended Technique: Piercing Shot",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "weapon-master",
+      "level": 1,
+      "name": "Skirmisher Style",
+      "description": "Prerequisites: Soulbound Weapon with the 'Ranged' or ‘Thrown’ tag. Point-Blank Proficiency: You do not provoke reactions from creatures when making a ranged or thrown attack while adjacent to them. You also do not take a -1D penalty to these attacks while adjacent to a hostile creature. Recommended Technique: Slowing Shot",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "weapon-master",
+      "level": 1,
+      "name": "Titan Style",
+      "description": "Prerequisites: Soulbound Weapon with the “Heavy” or “Two-Handed” tag. Armor Breaker: When you deal a critical success to a creature with a melee attack using a weapon with the 'Heavy' tag, that creature suffers a -1D penalty to their Physical Defense until the end of their next turn. Recommended Technique: Devastating Blow",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "weapon-master",
+      "level": 1,
+      "name": "Guardian Style",
+      "description": "Prerequisite: Soulbound Weapon with the 'Defensive' tag Vigilant Defense: When you use the “Parry” reaction, you gain a +1D bonus to all other defense rolls until the end of your next turn. Recommended Technique: Protective Parry",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "weapon-master",
+      "level": 1,
+      "name": "Smasher Style",
+      "description": "Prerequisite: Soulbound Weapon with the 'Blunt' tag. Bash: Your blunt weapons gain the “Bash” Alternative Use: Alternative Use - Bash: You swing your weapon to knock away your enemies. On a failure, push the target back 1 square. On a success, push the target 1 additional square for every hit that exceeds their Defense. Recommended Technique: Armor Crusher",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "weapon-master",
+      "level": 1,
+      "name": "Blademaster Style",
+      "description": "Prerequisite: Soulbound weapon with the 'Sharp' tag. Exploit Vulnerability: Bleeding enemies have a -1D penalty to defenses against your attacks Recommended Technique: Vicious Rend",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    },
+    {
+      "type": "feature",
+      "classKey": "weapon-master",
+      "level": 1,
+      "name": "Heart Stealer",
+      "description": "Whenever you drop an enemy creature to 0 hit points, you regain a number of hit points equal to your Strength + Your Level.",
+      "prereqs": null,
+      "grantsSkills": [],
+      "grantsTechniques": [],
+      "grantsNotes": null
+    }
+  ]
+}
