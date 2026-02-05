@@ -18,13 +18,25 @@
 /** @type {BuilderStep[]} */
 export const BUILDER_STEPS = [
   {
+    // Historical note: this id used to represent "Level & Attributes".
+    // We keep the stable id for compatibility with existing visitedSteps data.
     id: "basics",
-    title: "Level & Attributes",
+    title: "Name + Profile",
     path: "builder.html",
   },
+  {
+    id: "class",
+    title: "Class",
+    path: "builder-class.html",
+  },
+  {
+    id: "attributes",
+    title: "Attributes",
+    path: "builder-attributes.html",
+  },
 
-  // Add new steps here, e.g.:
-  // { id: "class", title: "Choose Class", path: "builder-class.html" },
+  // Add new steps here later, e.g.:
+  // { id: "techniques", title: "Techniques", path: "builder-techniques.html" },
 ];
 
 /**

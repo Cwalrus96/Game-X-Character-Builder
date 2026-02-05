@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game X — Character Builder (Class)</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="builder.css" />
+  </head>
+  <body>
+    <div class="topbar">
+      <div>
+        <a class="btn" href="characters.html">← Characters</a>
+        <span class="muted" id="gmHint" style="display:none; margin-left: 8px;"></span>
+      </div>
+      <div class="right">
+        <span class="muted" id="whoami">Loading…</span>
+        <button id="signOutBtn" class="btn" style="display:none; margin-left: 8px;">Sign out</button>
+      </div>
+    </div>
+
+    <main class="builder" data-builder-step="class">
+      <header class="builderHeader">
+        <div>
+          <h1>Character Builder</h1>
+          <p class="muted" id="status">Loading…</p>
+          <p class="error" id="error" style="display:none"></p>
+        </div>
+        <div id="builderNav"></div>
+      </header>
+
+      <section class="card">
+        <h2>Step 2 — Choose Class</h2>
+
+        <div class="grid2">
+          <div>
+            <label class="label" for="classSearch">Search</label>
+            <input id="classSearch" class="input" type="text" placeholder="Type to filter…" />
+            <p class="help">Some classes are shown but disabled until their data is complete.</p>
+
+            <div id="classList" class="classGrid" style="margin-top: 10px;"></div>
+          </div>
+
+          <div>
+            <div id="classDetails" class="classDetails muted">
+              Select a class to see details.
+            </div>
+
+            <div id="classDisabledBanner" class="classDisabledBanner" style="display:none; margin-top: 12px;">
+              <strong>This class is not selectable yet.</strong>
+              <div class="muted" style="margin-top: 4px;">Its JSON data is missing required fields.</div>
+            </div>
+
+            <div style="margin-top: 14px;">
+              <div class="label">Primary Attribute</div>
+              <div id="primaryAttrChoices" class="primaryAttrRow"></div>
+              <p class="help">Your Primary Attribute gains a free +1 bonus at all levels.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Class Features</h2>
+        <div id="classFeatures" class="muted">Select a class to see features.</div>
+      </section>
+
+      <section class="card">
+        <h2>Feats</h2>
+        <div id="classFeats" class="muted">Select a class to see feats.</div>
+      </section>
+
+      <section class="card">
+        <h2>Techniques</h2>
+        <div id="classTechniques" class="muted">Select a class to see techniques.</div>
+      </section>
+
+      <section class="card">
+        <div class="actions">
+          <button id="saveBtn" class="btn" type="button">Save</button>
+          <button id="saveAndOpenBtn" class="btn secondary" type="button">Save &amp; Open Character Sheet</button>
+        </div>
+      </section>
+
+      <div id="confirmModal" class="modalOverlay" style="display:none">
+        <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMsg">
+          <h3 id="confirmTitle">Continue?</h3>
+          <p id="confirmMsg" class="muted"></p>
+          <div class="modalActions">
+            <button id="confirmCancelBtn" class="btn secondary" type="button">Cancel</button>
+            <button id="confirmOkBtn" class="btn" type="button">OK</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script type="module" src="builder-class.js"></script>
+  </body>
+</html>
