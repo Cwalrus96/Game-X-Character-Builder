@@ -26,72 +26,66 @@
           <p class="muted" id="status">Loading…</p>
           <p class="error" id="error" style="display:none"></p>
         </div>
-        <div id="builderNav"></div>
+        <div id="builderNavTop"></div>
       </header>
 
       <section class="card">
-        <h2>Step 2 — Choose Class</h2>
+        <h2>Class</h2>
+
+        <div id="classIncompleteBanner" class="warn" style="display:none; margin-bottom: 10px;">
+          <strong>⚠ This class is not selectable yet.</strong>
+          <span id="classIncompleteReason"></span>
+        </div>
 
         <div class="grid2">
           <div>
-            <label class="label" for="classSearch">Search</label>
-            <input id="classSearch" class="input" type="text" placeholder="Type to filter…" />
-            <p class="help">Some classes are shown but disabled until their data is complete.</p>
+            <label class="label" for="classSelect">Class</label>
+            <select id="classSelect" class="input"></select>
+            <p class="help">Classes marked “(Coming Soon)” can be viewed, but not selected.</p>
 
-            <div id="classList" class="classGrid" style="margin-top: 10px;"></div>
+            <label class="label" for="level" style="margin-top:12px">Level</label>
+            <select id="level" class="input">
+              <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
+              <option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option>
+              <option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+            </select>
+
+            <label class="label" for="primaryAttribute" style="margin-top:12px">Primary Attribute</label>
+            <select id="primaryAttribute" class="input"></select>
+            <p class="help">You’ll get a +1 bonus to your Primary Attribute (handled elsewhere; stored here).</p>
           </div>
 
           <div>
-            <div id="classDetails" class="classDetails muted">
-              Select a class to see details.
-            </div>
-
-            <div id="classDisabledBanner" class="classDisabledBanner" style="display:none; margin-top: 12px;">
-              <strong>This class is not selectable yet.</strong>
-              <div class="muted" style="margin-top: 4px;">Its JSON data is missing required fields.</div>
-            </div>
-
-            <div style="margin-top: 14px;">
-              <div class="label">Primary Attribute</div>
-              <div id="primaryAttrChoices" class="primaryAttrRow"></div>
-              <p class="help">Your Primary Attribute gains a free +1 bonus at all levels.</p>
-            </div>
+            <h3 class="h3" style="margin-top:0">Class Details</h3>
+            <div class="muted" id="classDetails">Select a class to view details.</div>
           </div>
         </div>
       </section>
 
       <section class="card">
-        <h2>Class Features</h2>
-        <div id="classFeatures" class="muted">Select a class to see features.</div>
+        <div class="cardHeaderRow">
+          <h2>Class Features</h2>
+          <span class="muted" id="featureHint"></span>
+        </div>
+        <div id="features"></div>
       </section>
 
       <section class="card">
-        <h2>Feats</h2>
-        <div id="classFeats" class="muted">Select a class to see feats.</div>
+        <div class="cardHeaderRow">
+          <h2>Feats</h2>
+          <span class="muted" id="featHint"></span>
+        </div>
+        <div id="feats"></div>
       </section>
 
-      <section class="card">
-        <h2>Techniques</h2>
-        <div id="classTechniques" class="muted">Select a class to see techniques.</div>
-      </section>
+      <footer class="builderFooter">
+        <div id="builderNavBottom"></div>
 
-      <section class="card">
         <div class="actions">
           <button id="saveBtn" class="btn" type="button">Save</button>
           <button id="saveAndOpenBtn" class="btn secondary" type="button">Save &amp; Open Character Sheet</button>
         </div>
-      </section>
-
-      <div id="confirmModal" class="modalOverlay" style="display:none">
-        <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMsg">
-          <h3 id="confirmTitle">Continue?</h3>
-          <p id="confirmMsg" class="muted"></p>
-          <div class="modalActions">
-            <button id="confirmCancelBtn" class="btn secondary" type="button">Cancel</button>
-            <button id="confirmOkBtn" class="btn" type="button">OK</button>
-          </div>
-        </div>
-      </div>
+      </footer>
     </main>
 
     <script type="module" src="builder-class.js"></script>

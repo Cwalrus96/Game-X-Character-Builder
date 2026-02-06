@@ -17,9 +17,9 @@ import {
   getAttributePointsToSpend,
   getAttributeFinalCap,
   getAttributeEffectiveCap,
-  applyPrimaryAttributeBonus,
   buildAttributesUpdatePatch,
 } from "./character-schema.js";
+
 
 // ---- Page identity ----
 const CURRENT_STEP_ID =
@@ -94,6 +94,26 @@ function computeUsedBase(effMap) {
 }
 
 function updateUI() {
+  // ---- Primary Attribute indicator (row styling + "(Primary)" tag) ----
+  for (const { key, row } of attrRows) {
+    const isPrimary = Boolean(primaryAttr) && key === primaryAttr;
+
+    row.classList.toggle("primary", isPrimary);
+
+    const nameEl = row.querySelector(".attrName");
+    if (!nameEl) continue;
+
+    const existing = nameEl.querySelector(".primaryTag");
+    if (existing) existing.remove();
+
+    if (isPrimary) {
+      const sub = document.createElement("sub");
+      sub.className = "primaryTag";
+      sub.textContent = "(Primary)";
+      nameEl.appendChild(sub);
+    }
+  }
+	
   if (!primaryAttr) {
     // Block editing if primary isn't set
     for (const { input } of attrRows) input.disabled = true;
@@ -225,16 +245,11 @@ async function saveBuilder({ openSheetAfter = false, requireComplete = false } =
   }
 
   try {
-    // Convert displayed (effective) values into stored base values
     const eff = getCurrentEffValues();
-    const base = {};
-    for (const k of ATTR_KEYS) {
-      base[k] = effToBase(k, eff[k] ?? 0);
-    }
 
     const patch = buildAttributesUpdatePatch({
       level,
-      baseAttributes: base,
+      attributes: eff,
       primaryAttribute: primaryAttr,
     });
 
@@ -242,7 +257,7 @@ async function saveBuilder({ openSheetAfter = false, requireComplete = false } =
 
     // Update local cache
     currentDoc = currentDoc || {};
-    currentDoc.builder = { ...(currentDoc.builder || {}), attributes: base };
+    currentDoc.builder = { ...(currentDoc.builder || {}), attributes: eff };
 
     setStatus(statusEl, "Saved.");
 
@@ -289,13 +304,11 @@ async function main() {
       showError(errorEl, "Primary Attribute not set. Go back to the Class step.");
     }
 
-    // Load base attributes and apply +1 bonus
-    const baseAttrs = currentDoc?.builder?.attributes || {};
-    const base = {};
-    for (const k of ATTR_KEYS) base[k] = Number(baseAttrs[k] || 0);
+    // Load stored final attribute values (already includes the Primary +1 bonus)
+    const storedAttrs = currentDoc?.builder?.attributes || {};
+    const eff = {};
+    for (const k of ATTR_KEYS) eff[k] = Number(storedAttrs[k] || 0);
 
-    // Clamp base values to base caps, then apply bonus
-    const eff = applyPrimaryAttributeBonus(base, primaryAttr, level);
 
     for (const { key, input } of attrRows) {
       const effCap = getAttributeEffectiveCap(level, key, primaryAttr);

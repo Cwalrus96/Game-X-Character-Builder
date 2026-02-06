@@ -224,6 +224,98 @@ body {
   font-weight: 700;
 }
 
+/* ---- Class step helpers ---- */
+.cardHeaderRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.builderFooter {
+  max-width: 1100px;
+  margin: 0 auto 14px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.builderItem {
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 12px;
+  padding: 10px;
+  background: #fff;
+  margin: 10px 0;
+}
+
+.builderItemTitle {
+  font-weight: 700;
+}
+
+.builderItemMeta {
+  font-size: 0.92rem;
+  margin-top: 2px;
+}
+
+.builderItemBody {
+  margin-top: 8px;
+  white-space: pre-wrap;
+}
+
+.optionGroup {
+  border: 1px solid rgba(0,0,0,0.10);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  margin: 10px 0;
+}
+
+.optionGroupHeader {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: none;
+  background: #f7f7f7;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.optionGroupBody {
+  padding: 10px;
+}
+
+.optionList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.optionRow {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 8px;
+  border: 1px solid rgba(0,0,0,0.07);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.optionRow input[type="checkbox"] {
+  margin-top: 3px;
+}
+
+.optionTitle {
+  font-weight: 700;
+}
+
+.optionDesc {
+  margin-top: 4px;
+  white-space: pre-wrap;
+}
+
 .attrDesc {
   margin-top: 3px;
   font-size: 0.9rem;
@@ -380,113 +472,21 @@ body {
   border: 0;
 }
 
-
-
-/* ---- Class chooser ---- */
-.classGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
+/* ---- Attributes step: Primary Attribute highlight ---- */
+.attrRow.primary {
+  box-shadow: inset 4px 0 0 var(--accent-color);
+  background: rgba(0, 0, 0, 0.015);
 }
 
-.classCard {
-  text-align: left;
-  padding: 10px 12px;
-  border: 1px solid var(--builder-border);
-  border-radius: 12px;
-  background: #fff;
-  cursor: pointer;
-  box-shadow: var(--builder-shadow);
+.attrRow.primary .attrName {
+  font-weight: 800;
 }
 
-.classCard:hover { filter: brightness(0.99); }
-
-.classCard.disabled {
-  opacity: 0.7;
-  border-style: dashed;
-}
-
-.classCard.selected {
-  outline: 2px solid rgba(13, 115, 64, 0.45);
-}
-
-.classCardTitle {
+.attrRow.primary .primaryTag {
+  color: var(--accent-color);
   font-weight: 700;
+  margin-left: 6px;
+  font-size: 0.8em;
 }
 
-.classCardSub {
-  margin-top: 4px;
-  color: var(--builder-muted);
-  font-size: 0.92rem;
-}
 
-.classDetails {
-  border: 1px solid var(--builder-border);
-  border-radius: 12px;
-  padding: 12px;
-  background: #fff;
-}
-
-.classDetailsTitle {
-  font-weight: 800;
-  font-size: 1.1rem;
-}
-
-.classDisabledBanner {
-  border: 1px solid rgba(180, 35, 24, 0.35);
-  border-radius: 12px;
-  background: rgba(180, 35, 24, 0.06);
-  padding: 10px 12px;
-  color: var(--builder-danger);
-}
-
-.primaryAttrRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 8px;
-}
-
-.choice {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  border: 1px solid var(--builder-border);
-  border-radius: 999px;
-  background: #fafafa;
-  cursor: pointer;
-  user-select: none;
-}
-
-.choice input { margin: 0; }
-
-.featureLevelHeader {
-  margin-top: 10px;
-  font-weight: 800;
-}
-
-.featureList {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.featureCard {
-  border: 1px solid rgba(0,0,0,0.10);
-  border-radius: 12px;
-  background: #fff;
-  padding: 10px 12px;
-}
-
-.featureName {
-  font-weight: 800;
-}
-
-.optionGrid {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 10px;
-}

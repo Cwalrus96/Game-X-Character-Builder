@@ -13,6 +13,7 @@ import { renderBuilderNav } from "./builder-nav.js";
 
 import {
   clampLevel,
+  buildBasicsUpdatePatch,
   buildProfileUpdatePatch,
 } from "./character-schema.js";
 
@@ -47,8 +48,6 @@ const portraitFile = document.getElementById("portraitFile");
 const portraitPreview = document.getElementById("portraitPreview");
 const uploadPortraitBtn = document.getElementById("uploadPortraitBtn");
 const clearPortraitBtn = document.getElementById("clearPortraitBtn");
-
-const levelSelect = document.getElementById("level");
 
 const saveBtn = document.getElementById("saveBtn");
 const saveAndOpenBtn = document.getElementById("saveAndOpenBtn");
@@ -173,11 +172,9 @@ async function saveBuilder({ openSheetAfter = false, requireComplete = false } =
 
     await ensureSheetMap();
 
-    const level = clampLevel(levelSelect.value);
-
+    // --- Profile-only patch: name + portrait only ---
     const patch = buildProfileUpdatePatch({
       name: (charNameInput?.value || "").trim(),
-      level,
       portraitPath,
       portraitUrl,
     });
@@ -186,12 +183,15 @@ async function saveBuilder({ openSheetAfter = false, requireComplete = false } =
 
     setStatus(statusEl, "Saved.");
 
-    // Update local cache
+    // Update local cache (only what Profile touches)
     currentDoc = currentDoc || {};
     currentDoc.name = patch.name;
     currentDoc.portraitPath = portraitPath;
     currentDoc.portraitUrl = portraitUrl;
-    currentDoc.builder = { ...(currentDoc.builder || {}), level };
+
+    currentDoc.sheet = currentDoc.sheet || {};
+    currentDoc.sheet.fields = currentDoc.sheet.fields || {};
+    currentDoc.sheet.fields.charName = patch["sheet.fields.charName"];
 
     if (openSheetAfter) {
       const url = new URL("editor.html", window.location.href);
@@ -234,7 +234,6 @@ async function main() {
     setPortraitPreview(portraitUrl || "");
 
     const b = currentDoc.builder || {};
-    levelSelect.value = String(clampLevel(b.level || 1));
 
     // Wire events
     if (portraitFile) {
@@ -282,6 +281,17 @@ async function main() {
       ctx: { charId: ctx.charId, requestedUid: ctx.requestedUid },
       onBeforeNext: async () => await saveBuilder({ openSheetAfter: false, requireComplete: true }),
     });
+
+	const navBottom = document.getElementById("builderNavBottom");
+	renderBuilderNav({
+	  mountEl: navBottom,
+	  currentStepId: CURRENT_STEP_ID,
+	  characterDoc: currentDoc,
+	  ctx: { charId: ctx.charId, requestedUid: ctx.requestedUid },
+	  onBeforeNext: async () => {
+		return await saveBuilder({ openSheetAfter: false });
+	  },
+	});
 
     setStatus(statusEl, "Ready.");
   } catch (e) {

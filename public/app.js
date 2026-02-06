@@ -462,19 +462,25 @@ import {
   function applyState(state) {
     if (!state || typeof state !== 'object') return;
 
-    const themeRaw = state.theme || 'na';
-    const theme = (themeRaw === 'technologist') ? 'mechpilot' : themeRaw;
-    setTheme(theme);
-    if (classSelect) classSelect.value = theme;
-
+    // Apply fields first so classSelect is set from the stored fields.
     applyFields(state.fields);
 
+    // Apply repeatables next.
     applyRepeatables(state.repeatables);
+
+    // Theme must ALWAYS match the class dropdown value.
+    const cls = (classSelect && classSelect.value) ? String(classSelect.value) : 'na';
+    setTheme(cls);
+
+    // Normalize legacy values (e.g. technologist -> mechpilot) back into the dropdown,
+    // so class + theme can't drift.
+    if (classSelect) classSelect.value = getTheme();
 
     if (typeof state.portrait === 'string') {
       portraitApi.set(state.portrait);
     }
   }
+
 
   function saveNow() {
     if (!storageOk) {
