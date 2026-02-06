@@ -185,7 +185,7 @@ function renderCharacters(docs) {
   const isViewingSelf = viewingUid === currentUser.uid;
   docs.forEach((d) => {
     const data = d.data() || {};
-    const name = data.name || "(Unnamed character)";
+    const name = data?.builder?.name || "(Unnamed character)";
     const updatedAt = data.updatedAt?.toDate ? data.updatedAt.toDate().toLocaleString() : "";
     const owner = data.ownerUid || viewingUid;
 
@@ -260,16 +260,13 @@ async function createCharacter() {
   if (!canCreate) return;
 
   const col = collection(db, "users", viewingUid, "characters");
-  const docRef = await addDoc(col, {
-    ownerUid: viewingUid,
-	// Name and portrait are selected in the Builder (step 1).
-    name: "",
-    portraitPath: "",
-    // Make this a map (not null) so Builder can update nested fields safely.
-    sheet: { fields: {} },
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
-  });
+  const docData = createDefaultCharacterDoc({ ownerUid: viewingUid });
+  docData.builder.name = "";
+  docData.builder.portraitPath = "";
+  docData.createdAt = serverTimestamp();
+  docData.updatedAt = serverTimestamp();
+
+  const docRef = await addDoc(col, docData);
 
   const url = new URL("builder.html", window.location.href);
   url.searchParams.set("charId", docRef.id);

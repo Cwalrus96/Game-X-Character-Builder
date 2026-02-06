@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game X — Character Builder (Techniques)</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="builder.css" />
+  </head>
+  <body>
+    <div class="topbar">
+      <div>
+        <a class="btn" href="characters.html">← Characters</a>
+        <span class="muted" id="gmHint" style="display:none; margin-left: 8px;"></span>
+      </div>
+      <div class="right">
+        <span class="muted" id="whoami">Loading…</span>
+        <button id="signOutBtn" class="btn" style="display:none; margin-left: 8px;">Sign out</button>
+      </div>
+    </div>
+
+    <main class="builder" data-builder-step="techniques">
+      <header class="builderHeader">
+        <div>
+          <h1>Character Builder</h1>
+          <p class="muted" id="status">Loading…</p>
+          <p class="error" id="error" style="display:none"></p>
+        </div>
+        <div id="builderNavTop"></div>
+      </header>
+
+      <section class="card">
+        <h2>Techniques</h2>
+        <p class="muted">This step is a placeholder. Technique selection will be implemented next.</p>
+      </section>
+
+      <footer class="builderFooter">
+        <div id="builderNavBottom"></div>
+      </footer>
+    </main>
+
+    <script type="module" src="builder-techniques.js"></script>
+  </body>
+</html>

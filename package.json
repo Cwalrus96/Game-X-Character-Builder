@@ -3,5 +3,8 @@
   "private": true,
   "scripts": {
     "export:data": "node scripts/export-game-data.mjs data/game-x-class-data.xlsx public/data/game-x"
+  },
+  "devDependencies": {
+    "firebase-admin": "^13.6.1"
   }
 }

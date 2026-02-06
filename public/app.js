@@ -12,15 +12,29 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-import { auth, db, googleProvider, isMobileLike } from "./firebase.js";
+import { auth, db, storage, googleProvider, isMobileLike } from "./firebase.js";
 
 import {
   CHARACTER_SCHEMA_VERSION,
-  createDefaultCharacterDoc,
-  normalizeCharacterDoc,
-  getSheetStateForEditor,
+  ATTR_KEYS,
   sanitizeCharName,
+  clampLevel,
+  normalizeAttributes,
+  coerceAttrKey,
+  getAttributeEffectiveCap,
+  toInt,
+  normalizeEnumToken,
+  sanitizeStoragePath,
+  sanitizeText,
+  getPortraitStoragePath,
 } from "./character-schema.js";
+
+import {
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-storage.js";
 
 (() => {
   'use strict';
@@ -71,13 +85,101 @@ import {
     return !!(currentUser && cloudDocRef && cloudReady);
   }
 
-  function sanitizeStateForCloud(state) {
-    // Firestore doc size limit is finite; don't store huge data: URLs in Firestore.
-    const cloned = JSON.parse(JSON.stringify(state || {}));
-    if (cloned?.portrait && typeof cloned.portrait === 'string' && cloned.portrait.startsWith('data:image')) {
-      cloned.portrait = '';
+  // ---- Class key index (editor uses token like 'henshinhero'; canonical uses kebab-case like 'henshin-hero') ----
+
+  /** @type {Map<string, string>} token -> classKey */
+  const classTokenToKey = new Map();
+  /** @type {Map<string, string>} classKey -> token */
+  const classKeyToToken = new Map();
+  let classIndexPromise = null;
+
+  function toSheetClassTokenFromClassKey(classKey) {
+    const k = String(classKey || '').trim();
+    if (!k) return 'na';
+    const tok = k.replace(/-/g, '');
+    return tok || 'na';
+  }
+
+  function toCanonicalClassKeyFromToken(token) {
+    const t = normalizeEnumToken(token, { maxLen: 32 });
+    if (!t || t === 'na') return '';
+    return classTokenToKey.get(t) || t;
+  }
+
+  async function ensureClassIndex() {
+    if (classIndexPromise) return classIndexPromise;
+    classIndexPromise = (async () => {
+      try {
+        const res = await fetch('./data/game-x/classes.json', { cache: 'no-store' });
+        if (!res.ok) throw new Error('classes.json fetch failed');
+        const arr = await res.json();
+        if (!Array.isArray(arr)) return;
+        for (const it of arr) {
+          const key = sanitizeText(it?.classKey, { maxLen: 64 });
+          if (!key) continue;
+          const tok = normalizeEnumToken(key);
+          // tok here is key stripped of punctuation; for kebab-case it removes hyphens.
+          if (!classTokenToKey.has(tok)) classTokenToKey.set(tok, key);
+          if (!classKeyToToken.has(key)) classKeyToToken.set(key, toSheetClassTokenFromClassKey(key));
+        }
+      } catch (e) {
+        console.warn('Class index load failed:', e);
+      }
+    })();
+    return classIndexPromise;
+  }
+
+  // Kick off in background (best effort).
+  ensureClassIndex();
+
+  const CANONICAL_FIELD_NAMES = new Set([
+    'charName',
+    'classSelect',
+    'primaryAttribute',
+    'level',
+    // attributes
+    ...ATTR_KEYS,
+  ]);
+
+  function buildCanonicalFromForm(fields) {
+    const name = sanitizeCharName(fields?.charName || '');
+    const level = clampLevel(fields?.level ?? 1);
+    const primaryAttribute = coerceAttrKey(fields?.primaryAttribute);
+
+    const classToken = normalizeEnumToken(fields?.classSelect, { maxLen: 32 });
+    const classKey = sanitizeText(toCanonicalClassKeyFromToken(classToken), { maxLen: 64 });
+
+    // Store EFFECTIVE (final) attribute values in builder.attributes
+    const attrs = normalizeAttributes(fields || {});
+    for (const k of ATTR_KEYS) {
+      const cap = getAttributeEffectiveCap(level, k, primaryAttribute);
+      const min = primaryAttribute && k === primaryAttribute ? 1 : 0;
+      attrs[k] = toInt(attrs[k], { min, max: cap });
     }
-    return cloned;
+
+    return { name, level, primaryAttribute, classKey, attributes: attrs, classToken };
+  }
+
+  function pickSheetOnlyFields(allFields) {
+    const out = {};
+    const src = (allFields && typeof allFields === 'object') ? allFields : {};
+    for (const [k, v] of Object.entries(src)) {
+      if (CANONICAL_FIELD_NAMES.has(k)) continue;
+      out[k] = v;
+    }
+    return out;
+  }
+
+  async function resolvePortraitUrl(path) {
+    const p = sanitizeStoragePath(path);
+    if (!p) return '';
+    try {
+      const r = storageRef(storage, p);
+      return await getDownloadURL(r);
+    } catch (e) {
+      console.warn('getDownloadURL failed:', e);
+      return '';
+    }
   }
 
   async function loadCloudOrInit() {
@@ -85,12 +187,56 @@ import {
     setCloudStatus('Cloud: Loading…');
 
     try {
+      await ensureClassIndex();
       const snap = await getDoc(cloudDocRef);
       if (snap.exists()) {
         const raw = snap.data() || {};
-        const normalized = normalizeCharacterDoc(raw);
-        const sheetState = getSheetStateForEditor(normalized);
-        applyState(sheetState);
+
+        // Canonical read path (no legacy backfill):
+        const b = (raw?.builder && typeof raw.builder === 'object') ? raw.builder : {};
+        const name = sanitizeCharName(b?.name || '');
+        const portraitPath = sanitizeStoragePath(b?.portraitPath || '');
+        const level = clampLevel(b?.level ?? 1);
+        const primaryAttribute = coerceAttrKey(b?.primaryAttribute);
+        const classKey = sanitizeText(b?.classKey, { maxLen: 64 });
+        const classToken = toSheetClassTokenFromClassKey(classKey) || 'na';
+
+        const attrs = normalizeAttributes(b?.attributes || {});
+        for (const k of ATTR_KEYS) {
+          const cap = getAttributeEffectiveCap(level, k, primaryAttribute);
+          const min = primaryAttribute && k === primaryAttribute ? 1 : 0;
+          attrs[k] = toInt(attrs[k], { min, max: cap });
+        }
+
+        const sheetFields = (b?.sheet?.fields && typeof b.sheet.fields === 'object') ? b.sheet.fields : {};
+        const sheetOnlyFields = pickSheetOnlyFields(sheetFields);
+        const repeatables = (b?.sheet?.repeatables && typeof b.sheet.repeatables === 'object') ? b.sheet.repeatables : {};
+
+        // Build a local/editor state (no duplicated canonical fields inside sheet fields).
+        const state = {
+          version: 3,
+          savedAt: Date.now(),
+          canonical: {
+            name,
+            level,
+            primaryAttribute,
+            classKey,
+            attributes: attrs,
+          },
+          portrait: {
+            path: portraitPath,
+            previewDataUrl: '',
+          },
+          fields: sheetOnlyFields,
+          repeatables,
+        };
+
+        applyState(state);
+        if (portraitApi && portraitPath) {
+          const url = await resolvePortraitUrl(portraitPath);
+          portraitApi.set({ path: portraitPath, previewUrl: url });
+        }
+
         setStatus('Loaded from cloud');
         cloudReady = true;
         setCloudStatus('Cloud: Ready');
@@ -98,30 +244,37 @@ import {
       }
 
       // No cloud doc yet → initialize from current sheet (local/default state)
+      const allFields = collectFields();
+      const canon = buildCanonicalFromForm(allFields);
       const state = collectState();
-      const sheetForCloud = sanitizeStateForCloud(state);
 
-      const baseline = createDefaultCharacterDoc({
+      const baseline = {
+        schemaVersion: CHARACTER_SCHEMA_VERSION,
         ownerUid: editingUid,
-        name: sanitizeCharName(sheetForCloud?.fields?.charName || 'Character'),
-      });
-      baseline.sheet = sheetForCloud;
-
-      await setDoc(
-        cloudDocRef,
-        {
-          ...baseline,
-          schemaVersion: CHARACTER_SCHEMA_VERSION,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
+        builder: {
+          name: sanitizeCharName(canon?.name || 'Character'),
+          portraitPath: sanitizeStoragePath(state?.portrait?.path || ''),
+          level: clampLevel(canon?.level ?? 1),
+          attributes: normalizeAttributes(canon?.attributes || {}),
+          classKey: sanitizeText(canon?.classKey || '', { maxLen: 64 }),
+          primaryAttribute: coerceAttrKey(canon?.primaryAttribute),
+          // Editor-owned sheet data lives under builder.sheet.*
+          sheet: {
+            fields: pickSheetOnlyFields(allFields),
+            repeatables: state?.repeatables || {},
+          },
         },
-        { merge: true }
-      );
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      };
+
+      await setDoc(cloudDocRef, baseline, { merge: true });
 
       cloudReady = true;
       setCloudStatus('Cloud: Ready');
       setStatus('Cloud initialized');
     } catch (e) {
+      console.error('loadCloudOrInit error:', e);
       cloudReady = false;
       setCloudStatus('Cloud: Error', true);
     }
@@ -131,30 +284,74 @@ import {
     if (!cloudEnabled()) return;
 
     try {
+      await ensureClassIndex();
+
+      const allFields = collectFields();
+      const canon = buildCanonicalFromForm(allFields);
       const state = collectState();
-      const sheetForCloud = sanitizeStateForCloud(state);
 
-      const displayName = sanitizeCharName(sheetForCloud?.fields?.charName || 'Character');
+      // Portrait upload (Cloud Storage).
+      let portraitPath = sanitizeStoragePath(state?.portrait?.path || '');
+      const pendingDelete = portraitApi?.consumePendingDelete ? portraitApi.consumePendingDelete() : '';
+      const pending = portraitApi?.consumePendingUpload ? portraitApi.consumePendingUpload() : null;
+      if (pending && pending.blob) {
+        // Use a stable path so edits overwrite instead of creating junk.
+        const storagePath = getPortraitStoragePath({ uid: editingUid, charId: editingCharId });
+        if (!storagePath) throw new Error('Invalid portrait storage path');
 
-      await setDoc(
-        cloudDocRef,
-        {
-          schemaVersion: CHARACTER_SCHEMA_VERSION,
-          ownerUid: editingUid,
-          name: displayName,
-          sheet: sheetForCloud,
-          updatedAt: serverTimestamp(),
+        // If there was an older portrait at a different path, delete it to avoid junk.
+        if (pendingDelete && pendingDelete !== storagePath) {
+          try {
+            await deleteObject(storageRef(storage, pendingDelete));
+          } catch (e) {
+            // ignore (missing object, perms, etc.)
+          }
+        }
+
+        await uploadBytes(storageRef(storage, storagePath), pending.blob, { contentType: 'image/jpeg' });
+        portraitPath = storagePath;
+        if (portraitApi?.set) {
+          const url = await resolvePortraitUrl(storagePath);
+          portraitApi.set({ path: storagePath, previewUrl: url });
+        }
+      } else if (pendingDelete) {
+        // Portrait cleared: delete the old object (best effort).
+        try {
+          await deleteObject(storageRef(storage, pendingDelete));
+        } catch (e) {
+          // ignore
+        }
+      }
+
+      const cloudDoc = {
+        schemaVersion: CHARACTER_SCHEMA_VERSION,
+        ownerUid: editingUid,
+        builder: {
+          name: sanitizeCharName(canon?.name || 'Character'),
+          portraitPath: portraitPath,
+          level: clampLevel(canon?.level ?? 1),
+          attributes: normalizeAttributes(canon?.attributes || {}),
+          classKey: sanitizeText(canon?.classKey || '', { maxLen: 64 }),
+          primaryAttribute: coerceAttrKey(canon?.primaryAttribute),
+          sheet: {
+            fields: pickSheetOnlyFields(allFields),
+            repeatables: state?.repeatables || {},
+          },
         },
-        { merge: true }
-      );
+        updatedAt: serverTimestamp(),
+      };
+
+      await setDoc(cloudDocRef, cloudDoc, { merge: true });
 
       setCloudStatus('Cloud: Saved');
     } catch (e) {
+      console.error('saveCloudNow error:', e);
       setCloudStatus('Cloud: Save failed', true);
     }
   }
-  
+
   async function initAuth() {
+
     // Handle redirect result (no-op if not coming back from a redirect)
     try {
 		await getRedirectResult(auth);
@@ -223,29 +420,17 @@ import {
       }
 
       // Update local storage key now that we know the effective uid.
-      const finalKey = `gameX_characterSheet_v2_${editingUid}_${editingCharId}`;
-      if (storageOk && storage) {
-        try {
-          const hasFinal = !!storage.getItem(finalKey);
-          const provisionalRaw = storage.getItem(STORAGE_KEY);
-          if (!hasFinal && provisionalRaw) {
-            storage.setItem(finalKey, provisionalRaw);
-          }
-          STORAGE_KEY = finalKey;
-          // Prefer the final key if it exists.
-          loadSaved();
-        } catch (e) {
-          // ignore
-        }
-      }
+      STORAGE_KEY = `gameX_characterSheet_v3_${editingUid}_${editingCharId}`;
+
+      // Load local state for this user/character (if any).
+      loadSaved();
 
       await loadCloudOrInit();
     });
   }
 
   // Storage key is per-character (and per effective user when known)
-  let STORAGE_KEY = `gameX_characterSheet_v2_${editingCharId}`;
-  const LEGACY_PORTRAIT_KEY = 'gameX_portrait';
+  let STORAGE_KEY = `gameX_characterSheet_v3_${editingCharId}`;
   const SAVE_DEBOUNCE_MS = 400;
 
   const sheetEl = document.getElementById('sheet');
@@ -287,55 +472,175 @@ import {
   }
 
   // Prefer localStorage; fall back to sessionStorage (often works even when localStorage is blocked for file:).
-  const storage = (typeof localStorage !== 'undefined' && canUseStorage(localStorage)) ? localStorage
+  const browserStorage = (typeof localStorage !== 'undefined' && canUseStorage(localStorage)) ? localStorage
                 : (typeof sessionStorage !== 'undefined' && canUseStorage(sessionStorage)) ? sessionStorage
                 : null;
 
-  const storageType = (!storage) ? 'none' : (storage === localStorage ? 'local' : 'session');
+  const storageType = (!browserStorage) ? 'none' : (browserStorage === localStorage ? 'local' : 'session');
 
-  let storageOk = !!storage;
+  let storageOk = !!browserStorage;
   let saveTimer = null;
 
   // ---------- Portrait module ----------
+
   function initPortrait(scheduleSave) {
     const box = document.querySelector('.portrait-box');
-    const input = document.getElementById('portraitUpload');
-    const preview = document.getElementById('portraitPreview');
-    const placeholder = document.getElementById('portraitPlaceholder');
+    const imgEl = document.getElementById('portraitPreview');
+    const placeholderEl = document.getElementById('portraitPlaceholder');
     const clearBtn = document.getElementById('portraitClear');
+    const input = document.getElementById('portraitUpload');
 
-    let portraitDataUrl = '';
+    let portraitPath = '';
+    let previewUrl = '';
+    let previewDataUrl = '';
+
+    /** @type {{blob: Blob}|null} */
+    let pendingUpload = null;
+    /** @type {string} */
+    let pendingDeletePath = '';
 
     function render() {
-      if (portraitDataUrl) {
-        preview.src = portraitDataUrl;
-        preview.style.display = 'block';
-        placeholder.style.display = 'none';
-        clearBtn.style.display = 'block';
-      } else {
-        preview.removeAttribute('src');
-        preview.style.display = 'none';
-        placeholder.style.display = 'block';
-        clearBtn.style.display = 'none';
+      const src = previewUrl || previewDataUrl || '';
+      if (imgEl) {
+        imgEl.src = src;
+        imgEl.style.display = src ? 'block' : 'none';
       }
+      if (placeholderEl) placeholderEl.style.display = src ? 'none' : 'block';
+      if (clearBtn) clearBtn.style.display = src ? 'flex' : 'none';
     }
 
-    function set(dataUrl) {
-      portraitDataUrl = (typeof dataUrl === 'string') ? dataUrl : '';
+    function set(next = {}) {
+      if (next && typeof next === 'object') {
+        if (typeof next.path === 'string') portraitPath = sanitizeStoragePath(next.path);
+        if (typeof next.previewUrl === 'string') previewUrl = String(next.previewUrl || '');
+        if (typeof next.previewDataUrl === 'string') previewDataUrl = String(next.previewDataUrl || '');
+        // If we receive a cloud URL, prefer it over local preview data.
+        if (previewUrl) previewDataUrl = '';
+      }
       render();
     }
 
-    function get() {
-      return portraitDataUrl || '';
+    function getState() {
+      return {
+        path: portraitPath,
+        previewUrl,
+        previewDataUrl,
+      };
+    }
+
+    function consumePendingUpload() {
+      const p = pendingUpload;
+      pendingUpload = null;
+      return p;
+    }
+
+    function consumePendingDelete() {
+      const p = pendingDeletePath;
+      pendingDeletePath = '';
+      return sanitizeStoragePath(p);
+    }
+
+    function clear(opts = {}) {
+      // Mark existing storage object for deletion on next cloud save.
+      if (portraitPath) pendingDeletePath = portraitPath;
+      portraitPath = '';
+      previewUrl = '';
+      previewDataUrl = '';
+      pendingUpload = null;
+      if (input) input.value = '';
+      render();
+      if (!opts || !opts.silent) scheduleSave();
+    }
+
+    async function fileToDataUrl(file) {
+      return await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ''));
+        reader.onerror = () => reject(new Error('File read failed'));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function canvasToJpegBlob(canvas, quality = 0.85) {
+      return await new Promise((resolve) => {
+        try {
+          canvas.toBlob((b) => resolve(b), 'image/jpeg', quality);
+        } catch (e) {
+          resolve(null);
+        }
+      });
+    }
+
+    async function handleFile(file) {
+      if (!file) return;
+      if (!file.type || !file.type.startsWith('image/')) {
+        alert('Please choose an image file.');
+        if (input) input.value = '';
+        return;
+      }
+
+      // Downscale + center-crop to 512x512 (small + predictable).
+      const dataUrl = await fileToDataUrl(file);
+
+      const img = new Image();
+      img.onload = async () => {
+        const size = 512;
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          previewDataUrl = dataUrl;
+          pendingUpload = { blob: file };
+          previewUrl = '';
+          render();
+          scheduleSave();
+          return;
+        }
+
+        // White background (so transparent PNGs do not print oddly)
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, size, size);
+
+        const s = Math.min(img.width, img.height);
+        const sx = (img.width - s) / 2;
+        const sy = (img.height - s) / 2;
+        ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
+
+        let outPreview = dataUrl;
+        try {
+          outPreview = canvas.toDataURL('image/jpeg', 0.85);
+        } catch (e) {
+          // keep dataUrl
+        }
+
+        const blob = (await canvasToJpegBlob(canvas, 0.85)) || file;
+
+        previewDataUrl = outPreview;
+        previewUrl = '';
+        pendingUpload = { blob };
+        render();
+        scheduleSave();
+      };
+      img.onerror = () => {
+        // fallback
+        previewDataUrl = dataUrl;
+        previewUrl = '';
+        pendingUpload = { blob: file };
+        render();
+        scheduleSave();
+      };
+      img.src = dataUrl;
     }
 
     if (box && input) {
       box.addEventListener('click', (e) => {
-        if (e.target === clearBtn) return;
+        // Ignore clicks on the clear button
+        if (e && e.target && (e.target === clearBtn)) return;
         input.click();
       });
-
       box.addEventListener('keydown', (e) => {
+        if (!e) return;
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           input.click();
@@ -343,74 +648,30 @@ import {
       });
     }
 
-    if (clearBtn) {
-      clearBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (input) input.value = '';
-        set('');
-        scheduleSave();
-      });
-    }
-
     if (input) {
       input.addEventListener('change', () => {
         const file = input.files && input.files[0];
         if (!file) return;
-        if (!file.type || !file.type.startsWith('image/')) {
-          alert('Please choose an image file.');
-          input.value = '';
-          return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = () => {
-          const dataUrl = reader.result;
-
-          // Downscale + center-crop to a 512x512 JPEG for smaller saves/prints.
-          const img = new Image();
-          img.onload = () => {
-            const size = 512;
-            const canvas = document.createElement('canvas');
-            canvas.width = size;
-            canvas.height = size;
-            const ctx = canvas.getContext('2d');
-
-            // White background (so transparent PNGs do not print oddly)
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, size, size);
-
-            const s = Math.min(img.width, img.height);
-            const sx = (img.width - s) / 2;
-            const sy = (img.height - s) / 2;
-            ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
-
-            let out = dataUrl;
-            try {
-              out = canvas.toDataURL('image/jpeg', 0.85);
-            } catch (err) {
-              // Keep original data URL if conversion fails
-            }
-
-            set(out);
-            scheduleSave();
-          };
-          img.src = dataUrl;
-        };
-        reader.readAsDataURL(file);
+        handleFile(file);
       });
     }
 
-    // Legacy compatibility (older versions stored portrait separately)
-    try {
-      const legacy = localStorage.getItem(LEGACY_PORTRAIT_KEY);
-      if (legacy) set(legacy);
-    } catch (e) {
-      // ignore
+    if (clearBtn) {
+      clearBtn.addEventListener('click', (e) => {
+        if (e) e.stopPropagation();
+        clear();
+      });
     }
 
     render();
 
-    return { set, get };
+    return {
+      set,
+      getState,
+      clear,
+      consumePendingUpload,
+      consumePendingDelete,
+    };
   }
 
   // ---------- Form persistence ----------
@@ -449,32 +710,85 @@ import {
   }
 
   function collectState() {
+    const allFields = collectFields();
+    const canon = buildCanonicalFromForm(allFields);
+    const sheetOnly = pickSheetOnlyFields(allFields);
+    const rep = collectRepeatables();
+    const portraitState = portraitApi?.getState ? portraitApi.getState() : { path: '', previewDataUrl: '' };
+
     return {
-      version: 2,
+      version: 3,
       savedAt: new Date().toISOString(),
-      theme: getTheme(),
-      portrait: portraitApi.get(),
-      fields: collectFields(),
-      repeatables: collectRepeatables()
+      canonical: {
+        name: canon.name,
+        level: canon.level,
+        primaryAttribute: canon.primaryAttribute,
+        classKey: canon.classKey,
+        attributes: canon.attributes,
+      },
+      // local-only preview data is allowed here; NOT written to Firestore
+      portrait: {
+        path: sanitizeStoragePath(portraitState?.path || ''),
+        previewDataUrl: String(portraitState?.previewDataUrl || ''),
+      },
+      fields: sheetOnly,
+      repeatables: rep,
     };
   }
 
   function applyState(state) {
     if (!state || typeof state !== 'object') return;
 
-    const themeRaw = state.theme || 'na';
-    const theme = (themeRaw === 'technologist') ? 'mechpilot' : themeRaw;
-    setTheme(theme);
-    if (classSelect) classSelect.value = theme;
+    // We only accept v3 state (no legacy support).
+    if (state.version !== 3) return;
 
-    applyFields(state.fields);
+    const canon = (state.canonical && typeof state.canonical === 'object') ? state.canonical : {};
+    const level = clampLevel(canon?.level ?? 1);
+    const primaryAttribute = coerceAttrKey(canon?.primaryAttribute);
 
+    const classKey = sanitizeText(canon?.classKey, { maxLen: 64 });
+    const classToken = normalizeEnumToken(toSheetClassTokenFromClassKey(classKey) || 'na', { maxLen: 32 }) || 'na';
+
+    const attrs = normalizeAttributes(canon?.attributes || {});
+    for (const k of ATTR_KEYS) {
+      const cap = getAttributeEffectiveCap(level, k, primaryAttribute);
+      const min = primaryAttribute && k === primaryAttribute ? 1 : 0;
+      attrs[k] = toInt(attrs[k], { min, max: cap });
+    }
+
+    const mergedFields = {
+      ...(state.fields && typeof state.fields === 'object' ? state.fields : {}),
+      charName: sanitizeCharName(canon?.name || ''),
+      classSelect: classToken,
+      primaryAttribute: primaryAttribute,
+      level: level,
+    };
+
+    for (const k of ATTR_KEYS) mergedFields[k] = attrs[k];
+
+    // Apply fields first so classSelect is set from the stored canonical.
+    applyFields(mergedFields);
+
+    // Apply repeatables next.
     applyRepeatables(state.repeatables);
 
-    if (typeof state.portrait === 'string') {
-      portraitApi.set(state.portrait);
+    // Theme must ALWAYS match the class dropdown value (derived; not saved).
+    setTheme(classToken);
+    if (classSelect) classSelect.value = classToken;
+
+    // Portrait local preview restore (optional).
+    if (portraitApi?.set && state.portrait && typeof state.portrait === 'object') {
+      portraitApi.set({
+        path: sanitizeStoragePath(state.portrait.path || ''),
+        previewDataUrl: String(state.portrait.previewDataUrl || ''),
+        previewUrl: '',
+      });
     }
+
+    updatePrimaryAttributeOptions();
+    recomputeDerived();
   }
+
 
   function saveNow() {
     if (!storageOk) {
@@ -484,7 +798,7 @@ import {
 
     try {
       const state = collectState();
-      storage.setItem(STORAGE_KEY, JSON.stringify(state));
+      browserStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       setStatus(storageType === 'session' ? 'Saved (session)' : 'Saved');
     } catch (e) {
       storageOk = false;
@@ -510,7 +824,7 @@ function scheduleSave() {
       if (storageOk) {
         try {
           const state = collectState();
-          storage.setItem(STORAGE_KEY, JSON.stringify(state));
+          browserStorage.setItem(STORAGE_KEY, JSON.stringify(state));
           setStatus(storageType === 'session' ? 'Saved (session)' : 'Saved');
         } catch (e) {
           storageOk = false;
@@ -533,9 +847,10 @@ function scheduleSave() {
     }
 
     try {
-      const raw = storage.getItem(STORAGE_KEY);
+      const raw = browserStorage.getItem(STORAGE_KEY);
       if (!raw) return false;
       const state = JSON.parse(raw);
+      if (!state || state.version !== 3) return false;
       applyState(state);
       setStatus(storageType === 'session' ? 'Loaded (session)' : 'Loaded');
       return true;
@@ -577,6 +892,11 @@ function scheduleSave() {
     reader.onload = () => {
       try {
         const state = JSON.parse(String(reader.result || ''));
+        if (!state || state.version !== 3) {
+          alert('Could not import: unsupported sheet format.');
+          setStatus('Import failed', true);
+          return;
+        }
         applyState(state);
         updatePrimaryAttributeOptions();
         recomputeDerived();
@@ -625,12 +945,11 @@ function scheduleSave() {
     setTheme('na');
     if (classSelect) classSelect.value = 'na';
 
-    portraitApi.set('');
+    if (portraitApi?.clear) portraitApi.clear({ silent: true });
     resetRepeatablesToDefaults();
 
     try {
-      storage.removeItem(STORAGE_KEY);
-      localStorage.removeItem(LEGACY_PORTRAIT_KEY);
+      browserStorage.removeItem(STORAGE_KEY);
     } catch (e) {
       // ignore
     }

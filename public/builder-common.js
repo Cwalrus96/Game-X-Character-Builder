@@ -8,6 +8,7 @@ import {
   updateDoc,
   serverTimestamp,
   arrayUnion,
+  deleteField,
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
 import { normalizeCharacterDoc, sanitizeUpdatePatch } from "./character-schema.js";
