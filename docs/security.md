@@ -45,12 +45,17 @@ Why Report-Only?
 
 ## Canonical “sanitize-before-store”
 `public/security.js` provides centralized helpers:
-- sanitize text fields (length, control characters)
-- clamp numbers
-- validate portraits before upload
-- sanitize URLs/paths stored in Firestore
+`public/character-schema.js` is the intended single source of truth for how character data is shaped and cleaned.
+ 
+-Builder and sheet code should sanitize on write, rather than sprinkling one-off checks in each field handler.
+In particular:
+- `sanitizeText`, `sanitizeCharName`, `sanitizeStoragePath`, etc. are the basic field-level helpers.
+- `sanitizeUpdatePatch(patch)` is a **schema gate** for Firestore `updateDoc(...)` patches:
+  - it allows only `schemaVersion` plus `builder.*` keys
+  - it clamps/normalizes known builder fields to keep data tidy
 
-Builder and sheet code should sanitize on write, rather than sprinkling one-off checks in each field handler.
+Builder pages should write via `saveCharacterPatch(...)` in `public/builder-common.js`, which applies
+`sanitizeUpdatePatch(...)` before sending the write to Firestore.
 
 ## If you later want “one step stronger”
 - Enable CSP enforcement (remove “Report-Only”), then fix violations it reports.

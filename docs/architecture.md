@@ -36,19 +36,24 @@ Tradeoffs
 
 ## Data model overview (Firestore)
 
-Primary (current) path:
-- `users/{uid}/characters/{charId}`
+ Primary (current) path:
+ - `users/{uid}/characters/{charId}`
+ 
+Fields are intentionally flexible, but the current schema centers around:
+- `schemaVersion` (number)
+- `builder` (object; per-step state)
+  - `name` (string)
+  - `portraitPath` (string; Cloud Storage path)
+  - `level` (number)
+  - `classKey` (string; canonical kebab-case id)
+  - `primaryAttribute` (string)
+  - `attributes` (object)
+  - `selectedClassFeatureOptions` / `selectedFeats` / `autoAbilityNames` (arrays)
+  - `visitedSteps` / `lastVisitedAt` (builder flow state)
+  - `sheet.fields` / `sheet.repeatables` (editor-owned sheet fields)
+- `createdAt` / `updatedAt` (timestamps; server-side)
 
-Fields are intentionally flexible, but the design centers around:
-- `ownerUid` (string)
-- `name` (string)
-- `builder` (object; per-step state, visited steps)
-- `sheet` (object; character sheet fields)
-- `portraitUrl` + `portraitPath` (strings; Storage download URL + storage location)
-- `createdAt` / `updatedAt` (timestamps)
-
-Legacy support exists for:
-- `characters/{uid}` (older structure)
++Note: we store only `portraitPath` in Firestore. Download URLs are resolved at runtime via the Storage SDK.
 
 ## Roles: GM vs player
 

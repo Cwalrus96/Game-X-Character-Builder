@@ -1,29 +1,29 @@
 import {
-  signInWithRedirect,
-  signInWithPopup,
-  getRedirectResult,
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-import {
   doc,
   getDoc,
   setDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-import { auth, db, storage, googleProvider, isMobileLike } from "./firebase.js";
+import { db, storage } from "./firebase.js";
+import { onAuth, getClaims } from "./auth-ui.js";
 
 import {
   CHARACTER_SCHEMA_VERSION,
   ATTR_KEYS,
+  labelForAttrKey,
+  loadGameXClasses,
+  computeSpeed,
+  computePhysicalDefense,
+  computeMentalDefense,
+  computeSpiritDefense,
+  computeMaxHP,
   sanitizeCharName,
   clampLevel,
   normalizeAttributes,
   coerceAttrKey,
   getAttributeEffectiveCap,
   toInt,
-  normalizeEnumToken,
   sanitizeStoragePath,
   sanitizeText,
   getPortraitStoragePath,
@@ -54,10 +54,6 @@ import {
   let isGMUser = false;
 
 // ---------- Firebase (Auth + Firestore) ----------
-
-  const signInBtn = document.getElementById('signInBtn');
-  const signOutBtn = document.getElementById('signOutBtn');
-  const authUserLabel = document.getElementById('authUserLabel');
   const cloudStatusEl = document.getElementById('cloudStatus');
 
   let currentUser = null;
@@ -72,65 +68,63 @@ import {
     cloudStatusEl.style.opacity = isError ? '1' : '0.9';
   }
 
-  function updateAuthUi() {
-    const email = currentUser?.email || currentUser?.displayName || '';
-    if (authUserLabel) {
-      authUserLabel.textContent = currentUser ? `Signed in${email ? ': ' + email : ''}` : 'Signed out';
-    }
-    if (signInBtn) signInBtn.style.display = currentUser ? 'none' : 'inline-block';
-    if (signOutBtn) signOutBtn.style.display = currentUser ? 'inline-block' : 'none';
-  }
-
   function cloudEnabled() {
     return !!(currentUser && cloudDocRef && cloudReady);
   }
 
-  // ---- Class key index (editor uses token like 'henshinhero'; canonical uses kebab-case like 'henshin-hero') ----
+  // ---- Class list (from JSON) ----
+  // The editor stores classSelect as the canonical classKey (kebab-case).
+  // We populate the dropdown from /data/game-x/classes.json to avoid duplicating class data in HTML/JS.
+  let classOptionsPromise = null;
 
-  /** @type {Map<string, string>} token -> classKey */
-  const classTokenToKey = new Map();
-  /** @type {Map<string, string>} classKey -> token */
-  const classKeyToToken = new Map();
-  let classIndexPromise = null;
+  async function ensureClassSelectOptions() {
+    if (classOptionsPromise) return classOptionsPromise;
+    classOptionsPromise = (async () => {
+      if (!classSelect) return;
 
-  function toSheetClassTokenFromClassKey(classKey) {
-    const k = String(classKey || '').trim();
-    if (!k) return 'na';
-    const tok = k.replace(/-/g, '');
-    return tok || 'na';
-  }
-
-  function toCanonicalClassKeyFromToken(token) {
-    const t = normalizeEnumToken(token, { maxLen: 32 });
-    if (!t || t === 'na') return '';
-    return classTokenToKey.get(t) || t;
-  }
-
-  async function ensureClassIndex() {
-    if (classIndexPromise) return classIndexPromise;
-    classIndexPromise = (async () => {
       try {
-        const res = await fetch('./data/game-x/classes.json', { cache: 'no-store' });
-        if (!res.ok) throw new Error('classes.json fetch failed');
-        const arr = await res.json();
-        if (!Array.isArray(arr)) return;
-        for (const it of arr) {
+        const list = await loadGameXClasses();
+        if (!Array.isArray(list)) return;
+
+        const pending = sanitizeText(classSelect.dataset.pendingValue || classSelect.value || '', { maxLen: 64 });
+
+        // Rebuild options
+        classSelect.innerHTML = '';
+        const naOpt = document.createElement('option');
+        naOpt.value = '';
+        naOpt.textContent = 'N/A / Other';
+        classSelect.appendChild(naOpt);
+
+        for (const it of list) {
           const key = sanitizeText(it?.classKey, { maxLen: 64 });
-          if (!key) continue;
-          const tok = normalizeEnumToken(key);
-          // tok here is key stripped of punctuation; for kebab-case it removes hyphens.
-          if (!classTokenToKey.has(tok)) classTokenToKey.set(tok, key);
-          if (!classKeyToToken.has(key)) classKeyToToken.set(key, toSheetClassTokenFromClassKey(key));
+          const name = String(it?.name || '').trim();
+          if (!key || !name) continue;
+          const opt = document.createElement('option');
+          opt.value = key;
+          opt.textContent = name;
+          classSelect.appendChild(opt);
         }
+
+        if (pending) {
+          classSelect.value = pending;
+          // If the key isn't in the list, keep it visible so we don't silently drop data.
+          if (classSelect.value !== pending) {
+            const opt = document.createElement('option');
+            opt.value = pending;
+            opt.textContent = pending;
+            classSelect.appendChild(opt);
+            classSelect.value = pending;
+          }
+        }
+
+        delete classSelect.dataset.pendingValue;
       } catch (e) {
-        console.warn('Class index load failed:', e);
+        console.warn('Failed to populate class list:', e);
       }
     })();
-    return classIndexPromise;
-  }
 
-  // Kick off in background (best effort).
-  ensureClassIndex();
+    return classOptionsPromise;
+  }
 
   const CANONICAL_FIELD_NAMES = new Set([
     'charName',
@@ -141,13 +135,20 @@ import {
     ...ATTR_KEYS,
   ]);
 
+  // Derived values (computed for display; not stored in sheet fields)
+  const DERIVED_FIELD_NAMES = new Set([
+    'hpmax',
+    'speed',
+    'physdef',
+    'mentdef',
+    'spiritdef',
+  ]);
+
   function buildCanonicalFromForm(fields) {
     const name = sanitizeCharName(fields?.charName || '');
     const level = clampLevel(fields?.level ?? 1);
     const primaryAttribute = coerceAttrKey(fields?.primaryAttribute);
-
-    const classToken = normalizeEnumToken(fields?.classSelect, { maxLen: 32 });
-    const classKey = sanitizeText(toCanonicalClassKeyFromToken(classToken), { maxLen: 64 });
+    const classKey = sanitizeText(fields?.classSelect, { maxLen: 64 });
 
     // Store EFFECTIVE (final) attribute values in builder.attributes
     const attrs = normalizeAttributes(fields || {});
@@ -157,7 +158,7 @@ import {
       attrs[k] = toInt(attrs[k], { min, max: cap });
     }
 
-    return { name, level, primaryAttribute, classKey, attributes: attrs, classToken };
+    return { name, level, primaryAttribute, classKey, attributes: attrs };
   }
 
   function pickSheetOnlyFields(allFields) {
@@ -165,9 +166,50 @@ import {
     const src = (allFields && typeof allFields === 'object') ? allFields : {};
     for (const [k, v] of Object.entries(src)) {
       if (CANONICAL_FIELD_NAMES.has(k)) continue;
+      if (DERIVED_FIELD_NAMES.has(k)) continue;
       out[k] = v;
     }
     return out;
+  }
+
+  // ---- Derived display (from character-schema.js) ----
+
+  let derivedSeq = 0;
+
+  function setNumberFieldByName(name, n) {
+    const el = document.querySelector(`[name="${name}"]`);
+    if (!el) return;
+    const val = Number.isFinite(n) ? String(Math.round(n)) : '';
+    if (el.value !== val) el.value = val;
+  }
+
+  async function updateDerivedDisplay(fieldsOverride = null) {
+    const seq = ++derivedSeq;
+
+    const allFields = fieldsOverride || collectFields();
+    const canon = buildCanonicalFromForm(allFields);
+
+    try {
+      const speed = computeSpeed(canon.attributes);
+const physdef = computePhysicalDefense({ attributes: canon.attributes, trainingRank: allFields.rank_physdef });
+const mentdef = computeMentalDefense({ attributes: canon.attributes, trainingRank: allFields.rank_mentdef });
+const spiritdef = computeSpiritDefense({ attributes: canon.attributes, trainingRank: allFields.rank_spiritdef });
+
+setNumberFieldByName('speed', speed);
+setNumberFieldByName('physdef', physdef);
+setNumberFieldByName('mentdef', mentdef);
+setNumberFieldByName('spiritdef', spiritdef);
+
+const hpmax = await computeMaxHP({ level: canon.level, classKey: canon.classKey, attributes: canon.attributes });
+
+if (seq !== derivedSeq) return; // stale
+
+setNumberFieldByName('hpmax', hpmax);
+} catch (e) {
+      // Best-effort UI update; don't break the sheet.
+      if (seq !== derivedSeq) return;
+      console.warn('Derived field update failed:', e);
+    }
   }
 
   async function resolvePortraitUrl(path) {
@@ -187,7 +229,6 @@ import {
     setCloudStatus('Cloud: Loading…');
 
     try {
-      await ensureClassIndex();
       const snap = await getDoc(cloudDocRef);
       if (snap.exists()) {
         const raw = snap.data() || {};
@@ -199,7 +240,6 @@ import {
         const level = clampLevel(b?.level ?? 1);
         const primaryAttribute = coerceAttrKey(b?.primaryAttribute);
         const classKey = sanitizeText(b?.classKey, { maxLen: 64 });
-        const classToken = toSheetClassTokenFromClassKey(classKey) || 'na';
 
         const attrs = normalizeAttributes(b?.attributes || {});
         for (const k of ATTR_KEYS) {
@@ -284,7 +324,6 @@ import {
     if (!cloudEnabled()) return;
 
     try {
-      await ensureClassIndex();
 
       const allFields = collectFields();
       const canon = buildCanonicalFromForm(allFields);
@@ -351,46 +390,10 @@ import {
   }
 
   async function initAuth() {
-
-    // Handle redirect result (no-op if not coming back from a redirect)
-    try {
-		await getRedirectResult(auth);
-	} catch (e) {
-	  console.error("getRedirectResult error:", e);
-	  setCloudStatus(`Cloud: ${e.code || "auth error"}`, true);
-	}
-
-    if (signInBtn) {
-      signInBtn.addEventListener('click', async () => {
-        setCloudStatus('Cloud: Signing in…');
-      
-        // Mobile: prefer redirect (popups often blocked/awkward on mobile)
-        if (isMobileLike()) {
-          await signInWithRedirect(auth, googleProvider);
-          return;
-        }
-      
-        // Desktop: prefer popup; fallback to redirect if popup blocked
-        try {
-          await signInWithPopup(auth, googleProvider);
-        } catch (e) {
-          console.warn("Popup failed, falling back to redirect:", e);
-          await signInWithRedirect(auth, googleProvider);
-        }
-      });
-    }
-
-    if (signOutBtn) {
-      signOutBtn.addEventListener('click', async () => {
-        await signOut(auth);
-      });
-    }
-
-    onAuthStateChanged(auth, async (user) => {
+    onAuth(async (user) => {
       currentUser = user;
       cloudDocRef = null;
       cloudReady = false;
-      updateAuthUi();
 
       if (!user) {
         setCloudStatus('Cloud: Off');
@@ -402,10 +405,8 @@ import {
 
       // Read custom claims (GM) and resolve which user's character doc we are editing.
       try {
-        // Force refresh so a newly-set GM claim is picked up immediately.
-        await user.getIdToken(true);
-        const tokenResult = await user.getIdTokenResult();
-        isGMUser = !!tokenResult?.claims?.gm;
+        const claims = await getClaims(user, { forceRefresh: true });
+        isGMUser = !!claims.gm;
       } catch (e) {
         isGMUser = false;
       }
@@ -436,22 +437,14 @@ import {
   const sheetEl = document.getElementById('sheet');
   const classSelect = document.getElementById('classSelect');
   const saveStatusEl = document.getElementById('saveStatus');
-
-  const exportBtn = document.getElementById('exportJsonBtn');
-  const importBtn = document.getElementById('importJsonBtn');
   const clearBtn = document.getElementById('clearSheetBtn');
-  const importFile = document.getElementById('importJsonFile');
 
   // Placeholder; initialized after scheduleSave is defined
   let portraitApi = { get: () => '', set: () => {} };
 
-  function setTheme(theme) {
-    const t = (theme === 'technologist') ? 'mechpilot' : (theme || 'na');
-    document.body.setAttribute('data-theme', t);
-  }
-
-  function getTheme() {
-    return document.body.getAttribute('data-theme') || 'na';
+  function setTheme(classKey) {
+    const key = sanitizeText(classKey, { maxLen: 64 });
+    document.body.setAttribute('data-theme', key || 'na');
   }
 
   function setStatus(text, isError = false) {
@@ -745,9 +738,7 @@ import {
     const canon = (state.canonical && typeof state.canonical === 'object') ? state.canonical : {};
     const level = clampLevel(canon?.level ?? 1);
     const primaryAttribute = coerceAttrKey(canon?.primaryAttribute);
-
     const classKey = sanitizeText(canon?.classKey, { maxLen: 64 });
-    const classToken = normalizeEnumToken(toSheetClassTokenFromClassKey(classKey) || 'na', { maxLen: 32 }) || 'na';
 
     const attrs = normalizeAttributes(canon?.attributes || {});
     for (const k of ATTR_KEYS) {
@@ -759,12 +750,15 @@ import {
     const mergedFields = {
       ...(state.fields && typeof state.fields === 'object' ? state.fields : {}),
       charName: sanitizeCharName(canon?.name || ''),
-      classSelect: classToken,
+      classSelect: classKey,
       primaryAttribute: primaryAttribute,
       level: level,
     };
 
     for (const k of ATTR_KEYS) mergedFields[k] = attrs[k];
+
+    // Ensure selects have options before applying field values.
+    populatePrimaryAttributeSelect();
 
     // Apply fields first so classSelect is set from the stored canonical.
     applyFields(mergedFields);
@@ -773,8 +767,12 @@ import {
     applyRepeatables(state.repeatables);
 
     // Theme must ALWAYS match the class dropdown value (derived; not saved).
-    setTheme(classToken);
-    if (classSelect) classSelect.value = classToken;
+    setTheme(classKey);
+    if (classSelect) {
+      // Ensure the dropdown eventually reflects the stored canonical value.
+      classSelect.dataset.pendingValue = classKey || '';
+      ensureClassSelectOptions();
+    }
 
     // Portrait local preview restore (optional).
     if (portraitApi?.set && state.portrait && typeof state.portrait === 'object') {
@@ -785,14 +783,14 @@ import {
       });
     }
 
-    updatePrimaryAttributeOptions();
-    recomputeDerived();
+    // Derived fields are computed for display and not stored.
+    updateDerivedDisplay(mergedFields);
   }
 
 
   function saveNow() {
     if (!storageOk) {
-      setStatus('Storage unavailable — use Export/Import', true);
+      setStatus('Storage unavailable', true);
       return;
     }
 
@@ -802,7 +800,7 @@ import {
       setStatus(storageType === 'session' ? 'Saved (session)' : 'Saved');
     } catch (e) {
       storageOk = false;
-      setStatus('Storage unavailable — use Export/Import', true);
+      setStatus('Storage unavailable', true);
     }
   }
 
@@ -812,7 +810,7 @@ function scheduleSave() {
     const canCloud = cloudEnabled();
 
     if (!canLocal && !canCloud) {
-      setStatus('Storage unavailable — use Export/Import', true);
+      setStatus('Storage unavailable', true);
       return;
     }
 
@@ -828,7 +826,7 @@ function scheduleSave() {
           setStatus(storageType === 'session' ? 'Saved (session)' : 'Saved');
         } catch (e) {
           storageOk = false;
-          setStatus('Storage unavailable — use Export/Import', true);
+          setStatus('Storage unavailable', true);
         }
       }
     }, SAVE_DEBOUNCE_MS);
@@ -842,7 +840,7 @@ function scheduleSave() {
 
   function loadSaved() {
     if (!storageOk) {
-      setStatus('Storage unavailable — use Export/Import', true);
+      setStatus('Storage unavailable', true);
       return false;
     }
 
@@ -857,61 +855,6 @@ function scheduleSave() {
     } catch (e) {
       return false;
     }
-  }
-
-  // ---------- Export / Import ----------
-  function safeFilename(s) {
-    const cleaned = String(s || '').trim().replace(/[^a-z0-9 _-]+/gi, '').replace(/\s+/g, ' ');
-    return cleaned.trim().replace(/ /g, '_') || 'Character';
-  }
-
-  function exportJson() {
-    const state = collectState();
-    const json = JSON.stringify(state, null, 2);
-
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-
-    const charNameEl = document.querySelector('input[name="charName"]');
-    const filename = `GameX_${safeFilename(charNameEl ? charNameEl.value : '')}.json`;
-
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-
-    // Release object URL to avoid memory leaks.
-    setTimeout(() => URL.revokeObjectURL(url), 0);
-    setStatus('Exported');
-  }
-
-  function importJsonFile(file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const state = JSON.parse(String(reader.result || ''));
-        if (!state || state.version !== 3) {
-          alert('Could not import: unsupported sheet format.');
-          setStatus('Import failed', true);
-          return;
-        }
-        applyState(state);
-        updatePrimaryAttributeOptions();
-        recomputeDerived();
-        scheduleSave();
-        setStatus('Imported');
-      } catch (e) {
-        alert('Could not import: invalid JSON.');
-        setStatus('Import failed', true);
-      }
-    };
-    reader.onerror = () => {
-      alert('Could not read file.');
-      setStatus('Import failed', true);
-    };
-    reader.readAsText(file);
   }
 
   function clearSheet() {
@@ -929,21 +872,19 @@ function scheduleSave() {
         return;
       }
       if (el.tagName === 'SELECT') {
-        // Prefer 'na' for theme/class select; otherwise fall back safely for rank dropdowns.
-        if (el.querySelector('option[value="na"]')) {
-          el.value = 'na';
-        } else if (el.querySelector('option[value="0"]')) {
+        // Most selects should clear to blank; rank dropdowns default to 0.
+        if (el.querySelector('option[value="0"]')) {
           el.value = '0';
         } else {
-          el.selectedIndex = 0;
+          el.value = '';
         }
         return;
       }
       el.value = '';
     });
 
-    setTheme('na');
-    if (classSelect) classSelect.value = 'na';
+    setTheme('');
+    if (classSelect) classSelect.value = '';
 
     if (portraitApi?.clear) portraitApi.clear({ silent: true });
     resetRepeatablesToDefaults();
@@ -958,6 +899,15 @@ function scheduleSave() {
   }
 
   // ---------- Repeatable list utility (for Pass 2+) ----------
+  const repeatableLists = {}; 
+  
+  // Normalize saved values for repeatable row fields so inputs never display "undefined" or "[object Object]".
+  function normalizeRowValue(v) {
+    if (v === null || typeof v === 'undefined') return '';
+    if (typeof v === 'object') return '';
+    return String(v);
+  }
+  
   // This is a lightweight helper around <template> cloning.
   function createRepeatableList({ container, templateId, addButton, onAdd }) {
     const tmpl = document.getElementById(templateId);
@@ -981,88 +931,6 @@ function scheduleSave() {
 
 
   // ---------- Repeatable lists (Pass 2) ----------
-  const ALL_ATTRIBUTES = [
-    { key: 'strength', label: 'Strength' },
-    { key: 'agility', label: 'Agility' },
-    { key: 'intellect', label: 'Intellect' },
-    { key: 'willpower', label: 'Willpower' },
-    { key: 'heart', label: 'Heart' },
-    { key: 'attunement', label: 'Attunement' }
-  ];
-
-  const HP_PROGRESSION = {
-    low: { base: 40, per: 8 },
-    medium: { base: 50, per: 10 },
-    high: { base: 60, per: 12 }
-  };
-
-  // NOTE: Only classes with fully-defined progressions are included for skill/defense autofill.
-  // Psychic/Elementalist/Mech Pilot are included for HP only (per your guidance).
-  const CLASS_CONFIG = {
-    ninja: {
-      hp: 'medium',
-      primary: ['agility', 'intellect'],
-      defenses: { rank_mentdef: 'fast', rank_spiritdef: 'medium', rank_physdef: 'slow' },
-      skills: { 'Ninjutsu': 'fast' }
-    },
-    magicalguardian: {
-      hp: 'low',
-      primary: ['attunement', 'heart'],
-      defenses: { rank_mentdef: 'medium', rank_spiritdef: 'fast', rank_physdef: 'slow' },
-      skills: { 'Spellcasting': 'fast' }
-    },
-    monstertamer: {
-      hp: 'medium',
-      primary: ['willpower', 'heart'],
-      defenses: { rank_mentdef: 'fast', rank_spiritdef: 'medium', rank_physdef: 'slow' },
-      skills: { 'Monster Taming': 'fast' }
-    },
-    spiritwarrior: {
-      hp: 'high',
-      primary: ['strength', 'agility'],
-      defenses: { rank_mentdef: 'slow', rank_spiritdef: 'medium', rank_physdef: 'fast' },
-      skills: { 'Martial Arts': 'fast' }
-    },
-    weaponmaster: {
-      hp: 'high',
-      primary: ['strength', 'agility'],
-      defenses: { rank_mentdef: 'medium', rank_spiritdef: 'slow', rank_physdef: 'fast' },
-      skills: {
-        'Melee Weapons': (primary) => (primary === 'strength' ? 'fast' : 'medium'),
-        'Targeting': (primary) => (primary === 'strength' ? 'medium' : 'fast')
-      }
-    },
-    henshinhero: {
-      hp: 'high',
-      primary: ['strength', 'heart'],
-      defenses: { rank_mentdef: 'slow', rank_spiritdef: 'medium', rank_physdef: 'fast' },
-      skills: { 'Henshin Arts': 'fast' }
-    },
-    metamorph: {
-      hp: 'high',
-      primary: ['strength', 'willpower'],
-      defenses: { rank_mentdef: 'medium', rank_spiritdef: 'slow', rank_physdef: 'fast' },
-      skills: { 'Metamorphosis': 'fast' }
-    },
-
-    // HP-only (for now)
-    psychic: { hp: 'low' },       // per your instruction: treat as low (no overrides)
-    elementalist: { hp: 'low' },  // per your instruction
-    mechpilot: { hp: 'low' },     // per your instruction
-    technologist: { hp: 'low' }   // legacy alias
-  };
-
-  function getClassConfig(cls) {
-    const key = (cls === 'technologist') ? 'mechpilot' : cls;
-    return CLASS_CONFIG[key] || CLASS_CONFIG[cls] || null;
-  }
-
-  const repeatableLists = {};
-
-  function normalizeRowValue(v) {
-    return (v == null) ? '' : String(v);
-  }
-
   function initRepeatableList({ key, containerId, templateId, addBtnId, fields, minRows }) {
     const container = document.getElementById(containerId);
     const addBtn = document.getElementById(addBtnId);
@@ -1162,193 +1030,29 @@ function scheduleSave() {
   }
 
   
-  function softSetValue(el, value) {
-    if (!el) return;
-    const v = (value == null) ? '' : String(value);
-    if (el.value === '' || el.dataset.autofilled === '1') {
-      el.value = v;
-      el.dataset.autofilled = '1';
-    }
-  }
-
-  function softSetNumberInputByName(name, value) {
-    const el = document.querySelector(`[name="${name}"]`);
-    if (!el) return;
-    const v = Number.isFinite(value) ? String(value) : '';
-    if (el.value === '' || el.dataset.autofilled === '1') {
-      el.value = v;
-      el.dataset.autofilled = '1';
-    }
-  }
-
-  function numFromInputByName(name) {
-    const el = document.querySelector(`[name="${name}"]`);
-    if (!el) return NaN;
-    const n = parseInt(String(el.value || ''), 10);
-    return Number.isFinite(n) ? n : NaN;
-  }
-
-  function rankForProgression(prog, level) {
-    if (!prog || !Number.isFinite(level) || level < 1) return NaN;
-    const p = String(prog).toLowerCase();
-    const t = {
-      fast:   [3, 5, 7, 9, 11],
-      medium: [4, 7, 9, 11],
-      slow:   [3, 6, 9, 11]
-    }[p];
-    if (!t) return NaN;
-
-    let rank = (p === 'slow') ? 0 : 1;
-    for (const th of t) if (level >= th) rank += 1;
-    return Math.max(0, Math.min(6, rank));
-  }
-
-  function updatePrimaryAttributeOptions() {
+  function populatePrimaryAttributeSelect() {
     const sel = document.getElementById('primaryAttribute');
     if (!sel) return;
 
-    const cls = (classSelect && classSelect.value) ? String(classSelect.value) : 'na';
-    const cfg = getClassConfig(cls);
-    const allowed = (cfg && Array.isArray(cfg.primary) && cfg.primary.length) ? cfg.primary : null;
+    const current = coerceAttrKey(sel.value) || '';
 
-    const options = allowed
-      ? ALL_ATTRIBUTES.filter(a => allowed.includes(a.key))
-      : ALL_ATTRIBUTES.slice();
+    sel.innerHTML = '';
+    const blank = document.createElement('option');
+    blank.value = '';
+    blank.textContent = '';
+    sel.appendChild(blank);
 
-    const current = String(sel.value || '');
-    const html = ['<option value=""></option>'].concat(options.map(o => `<option value="${o.key}">${o.label}</option>`)).join('');
-    sel.innerHTML = html;
-
-    // Keep current if still valid; otherwise default to the first allowed option (softly).
-    if (current && options.some(o => o.key === current)) {
-      sel.value = current;
-    } else if (options[0]) {
-      softSetValue(sel, options[0].key);
-    } else {
-      softSetValue(sel, '');
-    }
-  }
-
-  function ensureBaselineSkillsAndDefenses() {
-    const cls = (classSelect && classSelect.value) ? String(classSelect.value) : 'na';
-    const cfg = getClassConfig(cls);
-    if (!cfg) return;
-
-    const lvl = numFromInputByName('level');
-    if (!Number.isFinite(lvl) || lvl < 1) return;
-
-    // Defenses (training ranks stored in the Skills section)
-    if (cfg.defenses) {
-      Object.keys(cfg.defenses).forEach((defName) => {
-        const prog = cfg.defenses[defName];
-        const r = rankForProgression(prog, lvl);
-        if (Number.isFinite(r)) softSetNumberInputByName(defName, r);
-      });
+    for (const k of ATTR_KEYS) {
+      const opt = document.createElement('option');
+      opt.value = k;
+      opt.textContent = labelForAttrKey(k);
+      sel.appendChild(opt);
     }
 
-    // Class combat skill(s) (stored in the Combat & Class Skills repeatable list)
-    const list = repeatableLists.combatSkillsExtra;
-    if (!list || !cfg.skills) return;
-
-    const primary = String((document.getElementById('primaryAttribute') || {}).value || '');
-    const required = Object.keys(cfg.skills);
-
-    // Build an index of existing rows by normalized skill name
-    const rows = Array.from(list.container.querySelectorAll('[data-repeatable-item]'));
-    const byName = new Map();
-    rows.forEach((row) => {
-      const nameEl = row.querySelector('[data-field="skill"]');
-      const key = nameEl ? String(nameEl.value || '').trim().toLowerCase() : '';
-      if (key) byName.set(key, row);
-    });
-
-    required.forEach((skillName) => {
-      const key = String(skillName).trim().toLowerCase();
-      if (!key) return;
-
-      let row = byName.get(key);
-      if (!row) {
-        row = list.addRow({ skill: skillName, rank: '' });
-        byName.set(key, row);
-      }
-
-      const progOrFn = cfg.skills[skillName];
-      const prog = (typeof progOrFn === 'function') ? progOrFn(primary) : progOrFn;
-      const r = rankForProgression(prog, lvl);
-
-      const rankEl = row.querySelector('[data-field="rank"]');
-      if (rankEl && Number.isFinite(r)) softSetValue(rankEl, String(r));
-    });
+    if (current) sel.value = current;
   }
 
-
-  function forceSetNumberInputByName(name, value) {
-    const el = document.querySelector(`[name="${name}"]`);
-    if (!el) return;
-    const v = Number.isFinite(value) ? String(value) : '';
-    el.value = v;
-    el.dataset.autofilled = '1';
-  }
-
-  function recomputeDefenses() {
-    // Total Defense = Training Rank + best attribute in that category.
-    // If your rules use different base stats, edit the base calculations here.
-    const str = numFromInputByName('strength');
-    const agi = numFromInputByName('agility');
-    const intel = numFromInputByName('intellect');
-    const will = numFromInputByName('willpower');
-    const att = numFromInputByName('attunement');
-    const hrt = numFromInputByName('heart');
-
-    const physTraining = numFromInputByName('rank_physdef');
-    const mentTraining = numFromInputByName('rank_mentdef');
-    const spiritTraining = numFromInputByName('rank_spiritdef');
-
-    const physBase = Math.max(Number.isFinite(str) ? str : 0, Number.isFinite(agi) ? agi : 0);
-    const mentBase = Math.max(Number.isFinite(intel) ? intel : 0, Number.isFinite(will) ? will : 0);
-    const spiritBase = Math.max(Number.isFinite(att) ? att : 0, Number.isFinite(hrt) ? hrt : 0);
-
-    const totalPhys = physBase + (Number.isFinite(physTraining) ? physTraining : 0);
-    const totalMent = mentBase + (Number.isFinite(mentTraining) ? mentTraining : 0);
-    const totalSpirit = spiritBase + (Number.isFinite(spiritTraining) ? spiritTraining : 0);
-
-    forceSetNumberInputByName('physdef', totalPhys);
-    forceSetNumberInputByName('mentdef', totalMent);
-    forceSetNumberInputByName('spiritdef', totalSpirit);
-  }
-
-  function recomputeSpeed() {
-    const agi = numFromInputByName('agility');
-    if (!Number.isFinite(agi)) return;
-    softSetNumberInputByName('speed', 4 + agi);
-  }
-
-  function recomputeHPMax() {
-    const cls = (classSelect && classSelect.value) ? String(classSelect.value) : 'na';
-    const cfg = getClassConfig(cls);
-    if (!cfg || !cfg.hp) return;
-
-    const lvl = numFromInputByName('level');
-    const str = numFromInputByName('strength');
-    if (!Number.isFinite(lvl) || lvl < 1 || !Number.isFinite(str)) return;
-
-    const model = HP_PROGRESSION[cfg.hp];
-    if (!model) return;
-
-    // HP = BASE(L1) + (PER_LEVEL * (level-1)) + (Strength * (level + 2))
-    const hpMax = Math.round(model.base + (model.per * (lvl - 1)) + (str * (lvl + 2)));
-    softSetNumberInputByName('hpmax', hpMax);
-  }
-
-  function recomputeDerived() {
-    recomputeSpeed();
-    recomputeHPMax();
-    ensureBaselineSkillsAndDefenses();
-    recomputeDefenses();
-  }
-
-
-  // ---------- Tooltips (short hover/focus explanations) ----------
+// ---------- Tooltips (short hover/focus explanations) ----------
   function applyTooltipText() {
     const setTipForNamedField = (name, text) => {
       const field = document.querySelector(`[name="${name}"]`);
@@ -1369,7 +1073,7 @@ function scheduleSave() {
     };
 
     // Section-level guidance
-    setTipById('resources_title', 'Track your core resources. HP Max is calculated from Class + Level + Strength; Speed is 4 + Agility (in squares).');
+    setTipById('resources_title', 'Track your core resources (HP, Spirit, etc.). Speed is measured in squares.');
     setTipById('attributes_title', 'Enter your 6 attributes. Defenses on this sheet are derived from Defense Training + your best attribute in that category.');
     setTipById('skills_title', 'Set your training ranks (0–6). Defense Training is tracked here; the total defense values appear in Attributes & Defenses.');
     setTipById('keystones_title', 'Keystones are your core narrative hooks (Origin/Bond/Background). They can trigger bonuses, complications, or story beats.');
@@ -1384,8 +1088,8 @@ function scheduleSave() {
     setTipForNamedField('heart', 'Heart can be your base for Spiritual Defense (best of Attunement/Heart).');
 
     // Derived resources
-    setTipForNamedField('hpmax', 'HP Max = Base (by Class) + Per-Level (by Class) × (Level − 1) + Strength × (Level + 2).');
-    setTipForNamedField('speed', 'Speed = 4 + Agility (in squares).');
+    setTipForNamedField('hpmax', 'Enter your maximum HP.');
+    setTipForNamedField('speed', 'Enter your Speed in squares.');
 
     // Defense training (Skills section)
     setTipForNamedField('rank_physdef', 'Physical Defense Training. Total Physical Defense = Training + max(Strength, Agility).');
@@ -1400,9 +1104,9 @@ function scheduleSave() {
     // Table headers in Resources (make hover obvious)
     const resourceHeaders = document.querySelectorAll('#resources th');
     if (resourceHeaders && resourceHeaders.length >= 3) {
-      resourceHeaders[0].dataset.tip = 'HP: Max is calculated; Current is what you have left.';
+      resourceHeaders[0].dataset.tip = 'HP: Max is your total; Current is what you have left.';
       resourceHeaders[1].dataset.tip = 'Strain: track current strain; check Overstrained when you exceed your limit.';
-      resourceHeaders[2].dataset.tip = 'Speed is in squares and is calculated from Agility.';
+      resourceHeaders[2].dataset.tip = 'Speed is in squares.';
     }
   }
 
@@ -1544,10 +1248,6 @@ function scheduleSave() {
     Object.keys(repeatableLists).forEach((k) => {
       repeatableLists[k].load(rep[k]);
     });
-
-    // Add class skill row if missing
-    updatePrimaryAttributeOptions();
-        recomputeDerived();
   }
 
   function resetRepeatablesToDefaults() {
@@ -1565,9 +1265,6 @@ function scheduleSave() {
 
     // Abilities: 3 blank cards
     if (repeatableLists.abilities) repeatableLists.abilities.load([]);
-
-    updatePrimaryAttributeOptions();
-        recomputeDerived();
   }
 
   // ---------- Wire up events ----------
@@ -1593,8 +1290,7 @@ initRepeatableList({ key: 'abilities', containerId: 'abilityCards', templateId: 
 if (classSelect) {
     classSelect.addEventListener('change', (e) => {
       setTheme(e.target.value);
-      updatePrimaryAttributeOptions();
-        recomputeDerived();
+      updateDerivedDisplay();
       scheduleSave();
     });
   }
@@ -1603,55 +1299,16 @@ if (classSelect) {
     sheetEl.addEventListener('input', (e) => {
       const t = e.target;
       if (t && t.tagName === 'INPUT' && t.type === 'file') return;
-
-      // If user types into an autofilled field, stop overwriting it.
-      if (t && t.dataset && t.dataset.autofilled === '1') {
-        delete t.dataset.autofilled;
-      }
-
-      const n = (t && t.name) ? String(t.name) : '';
-      if (
-        n === 'strength' || n === 'agility' || n === 'intellect' || n === 'willpower' ||
-        n === 'attunement' || n === 'heart' || n === 'level' || n === 'primaryAttribute' ||
-        n === 'rank_physdef' || n === 'rank_mentdef' || n === 'rank_spiritdef'
-      ) {
-        recomputeDerived();
-      }
-
+      updateDerivedDisplay();
       scheduleSave();
     }, true);
 
     sheetEl.addEventListener('change', (e) => {
       const t = e.target;
       if (t && t.tagName === 'INPUT' && t.type === 'file') return;
-
-      if (t && t.dataset && t.dataset.autofilled === '1') {
-        delete t.dataset.autofilled;
-      }
-
-      const n = (t && t.name) ? String(t.name) : '';
-      if (
-        n === 'strength' || n === 'agility' || n === 'intellect' || n === 'willpower' ||
-        n === 'attunement' || n === 'heart' || n === 'level' || n === 'primaryAttribute' ||
-        n === 'rank_physdef' || n === 'rank_mentdef' || n === 'rank_spiritdef'
-      ) {
-        recomputeDerived();
-      }
-
+      updateDerivedDisplay();
       scheduleSave();
     }, true);
-  }
-
-  if (exportBtn) exportBtn.addEventListener('click', exportJson);
-
-  if (importBtn && importFile) {
-    importBtn.addEventListener('click', () => importFile.click());
-    importFile.addEventListener('change', () => {
-      const file = importFile.files && importFile.files[0];
-      if (!file) return;
-      importJsonFile(file);
-      importFile.value = '';
-    });
   }
 
   if (clearBtn) clearBtn.addEventListener('click', clearSheet);
@@ -1667,6 +1324,10 @@ if (classSelect) {
   applyTooltipText();
   initTooltips();
 
+  // Populate dropdown options (no class data duplicated in HTML)
+  populatePrimaryAttributeSelect();
+  ensureClassSelectOptions();
+
   // Initialize Firebase Auth (cloud sync)
   initAuth();
 
@@ -1679,6 +1340,6 @@ if (classSelect) {
 
   // If storage is unavailable (common for some file: setups), make that obvious.
   if (!storageOk) {
-    setStatus('Storage unavailable — use Export/Import', true);
+    setStatus('Storage unavailable', true);
   }
 })();

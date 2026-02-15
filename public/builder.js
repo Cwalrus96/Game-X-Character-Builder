@@ -10,7 +10,7 @@ import {
   confirmModal,
 } from "./builder-common.js";
 import { renderBuilderNav } from "./builder-nav.js";
-
+import { getPortraitStoragePath } from "./character-schema.js";
 
 import {
   ref as storageRef,
@@ -69,14 +69,8 @@ async function uploadPortrait() {
   if (!pendingPortraitFile) return { url: portraitUrl, path: portraitPath };
 
   const file = pendingPortraitFile;
-  const type = String(file.type || "").toLowerCase();
-  const safeExt =
-    type === "image/jpeg" ? "jpg" :
-    type === "image/png" ? "png" :
-    type === "image/webp" ? "webp" :
-    type === "image/gif" ? "gif" : "png";
 
-  const storagePath = `portraits/${ctx.editingUid}/${ctx.charId}/portrait.${safeExt}`;
+  const storagePath = getPortraitStoragePath({ uid: ctx.editingUid, charId: ctx.charId });
   const r = storageRef(storage, storagePath);
 
   await uploadBytes(r, file, { contentType: file.type || "image/*" });

@@ -33,7 +33,7 @@
   }
 
   /* Magical Guardian theme */
-  [data-theme="magicalguardian"] {
+  [data-theme="magical-guardian"] {
     /* Palette uses rich purples with gold accents */
     --primary-color: #5e154f;           /* deep purple for borders */
     --secondary-color: #faf0f8;         /* pale warm pink background */
@@ -49,7 +49,7 @@
   }
 
   /* Monster Tamer theme */
-  [data-theme="monstertamer"] {
+  [data-theme="monster-tamer"] {
     /* Earthy greens paired with brown accents */
     --primary-color: #234f34;           /* deep forest green */
     --secondary-color: #f5f7f3;         /* soft parchment */
@@ -65,7 +65,7 @@
   }
 
   /* Spirit Warrior theme */
-  [data-theme="spiritwarrior"] {
+  [data-theme="spirit-warrior"] {
     /* Dynamic energy colours: blue and orange */
     --primary-color: #274b89;           /* dark blue for borders */
     --secondary-color: #f9f4ef;         /* pale cream background */
@@ -439,23 +439,23 @@
   [data-theme="ninja"] #abilities h2::before { content: "✪"; }
   [data-theme="ninja"] #bonds h2::before { content: "⛓"; }
   [data-theme="ninja"] #notes h2::before { content: "✎"; }
-  [data-theme="henshinhero"] #identity h2::before { content: "⚡"; }
-  [data-theme="henshinhero"] #attributes h2::before { content: "⛨"; }
-  [data-theme="henshinhero"] #resources h2::before { content: "♥"; }
-  [data-theme="henshinhero"] #skills h2::before { content: "✦"; }
-  [data-theme="henshinhero"] #techniques h2::before { content: "✪"; }
-  [data-theme="henshinhero"] #abilities h2::before { content: "✧"; }
-  [data-theme="henshinhero"] #keystones h2::before { content: "◆"; }
-  [data-theme="henshinhero"] #notes h2::before { content: "✎"; }
+  [data-theme="henshin-hero"] #identity h2::before { content: "⚡"; }
+  [data-theme="henshin-hero"] #attributes h2::before { content: "⛨"; }
+  [data-theme="henshin-hero"] #resources h2::before { content: "♥"; }
+  [data-theme="henshin-hero"] #skills h2::before { content: "✦"; }
+  [data-theme="henshin-hero"] #techniques h2::before { content: "✪"; }
+  [data-theme="henshin-hero"] #abilities h2::before { content: "✧"; }
+  [data-theme="henshin-hero"] #keystones h2::before { content: "◆"; }
+  [data-theme="henshin-hero"] #notes h2::before { content: "✎"; }
 
-  [data-theme="weaponmaster"] #identity h2::before { content: "⚔"; }
-  [data-theme="weaponmaster"] #attributes h2::before { content: "⛭"; }
-  [data-theme="weaponmaster"] #resources h2::before { content: "♥"; }
-  [data-theme="weaponmaster"] #skills h2::before { content: "✦"; }
-  [data-theme="weaponmaster"] #techniques h2::before { content: "✪"; }
-  [data-theme="weaponmaster"] #abilities h2::before { content: "✧"; }
-  [data-theme="weaponmaster"] #keystones h2::before { content: "◆"; }
-  [data-theme="weaponmaster"] #notes h2::before { content: "✎"; }
+  [data-theme="weapon-master"] #identity h2::before { content: "⚔"; }
+  [data-theme="weapon-master"] #attributes h2::before { content: "⛭"; }
+  [data-theme="weapon-master"] #resources h2::before { content: "♥"; }
+  [data-theme="weapon-master"] #skills h2::before { content: "✦"; }
+  [data-theme="weapon-master"] #techniques h2::before { content: "✪"; }
+  [data-theme="weapon-master"] #abilities h2::before { content: "✧"; }
+  [data-theme="weapon-master"] #keystones h2::before { content: "◆"; }
+  [data-theme="weapon-master"] #notes h2::before { content: "✎"; }
 
   [data-theme="metamorph"] #identity h2::before { content: "✶"; }
   [data-theme="metamorph"] #attributes h2::before { content: "☣"; }
@@ -466,43 +466,43 @@
   [data-theme="metamorph"] #keystones h2::before { content: "◆"; }
   [data-theme="metamorph"] #notes h2::before { content: "✎"; }
 
-  [data-theme="mechpilot"] #identity h2::before { content: "⚙"; }
-  [data-theme="mechpilot"] #attributes h2::before { content: "⚙"; }
-  [data-theme="mechpilot"] #resources h2::before { content: "⚡"; }
-  [data-theme="mechpilot"] #skills h2::before { content: "⚙"; }
-  [data-theme="mechpilot"] #techniques h2::before { content: "✪"; }
-  [data-theme="mechpilot"] #abilities h2::before { content: "✦"; }
-  [data-theme="mechpilot"] #keystones h2::before { content: "◆"; }
-  [data-theme="mechpilot"] #notes h2::before { content: "✎"; }
+  [data-theme="mech-pilot"] #identity h2::before { content: "⚙"; }
+  [data-theme="mech-pilot"] #attributes h2::before { content: "⚙"; }
+  [data-theme="mech-pilot"] #resources h2::before { content: "⚡"; }
+  [data-theme="mech-pilot"] #skills h2::before { content: "⚙"; }
+  [data-theme="mech-pilot"] #techniques h2::before { content: "✪"; }
+  [data-theme="mech-pilot"] #abilities h2::before { content: "✦"; }
+  [data-theme="mech-pilot"] #keystones h2::before { content: "◆"; }
+  [data-theme="mech-pilot"] #notes h2::before { content: "✎"; }
 
 
 
   /* Magical Guardian icons */
-  [data-theme="magicalguardian"] #identity h2::before { content: "✿"; }
-  [data-theme="magicalguardian"] #attributes h2::before { content: "⚚"; }
-  [data-theme="magicalguardian"] #resources h2::before { content: "♡"; }
-  [data-theme="magicalguardian"] #skills h2::before { content: "♢"; }
-  [data-theme="magicalguardian"] #abilities h2::before { content: "✧"; }
-  [data-theme="magicalguardian"] #bonds h2::before { content: "❤"; }
-  [data-theme="magicalguardian"] #notes h2::before { content: "✎"; }
+  [data-theme="magical-guardian"] #identity h2::before { content: "✿"; }
+  [data-theme="magical-guardian"] #attributes h2::before { content: "⚚"; }
+  [data-theme="magical-guardian"] #resources h2::before { content: "♡"; }
+  [data-theme="magical-guardian"] #skills h2::before { content: "♢"; }
+  [data-theme="magical-guardian"] #abilities h2::before { content: "✧"; }
+  [data-theme="magical-guardian"] #bonds h2::before { content: "❤"; }
+  [data-theme="magical-guardian"] #notes h2::before { content: "✎"; }
 
   /* Monster Tamer icons */
-  [data-theme="monstertamer"] #identity h2::before { content: "♘"; }
-  [data-theme="monstertamer"] #attributes h2::before { content: "♞"; }
-  [data-theme="monstertamer"] #resources h2::before { content: "♣"; }
-  [data-theme="monstertamer"] #skills h2::before { content: "⚡"; }
-  [data-theme="monstertamer"] #abilities h2::before { content: "⚔"; }
-  [data-theme="monstertamer"] #bonds h2::before { content: "♣"; }
-  [data-theme="monstertamer"] #notes h2::before { content: "✎"; }
+  [data-theme="monster-tamer"] #identity h2::before { content: "♘"; }
+  [data-theme="monster-tamer"] #attributes h2::before { content: "♞"; }
+  [data-theme="monster-tamer"] #resources h2::before { content: "♣"; }
+  [data-theme="monster-tamer"] #skills h2::before { content: "⚡"; }
+  [data-theme="monster-tamer"] #abilities h2::before { content: "⚔"; }
+  [data-theme="monster-tamer"] #bonds h2::before { content: "♣"; }
+  [data-theme="monster-tamer"] #notes h2::before { content: "✎"; }
 
   /* Spirit Warrior icons */
-  [data-theme="spiritwarrior"] #identity h2::before { content: "⚡"; }
-  [data-theme="spiritwarrior"] #attributes h2::before { content: "⚔"; }
-  [data-theme="spiritwarrior"] #resources h2::before { content: "♥"; }
-  [data-theme="spiritwarrior"] #skills h2::before { content: "✪"; }
-  [data-theme="spiritwarrior"] #abilities h2::before { content: "☯"; }
-  [data-theme="spiritwarrior"] #bonds h2::before { content: "⚝"; }
-  [data-theme="spiritwarrior"] #notes h2::before { content: "✎"; }
+  [data-theme="spirit-warrior"] #identity h2::before { content: "⚡"; }
+  [data-theme="spirit-warrior"] #attributes h2::before { content: "⚔"; }
+  [data-theme="spirit-warrior"] #resources h2::before { content: "♥"; }
+  [data-theme="spirit-warrior"] #skills h2::before { content: "✪"; }
+  [data-theme="spirit-warrior"] #abilities h2::before { content: "☯"; }
+  [data-theme="spirit-warrior"] #bonds h2::before { content: "⚝"; }
+  [data-theme="spirit-warrior"] #notes h2::before { content: "✎"; }
 
   /* Technologist icons */
   [data-theme="technologist"] #identity h2::before { content: "⚙"; }
@@ -963,7 +963,7 @@
 
 
   /* Mech Pilot theme (formerly Technologist) */
-  [data-theme="mechpilot"], [data-theme="technologist"] {
+  [data-theme="mech-pilot"], [data-theme="technologist"] {
     --primary-color: #1f6feb;
     --secondary-color: #07121f;
     --header-bg-color: #0b1d33;
@@ -979,7 +979,7 @@
   }
 
   /* Weapon Master theme */
-  [data-theme="weaponmaster"] {
+  [data-theme="weapon-master"] {
     --primary-color: #c28b2c;
     --secondary-color: #16110a;
     --header-bg-color: #2a1d0b;
@@ -995,7 +995,7 @@
   }
 
   /* Henshin Hero theme */
-  [data-theme="henshinhero"] {
+  [data-theme="henshin-hero"] {
     --primary-color: #ff2d55;
     --secondary-color: #12060a;
     --header-bg-color: #2a0b14;

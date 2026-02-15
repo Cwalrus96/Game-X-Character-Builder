@@ -378,3 +378,125 @@ export function sanitizeUpdatePatch(patch) {
 
   return out;
 }
+
+
+// ---- Game X data loaders (JSON in /public/data) ----
+
+// Cached for the lifetime of the page.
+let _gameXClassesPromise = null;
+
+/**
+ * Loads the Game X class list from /data/game-x/classes.json.
+ * This is UI/data plumbing used to avoid duplicating class data in HTML/JS.
+ */
+export async function loadGameXClasses({ cache = 'no-store' } = {}) {
+  if (_gameXClassesPromise) return _gameXClassesPromise;
+
+  _gameXClassesPromise = (async () => {
+    const res = await fetch('./data/game-x/classes.json', { cache });
+    if (!res.ok) throw new Error(`Failed to load classes.json (${res.status})`);
+
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  })();
+
+  try {
+    return await _gameXClassesPromise;
+  } catch (e) {
+    _gameXClassesPromise = null;
+    throw e;
+  }
+}
+
+
+// ---- Derived sheet fields (computed; not stored) ----
+
+// This math comes from the game rules, and should NOT be changed
+const HP_MODELS = {
+  low: { base: 40, per: 8 },
+  medium: { base: 50, per: 10 },
+  high: { base: 60, per: 12 },
+};
+
+function normalizeHpProgressionLabel(v) {
+  const s = sanitizeText(v, { maxLen: 16, collapse: true }).toLowerCase();
+  if (s === 'low') return 'low';
+  if (s === 'medium') return 'medium';
+  if (s === 'high') return 'high';
+  return '';
+}
+
+async function getClassHpModel(classKey) {
+  const key = sanitizeText(classKey, { maxLen: 64, collapse: true });
+  let prog = '';
+
+  try {
+    const list = await loadGameXClasses();
+    const found = Array.isArray(list) ? list.find((c) => String(c?.classKey || '').trim() === key) : null;
+    prog = normalizeHpProgressionLabel(found?.hpProgression || '');
+  } catch (e) {
+    // Best-effort; derive with defaults below.
+    prog = '';
+  }
+
+  // Some entries in classes.json still have blank hpProgression while that data is being updated.
+  // Defaulting to 'low' keeps derivations usable without duplicating class-specific tables here.
+  const tier = prog || 'low';
+  return HP_MODELS[tier] || HP_MODELS.low;
+}
+
+function bestOf(a, b) {
+  const aa = Number.isFinite(a) ? a : 0;
+  const bb = Number.isFinite(b) ? b : 0;
+  return Math.max(aa, bb);
+}
+
+/**
+ * Speed (in squares): 4 + Agility
+ */
+export function computeSpeed(attributes) {
+  const attrs = normalizeAttributes(attributes || {});
+  return 4 + (Number.isFinite(attrs.agility) ? attrs.agility : 0);
+}
+
+/**
+ * Physical Defense total: Training Rank + best of (Strength, Agility)
+ */
+export function computePhysicalDefense({ attributes, trainingRank } = {}) {
+  const attrs = normalizeAttributes(attributes || {});
+  const tr = toInt(trainingRank ?? 0, { min: 0, max: 6 });
+  const base = bestOf(attrs.strength, attrs.agility);
+  return base + tr;
+}
+
+/**
+ * Mental Defense total: Training Rank + best of (Intellect, Willpower)
+ */
+export function computeMentalDefense({ attributes, trainingRank } = {}) {
+  const attrs = normalizeAttributes(attributes || {});
+  const tr = toInt(trainingRank ?? 0, { min: 0, max: 6 });
+  const base = bestOf(attrs.intellect, attrs.willpower);
+  return base + tr;
+}
+
+/**
+ * Spirit Defense total: Training Rank + best of (Attunement, Heart)
+ */
+export function computeSpiritDefense({ attributes, trainingRank } = {}) {
+  const attrs = normalizeAttributes(attributes || {});
+  const tr = toInt(trainingRank ?? 0, { min: 0, max: 6 });
+  const base = bestOf(attrs.attunement, attrs.heart);
+  return base + tr;
+}
+
+/**
+ * HP Max:
+ * BASE(L1) + (PER_LEVEL * (level-1)) + (Strength * (level + 2))
+ */
+export async function computeMaxHP({ level, classKey, attributes } = {}) {
+  const L = clampLevel(level ?? 1);
+  const attrs = normalizeAttributes(attributes || {});
+  const hpModel = await getClassHpModel(classKey);
+  const str = Number.isFinite(attrs.strength) ? attrs.strength : 0;
+  return Math.round(hpModel.base + (hpModel.per * (L - 1)) + (str * (L + 2)));
+}

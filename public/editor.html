@@ -11,20 +11,11 @@
 <div id="sheet"><div aria-label="Sheet tools" class="sheet-tools">
 <div class="tools-left">
 <a class="tool-link" href="characters.html" id="backToCharactersLink">Characters</a>
-<button id="exportJsonBtn" type="button">Export</button>
-<button id="importJsonBtn" type="button">Import</button>
 <button id="clearSheetBtn" type="button">Clear</button>
-<span class="hint">Export JSON for a portable backup</span>
 </div>
 <div class="tools-right"><span aria-live="polite" class="save-status" id="saveStatus">Ready</span>
+<span aria-live="polite" class="cloud-status" id="cloudStatus">Cloud: Off</span>
 </div>
-<div class="auth-controls" aria-label="Account">
-  <span class="auth-user" id="authUserLabel">Signed out</span>
-  <span class="cloud-status" id="cloudStatus">Cloud: Off</span>
-  <button id="signInBtn" type="button">Sign in</button>
-  <button id="signOutBtn" type="button" style="display:none">Sign out</button>
-</div>
-<input accept="application/json,.json" id="importJsonFile" style="display:none" type="file"/>
 </div><div aria-labelledby="identity_title" class="section" id="identity">
 <h2 id="identity_title">Character Information</h2>
 <div class="identity-grid">
@@ -40,17 +31,7 @@
 <div class="identity-field">
 <label for="classSelect">Class</label>
 <select id="classSelect" name="classSelect">
-<option value="na" selected="">N/A / Other</option>
-<option value="ninja">Ninja</option>
-<option value="magicalguardian">Magical Guardian</option>
-<option value="henshinhero">Henshin Hero</option>
-<option value="weaponmaster">Weapon Master</option>
-<option value="monstertamer">Monster Tamer</option>
-<option value="spiritwarrior">Spirit Warrior</option>
-<option value="mechpilot">Mech Pilot</option>
-<option value="metamorph">Metamorph</option>
-<option value="psychic">Psychic</option>
-<option value="elementalist">Elementalist</option>
+<option value="">N/A / Other</option>
 </select>
 </div>
 <div class="identity-field">
@@ -87,7 +68,7 @@
 <tr>
 <td>
 <div class="resource-inline">
-<label class="visually-hidden" for="hpmax">HP maximum</label><input class="resource-input" id="hpmax" inputmode="numeric" min="0" name="hpmax" step="1" type="number"/>
+<label class="visually-hidden" for="hpmax">HP maximum</label><input class="resource-input" id="hpmax" inputmode="numeric" min="0" name="hpmax" readonly step="1" type="number"/>
 <span class="resource-sep">/</span>
 <label class="visually-hidden" for="hpcur">HP current</label><input class="resource-input" id="hpcur" inputmode="numeric" min="0" name="hpcur" step="1" type="number"/>
 </div>
@@ -101,7 +82,7 @@
             </label>
 </div>
 </td>
-<td><label class="visually-hidden" for="speed">Speed</label><input class="resource-input" id="speed" inputmode="numeric" min="0" name="speed" step="1" type="number"/></td>
+<td><label class="visually-hidden" for="speed">Speed</label><input class="resource-input" id="speed" inputmode="numeric" min="0" name="speed" readonly step="1" type="number"/></td>
 </tr>
 </table>
 
@@ -115,19 +96,19 @@
 
 <label class="attribute-item"><span>Strength</span><input class="attr-input" inputmode="numeric" name="strength" step="1" type="number"/></label>
 <label class="attribute-item"><span>Agility</span><input class="attr-input" inputmode="numeric" name="agility" step="1" type="number"/></label>
-<label class="attribute-item"><span>Physical Defense</span><input class="attr-input derived-input" inputmode="numeric" name="physdef" step="1" type="number" readonly/></label>
+<label class="attribute-item"><span>Physical Defense</span><input class="attr-input" inputmode="numeric" name="physdef" readonly step="1" type="number"/></label>
 </fieldset>
 <fieldset class="attribute-group"><legend class="attribute-group-header">Mental</legend>
 
 <label class="attribute-item"><span>Intellect</span><input class="attr-input" inputmode="numeric" name="intellect" step="1" type="number"/></label>
 <label class="attribute-item"><span>Willpower</span><input class="attr-input" inputmode="numeric" name="willpower" step="1" type="number"/></label>
-<label class="attribute-item"><span>Mental Defense</span><input class="attr-input derived-input" inputmode="numeric" name="mentdef" step="1" type="number" readonly/></label>
+<label class="attribute-item"><span>Mental Defense</span><input class="attr-input" inputmode="numeric" name="mentdef" readonly step="1" type="number"/></label>
 </fieldset>
 <fieldset class="attribute-group"><legend class="attribute-group-header">Spiritual</legend>
 
 <label class="attribute-item"><span>Attunement</span><input class="attr-input" inputmode="numeric" name="attunement" step="1" type="number"/></label>
 <label class="attribute-item"><span>Heart</span><input class="attr-input" inputmode="numeric" name="heart" step="1" type="number"/></label>
-<label class="attribute-item"><span>Spiritual Defense</span><input class="attr-input derived-input" inputmode="numeric" name="spiritdef" step="1" type="number" readonly/></label>
+<label class="attribute-item"><span>Spiritual Defense</span><input class="attr-input" inputmode="numeric" name="spiritdef" readonly step="1" type="number"/></label>
 </fieldset>
 </div>
 </div><div aria-labelledby="skills_title" class="section" id="skills">
