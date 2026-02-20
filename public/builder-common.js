@@ -11,7 +11,7 @@ import {
   deleteField,
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-import { normalizeCharacterDoc } from "./character-schema.js";
+import { normalizeCharacterDoc } from "./database-reader.js";
 import { sanitizeUpdatePatch } from "./database-writer.js";
 
 /**

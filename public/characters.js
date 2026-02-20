@@ -1,5 +1,6 @@
 import { db } from "./firebase.js";
 import { onAuth, signOutNow, initAuthRedirectHandling, getClaims } from "./auth-ui.js";
+import { createDefaultCharacterDoc } from "./database-reader.js";
 
 import {
   doc,
