@@ -11,7 +11,8 @@ import {
   deleteField,
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-import { normalizeCharacterDoc, sanitizeUpdatePatch } from "./character-schema.js";
+import { normalizeCharacterDoc } from "./character-schema.js";
+import { sanitizeUpdatePatch } from "./database-writer.js";
 
 /**
  * Small shared utilities for Builder pages:

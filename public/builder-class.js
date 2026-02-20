@@ -13,12 +13,14 @@ import {
 
 import { renderBuilderNav } from "./builder-nav.js";
 
+import { loadGameXData } from "./game-x-data.js";
+import { safeStr, buildGroupId, buildOptionKey } from "./builder-option-keys.js";
+
 import {
   ATTR_KEYS,
   clampLevel,
   coerceAttrKey,
   labelForAttrKey,
-  sanitizeText,
 } from "./character-schema.js";
 
 const CURRENT_STEP_ID = "class";
@@ -77,24 +79,6 @@ const saveBtn = document.getElementById("saveBtn");
 const saveAndOpenBtn = document.getElementById("saveAndOpenBtn");
 
 // ---- Helpers ----
-
-function safeStr(v, maxLen = 200) {
-  return sanitizeText(v, { maxLen });
-}
-
-
-function buildGroupId(group) {
-  const cls = safeStr(group?.classKey || "", 64);
-  const lvl = Number.isFinite(group?.level) ? group.level : 0;
-  const name = safeStr(group?.name || "", 96);
-  return `${cls}|L${lvl}|${name}`;
-}
-
-function buildOptionKey(group, option) {
-  const gid = buildGroupId(group);
-  const optName = safeStr(option?.name || "", 120);
-  return `${gid}::${optName}`;
-}
 
 function getClassByKey(classKey) {
   const arr = Array.isArray(gameData?.classes) ? gameData.classes : [];
@@ -285,9 +269,7 @@ function mergeAbilities(existingAbilities, oldAutoNames, newAutoAbilities) {
 
 async function loadGameData() {
   if (gameData) return gameData;
-  const res = await fetch("data/game-x/game-x-data.json", { cache: "no-store" });
-  if (!res.ok) throw new Error("Could not load game data.");
-  gameData = await res.json();
+  gameData = await loadGameXData({ cache: "no-store" });
   return gameData;
 }
 

@@ -1,0 +1,82 @@
+// public/data-sanitization.js
+//
+// Small, shared primitive sanitization helpers used by Firestore IO modules
+// and schema normalization.
+//
+// NOTE: Keep this file *primitive-only* (no Firestore, no DOM, no game rules).
+
+function stripControlChars(s) {
+  return String(s ?? "")
+    // Remove C0/C1 controls except: \t (9), \n (10), \r (13)
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g, "");
+}
+
+function collapseSpaces(s) {
+  return String(s ?? "").replace(/\s+/g, " ").trim();
+}
+
+export function sanitizeText(value, { maxLen = 256, collapse = false } = {}) {
+  let s = stripControlChars(value);
+  s = collapse ? collapseSpaces(s) : String(s).trim();
+  if (s.length > maxLen) s = s.slice(0, maxLen);
+  return s;
+}
+
+export function sanitizeCharName(value) {
+  return sanitizeText(value, { maxLen: 64, collapse: true });
+}
+
+export function sanitizeStoragePath(value, { maxLen = 256 } = {}) {
+  const s = sanitizeText(value, { maxLen, collapse: true });
+  if (!s) return "";
+  // Conservative allowed charset.
+  if (!/^[a-zA-Z0-9_\-./]+$/.test(s)) return "";
+  return s;
+}
+
+export function toInt(value, { min = 0, max = Number.MAX_SAFE_INTEGER } = {}) {
+  const n = Number.parseInt(String(value), 10);
+  if (!Number.isFinite(n)) return min;
+  return Math.max(min, Math.min(max, n));
+}
+
+export function clampLevel(level) {
+  return toInt(level, { min: 1, max: 12 });
+}
+
+/**
+ * Normalize an enum-ish token for safe storage/lookup:
+ * - trims, collapses whitespace, lowercases
+ * - allows only [a-z0-9_-]
+ */
+export function normalizeEnumToken(value, { maxLen = 64 } = {}) {
+  const s = sanitizeText(value, { maxLen, collapse: true }).toLowerCase();
+  if (!s) return "";
+  return s.replace(/[^a-z0-9_-]/g, "");
+}
+
+export function sanitizeStringArray(v, { maxItems = 200, maxLen = 128 } = {}) {
+  const arr = Array.isArray(v) ? v : [];
+  const out = [];
+  for (const item of arr) {
+    const s = sanitizeText(item, { maxLen, collapse: true });
+    if (!s) continue;
+    out.push(s);
+    if (out.length >= maxItems) break;
+  }
+  return out;
+}
+
+export function sanitizeRepeatableAbilities(v) {
+  const arr = Array.isArray(v) ? v : [];
+  const out = [];
+  for (const raw of arr) {
+    const o = (raw && typeof raw === "object") ? raw : {};
+    const name = sanitizeText(o.name, { maxLen: 120, collapse: true });
+    const text = sanitizeText(o.text, { maxLen: 4000, collapse: false });
+    if (!name && !text) continue;
+    out.push({ name, text });
+    if (out.length >= 200) break;
+  }
+  return out;
+}
