@@ -13,16 +13,18 @@ import {
 
 import { renderBuilderNav } from "./builder-nav.js";
 
-import { loadGameXData } from "./game-x-data.js";
-import { safeStr, buildGroupId, buildOptionKey } from "./builder-option-keys.js";
+import { loadGameXData } from "./game-data.js";
 
 import {
   ATTR_KEYS,
   clampLevel,
   coerceAttrKey,
   labelForAttrKey,
+  sanitizeText,
 } from "./character-schema.js";
 
+
+import { buildGroupId, buildOptionKey } from "./database-writer.js";
 const CURRENT_STEP_ID = "class";
 
 /** @type {any} */
@@ -79,6 +81,7 @@ const saveBtn = document.getElementById("saveBtn");
 const saveAndOpenBtn = document.getElementById("saveAndOpenBtn");
 
 // ---- Helpers ----
+
 
 function getClassByKey(classKey) {
   const arr = Array.isArray(gameData?.classes) ? gameData.classes : [];
@@ -267,11 +270,6 @@ function mergeAbilities(existingAbilities, oldAutoNames, newAutoAbilities) {
   return merged;
 }
 
-async function loadGameData() {
-  if (gameData) return gameData;
-  gameData = await loadGameXData({ cache: "no-store" });
-  return gameData;
-}
 
 function renderPrimaryOptions() {
   if (!primaryEl) return;
@@ -298,10 +296,10 @@ function renderClassDetails() {
   }
 
   const lines = [];
-  lines.push(`<div><strong>${safeStr(cls.name || cls.classKey || "Class")}</strong></div>`);
-  if (cls.pitch) lines.push(`<div class="muted" style="margin-top:6px">${safeStr(cls.pitch, 1200)}</div>`);
-  if (cls.examples) lines.push(`<div class="muted" style="margin-top:6px"><span class="muted">Examples:</span> ${safeStr(cls.examples, 500)}</div>`);
-  if (cls.notes) lines.push(`<div class="muted" style="margin-top:6px"><span class="muted">Notes:</span> ${safeStr(cls.notes, 800)}</div>`);
+  lines.push(`<div><strong>${sanitizeText(cls.name || cls.classKey || "Class", { maxLen: 200 })}</strong></div>`);
+  if (cls.pitch) lines.push(`<div class="muted" style="margin-top:6px">${sanitizeText(cls.pitch, { maxLen: 1200 })}</div>`);
+  if (cls.examples) lines.push(`<div class="muted" style="margin-top:6px"><span class="muted">Examples:</span> ${sanitizeText(cls.examples, { maxLen: 500 })}</div>`);
+  if (cls.notes) lines.push(`<div class="muted" style="margin-top:6px"><span class="muted">Notes:</span> ${sanitizeText(cls.notes, { maxLen: 800 })}</div>`);
 
 
   const allowed = getAllowedPrimaryAttributes(cls);
@@ -350,9 +348,9 @@ function renderFeatures() {
       const card = document.createElement("div");
       card.className = "builderItem";
       card.innerHTML = `
-        <div class="builderItemTitle">${safeStr(f.name || "Feature")}</div>
+        <div class="builderItemTitle">${sanitizeText(f.name || "Feature", { maxLen: 200 })}</div>
         <div class="muted builderItemMeta">Level ${Number(f.level || 1)}</div>
-        <div class="builderItemBody">${safeStr(f.description || "", 2000)}</div>
+        <div class="builderItemBody">${sanitizeText(f.description || "", { maxLen: 2000 })}</div>
       `;
       featuresEl.append(card);
       continue;
@@ -383,7 +381,7 @@ function renderFeatures() {
         .filter((k) => selectedFeatureOptionKeys.has(k)).length;
 
       headerBtn.innerHTML = `
-        <span>${safeStr(f.name || "Options")}</span>
+        <span>${sanitizeText(f.name || "Options", { maxLen: 200 })}</span>
         <span class="muted">choose ${chooseCount} • ${selectedCount}/${chooseCount}</span>
       `;
 
@@ -598,8 +596,8 @@ async function saveClassStep({ openSheetAfter = false } = {}) {
 
     const patch = {
       "builder.level": clampLevel(selectedLevel),
-      "builder.classKey": safeStr(selectedClassKey, 64),
-      "builder.primaryAttribute": safeStr(selectedPrimary, 32),
+      "builder.classKey": sanitizeText(selectedClassKey, { maxLen: 64 }),
+      "builder.primaryAttribute": sanitizeText(selectedPrimary, { maxLen: 32 }),
       "builder.selectedClassFeatureOptions": Array.from(selectedFeatureOptionKeys),
       "builder.selectedFeats": Array.from(selectedFeatNames),
       "builder.autoAbilityNames": autoNames,
@@ -680,7 +678,7 @@ async function main() {
     charRef = loaded.charRef;
     currentDoc = loaded.characterDoc;
 
-    await loadGameData();
+    gameData = await loadGameXData();
 
     // Populate dropdown
     const classes = Array.isArray(gameData?.classes) ? gameData.classes.slice() : [];
@@ -690,8 +688,8 @@ async function main() {
       classes
         .map((c) => {
           const info = classSelectableInfo(c);
-          const label = `${safeStr(c.name || c.classKey)}${info.ok ? "" : " (Coming Soon)"}`;
-          return `<option value="${safeStr(c.classKey, 64)}">${label}</option>`;
+          const label = `${sanitizeText(c.name || c.classKey, { maxLen: 200 })}${info.ok ? "" : " (Coming Soon)"}`;
+          return `<option value="${sanitizeText(c.classKey, { maxLen: 64 })}">${label}</option>`;
         })
         .join("");
 
