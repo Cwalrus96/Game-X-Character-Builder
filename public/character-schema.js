@@ -210,6 +210,7 @@ export function createDefaultCharacterDoc({ ownerUid } = {}) {
       selectedClassFeatureOptions: [],
       selectedFeats: [],
       autoAbilityNames: [],
+      selectedTechniques: [],
 
       visitedSteps: [],
       lastVisitedAt: null,
@@ -273,6 +274,7 @@ export function normalizeCharacterDoc(raw) {
       selectedClassFeatureOptions: sanitizeStringArray(b.selectedClassFeatureOptions, { maxItems: 200, maxLen: 160 }),
       selectedFeats: sanitizeStringArray(b.selectedFeats, { maxItems: 200, maxLen: 160 }),
       autoAbilityNames: sanitizeStringArray(b.autoAbilityNames, { maxItems: 500, maxLen: 200 }),
+      selectedTechniques: sanitizeStringArray(b.selectedTechniques, { maxItems: 500, maxLen: 200 }),
 
       visitedSteps: sanitizeStringArray(b.visitedSteps, { maxItems: 50, maxLen: 64 }),
       lastVisitedAt: b.lastVisitedAt ?? null,
@@ -363,6 +365,7 @@ export function sanitizeUpdatePatch(patch) {
   for (const key of [
     "builder.selectedClassFeatureOptions",
     "builder.selectedFeats",
+    "builder.selectedTechniques",
     "builder.autoAbilityNames",
     "builder.visitedSteps",
   ]) {

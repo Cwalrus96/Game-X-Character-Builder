@@ -30,12 +30,50 @@
       </header>
 
       <section class="card">
-        <h2>Techniques</h2>
-        <p class="muted">This step is a placeholder. Technique selection will be implemented next.</p>
+        <div class="cardHeaderRow">
+          <h2>Techniques</h2>
+          <span class="muted" id="slotHint"></span>
+        </div>
+
+        <div class="grid2">
+          <div>
+            <h3 class="h3" style="margin-top:0">Selection</h3>
+            <div class="pillRow" id="slotPills"></div>
+
+            <label class="label" for="techSearch" style="margin-top:12px">Search</label>
+            <input id="techSearch" class="input" type="text" placeholder="Search techniques…" />
+
+            <label style="margin-top:10px; display:flex; gap:8px; align-items:center;">
+              <input id="filterKnownSkills" type="checkbox" checked />
+              <span class="muted">Show only techniques for my combat skills</span>
+            </label>
+
+            <p class="help" id="knownSkillsHelp"></p>
+          </div>
+
+          <div>
+            <h3 class="h3" style="margin-top:0">Granted (doesn’t use slots)</h3>
+            <div id="grantedList" class="muted">—</div>
+
+            <h3 class="h3" style="margin-top:12px">Missing references</h3>
+            <div id="missingList" class="muted">—</div>
+
+            <div style="margin-top:12px">
+              <a class="btn secondary" id="openSheetLink" href="#">Open character sheet to add a custom technique</a>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px" id="techniqueGroups"></div>
       </section>
 
       <footer class="builderFooter">
         <div id="builderNavBottom"></div>
+
+        <div class="actions">
+          <button id="saveBtn" class="btn" type="button">Save</button>
+          <button id="saveAndOpenBtn" class="btn secondary" type="button">Save &amp; Open Character Sheet</button>
+        </div>
       </footer>
     </main>
 

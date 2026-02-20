@@ -29,6 +29,9 @@ import {
   getPortraitStoragePath,
 } from "./character-schema.js";
 
+import { loadGameXData } from "./game-x-data.js";
+import { buildTechniqueIndexes, resolveTechniqueRef, computeKnownCombatSkillsAndGrants } from "./technique-logic.js";
+
 import {
   ref as storageRef,
   uploadBytes,
@@ -224,6 +227,164 @@ setNumberFieldByName('hpmax', hpmax);
     }
   }
 
+
+  // ---- Techniques from Builder (read-only display) ----
+
+  let _gameXDataForTechniques = null;
+  let _techniqueIndexes = null;
+
+  async function ensureTechniqueData() {
+    if (!_gameXDataForTechniques) {
+      _gameXDataForTechniques = await loadGameXData({ cache: "no-store" });
+    }
+    if (!_techniqueIndexes) {
+      _techniqueIndexes = buildTechniqueIndexes(_gameXDataForTechniques);
+    }
+    return { gameData: _gameXDataForTechniques, indexes: _techniqueIndexes };
+  }
+
+  function escapeHtml(s) {
+    return String(s ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function buildBuilderTechniquesUrl() {
+    const url = new URL("builder-techniques.html", window.location.href);
+    url.searchParams.set("charId", editingCharId);
+    if (requestedUidParam) url.searchParams.set("uid", requestedUidParam);
+    return url.toString();
+  }
+
+  function techniqueMetaLine(t) {
+    const parts = [];
+    if (t?.skill) parts.push(String(t.skill));
+    if (t?.actionType) parts.push(String(t.actionType));
+    if (t?.actions != null) parts.push(`${t.actions}A`);
+    if (t?.energyCost != null) parts.push(`Energy ${t.energyCost}`);
+    return parts.join(" • ");
+  }
+
+  async function renderBuilderTechniquesReadOnly(builder) {
+    try {
+      const mount = document.getElementById("selectedTechniquesFromBuilder");
+      if (!mount) return;
+
+      const b = builder && typeof builder === "object" ? builder : {};
+      const selectedRefs = Array.isArray(b.selectedTechniques) ? b.selectedTechniques : [];
+
+      const { gameData, indexes } = await ensureTechniqueData();
+      const grants = computeKnownCombatSkillsAndGrants(gameData, b)?.grantedTechniqueNames || new Set();
+
+      const grantedRefs = Array.from(grants);
+      const hasAny = selectedRefs.length || grantedRefs.length;
+
+      if (!hasAny) {
+        mount.innerHTML = `<div class="muted">No techniques selected in the Character Builder.</div>`;
+        return;
+      }
+
+      // Build a unified item list (granted + selected), tracking origin.
+      const origin = new Map();
+      for (const r of grantedRefs) origin.set(String(r), "Granted");
+      for (const r of selectedRefs) if (!origin.has(String(r))) origin.set(String(r), "Selected");
+
+      /** @type {{ref:string, origin:string, tech:any|null}[]} */
+      const items = [];
+      for (const [ref, o] of origin.entries()) {
+        const tech = resolveTechniqueRef(ref, indexes);
+        items.push({ ref, origin: o, tech: tech || null });
+      }
+
+      const missing = items
+        .filter((x) => !x.tech)
+        .map((x) => x.ref)
+        .sort((a, b) => a.localeCompare(b));
+
+      const resolved = items.filter((x) => x.tech);
+
+      // Group by rank.
+      const byRank = new Map();
+      for (const it of resolved) {
+        const r = Number.parseInt(String(it.tech?.rank ?? 0), 10);
+        const rank = Number.isFinite(r) ? r : 0;
+        const arr = byRank.get(rank) || [];
+        arr.push(it);
+        byRank.set(rank, arr);
+      }
+
+      const ranks = Array.from(byRank.keys()).sort((a, b) => a - b);
+      const link = buildBuilderTechniquesUrl();
+
+      let html = `
+        <div style="border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:10px;">
+          <div style="display:flex; justify-content:space-between; gap:10px; align-items:baseline;">
+            <div><strong>Techniques (from Builder)</strong></div>
+            <div><a href="${escapeHtml(link)}">Edit in Builder</a></div>
+          </div>
+          <div class="muted" style="margin-top:4px;">Selected: ${selectedRefs.length} • Granted: ${grantedRefs.length} • Missing: ${missing.length}</div>
+      `;
+
+      for (const rank of ranks) {
+        const arr = (byRank.get(rank) || [])
+          .slice()
+          .sort((a, b) => String(a.tech?.techniqueName || "").localeCompare(String(b.tech?.techniqueName || "")));
+
+        if (!arr.length) continue;
+
+        if (rank === 0) {
+          html += `<details style="margin-top:10px;">
+            <summary style="cursor:pointer; font-weight:700;">Rank 0 (informational)</summary>
+            <ul style="margin:8px 0 0 18px;">
+              ${arr
+                .map((it) => {
+                  const t = it.tech;
+                  const meta = techniqueMetaLine(t);
+                  const tag = it.origin === "Granted" ? "(Granted)" : "(Selected)";
+                  return `<li><strong>${escapeHtml(t.techniqueName)}</strong> ${escapeHtml(tag)}${meta ? ` — <span class=\"muted\">${escapeHtml(meta)}</span>` : ""}</li>`;
+                })
+                .join("")}
+            </ul>
+          </details>`;
+          continue;
+        }
+
+        html += `<div style="margin-top:10px; font-weight:700;">Rank ${rank}</div>`;
+
+        for (const it of arr) {
+          const t = it.tech;
+          const meta = techniqueMetaLine(t);
+          const tag = it.origin === "Granted" ? "Granted" : "Selected";
+          const desc = String(t.description || t.notes || "").trim();
+
+          html += `
+            <div style="margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.08);">
+              <div style="display:flex; gap:10px; align-items:baseline;">
+                <div style="font-weight:700;">${escapeHtml(t.techniqueName)}</div>
+                <div class="muted">(${escapeHtml(tag)})</div>
+              </div>
+              ${meta ? `<div class=\"muted\" style=\"margin-top:2px;\">${escapeHtml(meta)}</div>` : ""}
+              ${desc ? `<div class=\"muted\" style=\"margin-top:2px;\">${escapeHtml(desc)}</div>` : ""}
+            </div>
+          `;
+        }
+      }
+
+      if (missing.length) {
+        html += `<div style="margin-top:10px; font-weight:700;">Missing references</div>
+          <ul style="margin:6px 0 0 18px;">${missing.map((m) => `<li>${escapeHtml(m)}</li>`).join("")}</ul>`;
+      }
+
+      html += `</div>`;
+      mount.innerHTML = html;
+    } catch (e) {
+      console.warn("renderBuilderTechniquesReadOnly failed", e);
+    }
+  }
+
   async function loadCloudOrInit() {
     if (!cloudDocRef) return;
     setCloudStatus('Cloud: Loading…');
@@ -272,6 +433,7 @@ setNumberFieldByName('hpmax', hpmax);
         };
 
         applyState(state);
+        renderBuilderTechniquesReadOnly(b?.builder || {});
         if (portraitApi && portraitPath) {
           const url = await resolvePortraitUrl(portraitPath);
           portraitApi.set({ path: portraitPath, previewUrl: url });
