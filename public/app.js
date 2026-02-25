@@ -8,29 +8,26 @@ import {
 import { db, storage } from "./firebase.js";
 import { onAuth, getClaims } from "./auth-ui.js";
 
+import { CHARACTER_SCHEMA_VERSION, getPortraitStoragePath } from "./database-writer.js";
+import { ATTR_KEYS, labelForAttrKey, clampLevel, coerceAttrKey } from "./character-rules.js";
 import {
-  CHARACTER_SCHEMA_VERSION,
-  ATTR_KEYS,
-  labelForAttrKey,
   loadGameXClasses,
+  loadGameXData,
+  buildTechniqueIndexes,
+  resolveTechniqueRef,
+  computeKnownCombatSkillsAndGrants,
+} from "./game-data.js";
+import { sanitizeCharName, sanitizeStoragePath, sanitizeText, toInt, escapeHtml } from "./data-sanitization.js";
+
+import {
+  getAttributeEffectiveCap,
+  normalizeAttributes,
   computeSpeed,
   computePhysicalDefense,
   computeMentalDefense,
   computeSpiritDefense,
   computeMaxHP,
-  sanitizeCharName,
-  clampLevel,
-  normalizeAttributes,
-  coerceAttrKey,
-  getAttributeEffectiveCap,
-  toInt,
-  sanitizeStoragePath,
-  sanitizeText,
-  getPortraitStoragePath,
-} from "./character-schema.js";
-
-import { loadGameXData } from "./game-x-data.js";
-import { buildTechniqueIndexes, resolveTechniqueRef, computeKnownCombatSkillsAndGrants } from "./technique-logic.js";
+} from "./character-rules.js";
 
 import {
   ref as storageRef,
@@ -215,19 +212,6 @@ setNumberFieldByName('hpmax', hpmax);
     }
   }
 
-  async function resolvePortraitUrl(path) {
-    const p = sanitizeStoragePath(path);
-    if (!p) return '';
-    try {
-      const r = storageRef(storage, p);
-      return await getDownloadURL(r);
-    } catch (e) {
-      console.warn('getDownloadURL failed:', e);
-      return '';
-    }
-  }
-
-
   // ---- Techniques from Builder (read-only display) ----
 
   let _gameXDataForTechniques = null;
@@ -238,25 +222,9 @@ setNumberFieldByName('hpmax', hpmax);
       _gameXDataForTechniques = await loadGameXData({ cache: "no-store" });
     }
     if (!_techniqueIndexes) {
-      _techniqueIndexes = buildTechniqueIndexes(_gameXDataForTechniques);
+      _techniqueIndexes = buildTechniqueIndexes(_gameXDataForTechniques?.techniques);
     }
     return { gameData: _gameXDataForTechniques, indexes: _techniqueIndexes };
-  }
-
-  function escapeHtml(s) {
-    return String(s ?? "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/\"/g, "&quot;")
-      .replace(/'/g, "&#39;");
-  }
-
-  function buildBuilderTechniquesUrl() {
-    const url = new URL("builder-techniques.html", window.location.href);
-    url.searchParams.set("charId", editingCharId);
-    if (requestedUidParam) url.searchParams.set("uid", requestedUidParam);
-    return url.toString();
   }
 
   function techniqueMetaLine(t) {
@@ -267,121 +235,121 @@ setNumberFieldByName('hpmax', hpmax);
     if (t?.energyCost != null) parts.push(`Energy ${t.energyCost}`);
     return parts.join(" • ");
   }
+async function renderBuilderTechniquesReadOnly(builder) {
+  try {
+    const mount = document.getElementById("selectedTechniquesFromBuilder");
+    if (!mount) return;
 
-  async function renderBuilderTechniquesReadOnly(builder) {
-    try {
-      const mount = document.getElementById("selectedTechniquesFromBuilder");
-      if (!mount) return;
+    const b = builder && typeof builder === "object" ? builder : {};
+    const selectedRefs = Array.isArray(b.selectedTechniques) ? b.selectedTechniques : [];
 
-      const b = builder && typeof builder === "object" ? builder : {};
-      const selectedRefs = Array.isArray(b.selectedTechniques) ? b.selectedTechniques : [];
+    const { gameData, indexes } = await ensureTechniqueData();
+    const grants =
+      computeKnownCombatSkillsAndGrants(gameData, b)?.grantedTechniqueNames || new Set();
 
-      const { gameData, indexes } = await ensureTechniqueData();
-      const grants = computeKnownCombatSkillsAndGrants(gameData, b)?.grantedTechniqueNames || new Set();
+    const grantedRefs = Array.from(grants);
+    const hasAny = selectedRefs.length || grantedRefs.length;
 
-      const grantedRefs = Array.from(grants);
-      const hasAny = selectedRefs.length || grantedRefs.length;
+    if (!hasAny) {
+      mount.innerHTML = "";
+      return;
+    }
 
-      if (!hasAny) {
-        mount.innerHTML = `<div class="muted">No techniques selected in the Character Builder.</div>`;
-        return;
+    // Build a unified item list (granted + selected), de-duped by ref.
+    const origin = new Map();
+    for (const r of grantedRefs) origin.set(String(r), "Granted");
+    for (const r of selectedRefs) if (!origin.has(String(r))) origin.set(String(r), "Selected");
+
+    /** @type {{ref:string, tech:any|null}[]} */
+    const items = [];
+    for (const ref of origin.keys()) {
+      const res = resolveTechniqueRef(ref, indexes);
+      items.push({ ref, tech: res?.ok ? res.technique : null });
+    }
+
+    // Ignore missing refs entirely (no debug UI on the character sheet).
+    const resolved = items.filter((x) => x.tech);
+
+    if (!resolved.length) {
+      mount.innerHTML = "";
+      return;
+    }
+
+    // Group by rank (same as the original, more complete rendering).
+    const byRank = new Map();
+    for (const it of resolved) {
+      const r = Number.parseInt(String(it.tech?.rank ?? 0), 10);
+      const rank = Number.isFinite(r) ? r : 0;
+      const arr = byRank.get(rank) || [];
+      arr.push(it);
+      byRank.set(rank, arr);
+    }
+
+    const ranks = Array.from(byRank.keys()).sort((a, b) => a - b);
+
+    let html = `
+      <div style="border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:10px;">
+        <div><strong>Techniques</strong></div>
+    `;
+
+    for (const rank of ranks) {
+      const arr = (byRank.get(rank) || [])
+        .slice()
+        .sort((a, b) =>
+          String(a.tech?.techniqueName || "").localeCompare(String(b.tech?.techniqueName || ""))
+        );
+
+      if (!arr.length) continue;
+
+      if (rank === 0) {
+        html += `<details style="margin-top:10px;">
+          <summary style="cursor:pointer; font-weight:700;">Rank 0 (informational)</summary>
+          <ul style="margin:8px 0 0 18px;">
+            ${arr
+              .map((it) => {
+                const t = it.tech;
+                const meta = techniqueMetaLine(t);
+                return `<li><strong>${escapeHtml(t.techniqueName)}</strong>${meta ? ` — <span class="muted">${escapeHtml(meta)}</span>` : ""}</li>`;
+              })
+              .join("")}
+          </ul>
+        </details>`;
+        continue;
       }
 
-      // Build a unified item list (granted + selected), tracking origin.
-      const origin = new Map();
-      for (const r of grantedRefs) origin.set(String(r), "Granted");
-      for (const r of selectedRefs) if (!origin.has(String(r))) origin.set(String(r), "Selected");
+      html += `<div style="margin-top:10px; font-weight:700;">Rank ${rank}</div>`;
 
-      /** @type {{ref:string, origin:string, tech:any|null}[]} */
-      const items = [];
-      for (const [ref, o] of origin.entries()) {
-        const tech = resolveTechniqueRef(ref, indexes);
-        items.push({ ref, origin: o, tech: tech || null });
-      }
+      for (const it of arr) {
+        const t = it.tech;
+        const meta = techniqueMetaLine(t);
+        const desc = String(t.description || t.notes || "").trim();
 
-      const missing = items
-        .filter((x) => !x.tech)
-        .map((x) => x.ref)
-        .sort((a, b) => a.localeCompare(b));
-
-      const resolved = items.filter((x) => x.tech);
-
-      // Group by rank.
-      const byRank = new Map();
-      for (const it of resolved) {
-        const r = Number.parseInt(String(it.tech?.rank ?? 0), 10);
-        const rank = Number.isFinite(r) ? r : 0;
-        const arr = byRank.get(rank) || [];
-        arr.push(it);
-        byRank.set(rank, arr);
-      }
-
-      const ranks = Array.from(byRank.keys()).sort((a, b) => a - b);
-      const link = buildBuilderTechniquesUrl();
-
-      let html = `
-        <div style="border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:10px;">
-          <div style="display:flex; justify-content:space-between; gap:10px; align-items:baseline;">
-            <div><strong>Techniques (from Builder)</strong></div>
-            <div><a href="${escapeHtml(link)}">Edit in Builder</a></div>
+        html += `
+          <div style="margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.08);">
+            <div style="font-weight:700;">${escapeHtml(t.techniqueName)}</div>
+            ${meta ? `<div class="muted" style="margin-top:2px;">${escapeHtml(meta)}</div>` : ""}
+            ${desc ? `<div class="muted" style="margin-top:2px;">${escapeHtml(desc)}</div>` : ""}
           </div>
-          <div class="muted" style="margin-top:4px;">Selected: ${selectedRefs.length} • Granted: ${grantedRefs.length} • Missing: ${missing.length}</div>
-      `;
-
-      for (const rank of ranks) {
-        const arr = (byRank.get(rank) || [])
-          .slice()
-          .sort((a, b) => String(a.tech?.techniqueName || "").localeCompare(String(b.tech?.techniqueName || "")));
-
-        if (!arr.length) continue;
-
-        if (rank === 0) {
-          html += `<details style="margin-top:10px;">
-            <summary style="cursor:pointer; font-weight:700;">Rank 0 (informational)</summary>
-            <ul style="margin:8px 0 0 18px;">
-              ${arr
-                .map((it) => {
-                  const t = it.tech;
-                  const meta = techniqueMetaLine(t);
-                  const tag = it.origin === "Granted" ? "(Granted)" : "(Selected)";
-                  return `<li><strong>${escapeHtml(t.techniqueName)}</strong> ${escapeHtml(tag)}${meta ? ` — <span class=\"muted\">${escapeHtml(meta)}</span>` : ""}</li>`;
-                })
-                .join("")}
-            </ul>
-          </details>`;
-          continue;
-        }
-
-        html += `<div style="margin-top:10px; font-weight:700;">Rank ${rank}</div>`;
-
-        for (const it of arr) {
-          const t = it.tech;
-          const meta = techniqueMetaLine(t);
-          const tag = it.origin === "Granted" ? "Granted" : "Selected";
-          const desc = String(t.description || t.notes || "").trim();
-
-          html += `
-            <div style="margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.08);">
-              <div style="display:flex; gap:10px; align-items:baseline;">
-                <div style="font-weight:700;">${escapeHtml(t.techniqueName)}</div>
-                <div class="muted">(${escapeHtml(tag)})</div>
-              </div>
-              ${meta ? `<div class=\"muted\" style=\"margin-top:2px;\">${escapeHtml(meta)}</div>` : ""}
-              ${desc ? `<div class=\"muted\" style=\"margin-top:2px;\">${escapeHtml(desc)}</div>` : ""}
-            </div>
-          `;
-        }
+        `;
       }
+    }
 
-      if (missing.length) {
-        html += `<div style="margin-top:10px; font-weight:700;">Missing references</div>
-          <ul style="margin:6px 0 0 18px;">${missing.map((m) => `<li>${escapeHtml(m)}</li>`).join("")}</ul>`;
-      }
+    html += `</div>`;
+    mount.innerHTML = html;
+  } catch (e) {
+    console.warn("renderBuilderTechniquesReadOnly failed", e);
+  }
+}
 
-      html += `</div>`;
-      mount.innerHTML = html;
+  async function resolvePortraitUrl(path) {
+    const p = sanitizeStoragePath(path);
+    if (!p) return '';
+    try {
+      const r = storageRef(storage, p);
+      return await getDownloadURL(r);
     } catch (e) {
-      console.warn("renderBuilderTechniquesReadOnly failed", e);
+      console.warn('getDownloadURL failed:', e);
+      return '';
     }
   }
 
@@ -412,6 +380,7 @@ setNumberFieldByName('hpmax', hpmax);
         const sheetFields = (b?.sheet?.fields && typeof b.sheet.fields === 'object') ? b.sheet.fields : {};
         const sheetOnlyFields = pickSheetOnlyFields(sheetFields);
         const repeatables = (b?.sheet?.repeatables && typeof b.sheet.repeatables === 'object') ? b.sheet.repeatables : {};
+        const selectedTechniques = Array.isArray(b?.selectedTechniques) ? b.selectedTechniques : [];
 
         // Build a local/editor state (no duplicated canonical fields inside sheet fields).
         const state = {
@@ -433,7 +402,8 @@ setNumberFieldByName('hpmax', hpmax);
         };
 
         applyState(state);
-        renderBuilderTechniquesReadOnly(b?.builder || {});
+        // Render Builder-selected techniques (read-only) alongside custom technique cards.
+        renderBuilderTechniquesReadOnly(b);
         if (portraitApi && portraitPath) {
           const url = await resolvePortraitUrl(portraitPath);
           portraitApi.set({ path: portraitPath, previewUrl: url });
@@ -471,6 +441,8 @@ setNumberFieldByName('hpmax', hpmax);
       };
 
       await setDoc(cloudDocRef, baseline, { merge: true });
+
+      renderBuilderTechniquesReadOnly((baseline && baseline.builder) ? baseline.builder : {});
 
       cloudReady = true;
       setCloudStatus('Cloud: Ready');
@@ -582,19 +554,9 @@ setNumberFieldByName('hpmax', hpmax);
         back.href = (isGMUser && requestedUidParam) ? `characters.html?uid=${encodeURIComponent(requestedUidParam)}` : 'characters.html';
       }
 
-      // Update local storage key now that we know the effective uid.
-      STORAGE_KEY = `gameX_characterSheet_v3_${editingUid}_${editingCharId}`;
-
-      // Load local state for this user/character (if any).
-      loadSaved();
-
       await loadCloudOrInit();
     });
   }
-
-  // Storage key is per-character (and per effective user when known)
-  let STORAGE_KEY = `gameX_characterSheet_v3_${editingCharId}`;
-  const SAVE_DEBOUNCE_MS = 400;
 
   const sheetEl = document.getElementById('sheet');
   const classSelect = document.getElementById('classSelect');
@@ -614,27 +576,6 @@ setNumberFieldByName('hpmax', hpmax);
     saveStatusEl.textContent = text;
     saveStatusEl.classList.toggle('error', !!isError);
   }
-
-  function canUseStorage(store) {
-    try {
-      const k = '__gx_store_test__';
-      store.setItem(k, '1');
-      store.removeItem(k);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  // Prefer localStorage; fall back to sessionStorage (often works even when localStorage is blocked for file:).
-  const browserStorage = (typeof localStorage !== 'undefined' && canUseStorage(localStorage)) ? localStorage
-                : (typeof sessionStorage !== 'undefined' && canUseStorage(sessionStorage)) ? sessionStorage
-                : null;
-
-  const storageType = (!browserStorage) ? 'none' : (browserStorage === localStorage ? 'local' : 'session');
-
-  let storageOk = !!browserStorage;
-  let saveTimer = null;
 
   // ---------- Portrait module ----------
 
@@ -951,75 +892,23 @@ setNumberFieldByName('hpmax', hpmax);
 
 
   function saveNow() {
-    if (!storageOk) {
-      setStatus('Storage unavailable', true);
+    if (!cloudEnabled()) {
       return;
     }
-
-    try {
-      const state = collectState();
-      browserStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      setStatus(storageType === 'session' ? 'Saved (session)' : 'Saved');
-    } catch (e) {
-      storageOk = false;
-      setStatus('Storage unavailable', true);
-    }
-  }
-
-  
-function scheduleSave() {
-    const canLocal = storageOk;
-    const canCloud = cloudEnabled();
-
-    if (!canLocal && !canCloud) {
-      setStatus('Storage unavailable', true);
-      return;
-    }
-
     setStatus('Saving…');
-
-    // Local save debounce (if available)
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => {
-      if (storageOk) {
-        try {
-          const state = collectState();
-          browserStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-          setStatus(storageType === 'session' ? 'Saved (session)' : 'Saved');
-        } catch (e) {
-          storageOk = false;
-          setStatus('Storage unavailable', true);
-        }
-      }
-    }, SAVE_DEBOUNCE_MS);
-
-    // Cloud save debounce (separate, slower to reduce write volume)
-    if (canCloud) {
-      clearTimeout(cloudSaveTimer);
-      cloudSaveTimer = setTimeout(saveCloudNow, CLOUD_SAVE_DEBOUNCE_MS);
-    }
+    saveCloudNow();
   }
 
-  function loadSaved() {
-    if (!storageOk) {
-      setStatus('Storage unavailable', true);
-      return false;
+function scheduleSave() {
+    const canCloud = cloudEnabled();
+    if (!canCloud) {
+      return;
     }
-
-    try {
-      const raw = browserStorage.getItem(STORAGE_KEY);
-      if (!raw) return false;
-      const state = JSON.parse(raw);
-      if (!state || state.version !== 3) return false;
-      applyState(state);
-      setStatus(storageType === 'session' ? 'Loaded (session)' : 'Loaded');
-      return true;
-    } catch (e) {
-      return false;
-    }
+    setStatus('Saving…');
+    clearTimeout(cloudSaveTimer);
   }
 
-  function clearSheet() {
+function clearSheet() {
     const ok = confirm('Clear all fields on this sheet? (This cannot be undone.)');
     if (!ok) return;
 
@@ -1052,7 +941,6 @@ function scheduleSave() {
     resetRepeatablesToDefaults();
 
     try {
-      browserStorage.removeItem(STORAGE_KEY);
     } catch (e) {
       // ignore
     }
@@ -1490,18 +1378,8 @@ if (classSelect) {
   populatePrimaryAttributeSelect();
   ensureClassSelectOptions();
 
+  resetRepeatablesToDefaults();
+
   // Initialize Firebase Auth (cloud sync)
   initAuth();
-
-
-  // Load saved state on open
-  const loaded = loadSaved();
-  if (!loaded) {
-    resetRepeatablesToDefaults();
-  }
-
-  // If storage is unavailable (common for some file: setups), make that obvious.
-  if (!storageOk) {
-    setStatus('Storage unavailable', true);
-  }
 })();

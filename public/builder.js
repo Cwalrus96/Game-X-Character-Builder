@@ -10,7 +10,7 @@ import {
   confirmModal,
 } from "./builder-common.js";
 import { renderBuilderNav } from "./builder-nav.js";
-import { getPortraitStoragePath } from "./character-schema.js";
+import { getPortraitStoragePath } from "./database-writer.js";
 
 import {
   ref as storageRef,

@@ -18,18 +18,19 @@ import { renderBuilderNav } from "./builder-nav.js";
 import {
   coerceAttrKey,
   labelForAttrKey,
-  buildTechniquesUpdatePatch,
-} from "./character-schema.js";
+  computeTechniqueSlots,
+} from "./character-rules.js";
 
-import { loadGameXData } from "./game-x-data.js";
-import { safeStr } from "./builder-option-keys.js";
+import { buildTechniquesUpdatePatch } from "./database-writer.js";
 
 import {
+  loadGameXData,
   buildTechniqueIndexes,
   resolveTechniqueRef,
   computeKnownCombatSkillsAndGrants,
-  computeTechniqueSlots,
-} from "./technique-logic.js";
+} from "./game-data.js";
+
+import { safeHtmlText } from "./data-sanitization.js";
 
 const CURRENT_STEP_ID = "techniques";
 
@@ -68,7 +69,7 @@ let currentDoc = null;
 /** @type {any} */
 let gameData = null;
 
-/** @type {{ techByName: Map<string, any>, techByNormName: Map<string, any[]> } | null} */
+/** @type {{ byName: Map<string, any>, byNorm: Map<string, any[]> } | null} */
 let techIndexes = null;
 
 /** @type {Set<string>} */
@@ -95,7 +96,8 @@ function openSheet() {
 }
 
 function resolveRef(ref) {
-  return resolveTechniqueRef(ref, techIndexes);
+  const res = resolveTechniqueRef(ref, techIndexes);
+  return res?.ok ? res.technique : null;
 }
 
 function getSelectedCounts() {
@@ -187,7 +189,7 @@ function renderGranted() {
     return;
   }
   const names = Array.from(grantedTechniqueNames).sort((a, b) => a.localeCompare(b));
-  grantedListEl.innerHTML = `<ul>${names.map((n) => `<li>${safeStr(n, 200)}</li>`).join("")}</ul>`;
+  grantedListEl.innerHTML = `<ul>${names.map((n) => `<li>${safeHtmlText(n, 200)}</li>`).join("")}</ul>`;
 }
 
 function renderMissingRefs() {
@@ -447,7 +449,7 @@ async function saveBuilder({ openSheetAfter = false, requireComplete = false } =
   if (warnings.length && !requireComplete) {
     const ok = await confirmModal({
       title: "Save anyway?",
-      messageHtml: `<ul>${warnings.map((w) => `<li>${safeStr(w, 400)}</li>`).join("")}</ul>`,
+      messageHtml: `<ul>${warnings.map((w) => `<li>${safeHtmlText(w, 400)}</li>`).join("")}</ul>`,
       okText: "Save anyway",
       cancelText: "Cancel",
     });
@@ -497,7 +499,7 @@ async function main() {
 
     setStatus(statusEl, "Loading game data…");
     gameData = await loadGameXData({ cache: "no-store" });
-    techIndexes = buildTechniqueIndexes(gameData);
+    techIndexes = buildTechniqueIndexes(gameData?.techniques);
 
     setStatus(statusEl, "Loading character…");
     const loaded = await loadCharacterDoc(ctx.editingUid, ctx.charId);
@@ -509,7 +511,7 @@ async function main() {
     // Pull builder state
     const b = (currentDoc?.builder && typeof currentDoc.builder === "object") ? currentDoc.builder : {};
 
-    ({ primaryAttrKey, slots } = computeTechniqueSlots(b));
+    ({ primaryAttrKey, slots } = computeTechniqueSlots(b?.primaryAttribute, b?.attributes));
 
     const stored = Array.isArray(b.selectedTechniques) ? b.selectedTechniques : [];
     selectedTechniques = new Set(stored.map((x) => String(x || "").trim()).filter(Boolean));

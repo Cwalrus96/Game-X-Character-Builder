@@ -1,35 +1,30 @@
 // public/database-reader.js
 //
-// Single source of truth for reading/normalizing Character documents from Firestore.
-//
-// NOTE: This module is Game X specific.
-// - No Firestore calls live here yet; this file focuses on normalization/shape.
-// - Firestore IO wrappers will be centralized later.
+// Single source of truth for normalizing Character documents read from Firestore.
+// This module is Game X specific.
 
 import {
   sanitizeText,
   sanitizeCharName,
   sanitizeStoragePath,
+  sanitizeStringArray,
+  sanitizeRepeatableAbilities,
   toInt,
 } from "./data-sanitization.js";
 
 import {
   ATTR_KEYS,
-  CHARACTER_SCHEMA_VERSION,
   clampLevel,
   coerceAttrKey,
   normalizeAttributes,
   getAttributeEffectiveCap,
-} from "./character-schema.js";
+} from "./character-rules.js";
 
-import {
-  sanitizeStringArray,
-  sanitizeRepeatableAbilities,
-} from "./data-sanitization.js";
+import { CHARACTER_SCHEMA_VERSION } from "./database-writer.js";
 
 /**
  * Construct a canonical default character doc.
- * This is used when creating a new character and as the base for normalization.
+ * Used when creating a new character and as the base for normalization.
  */
 export function createDefaultCharacterDoc({ ownerUid } = {}) {
   const uid = sanitizeText(ownerUid, { maxLen: 128, collapse: true });
@@ -56,7 +51,7 @@ export function createDefaultCharacterDoc({ ownerUid } = {}) {
       visitedSteps: [],
       lastVisitedAt: null,
 
-      // New in Techniques ref-storage work (Option B)
+      // Stock techniques are refs stored here.
       selectedTechniques: [],
 
       sheet: {
@@ -98,11 +93,7 @@ export function normalizeCharacterDoc(raw) {
     sheetRepeatables.abilities = sanitizeRepeatableAbilities(sheetRepeatables.abilities);
   }
 
-  // Custom techniques remain full objects in repeatables (by design).
-  // Stock techniques are refs stored in builder.selectedTechniques.
-
   return {
-    // Keep timestamps if present for UI (characters list, etc.)
     createdAt: src.createdAt ?? null,
     updatedAt: src.updatedAt ?? null,
 

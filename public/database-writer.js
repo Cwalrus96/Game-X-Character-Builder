@@ -1,7 +1,13 @@
 // public/database-writer.js
 //
-// Single source of truth for *sanitizing* Firestore update patches.
-// (Actual read/write wrappers will be centralized here in a later refactor step.)
+// Single source of truth for writing/sanitizing Firestore update patches.
+// All Firestore writes from Builder pages should flow through this module.
+
+import {
+  updateDoc,
+  serverTimestamp,
+  arrayUnion,
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
 import {
   sanitizeText,
@@ -10,17 +16,85 @@ import {
   sanitizeStringArray,
   sanitizeRepeatableAbilities,
   toInt,
-  clampLevel,
 } from "./data-sanitization.js";
 
 import {
-  normalizeAttributes,
+  ATTR_KEYS,
+  clampLevel,
   coerceAttrKey,
-} from "./character-schema.js";
+  normalizeAttributes,
+  getAttributeEffectiveCap,
+} from "./character-rules.js";
+
+export const CHARACTER_SCHEMA_VERSION = 3;
+
+// ---- Storage path helpers ----
+
+export function getPortraitStoragePath({ uid, charId } = {}) {
+  const safeUid = sanitizeText(uid, { maxLen: 128, collapse: true });
+  const safeId = sanitizeText(charId, { maxLen: 128, collapse: true });
+  if (!safeUid || !safeId) return "";
+  // Stable filename (no extension so contentType can vary).
+  return `portraits/${safeUid}/${safeId}/portrait`;
+}
+
+// ---- Canonical patch builders (dot-path keys for updateDoc) ----
+
+export function buildProfileUpdatePatch({ name, portraitPath } = {}) {
+  return {
+    schemaVersion: CHARACTER_SCHEMA_VERSION,
+    "builder.name": sanitizeCharName(name || ""),
+    "builder.portraitPath": sanitizeStoragePath(portraitPath || ""),
+  };
+}
+
+export function buildAttributesUpdatePatch({ level, attributes, primaryAttribute } = {}) {
+  const L = clampLevel(level ?? 1);
+  const primary = coerceAttrKey(primaryAttribute);
+
+  const attrs = normalizeAttributes(attributes || {});
+  for (const k of ATTR_KEYS) {
+    const cap = getAttributeEffectiveCap(L, k, primary);
+    const min = primary && k === primary ? 1 : 0;
+    attrs[k] = toInt(attrs[k], { min, max: cap });
+  }
+
+  return {
+    schemaVersion: CHARACTER_SCHEMA_VERSION,
+    "builder.level": L,
+    "builder.primaryAttribute": primary,
+    "builder.attributes": attrs,
+  };
+}
+
+export function buildTechniquesUpdatePatch({ selectedTechniques } = {}) {
+  return {
+    schemaVersion: CHARACTER_SCHEMA_VERSION,
+    "builder.selectedTechniques": sanitizeStringArray(selectedTechniques, { maxItems: 500, maxLen: 200 }),
+  };
+}
+
+// ---- Selection key helpers (storage format) ----
+// Canonical encoding for builder.selectedClassFeatureOptions.
+
+export function buildGroupId(group) {
+  const cls = sanitizeText(group?.classKey || "", { maxLen: 64, collapse: true });
+  const lvl = Number.isFinite(group?.level) ? group.level : 0;
+  const name = sanitizeText(group?.name || "", { maxLen: 96, collapse: true });
+  return `${cls}|L${lvl}|${name}`;
+}
+
+export function buildOptionKey(group, option) {
+  const gid = buildGroupId(group);
+  const optName = sanitizeText(option?.name || "", { maxLen: 120, collapse: true });
+  return `${gid}::${optName}`;
+}
+
+// ---- Patch sanitization gate for builder pages ----
 
 /**
  * Sanitize an updateDoc patch (dot-path form).
- * This acts as a schema gate so pages cannot accidentally write outside builder.*.
+ * Acts as a schema gate so pages cannot accidentally write outside builder.*.
  */
 export function sanitizeUpdatePatch(patch) {
   const src = (patch && typeof patch === "object") ? patch : {};
@@ -58,7 +132,7 @@ export function sanitizeUpdatePatch(patch) {
   }
 
   if (Object.prototype.hasOwnProperty.call(out, "builder.attributes")) {
-    // Cannot cap without knowing level/primary in this generic gate; we still keep values tidy.
+    // Cannot cap without knowing level/primary in this generic gate; keep values tidy.
     out["builder.attributes"] = normalizeAttributes(out["builder.attributes"], { min: 0, max: 99 });
   }
 
@@ -79,25 +153,37 @@ export function sanitizeUpdatePatch(patch) {
     out["builder.sheet.repeatables.abilities"] = sanitizeRepeatableAbilities(out["builder.sheet.repeatables.abilities"]);
   }
 
-  // Custom techniques (full objects) are stored in the sheet repeatables.
-  // We intentionally do not sanitize their internal schema here yet.
-
   return out;
 }
 
-// ---- Selection key helpers (storage format) ----
-// These define the canonical encoding for builder.selectedClassFeatureOptions.
-// Keeping them here prevents UI pages from diverging on key format.
+// ---- Firestore IO helpers (Builder) ----
 
-export function buildGroupId(group) {
-  const cls = sanitizeText(group?.classKey || "", { maxLen: 64, collapse: true });
-  const lvl = Number.isFinite(group?.level) ? group.level : 0;
-  const name = sanitizeText(group?.name || "", { maxLen: 96, collapse: true });
-  return `${cls}|L${lvl}|${name}`;
+/**
+ * Save a partial update to a character doc.
+ * Applies sanitizeUpdatePatch() and stamps updatedAt.
+ *
+ * @param {any} charRef
+ * @param {Record<string, any>} patch
+ */
+export async function saveCharacterPatch(charRef, patch) {
+  const cleaned = sanitizeUpdatePatch(patch || {});
+  await updateDoc(charRef, { ...cleaned, updatedAt: serverTimestamp() });
 }
 
-export function buildOptionKey(group, option) {
-  const gid = buildGroupId(group);
-  const optName = sanitizeText(option?.name || "", { maxLen: 120, collapse: true });
-  return `${gid}::${optName}`;
+/**
+ * Mark a builder step as visited on the character doc.
+ *
+ * @param {any} charRef
+ * @param {string} stepId
+ */
+export async function markStepVisited(charRef, stepId) {
+  try {
+    await updateDoc(charRef, {
+      "builder.visitedSteps": arrayUnion(stepId),
+      "builder.lastVisitedAt": serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+  } catch (e) {
+    console.warn("Could not mark step visited:", e);
+  }
 }

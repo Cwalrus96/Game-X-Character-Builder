@@ -15,13 +15,8 @@ import { renderBuilderNav } from "./builder-nav.js";
 
 import { loadGameXData } from "./game-data.js";
 
-import {
-  ATTR_KEYS,
-  clampLevel,
-  coerceAttrKey,
-  labelForAttrKey,
-  sanitizeText,
-} from "./character-schema.js";
+import { ATTR_KEYS, clampLevel, coerceAttrKey, labelForAttrKey } from "./character-rules.js";
+import { sanitizeText } from "./data-sanitization.js";
 
 
 import { buildGroupId, buildOptionKey } from "./database-writer.js";

@@ -1,9 +1,7 @@
 // public/data-sanitization.js
 //
-// Small, shared primitive sanitization helpers used by Firestore IO modules
-// and schema normalization.
-//
-// NOTE: Keep this file *primitive-only* (no Firestore, no DOM, no game rules).
+// Primitive sanitization helpers shared by database-reader and database-writer.
+// Game X specific *policies* (like attribute caps) belong in character-rules.
 
 function stripControlChars(s) {
   return String(s ?? "")
@@ -38,10 +36,6 @@ export function toInt(value, { min = 0, max = Number.MAX_SAFE_INTEGER } = {}) {
   const n = Number.parseInt(String(value), 10);
   if (!Number.isFinite(n)) return min;
   return Math.max(min, Math.min(max, n));
-}
-
-export function clampLevel(level) {
-  return toInt(level, { min: 1, max: 12 });
 }
 
 /**
@@ -79,4 +73,36 @@ export function sanitizeRepeatableAbilities(v) {
     if (out.length >= 200) break;
   }
   return out;
+}
+
+// ---- Selection key helpers (storage format) ----
+// Canonical encoding for builder.selectedClassFeatureOptions.
+
+export function buildGroupId(group) {
+  const cls = sanitizeText(group?.classKey || "", { maxLen: 64, collapse: true });
+  const lvl = Number.isFinite(group?.level) ? group.level : 0;
+  const name = sanitizeText(group?.name || "", { maxLen: 96, collapse: true });
+  return `${cls}|L${lvl}|${name}`;
+}
+
+export function buildOptionKey(group, option) {
+  const gid = buildGroupId(group);
+  const optName = sanitizeText(option?.name || "", { maxLen: 120, collapse: true });
+  return `${gid}::${optName}`;
+}
+
+export function escapeHtml(value) {
+  // Minimal HTML escaping for safe insertion into HTML contexts.
+  // Prefer DOM APIs (textContent) where possible.
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+export function safeHtmlText(value, maxLen = 256) {
+  // Convenience: sanitize text length/control chars, then escape for HTML.
+  return escapeHtml(sanitizeText(value, { maxLen, collapse: false }));
 }

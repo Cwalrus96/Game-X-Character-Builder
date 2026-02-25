@@ -10,15 +10,14 @@ import {
 } from "./builder-common.js";
 import { renderBuilderNav } from "./builder-nav.js";
 
+import { ATTR_KEYS, ATTR_LABELS, clampLevel } from "./character-rules.js";
+import { buildAttributesUpdatePatch } from "./database-writer.js";
+
 import {
-  ATTR_KEYS,
-  ATTR_LABELS,
-  clampLevel,
   getAttributePointsToSpend,
   getAttributeFinalCap,
   getAttributeEffectiveCap,
-  buildAttributesUpdatePatch,
-} from "./character-schema.js";
+} from "./character-rules.js";
 
 
 // ---- Page identity ----

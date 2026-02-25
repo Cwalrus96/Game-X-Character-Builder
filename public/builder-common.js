@@ -4,15 +4,14 @@ import { onAuth, signOutNow, initAuthRedirectHandling, getClaims } from "./auth-
 
 import {
   doc,
-  getDoc,
-  updateDoc,
-  serverTimestamp,
-  arrayUnion,
-  deleteField,
+  getDoc,  deleteField,
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
 import { normalizeCharacterDoc } from "./database-reader.js";
-import { sanitizeUpdatePatch } from "./database-writer.js";
+import {
+  saveCharacterPatch as _saveCharacterPatch,
+  markStepVisited as _markStepVisited,
+} from "./database-writer.js";
 
 /**
  * Small shared utilities for Builder pages:
@@ -192,8 +191,7 @@ export async function loadCharacterDoc(editingUid, charId) {
  * @param {Record<string, any>} patch
  */
 export async function saveCharacterPatch(charRef, patch) {
-  const cleaned = sanitizeUpdatePatch(patch || {});
-  await updateDoc(charRef, { ...cleaned, updatedAt: serverTimestamp() });
+  return await _saveCharacterPatch(charRef, patch);
 }
 
 /**
@@ -320,13 +318,5 @@ export function confirmModal(opts) {
  * @param {string} stepId
  */
 export async function markStepVisited(charRef, stepId) {
-  try {
-    await updateDoc(charRef, {
-      "builder.visitedSteps": arrayUnion(stepId),
-      "builder.lastVisitedAt": serverTimestamp(),
-    });
-  } catch (e) {
-    // Non-fatal: visited is a convenience, not required for core use.
-    console.warn("Could not mark step visited:", e);
-  }
+  return await _markStepVisited(charRef, stepId);
 }
