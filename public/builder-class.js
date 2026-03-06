@@ -173,6 +173,11 @@ function getSaveIssues() {
   const prevClassKey = String(currentDoc?.builder?.classKey || "");
   const classChanged = !!selectedClassKey && !!prevClassKey && prevClassKey !== selectedClassKey;
 
+  const prevLevelRaw = Number(currentDoc?.builder?.level || 1);
+  const prevLevel = clampLevel(prevLevelRaw);
+  const nextLevel = clampLevel(selectedLevel);
+  const levelDecreased = nextLevel < prevLevel;
+
   const cls = getClassByKey(selectedClassKey);
   if (!cls) {
     warnings.push("Choose a class.");
@@ -198,6 +203,52 @@ function getSaveIssues() {
       const picked = keys.filter((k) => selectedFeatureOptionKeys.has(k)).length;
       if (picked !== chooseCount) {
         warnings.push(`Finish selecting options for: ${g.name} (choose ${chooseCount}).`);
+      }
+    }
+  }
+
+  // Cascading invalidation: lowering level can prune selections.
+  // (We warn and then auto-prune on save to keep the sheet consistent.)
+  if (levelDecreased && selectedClassKey) {
+    // Feats: minLevel + slot cap.
+    const storedFeats = Array.isArray(currentDoc?.builder?.selectedFeats)
+      ? currentDoc.builder.selectedFeats.map((x) => String(x || "").trim()).filter(Boolean)
+      : [];
+
+    if (storedFeats.length) {
+      const allowedVisible = computeVisibleFeats(selectedClassKey, nextLevel);
+      const allowedByName = new Set(allowedVisible.map((f) => String(f?.name || "").trim()).filter(Boolean));
+      let kept = storedFeats.filter((n) => allowedByName.has(n));
+      const nextSlots = getFeatSlots(nextLevel);
+      if (kept.length > nextSlots) kept = kept.slice(0, nextSlots);
+      const droppedCount = Math.max(0, storedFeats.length - kept.length);
+      if (droppedCount) {
+        warnings.push(
+          `Lowering level to ${nextLevel} will remove ${droppedCount} feat${droppedCount === 1 ? "" : "s"} that no longer fit your level/slot limits.`
+        );
+      }
+    }
+
+    // Feature options: options for features above the new level will be cleared.
+    const storedOpts = Array.isArray(currentDoc?.builder?.selectedClassFeatureOptions)
+      ? currentDoc.builder.selectedClassFeatureOptions.map((x) => String(x || "").trim()).filter(Boolean)
+      : [];
+    if (storedOpts.length) {
+      const visible = computeVisibleClassFeatures(selectedClassKey, nextLevel);
+      const allowedOptKeys = new Set();
+      visible
+        .filter((f) => String(f?.type) === "optionGroup")
+        .forEach((g) => {
+          const opts = Array.isArray(g?.options) ? g.options : [];
+          for (const o of opts) allowedOptKeys.add(buildOptionKey(g, o));
+        });
+
+      const kept = storedOpts.filter((k) => allowedOptKeys.has(k));
+      const droppedCount = Math.max(0, storedOpts.length - kept.length);
+      if (droppedCount) {
+        warnings.push(
+          `Lowering level to ${nextLevel} will clear ${droppedCount} class option selection${droppedCount === 1 ? "" : "s"} from higher-level features.`
+        );
       }
     }
   }
@@ -385,7 +436,8 @@ function renderFeatures() {
       const chooseCount = Number(f?.chooseCount || 0);
       const opts = Array.isArray(f?.options) ? f.options : [];
       const gid = buildGroupId(f);
-      const isCollapsed = collapsedGroups.get(gid) ?? true;
+      // Expanded by default.
+      const isCollapsed = collapsedGroups.get(gid) ?? false;
 
       // Map options for pruning and later ability generation
       for (const o of opts) {
@@ -629,6 +681,9 @@ async function saveClassStep({ openSheetAfter = false, intent = "save" } = {}) {
   try {
     const prevClassKey = String(currentDoc?.builder?.classKey || "");
     const classChanged = !!selectedClassKey && !!prevClassKey && prevClassKey !== selectedClassKey;
+
+    // Always enforce pruning at save time (manual saves and navigation saves).
+    pruneSelectionsForLevel();
 
     const autoAbilities = buildAutoAbilities();
     const autoNames = autoAbilities.map((a) => a.name);

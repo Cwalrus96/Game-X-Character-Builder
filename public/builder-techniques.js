@@ -86,6 +86,12 @@ let knownCombatSkills = new Set();
 /** @type {Set<string>} */
 let grantedTechniqueNames = new Set();
 
+// If we auto-adjust stored selections due to class/level/skill/slot changes,
+// we surface a one-time warning so the user understands what happened.
+let didAutoAdjustOnLoad = false;
+/** @type {string[]} */
+let autoAdjustWarnings = [];
+
 // ---- Helpers ----
 
 function openSheet() {
@@ -137,6 +143,67 @@ function deriveSkillsAndGrants() {
   for (const g of grantedTechniqueNames) {
     if (selectedTechniques.has(g)) selectedTechniques.delete(g);
   }
+}
+
+function pruneSelectionsToCurrentContext() {
+  const warnings = [];
+
+  // 1) Remove anything that cannot be resolved anymore.
+  const missing = Array.from(selectedTechniques).filter((ref) => !resolveRef(ref));
+  if (missing.length) {
+    for (const ref of missing) selectedTechniques.delete(ref);
+    warnings.push(`Removed ${missing.length} technique reference(s) that no longer exist in the JSON.`);
+  }
+
+  // 2) Remove anything that is now granted (manual picks should not include these).
+  const grantedHits = Array.from(selectedTechniques).filter((ref) => grantedTechniqueNames.has(ref));
+  if (grantedHits.length) {
+    for (const ref of grantedHits) selectedTechniques.delete(ref);
+    warnings.push(`Removed ${grantedHits.length} technique(s) that are now granted automatically.`);
+  }
+
+  // 3) Remove picks whose skill is no longer known (class/feature/feat changes).
+  // This keeps selection consistent with the Techniques page's skill-gated list.
+  const invalidBySkill = [];
+  for (const ref of selectedTechniques) {
+    const t = resolveRef(ref);
+    const skill = String(t?.skill || "").trim();
+    if (!skill) continue;
+    if (!knownCombatSkills.has(skill)) invalidBySkill.push(ref);
+  }
+  if (invalidBySkill.length) {
+    for (const ref of invalidBySkill) selectedTechniques.delete(ref);
+    warnings.push(
+      `Removed ${invalidBySkill.length} technique(s) whose combat skill is no longer known for your current class/features.`
+    );
+  }
+
+  // 4) Enforce slot cap.
+  if (slots <= 0) {
+    const count = selectedTechniques.size;
+    if (count) {
+      selectedTechniques.clear();
+      warnings.push("Cleared technique selections because you currently have 0 technique slots.");
+    }
+    return warnings;
+  }
+
+  const { total } = getSelectedCounts();
+  if (total > slots) {
+    // Keep the first N by our stable sort order (rank/name), drop the rest.
+    const sorted = buildSortedSelectedArray();
+    const keep = new Set(sorted.slice(0, slots));
+    const dropped = [];
+    for (const ref of selectedTechniques) {
+      if (!keep.has(ref)) dropped.push(ref);
+    }
+    for (const ref of dropped) selectedTechniques.delete(ref);
+    warnings.push(
+      `Removed ${dropped.length} technique(s) because your selected techniques exceeded your ${slots} slot limit.`
+    );
+  }
+
+  return warnings;
 }
 
 // ---- Rendering ----
@@ -432,6 +499,9 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
   clearError(errorEl);
   setStatus(statusEl, "Saving…");
 
+  // Keep stored selections consistent before validating/saving.
+  const pruneWarnings = pruneSelectionsToCurrentContext();
+
   const { errors, warnings } = getSaveIssues();
 
   if (errors.length) {
@@ -440,10 +510,12 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
     return false;
   }
 
-  if (warnings.length) {
+  const combinedWarnings = warnings.concat(pruneWarnings);
+
+  if (combinedWarnings.length) {
     const ok = await confirmSaveWarnings({
       title: "Some information is incomplete",
-      warnings,
+      warnings: combinedWarnings,
       okText: intent === "navigate" ? "Save and Continue" : "Save",
       cancelText: "Cancel",
     });
@@ -510,6 +582,13 @@ async function main() {
     const stored = Array.isArray(b.selectedTechniques) ? b.selectedTechniques : [];
     selectedTechniques = new Set(stored.map((x) => String(x || "").trim()).filter(Boolean));
 
+    // If the class/level/skills changed since the last time Techniques was saved,
+    // the stored selections may be invalid. Auto-adjust to keep the page consistent.
+    // (We also warn so the user understands why their count changed.)
+    deriveSkillsAndGrants();
+    autoAdjustWarnings = pruneSelectionsToCurrentContext();
+    didAutoAdjustOnLoad = autoAdjustWarnings.length > 0;
+
     // Wire controls
     if (techSearchEl) {
       techSearchEl.addEventListener("input", () => {
@@ -555,6 +634,14 @@ async function main() {
     // Initial render
     setStatus(statusEl, "Ready.");
     renderAll();
+
+    if (didAutoAdjustOnLoad) {
+      showError(
+        errorEl,
+        `Some stored technique selections were adjusted to match your current class/level. Please review and save. ${autoAdjustWarnings.join(" ")}`
+      );
+      setStatus(statusEl, "Review needed.");
+    }
 
     if (!primaryAttrKey) {
       showError(errorEl, "Primary Attribute not set. Go back to the Class step.");

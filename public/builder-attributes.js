@@ -223,12 +223,27 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
   clearError(errorEl);
   setStatus(statusEl, "Saving…");
 
-  const warnings = getAttributeWarnings();
+  // Always enforce caps/point totals on save so level changes can't leave invalid data behind.
+  const rawEff = getCurrentEffValues();
+  const pruned = pruneAttributesToFit({ level, primaryAttr, eff: rawEff });
+
+  // If the UI still shows values that would be pruned, reflect them before saving
+  // so the user sees what is being saved.
+  if (pruned.didChange) {
+    for (const { key, input } of attrRows) {
+      if (Object.prototype.hasOwnProperty.call(pruned.eff, key)) input.value = String(pruned.eff[key]);
+    }
+    updateUI();
+  }
+
+  const warnings = getAttributeWarnings().concat(pruned.warnings);
+
   if (warnings.length) {
+    const okText = intent === "navigate" ? "Save and Continue" : "Save";
     const ok = await confirmSaveWarnings({
-      title: "Some information is incomplete",
+      title: "Save with warnings?",
       warnings,
-      okText: intent === "navigate" ? "Save and Continue" : "Save",
+      okText,
       cancelText: "Cancel",
     });
     if (!ok) {
@@ -238,11 +253,9 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
   }
 
   try {
-    const eff = getCurrentEffValues();
-
     const patch = buildAttributesUpdatePatch({
       level,
-      attributes: eff,
+      attributes: pruned.eff,
       primaryAttribute: primaryAttr,
     });
 
@@ -250,7 +263,7 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
 
     // Update local cache
     currentDoc = currentDoc || {};
-    currentDoc.builder = { ...(currentDoc.builder || {}), attributes: eff };
+    currentDoc.builder = { ...(currentDoc.builder || {}), attributes: pruned.eff };
 
     setStatus(statusEl, "Saved.");
 
@@ -269,6 +282,80 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
     return false;
   }
 }
+
+// Prune attribute values so they always satisfy:
+// - per-attribute effective caps/mins
+// - total points to spend at this level
+//
+// Returns { eff, warnings, didChange }.
+function pruneAttributesToFit({ level, primaryAttr, eff }) {
+  const warnings = [];
+  const out = {};
+  let didChange = false;
+
+  // 1) Clamp each attribute to its min/cap.
+  for (const k of ATTR_KEYS) {
+    const effCap = getAttributeEffectiveCap(level, k, primaryAttr);
+    const min = k === primaryAttr ? 1 : 0;
+    const v = clampInt(eff?.[k] ?? 0, min, effCap);
+    out[k] = v;
+    if ((eff?.[k] ?? 0) !== v) didChange = true;
+  }
+
+  // 2) If we still exceed total points, reduce base values until we fit.
+  const total = getAttributePointsToSpend(level);
+  const bonusPrimary = primaryAttr ? 1 : 0;
+
+  function base(k) {
+    const bonus = k === primaryAttr ? bonusPrimary : 0;
+    return Math.max(0, (out[k] ?? 0) - bonus);
+  }
+  function setBase(k, newBase) {
+    const bonus = k === primaryAttr ? bonusPrimary : 0;
+    out[k] = Math.max(k === primaryAttr ? 1 : 0, newBase + bonus);
+  }
+
+  let used = 0;
+  for (const k of ATTR_KEYS) used += base(k);
+
+  if (used > total) {
+    const over = used - total;
+
+    // Reduce non-primary first, highest base first (deterministic).
+    const order = ATTR_KEYS.slice().sort((a, b) => {
+      const ap = a === primaryAttr ? 1 : 0;
+      const bp = b === primaryAttr ? 1 : 0;
+      if (ap !== bp) return ap - bp; // non-primary first
+      return base(b) - base(a); // higher first
+    });
+
+    let toRemove = over;
+    for (const k of order) {
+      if (toRemove <= 0) break;
+      const minBase = k === primaryAttr ? 0 : 0; // primary min is handled via effective min=1
+      const cur = base(k);
+      const reducible = Math.max(0, cur - minBase);
+      if (!reducible) continue;
+      const dec = Math.min(reducible, toRemove);
+      setBase(k, cur - dec);
+      toRemove -= dec;
+      didChange = true;
+    }
+
+    warnings.push(
+      `Your attributes exceeded the point budget for level ${level}. Values were reduced to fit the new total.`
+    );
+  }
+
+  // 3) If we clamped anything due to caps/mins, warn (usually due to level decrease / primary change).
+  if (didChange) {
+    // More specific, but still short:
+    warnings.push("One or more attributes were adjusted to respect caps/minimums.");
+  }
+
+  return { eff: out, warnings, didChange };
+}
+
 
 // ---- Init ----
 async function main() {
@@ -299,8 +386,21 @@ async function main() {
 
     // Load stored final attribute values (already includes the Primary +1 bonus)
     const storedAttrs = currentDoc?.builder?.attributes || {};
-    const eff = {};
-    for (const k of ATTR_KEYS) eff[k] = Number(storedAttrs[k] || 0);
+    const storedEff = {};
+    for (const k of ATTR_KEYS) storedEff[k] = Number(storedAttrs[k] || 0);
+
+    // If level/primary changed since these were saved, they may violate new caps/point totals.
+    // We prune immediately in the UI (so the user can see the result) and warn.
+    const prunedOnLoad = pruneAttributesToFit({ level, primaryAttr, eff: storedEff });
+    const eff = prunedOnLoad.eff;
+
+    if (prunedOnLoad.didChange) {
+      showError(
+        errorEl,
+        `Some stored attributes were adjusted to fit level ${level} and current caps. Please review and save.`
+      );
+      setStatus(statusEl, "Review needed.");
+    }
 
 
     for (const { key, input } of attrRows) {
