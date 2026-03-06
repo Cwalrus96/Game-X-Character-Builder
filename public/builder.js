@@ -8,6 +8,7 @@ import {
   clearError,
   markStepVisited,
   confirmModal,
+  confirmSaveWarnings,
 } from "./builder-common.js";
 import { renderBuilderNav } from "./builder-nav.js";
 import { getPortraitStoragePath } from "./database-writer.js";
@@ -107,26 +108,22 @@ function getProfileWarnings() {
 }
 
 // ---- Save logic ----
-async function saveBuilder({ openSheetAfter = false, requireComplete = false } = {}) {
+async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
   clearError(errorEl);
   setStatus(statusEl, "Saving…");
 
   const warnings = getProfileWarnings();
-  if (warnings.length && !requireComplete) {
-    const ok = await confirmModal({
-      title: "Save anyway?",
-      messageHtml: `<ul>${warnings.map((w) => `<li>${w}</li>`).join("")}</ul>`,
-      okText: "Save anyway",
+  if (warnings.length) {
+    const ok = await confirmSaveWarnings({
+      title: "Some information is incomplete",
+      warnings,
+      okText: intent === "navigate" ? "Save and Continue" : "Save",
       cancelText: "Cancel",
     });
     if (!ok) {
       setStatus(statusEl, "Not saved.");
       return false;
     }
-  } else if (warnings.length && requireComplete) {
-    showError(errorEl, warnings.join(" "));
-    setStatus(statusEl, "Not saved.");
-    return false;
   }
 
   try {
@@ -245,8 +242,8 @@ async function main() {
 
     if (clearPortraitBtn) clearPortraitBtn.addEventListener("click", clearPortrait);
 
-    saveBtn.addEventListener("click", () => saveBuilder({ openSheetAfter: false }));
-    saveAndOpenBtn.addEventListener("click", () => saveBuilder({ openSheetAfter: true }));
+    saveBtn.addEventListener("click", () => saveBuilder({ openSheetAfter: false, intent: "save" }));
+    saveAndOpenBtn.addEventListener("click", () => saveBuilder({ openSheetAfter: true, intent: "save" }));
 
     // Builder nav (prev/next). Next auto-saves before navigation.
     renderBuilderNav({
@@ -254,7 +251,7 @@ async function main() {
       currentStepId: CURRENT_STEP_ID,
       characterDoc: currentDoc,
       ctx: { charId: ctx.charId, requestedUid: ctx.requestedUid },
-      onBeforeNext: async () => await saveBuilder({ openSheetAfter: false, requireComplete: true }),
+      onBeforeNavigate: async () => await saveBuilder({ openSheetAfter: false, intent: "navigate" }),
     });
 
 	const navBottom = document.getElementById("builderNavBottom");
@@ -263,8 +260,8 @@ async function main() {
 	  currentStepId: CURRENT_STEP_ID,
 	  characterDoc: currentDoc,
 	  ctx: { charId: ctx.charId, requestedUid: ctx.requestedUid },
-	  onBeforeNext: async () => {
-		return await saveBuilder({ openSheetAfter: false });
+	  onBeforeNavigate: async () => {
+		return await saveBuilder({ openSheetAfter: false, intent: "navigate" });
 	  },
 	});
 

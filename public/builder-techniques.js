@@ -10,7 +10,7 @@ import {
   setStatus,
   showError,
   clearError,
-  confirmModal,
+  confirmSaveWarnings,
 } from "./builder-common.js";
 
 import { renderBuilderNav } from "./builder-nav.js";
@@ -428,7 +428,7 @@ function getSaveIssues() {
   return { errors, warnings };
 }
 
-async function saveBuilder({ openSheetAfter = false, requireComplete = false } = {}) {
+async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
   clearError(errorEl);
   setStatus(statusEl, "Saving…");
 
@@ -440,17 +440,11 @@ async function saveBuilder({ openSheetAfter = false, requireComplete = false } =
     return false;
   }
 
-  if (warnings.length && requireComplete) {
-    showError(errorEl, warnings.join(" "));
-    setStatus(statusEl, "Not saved.");
-    return false;
-  }
-
-  if (warnings.length && !requireComplete) {
-    const ok = await confirmModal({
-      title: "Save anyway?",
-      messageHtml: `<ul>${warnings.map((w) => `<li>${safeHtmlText(w, 400)}</li>`).join("")}</ul>`,
-      okText: "Save anyway",
+  if (warnings.length) {
+    const ok = await confirmSaveWarnings({
+      title: "Some information is incomplete",
+      warnings,
+      okText: intent === "navigate" ? "Save and Continue" : "Save",
       cancelText: "Cancel",
     });
     if (!ok) {
@@ -539,8 +533,8 @@ async function main() {
       });
     }
 
-    if (saveBtn) saveBtn.addEventListener("click", () => saveBuilder({ openSheetAfter: false }));
-    if (saveAndOpenBtn) saveAndOpenBtn.addEventListener("click", () => saveBuilder({ openSheetAfter: true }));
+    if (saveBtn) saveBtn.addEventListener("click", () => saveBuilder({ openSheetAfter: false, intent: "save" }));
+    if (saveAndOpenBtn) saveAndOpenBtn.addEventListener("click", () => saveBuilder({ openSheetAfter: true, intent: "save" }));
 
     // Nav
     renderBuilderNav({
@@ -548,12 +542,14 @@ async function main() {
       currentStepId: CURRENT_STEP_ID,
       characterDoc: currentDoc,
       ctx: { charId: ctx.charId, requestedUid: ctx.requestedUid },
+      onBeforeNavigate: async () => await saveBuilder({ openSheetAfter: false, intent: "navigate" }),
     });
     renderBuilderNav({
       mountEl: navBottom,
       currentStepId: CURRENT_STEP_ID,
       characterDoc: currentDoc,
       ctx: { charId: ctx.charId, requestedUid: ctx.requestedUid },
+      onBeforeNavigate: async () => await saveBuilder({ openSheetAfter: false, intent: "navigate" }),
     });
 
     // Initial render

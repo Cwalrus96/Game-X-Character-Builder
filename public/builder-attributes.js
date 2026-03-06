@@ -6,7 +6,7 @@ import {
   showError,
   clearError,
   markStepVisited,
-  confirmModal,
+  confirmSaveWarnings,
 } from "./builder-common.js";
 import { renderBuilderNav } from "./builder-nav.js";
 
@@ -219,22 +219,16 @@ function getAttributeWarnings() {
   return warnings;
 }
 
-async function saveBuilder({ openSheetAfter = false, requireComplete = false } = {}) {
+async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
   clearError(errorEl);
   setStatus(statusEl, "Saving…");
 
   const warnings = getAttributeWarnings();
-  if (warnings.length && requireComplete) {
-    showError(errorEl, warnings.join(" "));
-    setStatus(statusEl, "Not saved.");
-    return false;
-  }
-
-  if (warnings.length && !requireComplete) {
-    const ok = await confirmModal({
-      title: "Save anyway?",
-      messageHtml: `<ul>${warnings.map((w) => `<li>${w}</li>`).join("")}</ul>`,
-      okText: "Save anyway",
+  if (warnings.length) {
+    const ok = await confirmSaveWarnings({
+      title: "Some information is incomplete",
+      warnings,
+      okText: intent === "navigate" ? "Save and Continue" : "Save",
       cancelText: "Cancel",
     });
     if (!ok) {
@@ -324,11 +318,11 @@ async function main() {
       currentStepId: CURRENT_STEP_ID,
       characterDoc: currentDoc,
       ctx: { charId: ctx.charId, requestedUid: ctx.requestedUid },
-      onBeforeNext: async () => await saveBuilder({ openSheetAfter: false, requireComplete: true }),
+      onBeforeNavigate: async () => await saveBuilder({ openSheetAfter: false, intent: "navigate" }),
     });
 
-    saveBtn.addEventListener("click", () => saveBuilder({ openSheetAfter: false, requireComplete: false }));
-    saveAndOpenBtn.addEventListener("click", () => saveBuilder({ openSheetAfter: true, requireComplete: false }));
+    saveBtn.addEventListener("click", () => saveBuilder({ openSheetAfter: false, intent: "save" }));
+    saveAndOpenBtn.addEventListener("click", () => saveBuilder({ openSheetAfter: true, intent: "save" }));
 
     updateUI();
     setStatus(statusEl, "Ready.");

@@ -15,11 +15,11 @@ import { buildBuilderUrl } from "./builder-common.js";
  *   currentStepId: string,
  *   characterDoc: any,
  *   ctx: { charId: string, requestedUid?: string|null },
- *   onBeforeNext?: (nextStep: any) => Promise<boolean> | boolean,
+ *   onBeforeNavigate?: (targetStep: any) => Promise<boolean> | boolean,
  * }} args
  */
 export function renderBuilderNav(args) {
-  const { mountEl, currentStepId, characterDoc, ctx, onBeforeNext } = args;
+  const { mountEl, currentStepId, characterDoc, ctx, onBeforeNavigate } = args;
   if (!mountEl) return;
 
   const steps = getEnabledSteps(characterDoc);
@@ -38,6 +38,19 @@ export function renderBuilderNav(args) {
   // ---- Step list (orientation) ----
   const ol = document.createElement("ol");
   ol.className = "builderStepList";
+
+  /**
+   * Navigate to a builder step path, optionally running a pre-nav hook.
+   * @param {any} targetStep
+   */
+  async function goToStep(targetStep) {
+    if (!targetStep) return;
+    if (typeof onBeforeNavigate === "function") {
+      const ok = await onBeforeNavigate(targetStep);
+      if (!ok) return;
+    }
+    window.location.href = buildBuilderUrl(targetStep.path, ctx);
+  }
 
   steps.forEach((step, idx) => {
     const li = document.createElement("li");
@@ -70,6 +83,13 @@ export function renderBuilderNav(args) {
       a.href = buildBuilderUrl(step.path, ctx);
       a.textContent = labelText;
 
+      a.addEventListener("click", (e) => {
+        // Allow normal navigation if no hook is provided.
+        if (typeof onBeforeNavigate !== "function") return;
+        e.preventDefault();
+        void goToStep(step);
+      });
+
       const sr = document.createElement("span");
       sr.className = "srOnly";
       sr.textContent = " (visited)";
@@ -97,6 +117,12 @@ export function renderBuilderNav(args) {
     prevLink.className = "btn secondary";
     prevLink.href = buildBuilderUrl(prev.path, ctx);
     prevLink.textContent = "Previous";
+
+    prevLink.addEventListener("click", (e) => {
+      if (typeof onBeforeNavigate !== "function") return;
+      e.preventDefault();
+      void goToStep(prev);
+    });
     controls.append(prevLink);
   } else {
     const spacer = document.createElement("span");
@@ -113,11 +139,7 @@ export function renderBuilderNav(args) {
     nextBtn.addEventListener("click", async () => {
       nextBtn.disabled = true;
       try {
-        if (typeof onBeforeNext === "function") {
-          const ok = await onBeforeNext(next);
-          if (!ok) return;
-        }
-        window.location.href = buildBuilderUrl(next.path, ctx);
+        await goToStep(next);
       } finally {
         nextBtn.disabled = false;
       }

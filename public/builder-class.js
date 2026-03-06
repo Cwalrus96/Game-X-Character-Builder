@@ -9,6 +9,7 @@ import {
   setStatus,
   showError,
   clearError,
+  confirmSaveWarnings,
 } from "./builder-common.js";
 
 import { renderBuilderNav } from "./builder-nav.js";
@@ -161,42 +162,71 @@ function pruneSelectionsForLevel() {
   }
 }
 
-function validateBeforeSave() {
+function getSaveIssues() {
   clearError(errorEl);
 
+  /** @type {string[]} */
+  const errors = [];
+  /** @type {string[]} */
+  const warnings = [];
+
+  const prevClassKey = String(currentDoc?.builder?.classKey || "");
+  const classChanged = !!selectedClassKey && !!prevClassKey && prevClassKey !== selectedClassKey;
+
   const cls = getClassByKey(selectedClassKey);
-  if (!cls) return { ok: false, msg: "Choose a class." };
+  if (!cls) {
+    warnings.push("Choose a class.");
+  } else {
+    const selectable = classSelectableInfo(cls);
+    if (!selectable.ok) {
+      warnings.push("This class is marked Coming Soon (data may be incomplete).");
+    }
 
-  const selectable = classSelectableInfo(cls);
-  if (!selectable.ok) return { ok: false, msg: "This class is not selectable yet." };
+    const allowedPrimary = getAllowedPrimaryAttributes(cls);
+    if (!selectedPrimary || !allowedPrimary.includes(/** @type {any} */ (selectedPrimary))) {
+      warnings.push("Choose a Primary Attribute.");
+    }
 
-  const allowedPrimary = getAllowedPrimaryAttributes(cls);
-  if (!selectedPrimary || !allowedPrimary.includes(/** @type {any} */ (selectedPrimary))) {
-    return { ok: false, msg: "Choose a Primary Attribute." };
-  }
-
-  // Enforce option groups: must pick exactly chooseCount if the group is visible.
-  const visible = computeVisibleClassFeatures(selectedClassKey, selectedLevel);
-  const groups = visible.filter((f) => String(f?.type) === "optionGroup");
-
-  for (const g of groups) {
-    const chooseCount = Number(g?.chooseCount || 0);
-    if (!chooseCount) continue;
-    const opts = Array.isArray(g?.options) ? g.options : [];
-    const keys = opts.map((o) => buildOptionKey(g, o));
-    const picked = keys.filter((k) => selectedFeatureOptionKeys.has(k)).length;
-    if (picked !== chooseCount) {
-      return { ok: false, msg: `Finish selecting options for: ${g.name} (choose ${chooseCount}).` };
+    // Option groups: warn if incomplete.
+    const visible = computeVisibleClassFeatures(selectedClassKey, selectedLevel);
+    const groups = visible.filter((f) => String(f?.type) === "optionGroup");
+    for (const g of groups) {
+      const chooseCount = Number(g?.chooseCount || 0);
+      if (!chooseCount) continue;
+      const opts = Array.isArray(g?.options) ? g.options : [];
+      const keys = opts.map((o) => buildOptionKey(g, o));
+      const picked = keys.filter((k) => selectedFeatureOptionKeys.has(k)).length;
+      if (picked !== chooseCount) {
+        warnings.push(`Finish selecting options for: ${g.name} (choose ${chooseCount}).`);
+      }
     }
   }
 
-  // Feats: cannot exceed slots.
-  const maxSlots = getFeatSlots(selectedLevel);
-  if (selectedFeatNames.size > maxSlots) {
-    return { ok: false, msg: `Too many feats selected (${selectedFeatNames.size}/${maxSlots}).` };
+  // Cascading invalidation: class changes make prior technique picks invalid.
+  // Warn and (on save) clear them so the Techniques step starts from a clean slate.
+  if (classChanged) {
+    const storedTechniques = Array.isArray(currentDoc?.builder?.selectedTechniques)
+      ? currentDoc.builder.selectedTechniques
+      : [];
+    if (storedTechniques.length) {
+      warnings.push(
+        `Changing class will clear ${storedTechniques.length} selected technique${
+          storedTechniques.length === 1 ? "" : "s"
+        }.`
+      );
+    }
   }
 
-  return { ok: true, msg: "" };
+  // Feats: cannot exceed slots (this is invalid, not just missing data).
+  const maxSlots = getFeatSlots(selectedLevel);
+  if (selectedFeatNames.size > maxSlots) {
+    errors.push(`Too many feats selected (${selectedFeatNames.size}/${maxSlots}).`);
+  }
+  if (selectedFeatNames.size < maxSlots) {
+    warnings.push(`You can select ${maxSlots} feats, but only selected ${selectedFeatNames.size}.`);
+  }
+
+  return { errors, warnings };
 }
 
 function buildAutoAbilities() {
@@ -557,12 +587,13 @@ function updateUiForSelection() {
   setIncompleteBanner(!!cls && !selectable.ok, selectable.reason);
 
   // Disable controls if incomplete
-  const disable = !!cls && !selectable.ok;
-  if (primaryEl) primaryEl.disabled = disable;
-  if (saveBtn) saveBtn.disabled = disable;
-  if (saveAndOpenBtn) saveAndOpenBtn.disabled = disable;
-  if (featuresEl) featuresEl.style.opacity = disable ? "0.6" : "1";
-  if (featsEl) featsEl.style.opacity = disable ? "0.6" : "1";
+  // Even if a class is "Coming Soon", allow saving (warn on save instead of blocking).
+  const dim = !!cls && !selectable.ok;
+  if (primaryEl) primaryEl.disabled = false;
+  if (saveBtn) saveBtn.disabled = false;
+  if (saveAndOpenBtn) saveAndOpenBtn.disabled = false;
+  if (featuresEl) featuresEl.style.opacity = dim ? "0.6" : "1";
+  if (featsEl) featsEl.style.opacity = dim ? "0.6" : "1";
 
   renderPrimaryOptions();
   renderClassDetails();
@@ -571,18 +602,34 @@ function updateUiForSelection() {
   renderFeats();
 }
 
-async function saveClassStep({ openSheetAfter = false } = {}) {
+async function saveClassStep({ openSheetAfter = false, intent = "save" } = {}) {
   clearError(errorEl);
   setStatus(statusEl, "Saving…");
 
-  const v = validateBeforeSave();
-  if (!v.ok) {
-    showError(errorEl, v.msg);
+  const { errors, warnings } = getSaveIssues();
+  if (errors.length) {
+    showError(errorEl, errors.join(" "));
     setStatus(statusEl, "Not saved.");
     return false;
   }
 
+  if (warnings.length) {
+    const ok = await confirmSaveWarnings({
+      title: "Some information is incomplete",
+      warnings,
+      okText: intent === "navigate" ? "Save and Continue" : "Save",
+      cancelText: "Cancel",
+    });
+    if (!ok) {
+      setStatus(statusEl, "Not saved.");
+      return false;
+    }
+  }
+
   try {
+    const prevClassKey = String(currentDoc?.builder?.classKey || "");
+    const classChanged = !!selectedClassKey && !!prevClassKey && prevClassKey !== selectedClassKey;
+
     const autoAbilities = buildAutoAbilities();
     const autoNames = autoAbilities.map((a) => a.name);
     const oldAutoNames = currentDoc?.builder?.autoAbilityNames || [];
@@ -595,6 +642,7 @@ async function saveClassStep({ openSheetAfter = false } = {}) {
       "builder.primaryAttribute": sanitizeText(selectedPrimary, { maxLen: 32 }),
       "builder.selectedClassFeatureOptions": Array.from(selectedFeatureOptionKeys),
       "builder.selectedFeats": Array.from(selectedFeatNames),
+      ...(classChanged ? { "builder.selectedTechniques": [] } : {}),
       "builder.autoAbilityNames": autoNames,
       "builder.sheet.repeatables.abilities": mergedAbilities,
     };
@@ -615,6 +663,7 @@ async function saveClassStep({ openSheetAfter = false } = {}) {
       primaryAttribute: selectedPrimary,
       selectedClassFeatureOptions: Array.from(selectedFeatureOptionKeys),
       selectedFeats: Array.from(selectedFeatNames),
+      ...(classChanged ? { selectedTechniques: [] } : {}),
       autoAbilityNames: autoNames,
       sheet: {
         ...prevSheet,
@@ -649,9 +698,9 @@ function renderNav() {
     currentStepId: CURRENT_STEP_ID,
     characterDoc: currentDoc,
     ctx: { charId: ctx.charId, requestedUid: ctx.requestedUid },
-    onBeforeNext: async () => {
-      // Auto-save before navigation.
-      return await saveClassStep({ openSheetAfter: false });
+    onBeforeNavigate: async () => {
+      // Auto-save before navigation (warn, but allow).
+      return await saveClassStep({ openSheetAfter: false, intent: "navigate" });
     },
   };
 
@@ -721,8 +770,8 @@ async function main() {
       selectedPrimary = String(primaryEl.value || "");
     });
 
-    saveBtn.addEventListener("click", () => saveClassStep({ openSheetAfter: false }));
-    saveAndOpenBtn.addEventListener("click", () => saveClassStep({ openSheetAfter: true }));
+    saveBtn.addEventListener("click", () => saveClassStep({ openSheetAfter: false, intent: "save" }));
+    saveAndOpenBtn.addEventListener("click", () => saveClassStep({ openSheetAfter: true, intent: "save" }));
 
     updateUiForSelection();
     renderNav();

@@ -8,6 +8,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
 import { normalizeCharacterDoc } from "./database-reader.js";
+import { escapeHtml } from "./data-sanitization.js";
 import {
   saveCharacterPatch as _saveCharacterPatch,
   markStepVisited as _markStepVisited,
@@ -306,6 +307,33 @@ export function confirmModal(opts) {
     };
 
     window.addEventListener("keydown", onKeyDown);
+  });
+}
+
+/**
+ * Standard "warnings" prompt used by Builder pages.
+ * - Missing/unfinished data should warn but allow saving.
+ * - Caller chooses OK text (e.g., "Save and Continue" when navigating).
+ *
+ * @param {{
+ *   title: string,
+ *   warnings: string[],
+ *   okText?: string,
+ *   cancelText?: string,
+ * }} args
+ * @returns {Promise<boolean>}
+ */
+export async function confirmSaveWarnings(args) {
+  const title = args.title || "Save anyway?";
+  const warnings = Array.isArray(args.warnings) ? args.warnings.filter(Boolean) : [];
+  if (!warnings.length) return true;
+
+  const messageHtml = `<ul>${warnings.map((w) => `<li>${escapeHtml(String(w))}</li>`).join("")}</ul>`;
+  return await confirmModal({
+    title,
+    messageHtml,
+    okText: args.okText || "Save and Continue",
+    cancelText: args.cancelText || "Cancel",
   });
 }
 
