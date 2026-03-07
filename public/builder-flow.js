@@ -20,7 +20,7 @@ export const BUILDER_STEPS = [
   {
     id: "basics",
     title: "Name & Profile",
-    path: "builder.html",
+    path: "builder-profile.html",
   },
 
   {

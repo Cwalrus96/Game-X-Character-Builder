@@ -52,9 +52,9 @@ From the repo root:
     - `builder-flow.js` – step registry (add/reorder steps here)
     - `builder-nav.js` – step list + Prev/Next rendering
     - `builder-common.js` – shared builder page utilities (auth bootstrap, load/save, modals)
-    - `builder.js` – current “Level & Attributes” step
+    - `builder-profile.js` – Name & Profile step
   - Character sheet/editor:
-    - `editor.html` / `app.js` – character sheet rendering + saving
+    - `character-sheet.html` / `character-sheet.js` – character sheet rendering + saving
   - Other pages:
     - `characters.html` / `characters.js` – list/create characters
     - `login.html` / `login.js` – sign-in flow

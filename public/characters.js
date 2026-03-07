@@ -205,7 +205,7 @@ function renderCharacters(docs) {
     const a = document.createElement("a");
     a.className = "btn";
     a.textContent = "Continue";
-    const url = new URL("builder.html", window.location.href);
+    const url = new URL("builder-profile.html", window.location.href);
     url.searchParams.set("charId", d.id);
     // Only set uid param when GM viewing another user (or if the character doc owner differs)
     if (!isViewingSelf && claims.gm) {
@@ -269,7 +269,7 @@ async function createCharacter() {
 
   const docRef = await addDoc(col, docData);
 
-  const url = new URL("builder.html", window.location.href);
+  const url = new URL("builder-profile.html", window.location.href);
   url.searchParams.set("charId", docRef.id);
   if (!isViewingSelf && claims.gm) url.searchParams.set("uid", viewingUid);
   window.location.href = url.toString();

@@ -45,7 +45,7 @@ The design intent is:
 
 ## Current implemented steps
 The current registry contains these pages:
-- `public/builder.html` / `public/builder.js` – Name & Profile
+- `public/builder-profile.html` / `public/builder-profile.js` – Name & Profile
 - `public/builder-class.html` / `public/builder-class.js` – Class
 - `public/builder-attributes.html` / `public/builder-attributes.js` – Attributes
 - `public/builder-techniques.html` / `public/builder-techniques.js` – Techniques

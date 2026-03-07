@@ -144,6 +144,72 @@ import {
     'spiritdef',
   ]);
 
+
+  const SKILL_RANK_OPTIONS = [
+    { value: '', label: '' },
+    { value: '0', label: '0 - Untrained' },
+    { value: '1', label: '1 - Beginner' },
+    { value: '2', label: '2 - Advanced' },
+    { value: '3', label: '3 - Master' },
+    { value: '4', label: '4 - Legendary' },
+    { value: '5', label: '5 - Super' },
+    { value: '6', label: '6 - Cosmic' },
+  ];
+
+  const DEFENSE_SKILL_FIELDS = [
+    { key: 'rank_physdef', label: 'Physical Defense Training' },
+    { key: 'rank_mentdef', label: 'Mental Defense Training' },
+    { key: 'rank_spiritdef', label: 'Spiritual Defense Training' },
+  ];
+
+  const CORE_SKILL_FIELDS = [
+    { key: 'rank_academics', label: 'Academics' },
+    { key: 'rank_athletics', label: 'Athletics' },
+    { key: 'rank_crafting', label: 'Crafting' },
+    { key: 'rank_culinary', label: 'Culinary' },
+    { key: 'rank_deception', label: 'Deception' },
+    { key: 'rank_influence', label: 'Influence' },
+    { key: 'rank_insight', label: 'Insight' },
+    { key: 'rank_medicine', label: 'Medicine' },
+    { key: 'rank_nature', label: 'Nature' },
+    { key: 'rank_observation', label: 'Observation' },
+    { key: 'rank_performance', label: 'Performance' },
+    { key: 'rank_roguery', label: 'Roguery' },
+    { key: 'rank_society', label: 'Society' },
+    { key: 'rank_spirituality', label: 'Spirituality' },
+    { key: 'rank_stealth', label: 'Stealth' },
+  ];
+
+  function escapeAttr(value) {
+    return escapeHtml(String(value ?? '')).replaceAll('"', '&quot;');
+  }
+
+  function skillRankOptionsHtml(selectedValue = '') {
+    return SKILL_RANK_OPTIONS
+      .map(({ value, label }) => `<option value="${escapeAttr(value)}"${String(selectedValue) === String(value) ? ' selected' : ''}>${escapeHtml(label)}</option>`)
+      .join('');
+  }
+
+  function renderFixedSkillGrid(containerId, items) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = (Array.isArray(items) ? items : [])
+      .map(({ key, label }) => `
+        <label class="skill-chip skill-chip-static">
+          <span class="skill-chip-label">${escapeHtml(label)}</span>
+          <select aria-label="${escapeAttr(label)} rank" class="skill-rank-select" name="${escapeAttr(key)}">
+            ${skillRankOptionsHtml()}
+          </select>
+        </label>
+      `)
+      .join('');
+  }
+
+  function initFixedSkillGrids() {
+    renderFixedSkillGrid('defenseSkillGrid', DEFENSE_SKILL_FIELDS);
+    renderFixedSkillGrid('coreSkillGrid', CORE_SKILL_FIELDS);
+  }
+
   function buildCanonicalFromForm(fields) {
     const name = sanitizeCharName(fields?.charName || '');
     const level = clampLevel(fields?.level ?? 1);
@@ -247,97 +313,52 @@ async function renderBuilderTechniquesReadOnly(builder) {
     const grants =
       computeKnownCombatSkillsAndGrants(gameData, b)?.grantedTechniqueNames || new Set();
 
-    const grantedRefs = Array.from(grants);
-    const hasAny = selectedRefs.length || grantedRefs.length;
-
-    if (!hasAny) {
-      mount.innerHTML = "";
-      return;
-    }
-
-    // Build a unified item list (granted + selected), de-duped by ref.
     const origin = new Map();
-    for (const r of grantedRefs) origin.set(String(r), "Granted");
-    for (const r of selectedRefs) if (!origin.has(String(r))) origin.set(String(r), "Selected");
+    for (const ref of Array.from(grants)) origin.set(String(ref), 'Granted');
+    for (const ref of selectedRefs) if (!origin.has(String(ref))) origin.set(String(ref), 'Selected');
 
-    /** @type {{ref:string, tech:any|null}[]} */
     const items = [];
-    for (const ref of origin.keys()) {
+    for (const [ref, source] of origin.entries()) {
       const res = resolveTechniqueRef(ref, indexes);
-      items.push({ ref, tech: res?.ok ? res.technique : null });
+      if (!res?.ok || !res.technique) continue;
+      items.push({ source, tech: res.technique });
     }
 
-    // Ignore missing refs entirely (no debug UI on the character sheet).
-    const resolved = items.filter((x) => x.tech);
-
-    if (!resolved.length) {
-      mount.innerHTML = "";
+    if (!items.length) {
+      mount.innerHTML = '';
       return;
     }
 
-    // Group by rank (same as the original, more complete rendering).
-    const byRank = new Map();
-    for (const it of resolved) {
-      const r = Number.parseInt(String(it.tech?.rank ?? 0), 10);
-      const rank = Number.isFinite(r) ? r : 0;
-      const arr = byRank.get(rank) || [];
-      arr.push(it);
-      byRank.set(rank, arr);
-    }
+    items.sort((a, b) => {
+      const rankA = Number.parseInt(String(a.tech?.rank ?? 0), 10) || 0;
+      const rankB = Number.parseInt(String(b.tech?.rank ?? 0), 10) || 0;
+      if (rankA !== rankB) return rankA - rankB;
+      return String(a.tech?.techniqueName || '').localeCompare(String(b.tech?.techniqueName || ''));
+    });
 
-    const ranks = Array.from(byRank.keys()).sort((a, b) => a - b);
-
-    let html = `
-      <div style="border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:10px;">
-        <div><strong>Techniques</strong></div>
-    `;
-
-    for (const rank of ranks) {
-      const arr = (byRank.get(rank) || [])
-        .slice()
-        .sort((a, b) =>
-          String(a.tech?.techniqueName || "").localeCompare(String(b.tech?.techniqueName || ""))
-        );
-
-      if (!arr.length) continue;
-
-      if (rank === 0) {
-        html += `<details style="margin-top:10px;">
-          <summary style="cursor:pointer; font-weight:700;">Rank 0 (informational)</summary>
-          <ul style="margin:8px 0 0 18px;">
-            ${arr
-              .map((it) => {
-                const t = it.tech;
-                const meta = techniqueMetaLine(t);
-                return `<li><strong>${escapeHtml(t.techniqueName)}</strong>${meta ? ` — <span class="muted">${escapeHtml(meta)}</span>` : ""}</li>`;
-              })
-              .join("")}
-          </ul>
-        </details>`;
-        continue;
-      }
-
-      html += `<div style="margin-top:10px; font-weight:700;">Rank ${rank}</div>`;
-
-      for (const it of arr) {
-        const t = it.tech;
-        const meta = techniqueMetaLine(t);
-        const desc = String(t.description || t.notes || "").trim();
-
-        html += `
-          <div style="margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.08);">
-            <div style="font-weight:700;">${escapeHtml(t.techniqueName)}</div>
-            ${meta ? `<div class="muted" style="margin-top:2px;">${escapeHtml(meta)}</div>` : ""}
-            ${desc ? `<div class="muted" style="margin-top:2px;">${escapeHtml(desc)}</div>` : ""}
+    mount.className = 'cards';
+    mount.innerHTML = items.map(({ source, tech }) => {
+      const rank = Number.parseInt(String(tech?.rank ?? 0), 10) || 0;
+      const metaParts = [];
+      if (rank > 0) metaParts.push(`Rank ${rank}`);
+      const meta = techniqueMetaLine(tech);
+      if (meta) metaParts.push(meta);
+      const description = String(tech?.description || tech?.notes || '').trim();
+      return `
+        <article class="ability-card technique-card technique-card-readonly">
+          <div class="ability-card-head">
+            <div>
+              <div class="ability-name technique-title-static">${escapeHtml(String(tech?.techniqueName || 'Technique'))}</div>
+              ${metaParts.length ? `<div class="muted tech-readonly-meta">${escapeHtml(metaParts.join(' • '))}</div>` : ''}
+            </div>
+            <span class="technique-source-badge">${escapeHtml(source)}</span>
           </div>
-        `;
-      }
-    }
-
-    html += `</div>`;
-    mount.innerHTML = html;
+          ${description ? `<div class="ability-text technique-text-static">${escapeHtml(description)}</div>` : ''}
+        </article>
+      `;
+    }).join('');
   } catch (e) {
-    console.warn("renderBuilderTechniquesReadOnly failed", e);
+    console.warn('renderBuilderTechniquesReadOnly failed', e);
   }
 }
 
@@ -381,6 +402,7 @@ async function renderBuilderTechniquesReadOnly(builder) {
         const sheetOnlyFields = pickSheetOnlyFields(sheetFields);
         const repeatables = (b?.sheet?.repeatables && typeof b.sheet.repeatables === 'object') ? b.sheet.repeatables : {};
         const selectedTechniques = Array.isArray(b?.selectedTechniques) ? b.selectedTechniques : [];
+        lockedAbilityNames = new Set(Array.isArray(b?.autoAbilityNames) ? b.autoAbilityNames.map((name) => String(name || '').trim()).filter(Boolean) : []);
 
         // Build a local/editor state (no duplicated canonical fields inside sheet fields).
         const state = {
@@ -416,6 +438,7 @@ async function renderBuilderTechniquesReadOnly(builder) {
       }
 
       // No cloud doc yet → initialize from current sheet (local/default state)
+      lockedAbilityNames = new Set();
       const allFields = collectFields();
       const canon = buildCanonicalFromForm(allFields);
       const state = collectState();
@@ -561,10 +584,10 @@ async function renderBuilderTechniquesReadOnly(builder) {
   const sheetEl = document.getElementById('sheet');
   const classSelect = document.getElementById('classSelect');
   const saveStatusEl = document.getElementById('saveStatus');
-  const clearBtn = document.getElementById('clearSheetBtn');
 
   // Placeholder; initialized after scheduleSave is defined
   let portraitApi = { get: () => '', set: () => {} };
+  let lockedAbilityNames = new Set();
 
   function setTheme(classKey) {
     const key = sanitizeText(classKey, { maxLen: 64 });
@@ -895,57 +918,22 @@ async function renderBuilderTechniquesReadOnly(builder) {
     if (!cloudEnabled()) {
       return;
     }
+    clearTimeout(cloudSaveTimer);
+    cloudSaveTimer = null;
     setStatus('Saving…');
     saveCloudNow();
   }
 
-function scheduleSave() {
-    const canCloud = cloudEnabled();
-    if (!canCloud) {
+  function scheduleSave() {
+    if (!cloudEnabled()) {
       return;
     }
     setStatus('Saving…');
     clearTimeout(cloudSaveTimer);
-  }
-
-function clearSheet() {
-    const ok = confirm('Clear all fields on this sheet? (This cannot be undone.)');
-    if (!ok) return;
-
-    const elements = document.querySelectorAll('input[name], select[name], textarea[name]');
-    elements.forEach((el) => {
-      if (el.type === 'file') {
-        el.value = '';
-        return;
-      }
-      if (el.type === 'checkbox') {
-        el.checked = false;
-        return;
-      }
-      if (el.tagName === 'SELECT') {
-        // Most selects should clear to blank; rank dropdowns default to 0.
-        if (el.querySelector('option[value="0"]')) {
-          el.value = '0';
-        } else {
-          el.value = '';
-        }
-        return;
-      }
-      el.value = '';
-    });
-
-    setTheme('');
-    if (classSelect) classSelect.value = '';
-
-    if (portraitApi?.clear) portraitApi.clear({ silent: true });
-    resetRepeatablesToDefaults();
-
-    try {
-    } catch (e) {
-      // ignore
-    }
-
-    setStatus('Cleared');
+    cloudSaveTimer = setTimeout(() => {
+      cloudSaveTimer = null;
+      saveCloudNow();
+    }, CLOUD_SAVE_DEBOUNCE_MS);
   }
 
   // ---------- Repeatable list utility (for Pass 2+) ----------
@@ -956,6 +944,23 @@ function clearSheet() {
     if (v === null || typeof v === 'undefined') return '';
     if (typeof v === 'object') return '';
     return String(v);
+  }
+
+  function lockGrantedAbilityRow(root, data) {
+    const name = String(data?.name || '').trim();
+    const locked = !!name && lockedAbilityNames.has(name);
+    root.classList.toggle('ability-card-locked', locked);
+
+    const removeBtn = root.querySelector('[data-action="remove"]');
+    if (removeBtn) {
+      removeBtn.hidden = locked;
+      removeBtn.disabled = locked;
+    }
+
+    root.querySelectorAll('[data-field]').forEach((el) => {
+      if ('readOnly' in el) el.readOnly = locked;
+      if (!locked && 'readOnly' in el) el.readOnly = false;
+    });
   }
   
   // This is a lightweight helper around <template> cloning.
@@ -981,7 +986,7 @@ function clearSheet() {
 
 
   // ---------- Repeatable lists (Pass 2) ----------
-  function initRepeatableList({ key, containerId, templateId, addBtnId, fields, minRows }) {
+  function initRepeatableList({ key, containerId, templateId, addBtnId, fields, minRows, decorateRow }) {
     const container = document.getElementById(containerId);
     const addBtn = document.getElementById(addBtnId);
 
@@ -1008,6 +1013,8 @@ function clearSheet() {
             el.value = normalizeRowValue(data[f]);
           }
         });
+
+        if (typeof decorateRow === 'function') decorateRow(root, data);
 
         const removeBtn = root.querySelector('[data-action="remove"]');
         if (removeBtn) {
@@ -1330,7 +1337,7 @@ function clearSheet() {
 
     initRepeatableList({ key: 'techniques', containerId: 'techniqueCards', templateId: 'techniqueCardTemplate', addBtnId: 'addTechniqueBtn', fields: ['name','actions','energy','text'], minRows: 0 });
 
-initRepeatableList({ key: 'abilities', containerId: 'abilityCards', templateId: 'abilityCardTemplate', addBtnId: 'addAbilityBtn', fields: ['name','text'], minRows: 3 });
+initRepeatableList({ key: 'abilities', containerId: 'abilityCards', templateId: 'abilityCardTemplate', addBtnId: 'addAbilityBtn', fields: ['name','text'], minRows: 3, decorateRow: lockGrantedAbilityRow });
 
 
   
@@ -1361,7 +1368,6 @@ if (classSelect) {
     }, true);
   }
 
-  if (clearBtn) clearBtn.addEventListener('click', clearSheet);
 
   // Expose a tiny debug API (optional)
   window.GameXSheet = {
@@ -1369,6 +1375,8 @@ if (classSelect) {
     applyState,
     createRepeatableList
   };
+
+  initFixedSkillGrids();
 
   // Initialize tooltip text + behavior
   applyTooltipText();

@@ -11,7 +11,6 @@
 <div id="sheet"><div aria-label="Sheet tools" class="sheet-tools">
 <div class="tools-left">
 <a class="tool-link" href="characters.html" id="backToCharactersLink">Characters</a>
-<button id="clearSheetBtn" type="button">Clear</button>
 </div>
 <div class="tools-right"><span aria-live="polite" class="save-status" id="saveStatus">Ready</span>
 <span aria-live="polite" class="cloud-status" id="cloudStatus">Cloud: Off</span>
@@ -61,16 +60,16 @@
 <h2 id="resources_title">Resources</h2>
 <table>
 <tr>
-<th scope="col">HP (Max / Current)</th>
+<th scope="col">HP (Current / Max)</th>
 <th scope="col">Strain / Overstrained</th>
 <th scope="col">Speed</th>
 </tr>
 <tr>
 <td>
 <div class="resource-inline">
-<label class="visually-hidden" for="hpmax">HP maximum</label><input class="resource-input" id="hpmax" inputmode="numeric" min="0" name="hpmax" readonly step="1" type="number"/>
-<span class="resource-sep">/</span>
 <label class="visually-hidden" for="hpcur">HP current</label><input class="resource-input" id="hpcur" inputmode="numeric" min="0" name="hpcur" step="1" type="number"/>
+<span class="resource-sep">/</span>
+<label class="visually-hidden" for="hpmax">HP maximum</label><input class="resource-input" id="hpmax" inputmode="numeric" min="0" name="hpmax" readonly step="1" type="number"/>
 </div>
 </td>
 <td>
@@ -114,236 +113,16 @@
 </div><div aria-labelledby="skills_title" class="section" id="skills">
 <h2 id="skills_title">Skills</h2>
 <div class="subsection">
-
 <div class="subhead">
   <h3>Defenses</h3>
-  <span class="subhint">Training ranks (used to calculate total defense)</span>
 </div>
-<div class="defense-training-grid">
-  <label class="defense-training-item">Physical Defense Training
-    <select class="skill-rank-select" name="rank_physdef" aria-label="Physical Defense training rank">
-      <option value=""></option>
-<option value="0">0 - Untrained</option>
-<option value="1">1 - Beginner</option>
-<option value="2">2 - Advanced</option>
-<option value="3">3 - Master</option>
-<option value="4">4 - Legendary</option>
-<option value="5">5 - Super</option>
-<option value="6">6 - Cosmic</option>
-    </select>
-  </label>
-  <label class="defense-training-item">Mental Defense Training
-    <select class="skill-rank-select" name="rank_mentdef" aria-label="Mental Defense training rank">
-      <option value=""></option>
-<option value="0">0 - Untrained</option>
-<option value="1">1 - Beginner</option>
-<option value="2">2 - Advanced</option>
-<option value="3">3 - Master</option>
-<option value="4">4 - Legendary</option>
-<option value="5">5 - Super</option>
-<option value="6">6 - Cosmic</option>
-    </select>
-  </label>
-  <label class="defense-training-item">Spiritual Defense Training
-    <select class="skill-rank-select" name="rank_spiritdef" aria-label="Spiritual Defense training rank">
-      <option value=""></option>
-<option value="0">0 - Untrained</option>
-<option value="1">1 - Beginner</option>
-<option value="2">2 - Advanced</option>
-<option value="3">3 - Master</option>
-<option value="4">4 - Legendary</option>
-<option value="5">5 - Super</option>
-<option value="6">6 - Cosmic</option>
-    </select>
-  </label>
+<div aria-label="Defense training skills" class="skill-grid" id="defenseSkillGrid"></div>
 </div>
-
+<div class="subsection">
 <div class="subhead">
 <h3>Core Skills</h3>
-<span class="subhint">Universal utility skills</span>
 </div>
-<table>
-<tr>
-<th scope="col">Skill</th><th scope="col">Rank</th>
-<th scope="col">Skill</th><th scope="col">Rank</th>
-<th scope="col">Skill</th><th scope="col">Rank</th>
-</tr>
-<tr>
-<td>Academics</td>
-<td><select aria-label="Academics rank" class="skill-rank-select" name="rank_academics">
-<option value=""></option>
-<option value="0">0 - Untrained</option>
-<option value="1">1 - Beginner</option>
-<option value="2">2 - Advanced</option>
-<option value="3">3 - Master</option>
-<option value="4">4 - Legendary</option>
-<option value="5">5 - Super</option>
-<option value="6">6 - Cosmic</option>
-</select></td>
-<td>Athletics</td>
-<td><select aria-label="Athletics rank" class="skill-rank-select" name="rank_athletics">
-<option value=""></option>
-<option value="0">0 - Untrained</option>
-<option value="1">1 - Beginner</option>
-<option value="2">2 - Advanced</option>
-<option value="3">3 - Master</option>
-<option value="4">4 - Legendary</option>
-<option value="5">5 - Super</option>
-<option value="6">6 - Cosmic</option>
-</select></td>
-<td>Crafting</td>
-<td><select aria-label="Crafting rank" class="skill-rank-select" name="rank_crafting">
-<option value=""></option>
-<option value="0">0 - Untrained</option>
-<option value="1">1 - Beginner</option>
-<option value="2">2 - Advanced</option>
-<option value="3">3 - Master</option>
-<option value="4">4 - Legendary</option>
-<option value="5">5 - Super</option>
-<option value="6">6 - Cosmic</option>
-</select></td>
-</tr>
-<tr>
-<td>Culinary</td>
-<td><select aria-label="Culinary rank" class="skill-rank-select" name="rank_culinary">
-<option value=""></option>
-<option value="0">0 - Untrained</option>
-<option value="1">1 - Beginner</option>
-<option value="2">2 - Advanced</option>
-<option value="3">3 - Master</option>
-<option value="4">4 - Legendary</option>
-<option value="5">5 - Super</option>
-<option value="6">6 - Cosmic</option>
-</select></td>
-<td>Deception</td>
-<td><select aria-label="Deception rank" class="skill-rank-select" name="rank_deception">
-<option value=""></option>
-<option value="0">0 - Untrained</option>
-<option value="1">1 - Beginner</option>
-<option value="2">2 - Advanced</option>
-<option value="3">3 - Master</option>
-<option value="4">4 - Legendary</option>
-<option value="5">5 - Super</option>
-<option value="6">6 - Cosmic</option>
-</select></td>
-<td>Influence</td>
-<td><select aria-label="Influence rank" class="skill-rank-select" name="rank_influence">
-<option value=""></option>
-<option value="0">0 - Untrained</option>
-<option value="1">1 - Beginner</option>
-<option value="2">2 - Advanced</option>
-<option value="3">3 - Master</option>
-<option value="4">4 - Legendary</option>
-<option value="5">5 - Super</option>
-<option value="6">6 - Cosmic</option>
-</select></td>
-</tr>
-<tr>
-<td>Insight</td>
-<td><select aria-label="Insight rank" class="skill-rank-select" name="rank_insight">
-<option value=""></option>
-<option value="0">0 - Untrained</option>
-<option value="1">1 - Beginner</option>
-<option value="2">2 - Advanced</option>
-<option value="3">3 - Master</option>
-<option value="4">4 - Legendary</option>
-<option value="5">5 - Super</option>
-<option value="6">6 - Cosmic</option>
-</select></td>
-<td>Medicine</td>
-<td><select aria-label="Medicine rank" class="skill-rank-select" name="rank_medicine">
-<option value=""></option>
-<option value="0">0 - Untrained</option>
-<option value="1">1 - Beginner</option>
-<option value="2">2 - Advanced</option>
-<option value="3">3 - Master</option>
-<option value="4">4 - Legendary</option>
-<option value="5">5 - Super</option>
-<option value="6">6 - Cosmic</option>
-</select></td>
-<td>Nature</td>
-<td><select aria-label="Nature rank" class="skill-rank-select" name="rank_nature">
-<option value=""></option>
-<option value="0">0 - Untrained</option>
-<option value="1">1 - Beginner</option>
-<option value="2">2 - Advanced</option>
-<option value="3">3 - Master</option>
-<option value="4">4 - Legendary</option>
-<option value="5">5 - Super</option>
-<option value="6">6 - Cosmic</option>
-</select></td>
-</tr>
-<tr>
-<td>Observation</td>
-<td><select aria-label="Observation rank" class="skill-rank-select" name="rank_observation">
-<option value=""></option>
-<option value="0">0 - Untrained</option>
-<option value="1">1 - Beginner</option>
-<option value="2">2 - Advanced</option>
-<option value="3">3 - Master</option>
-<option value="4">4 - Legendary</option>
-<option value="5">5 - Super</option>
-<option value="6">6 - Cosmic</option>
-</select></td>
-<td>Performance</td>
-<td><select aria-label="Performance rank" class="skill-rank-select" name="rank_performance">
-<option value=""></option>
-<option value="0">0 - Untrained</option>
-<option value="1">1 - Beginner</option>
-<option value="2">2 - Advanced</option>
-<option value="3">3 - Master</option>
-<option value="4">4 - Legendary</option>
-<option value="5">5 - Super</option>
-<option value="6">6 - Cosmic</option>
-</select></td>
-<td>Roguery</td>
-<td><select aria-label="Roguery rank" class="skill-rank-select" name="rank_roguery">
-<option value=""></option>
-<option value="0">0 - Untrained</option>
-<option value="1">1 - Beginner</option>
-<option value="2">2 - Advanced</option>
-<option value="3">3 - Master</option>
-<option value="4">4 - Legendary</option>
-<option value="5">5 - Super</option>
-<option value="6">6 - Cosmic</option>
-</select></td>
-</tr>
-<tr>
-<td>Society</td>
-<td><select aria-label="Society rank" class="skill-rank-select" name="rank_society">
-<option value=""></option>
-<option value="0">0 - Untrained</option>
-<option value="1">1 - Beginner</option>
-<option value="2">2 - Advanced</option>
-<option value="3">3 - Master</option>
-<option value="4">4 - Legendary</option>
-<option value="5">5 - Super</option>
-<option value="6">6 - Cosmic</option>
-</select></td>
-<td>Spirituality</td>
-<td><select aria-label="Spirituality rank" class="skill-rank-select" name="rank_spirituality">
-<option value=""></option>
-<option value="0">0 - Untrained</option>
-<option value="1">1 - Beginner</option>
-<option value="2">2 - Advanced</option>
-<option value="3">3 - Master</option>
-<option value="4">4 - Legendary</option>
-<option value="5">5 - Super</option>
-<option value="6">6 - Cosmic</option>
-</select></td>
-<td>Stealth</td>
-<td><select aria-label="Stealth rank" class="skill-rank-select" name="rank_stealth">
-<option value=""></option>
-<option value="0">0 - Untrained</option>
-<option value="1">1 - Beginner</option>
-<option value="2">2 - Advanced</option>
-<option value="3">3 - Master</option>
-<option value="4">4 - Legendary</option>
-<option value="5">5 - Super</option>
-<option value="6">6 - Cosmic</option>
-</select></td>
-</tr>
-</table>
+<div aria-label="Core skills" class="skill-grid" id="coreSkillGrid"></div>
 </div>
 <div class="subsection">
 <div class="subhead">
@@ -351,7 +130,6 @@
 <button class="mini-btn" id="addCombatSkillBtn" type="button">Add Skill</button>
 </div>
 <div aria-label="Combat and class skills" class="skill-grid skill-grid-2" id="combatSkillGrid"></div>
-<div class="subhint" style="margin-top:6px;">Use this for class skills (e.g., Spellcasting) and any other combat-related skills.</div>
 </div>
 <div class="subsection">
 <div class="subhead">
@@ -445,7 +223,7 @@
 <tbody id="backgroundKeystoneBody"></tbody>
 </table>
 </div>
-</div><div aria-labelledby="techniques_title" class="section" id="techniques"><h2 id="techniques_title">Techniques</h2><div class="repeatable-header"><div class="hint">Structured combat techniques (actions/energy + notes).</div><button class="mini-btn" id="addTechniqueBtn" type="button">Add Technique</button></div><div id="selectedTechniquesFromBuilder" style="margin-top:10px;"></div><div aria-label="Techniques" class="cards" id="techniqueCards"></div></div><div aria-labelledby="abilities_title" class="section" id="abilities">
+</div><div aria-labelledby="techniques_title" class="section" id="techniques"><h2 id="techniques_title">Techniques</h2><div class="repeatable-header"><button class="mini-btn" id="addTechniqueBtn" type="button">Add Technique</button></div><div id="selectedTechniquesFromBuilder" style="margin-top:10px;"></div><div aria-label="Techniques" class="cards" id="techniqueCards"></div></div><div aria-labelledby="abilities_title" class="section" id="abilities">
 <h2 id="abilities_title">Abilities &amp; Features</h2>
 <div class="subhead" style="margin-bottom: 10px;">
 <h3 style="margin:0;">Ability Entries</h3>
@@ -549,6 +327,6 @@
 <div id="gxTooltip" class="gx-tooltip" role="tooltip" aria-hidden="true"></div>
 
 
-<script type="module" src="app.js"></script>
+<script type="module" src="character-sheet.js"></script>
 </body>
 </html>

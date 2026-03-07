@@ -377,6 +377,16 @@
     padding: 6px;
     background: var(--chip-bg-color);
   }
+  .skill-chip-static {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 140px);
+  }
+  .skill-chip-label {
+    display: block;
+    min-width: 0;
+    color: var(--panel-text-color);
+    font-family: var(--body-font);
+    line-height: 1.2;
+  }
   .skill-chip .skill-rank-select {
     padding-left: 10px;
     border-left: 1px solid var(--input-border-color);
@@ -716,12 +726,6 @@
     font-family: var(--title-font);
     color: var(--panel-text-color);
   }
-  .subhint {
-    font-size: 0.9em;
-    color: var(--accent-color);
-    margin-left: 8px;
-    font-family: var(--body-font);
-  }
   .mini-btn {
     border: 1px solid var(--input-border-color);
     background-color: var(--header-bg-color);
@@ -786,10 +790,38 @@
     resize: vertical;
     color: var(--panel-text-color);
   }
+  .ability-card-locked .ability-name,
+  .ability-card-locked .ability-text {
+    cursor: default;
+  }
+  .technique-card-readonly .ability-card-head {
+    align-items: flex-start;
+  }
+  .technique-title-static {
+    border: 0;
+    padding: 0;
+    font-weight: 600;
+  }
+  .tech-readonly-meta {
+    margin-top: 4px;
+  }
+  .technique-text-static {
+    white-space: pre-wrap;
+    resize: none;
+  }
+  .technique-source-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border: 1px solid var(--input-border-color);
+    border-radius: 999px;
+    font-size: 0.85em;
+    color: var(--accent-color);
+    white-space: nowrap;
+  }
 
   @media print {
     .mini-btn { display: none !important; }
-    .subhint { display: none !important; }
     .ability-card { break-inside: avoid; }
     table, .subsection { break-inside: avoid; }
   }
@@ -1032,27 +1064,6 @@
     background: rgba(0,0,0,0.03);
   }
 
-  .defense-training-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 10px 14px;
-    margin: 10px 0 16px;
-  }
-
-  .defense-training-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 8px 10px;
-    background: var(--chip-bg-color);
-    border: 1px solid rgba(0,0,0,0.10);
-    border-radius: 12px;
-  }
-
-  .defense-training-item select {
-    min-width: 170px;
-  }
 
   /* Accessible tooltip (avoids relying on the HTML title attribute on touch devices). */
   .gx-tooltip {
