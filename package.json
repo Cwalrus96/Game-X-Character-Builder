@@ -2,9 +2,15 @@
   "name": "game-x-character-builder",
   "private": true,
   "scripts": {
-    "export:data": "node scripts/export-game-data.mjs data/game-x-class-data.xlsx public/data/game-x"
+    "export:data": "node scripts/export-game-data.mjs data/game-x-class-data.xlsx public/data/game-x",
+    "test:rules": "firebase emulators:exec --only firestore,storage \"node --test tests/*.rules.test.mjs\"",
+    "test:rules:firestore": "firebase emulators:exec --only firestore \"node --test tests/firestore.rules.test.mjs\"",
+    "test:rules:storage": "firebase emulators:exec --only storage \"node --test tests/storage.rules.test.mjs\""
   },
   "devDependencies": {
-    "firebase-admin": "^13.6.1"
+    "@firebase/rules-unit-testing": "^5.0.0",
+    "firebase": "^12.7.0",
+    "firebase-admin": "^13.6.1",
+    "firebase-tools": "^14.1.0"
   }
 }
