@@ -74,22 +74,6 @@ export function buildTechniquesUpdatePatch({ selectedTechniques } = {}) {
   };
 }
 
-// ---- Selection key helpers (storage format) ----
-// Canonical encoding for builder.selectedClassFeatureOptions.
-
-export function buildGroupId(group) {
-  const cls = sanitizeText(group?.classKey || "", { maxLen: 64, collapse: true });
-  const lvl = Number.isFinite(group?.level) ? group.level : 0;
-  const name = sanitizeText(group?.name || "", { maxLen: 96, collapse: true });
-  return `${cls}|L${lvl}|${name}`;
-}
-
-export function buildOptionKey(group, option) {
-  const gid = buildGroupId(group);
-  const optName = sanitizeText(option?.name || "", { maxLen: 120, collapse: true });
-  return `${gid}::${optName}`;
-}
-
 // ---- Patch sanitization gate for builder pages ----
 
 /**

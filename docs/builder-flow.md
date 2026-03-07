@@ -43,6 +43,13 @@ The design intent is:
 - “Next” triggers an auto-save before moving forward
 - “Save” should always be allowed (even if incomplete), but warns about missing requirements
 
+## Current implemented steps
+The current registry contains these pages:
+- `public/builder.html` / `public/builder.js` – Name & Profile
+- `public/builder-class.html` / `public/builder-class.js` – Class
+- `public/builder-attributes.html` / `public/builder-attributes.js` – Attributes
+- `public/builder-techniques.html` / `public/builder-techniques.js` – Techniques
+
 ## Extending with new pages
 A new builder step should generally:
 1. call `initBuilderAuth()` and `loadCharacterDoc()`

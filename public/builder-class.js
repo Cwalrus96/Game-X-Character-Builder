@@ -17,10 +17,7 @@ import { renderBuilderNav } from "./builder-nav.js";
 import { loadGameXData } from "./game-data.js";
 
 import { ATTR_KEYS, clampLevel, coerceAttrKey, labelForAttrKey } from "./character-rules.js";
-import { sanitizeText } from "./data-sanitization.js";
-
-
-import { buildGroupId, buildOptionKey } from "./database-writer.js";
+import { sanitizeText, buildGroupId, buildOptionKey } from "./data-sanitization.js";
 const CURRENT_STEP_ID = "class";
 
 /** @type {any} */

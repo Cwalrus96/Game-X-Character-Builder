@@ -53,7 +53,7 @@ Fields are intentionally flexible, but the current schema centers around:
   - `sheet.fields` / `sheet.repeatables` (editor-owned sheet fields)
 - `createdAt` / `updatedAt` (timestamps; server-side)
 
-+Note: we store only `portraitPath` in Firestore. Download URLs are resolved at runtime via the Storage SDK.
+Note: we store only `portraitPath` in Firestore. Download URLs are resolved at runtime via the Storage SDK.
 
 ## Roles: GM vs player
 
@@ -62,14 +62,15 @@ Rules allow:
 - players to manage only their own data
 - GMs to view/edit other users’ characters (through a controlled path)
 
-## Canonical schema
+## Canonical character model and rules
 
-`public/character-schema.js` is the intended single source of truth for shared definitions:
-- attributes and what they do
-- limits / caps / point budgets
-- shared labels and formatting rules
+The current codebase splits these responsibilities across focused modules:
+- `public/database-reader.js` – canonical character document defaults + normalization on read
+- `public/database-writer.js` – sanitized patch builders for writes
+- `public/character-rules.js` – attributes, limits / caps / point budgets, and derived calculations
+- `public/data-sanitization.js` – low-level sanitizers shared by read/write modules
 
-Builder pages and the character sheet should reference this schema rather than duplicating logic.
+Builder pages and the character sheet should reference these modules rather than duplicating logic.
 
 ## Generated game data
 

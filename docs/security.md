@@ -43,19 +43,15 @@ Why Report-Only?
 - It gives visibility into what would break without risking the app
 - When you decide to enforce CSP, you can tighten it gradually
 
-## Canonical “sanitize-before-store”
-`public/security.js` provides centralized helpers:
-`public/character-schema.js` is the intended single source of truth for how character data is shaped and cleaned.
- 
--Builder and sheet code should sanitize on write, rather than sprinkling one-off checks in each field handler.
-In particular:
-- `sanitizeText`, `sanitizeCharName`, `sanitizeStoragePath`, etc. are the basic field-level helpers.
-- `sanitizeUpdatePatch(patch)` is a **schema gate** for Firestore `updateDoc(...)` patches:
-  - it allows only `schemaVersion` plus `builder.*` keys
-  - it clamps/normalizes known builder fields to keep data tidy
+## Canonical sanitize-before-store
+The current codebase splits sanitization and schema responsibilities across a few modules:
+- `public/data-sanitization.js` – basic field-level helpers such as `sanitizeText`, `sanitizeCharName`, and `sanitizeStoragePath`
+- `public/database-writer.js` – sanitized builder patch creation for Firestore writes
+- `public/database-reader.js` – normalization into the canonical character-doc shape on read
+- `public/character-rules.js` – Game X rule math and limits used by builder + sheet
 
-Builder pages should write via `saveCharacterPatch(...)` in `public/builder-common.js`, which applies
-`sanitizeUpdatePatch(...)` before sending the write to Firestore.
+Builder and sheet code should sanitize on write rather than sprinkling one-off checks in each field handler.
+In particular, builder pages should write via `saveCharacterPatch(...)` in `public/builder-common.js`, which delegates to the write-layer helpers before sending the update to Firestore.
 
 ## If you later want “one step stronger”
 - Enable CSP enforcement (remove “Report-Only”), then fix violations it reports.
