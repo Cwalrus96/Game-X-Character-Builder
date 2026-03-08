@@ -78,6 +78,37 @@ export function sanitizeRepeatableAbilities(v) {
 // ---- Selection key helpers (storage format) ----
 // Canonical encoding for builder.selectedClassFeatureOptions.
 
+
+
+export function sanitizeSkillRank(value, { allowBlank = true } = {}) {
+  const raw = sanitizeText(value, { maxLen: 8, collapse: true });
+  if (allowBlank && raw === "") return "";
+  return String(toInt(raw, { min: 0, max: 6 }));
+}
+
+export function sanitizeSkillFields(value) {
+  const src = (value && typeof value === "object") ? value : {};
+  const out = {};
+  for (const [key, raw] of Object.entries(src)) {
+    if (!/^rank_[a-z0-9_]+$/i.test(String(key || ""))) continue;
+    out[key] = sanitizeSkillRank(raw, { allowBlank: true });
+  }
+  return out;
+}
+
+export function sanitizeNamedSkillList(value, { maxItems = 200 } = {}) {
+  const arr = Array.isArray(value) ? value : [];
+  const out = [];
+  for (const item of arr) {
+    const row = (item && typeof item === "object") ? item : {};
+    const skill = sanitizeText(row.skill, { maxLen: 96, collapse: true });
+    const rank = sanitizeSkillRank(row.rank, { allowBlank: true });
+    if (!skill && rank === "") continue;
+    out.push({ skill, rank });
+    if (out.length >= maxItems) break;
+  }
+  return out;
+}
 export function buildGroupId(group) {
   const cls = sanitizeText(group?.classKey || "", { maxLen: 64, collapse: true });
   const lvl = Number.isFinite(group?.level) ? group.level : 0;

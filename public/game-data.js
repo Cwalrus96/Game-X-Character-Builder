@@ -93,6 +93,88 @@ export function resolveTechniqueRef(refName, indexes) {
   return { ok: false, technique: null };
 }
 
+
+function normalizeSkillProgression(value) {
+  const s = sanitizeText(value, { maxLen: 32, collapse: true }).toLowerCase();
+  if (s === "fast" || s === "medium" || s === "slow") return s;
+  return "";
+}
+
+function extractSkillProgressionFromText(value) {
+  const s = sanitizeText(value, { maxLen: 4000, collapse: true });
+  const m = s.match(/\b(fast|medium|slow)\b(?:\s+skill\s+progression)?/i);
+  return m ? normalizeSkillProgression(m[1]) : "";
+}
+
+function extractGrantedSkillRankFromText(value) {
+  const s = sanitizeText(value, { maxLen: 4000, collapse: true }).toLowerCase();
+  if (!s) return "";
+  if (/\badvanced training\b/.test(s)) return "2";
+  if (/\bbeginner training\b/.test(s) || /\brank\s*1\b/.test(s)) return "1";
+  if (/\buntrained\b/.test(s) || /\brank\s*0\b/.test(s)) return "0";
+  return "";
+}
+
+function computeProgressionRankAtLevel(progression, level) {
+  const prog = normalizeSkillProgression(progression);
+  const L = Number.parseInt(String(level ?? 1), 10);
+  const currentLevel = Number.isFinite(L) ? Math.max(1, Math.min(12, L)) : 1;
+
+  if (!prog) return "";
+
+  let rank = prog === "slow" ? 0 : 1;
+  const breakpoints = prog === "fast"
+    ? [3, 5, 7, 9, 11]
+    : prog === "medium"
+      ? [4, 7, 9, 11]
+      : [3, 6, 9, 11];
+
+  for (const bp of breakpoints) {
+    if (currentLevel >= bp) rank += 1;
+  }
+
+  return String(Math.max(0, Math.min(6, rank)));
+}
+
+function parseGrantedSkillEntry(rawName, rawProgression) {
+  const originalName = sanitizeText(rawName, { maxLen: 160, collapse: true });
+  const skillName = normalizeCombatSkillName(originalName);
+  if (!skillName) return { skillName: "", progression: "" };
+
+  const progression = normalizeSkillProgression(rawProgression) || extractSkillProgressionFromText(originalName);
+  return { skillName, progression };
+}
+
+function descriptionBundle(...parts) {
+  return parts
+    .map((part) => sanitizeText(part, { maxLen: 4000, collapse: true }))
+    .filter(Boolean)
+    .join(" ");
+}
+
+function pushGrantedSkill(target, skillName, rank, source) {
+  const skill = sanitizeText(skillName, { maxLen: 96, collapse: true });
+  if (!skill) return;
+  const src = sanitizeText(source, { maxLen: 96, collapse: true }) || "Granted";
+  const existing = target.get(skill);
+  const nextRank = sanitizeText(rank, { maxLen: 8, collapse: true });
+
+  if (!existing) {
+    target.set(skill, { skill, rank: nextRank, source: src });
+    return;
+  }
+
+  const prevRank = Number.parseInt(String(existing.rank || ""), 10);
+  const currRank = Number.parseInt(String(nextRank || ""), 10);
+  if (!Number.isFinite(prevRank) && Number.isFinite(currRank)) {
+    target.set(skill, { skill, rank: nextRank, source: src });
+    return;
+  }
+  if (Number.isFinite(prevRank) && Number.isFinite(currRank) && currRank > prevRank) {
+    target.set(skill, { skill, rank: nextRank, source: src });
+  }
+}
+
 function normalizeCombatSkillName(raw) {
   const s = sanitizeText(raw, { maxLen: 96, collapse: true });
   if (!s) return "";
@@ -205,4 +287,119 @@ export function computeKnownCombatSkillsAndGrants(gameData, builder) {
   knownCombatSkills.delete("");
 
   return { knownCombatSkills, grantedTechniqueNames };
+}
+
+
+export function computeGrantedSkillsState(gameData, builder) {
+  const data = (gameData && typeof gameData === "object") ? gameData : {};
+  const b = (builder && typeof builder === "object") ? builder : {};
+
+  const classKey = sanitizeText(b.classKey || "", { maxLen: 64, collapse: true });
+  const level = Number.parseInt(String(b.level ?? 1), 10);
+  const L = Number.isFinite(level) ? Math.max(1, Math.min(12, level)) : 1;
+
+  const fixedRanks = {
+    rank_physdef: "",
+    rank_mentdef: "",
+    rank_spiritdef: "",
+  };
+  const defenseLabelToField = new Map([
+    ["Physical Defense", "rank_physdef"],
+    ["Mental Defense", "rank_mentdef"],
+    ["Spiritual Defense", "rank_spiritdef"],
+  ]);
+
+  const grantedSkillNames = new Set();
+  const grantedCombatSkills = new Map();
+
+  const classes = Array.isArray(data.classes) ? data.classes : [];
+  const cls = classes.find((c) => String(c?.classKey || "") === String(classKey)) || null;
+
+  if (cls) {
+    const classCombatSkills = Array.isArray(cls.combatSkills) ? cls.combatSkills : [];
+    for (const entry of classCombatSkills) {
+      const parsed = parseGrantedSkillEntry(entry?.name, entry?.progression);
+      if (!parsed.skillName) continue;
+
+      const rank = computeProgressionRankAtLevel(parsed.progression, L);
+      grantedSkillNames.add(parsed.skillName);
+
+      if (defenseLabelToField.has(parsed.skillName)) {
+        fixedRanks[defenseLabelToField.get(parsed.skillName)] = rank;
+      } else {
+        pushGrantedSkill(grantedCombatSkills, parsed.skillName, rank, "Class");
+      }
+    }
+
+    const baseCombatSkill = normalizeCombatSkillName(cls.combatTechniqueSkill);
+    if (baseCombatSkill) {
+      grantedSkillNames.add(baseCombatSkill);
+      if (!grantedCombatSkills.has(baseCombatSkill) && !defenseLabelToField.has(baseCombatSkill)) {
+        pushGrantedSkill(grantedCombatSkills, baseCombatSkill, "", "Class");
+      }
+    }
+  }
+
+  const selectedOptKeys = new Set(
+    sanitizeStringArray(b.selectedClassFeatureOptions, { maxItems: 500, maxLen: 200 })
+  );
+
+  const featuresByClass = (data.classFeatures && typeof data.classFeatures === "object") ? data.classFeatures : {};
+  const features = Array.isArray(featuresByClass[classKey]) ? featuresByClass[classKey] : [];
+
+  function applySkillGrants(skills, sourceText, sourceName) {
+    const rank = extractGrantedSkillRankFromText(sourceText) || computeProgressionRankAtLevel(extractSkillProgressionFromText(sourceText), L);
+    for (const rawSkill of (Array.isArray(skills) ? skills : [])) {
+      const skillName = normalizeCombatSkillName(rawSkill);
+      if (!skillName) continue;
+      grantedSkillNames.add(skillName);
+      if (defenseLabelToField.has(skillName)) {
+        const fieldKey = defenseLabelToField.get(skillName);
+        if (rank !== "") fixedRanks[fieldKey] = rank;
+      } else {
+        pushGrantedSkill(grantedCombatSkills, skillName, rank, sourceName);
+      }
+    }
+  }
+
+  for (const f of features) {
+    const fLevel = Number.parseInt(String(f?.level ?? 0), 10);
+    const req = Number.isFinite(fLevel) ? fLevel : 0;
+    if (req > L) continue;
+
+    const featureText = descriptionBundle(f?.description, f?.grantsNotes, f?.name);
+    applySkillGrants(f?.grantsSkills, featureText, sanitizeText(f?.name || "", { maxLen: 96, collapse: true }) || "Feature");
+
+    if (Array.isArray(f?.options) && f.options.length) {
+      for (const opt of f.options) {
+        const key = buildOptionKey(f, opt);
+        if (!selectedOptKeys.has(key)) continue;
+        const optionText = descriptionBundle(opt?.description, opt?.grantsNotes, f?.description, f?.grantsNotes, opt?.name, f?.name);
+        applySkillGrants(opt?.grantsSkills, optionText, sanitizeText(opt?.name || f?.name || "", { maxLen: 96, collapse: true }) || "Feature");
+      }
+    }
+  }
+
+  const selectedFeatNames = new Set(
+    sanitizeStringArray(b.selectedFeats, { maxItems: 200, maxLen: 160 })
+  );
+
+  const feats = Array.isArray(data.feats) ? data.feats : [];
+  for (const feat of feats) {
+    const name = sanitizeText(feat?.name || "", { maxLen: 160, collapse: true });
+    if (!name || !selectedFeatNames.has(name)) continue;
+
+    const minLevel = Number.parseInt(String(feat?.minLevel ?? 0), 10);
+    const ml = Number.isFinite(minLevel) ? minLevel : 0;
+    if (ml > L) continue;
+
+    const featText = descriptionBundle(feat?.description, feat?.grantsNotes, feat?.name);
+    applySkillGrants(feat?.grantsSkills, featText, name || "Feat");
+  }
+
+  return {
+    fixedRanks,
+    grantedSkillNames,
+    grantedCombatSkills: Array.from(grantedCombatSkills.values()).sort((a, b) => a.skill.localeCompare(b.skill)),
+  };
 }

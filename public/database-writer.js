@@ -138,6 +138,7 @@ export function sanitizeUpdatePatch(patch) {
 
   for (const key of [
     "builder.selectedClassFeatureOptions",
+    "builder.selectedClassUtilitySkills",
     "builder.selectedFeats",
     "builder.autoAbilityNames",
     "builder.visitedSteps",

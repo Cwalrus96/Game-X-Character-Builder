@@ -247,22 +247,6 @@
   .identity-field input::placeholder {
     color: var(--accent-color);
   }
-  .readonly-label {
-    font-weight: bold;
-    margin-bottom: 2px;
-    font-family: var(--title-font);
-    color: var(--panel-text-color);
-  }
-  .readonly-value {
-    min-height: 30px;
-    padding: 4px 0;
-    border-bottom: 1px solid var(--input-border-color);
-    color: var(--panel-text-color);
-    white-space: pre-wrap;
-  }
-  .readonly-value.empty {
-    color: var(--accent-color);
-  }
   .portrait-box {
     width: clamp(96px, 22vw, 150px);
     height: clamp(96px, 22vw, 150px);
@@ -377,9 +361,6 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px 10px;
   }
-  .skill-grid-2 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
   .skill-chip {
     width: 100%;
     min-width: 0;
@@ -411,6 +392,20 @@
     width: 30px;
     padding: 2px 0;
     line-height: 1.1;
+  }
+
+  .skill-chip-value {
+    display: block;
+    min-width: 0;
+    padding-left: 10px;
+    border-left: 1px solid var(--input-border-color);
+    color: var(--panel-text-color);
+    font-family: var(--body-font);
+    line-height: 1.2;
+  }
+  .skill-chip-readonly-empty {
+    color: var(--accent-color);
+    font-style: italic;
   }
 
   /* Keep resource inputs on one line */
