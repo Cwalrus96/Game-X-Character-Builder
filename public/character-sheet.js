@@ -362,6 +362,33 @@ async function renderBuilderTechniquesReadOnly(builder) {
   }
 }
 
+  let _originsPromise = null;
+
+  async function renderOriginReadOnly({ originKey, originKeystone } = {}) {
+    const originEl = document.getElementById('originValue');
+    const keystoneEl = document.getElementById('originKeystoneValue');
+
+    if (keystoneEl) {
+      const text = sanitizeText(originKeystone || '', { maxLen: 400, collapse: true });
+      keystoneEl.textContent = text || '—';
+      keystoneEl.classList.toggle('empty', !text);
+    }
+
+    if (!originEl) return;
+
+    try {
+      if (!_originsPromise) _originsPromise = loadGameXOrigins({ cache: 'no-store' });
+      const origins = await _originsPromise;
+      const origin = getOriginByKey(origins, originKey);
+      originEl.textContent = origin?.name || '—';
+      originEl.classList.toggle('empty', !origin);
+    } catch (e) {
+      console.warn('renderOriginReadOnly failed:', e);
+      originEl.textContent = '—';
+      originEl.classList.add('empty');
+    }
+  }
+
   async function resolvePortraitUrl(path) {
     const p = sanitizeStoragePath(path);
     if (!p) return '';
@@ -424,6 +451,7 @@ async function renderBuilderTechniquesReadOnly(builder) {
         };
 
         applyState(state);
+        renderOriginReadOnly({ originKey, originKeystone });
         // Render Builder-selected techniques (read-only) alongside custom technique cards.
         renderBuilderTechniquesReadOnly(b);
         if (portraitApi && portraitPath) {
@@ -442,6 +470,8 @@ async function renderBuilderTechniquesReadOnly(builder) {
       const allFields = collectFields();
       const canon = buildCanonicalFromForm(allFields);
       const state = collectState();
+
+      renderOriginReadOnly({ originKey: '', originKeystone: '' });
 
       const baseline = {
         schemaVersion: CHARACTER_SCHEMA_VERSION,
@@ -1299,7 +1329,6 @@ async function renderBuilderTechniquesReadOnly(builder) {
     const rep = (repeatables && typeof repeatables === 'object') ? { ...repeatables } : {};
 
     // Migration: older Pass 2 keystone rows used {name, notes}; single-field keystones now use {text}.
-    if (rep.originKeystones) rep.originKeystones = migrateKeystoneSingles(rep.originKeystones);
     if (rep.backgroundKeystones) rep.backgroundKeystones = migrateKeystoneSingles(rep.backgroundKeystones);
 
     Object.keys(repeatableLists).forEach((k) => {
@@ -1309,7 +1338,6 @@ async function renderBuilderTechniquesReadOnly(builder) {
 
   function resetRepeatablesToDefaults() {
     // Keystones: 1 blank each
-    if (repeatableLists.originKeystones) repeatableLists.originKeystones.load([]);
     if (repeatableLists.bondKeystones) repeatableLists.bondKeystones.load([]);
     if (repeatableLists.backgroundKeystones) repeatableLists.backgroundKeystones.load([]);
 
@@ -1328,7 +1356,6 @@ async function renderBuilderTechniquesReadOnly(builder) {
   portraitApi = initPortrait(scheduleSave);
 
   // Initialize Pass 2 repeatable sections
-  initRepeatableList({ key: 'originKeystones', containerId: 'originKeystoneBody', templateId: 'keystoneSingleRowTemplate', addBtnId: 'addOriginKeystoneBtn', fields: ['text'], minRows: 1 });
   initRepeatableList({ key: 'bondKeystones', containerId: 'bondKeystoneBody', templateId: 'bondKeystoneRowTemplate', addBtnId: 'addBondKeystoneBtn', fields: ['name','rank','notes'], minRows: 1 });
   initRepeatableList({ key: 'backgroundKeystones', containerId: 'backgroundKeystoneBody', templateId: 'keystoneSingleRowTemplate', addBtnId: 'addBackgroundKeystoneBtn', fields: ['text'], minRows: 1 });
 

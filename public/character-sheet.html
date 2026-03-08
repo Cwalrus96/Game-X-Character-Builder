@@ -45,8 +45,8 @@
 <input id="level" inputmode="numeric" min="0" name="level" placeholder="Level" step="1" type="number"/>
 </div>
 <div class="identity-field">
-<label for="background">Origin</label>
-<input id="background" name="background" placeholder="Origin" type="text"/>
+<span class="readonly-label">Origin</span>
+<div class="readonly-value empty" id="originValue">—</div>
 </div>
 </div>
 <div aria-label="Character portrait. Click to upload an image." class="portrait-box" role="button" tabindex="0">
@@ -178,18 +178,9 @@
 <h2 id="keystones_title">Keystones</h2>
 <div class="subsection">
 <div class="subhead">
-<h3>Origin Keystones</h3>
-<button class="mini-btn" id="addOriginKeystoneBtn" type="button">Add Keystone</button>
+<h3>Origin Keystone</h3>
 </div>
-<table aria-label="Origin keystones" class="repeatable-table compact">
-<thead>
-<tr>
-<th scope="col">Keystone</th>
-<th scope="col" style="width: 46px;"> </th>
-</tr>
-</thead>
-<tbody id="originKeystoneBody"></tbody>
-</table>
+<div class="readonly-value empty" id="originKeystoneValue">—</div>
 </div>
 <div class="subsection">
 <div class="subhead">

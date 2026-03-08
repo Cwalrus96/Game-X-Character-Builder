@@ -247,6 +247,22 @@
   .identity-field input::placeholder {
     color: var(--accent-color);
   }
+  .readonly-label {
+    font-weight: bold;
+    margin-bottom: 2px;
+    font-family: var(--title-font);
+    color: var(--panel-text-color);
+  }
+  .readonly-value {
+    min-height: 30px;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--input-border-color);
+    color: var(--panel-text-color);
+    white-space: pre-wrap;
+  }
+  .readonly-value.empty {
+    color: var(--accent-color);
+  }
   .portrait-box {
     width: clamp(96px, 22vw, 150px);
     height: clamp(96px, 22vw, 150px);

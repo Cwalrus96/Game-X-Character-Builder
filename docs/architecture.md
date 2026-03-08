@@ -48,6 +48,7 @@ Fields are intentionally flexible, but the current schema centers around:
   - `classKey` (string; canonical kebab-case id)
   - `primaryAttribute` (string)
   - `attributes` (object)
+  - `originKey` / `originKeystone` (origin step state)
   - `selectedClassFeatureOptions` / `selectedFeats` / `autoAbilityNames` (arrays)
   - `visitedSteps` / `lastVisitedAt` (builder flow state)
   - `sheet.fields` / `sheet.repeatables` (editor-owned sheet fields)
@@ -76,7 +77,7 @@ Builder pages and the character sheet should reference these modules rather than
 
 Classes/feats/techniques are treated as **data**, not hardcoded UI.
 The source of truth is a Google Sheet (exported to XLSX), converted by a script into:
-- `public/data/game-x/*.json`
+- `public/data/game-x/*.json` (including `origins.json`)
 
 This keeps the UI and the rules content loosely coupled.
 

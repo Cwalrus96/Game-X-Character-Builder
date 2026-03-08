@@ -34,6 +34,17 @@ export async function loadGameXTechniques({ cache = "no-store" } = {}) {
   return Array.isArray(data?.techniques) ? data.techniques : [];
 }
 
+export async function loadGameXOrigins({ cache = "no-store" } = {}) {
+  const data = await loadGameXData({ cache });
+  return Array.isArray(data?.origins) ? data.origins : [];
+}
+
+export function getOriginByKey(origins, originKey) {
+  const key = sanitizeText(originKey || "", { maxLen: 64, collapse: true });
+  const list = Array.isArray(origins) ? origins : [];
+  return list.find((origin) => String(origin?.originKey || "").trim() === key) || null;
+}
+
 export function buildTechniqueIndexes(techniques) {
   const byName = new Map();
   const byNorm = new Map();

@@ -43,6 +43,8 @@ export function createDefaultCharacterDoc({ ownerUid } = {}) {
       classKey: "",
       primaryAttribute: "",
       attributes: attrs,
+      originKey: "",
+      originKeystone: "",
 
       selectedClassFeatureOptions: [],
       selectedFeats: [],
@@ -108,6 +110,8 @@ export function normalizeCharacterDoc(raw) {
       classKey: sanitizeText(b.classKey || "", { maxLen: 64, collapse: true }),
       primaryAttribute: primary,
       attributes: attrs,
+      originKey: sanitizeText(b.originKey || "", { maxLen: 64, collapse: true }),
+      originKeystone: sanitizeText(b.originKeystone || "", { maxLen: 400, collapse: true }),
 
       selectedClassFeatureOptions: sanitizeStringArray(b.selectedClassFeatureOptions, { maxItems: 200, maxLen: 160 }),
       selectedFeats: sanitizeStringArray(b.selectedFeats, { maxItems: 200, maxLen: 160 }),

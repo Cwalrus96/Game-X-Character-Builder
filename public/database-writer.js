@@ -74,6 +74,14 @@ export function buildTechniquesUpdatePatch({ selectedTechniques } = {}) {
   };
 }
 
+export function buildOriginUpdatePatch({ originKey, originKeystone } = {}) {
+  return {
+    schemaVersion: CHARACTER_SCHEMA_VERSION,
+    "builder.originKey": sanitizeText(originKey || "", { maxLen: 64, collapse: true }),
+    "builder.originKeystone": sanitizeText(originKeystone || "", { maxLen: 400, collapse: true }),
+  };
+}
+
 // ---- Patch sanitization gate for builder pages ----
 
 /**
@@ -113,6 +121,14 @@ export function sanitizeUpdatePatch(patch) {
 
   if (Object.prototype.hasOwnProperty.call(out, "builder.primaryAttribute")) {
     out["builder.primaryAttribute"] = coerceAttrKey(out["builder.primaryAttribute"]);
+  }
+
+  if (Object.prototype.hasOwnProperty.call(out, "builder.originKey")) {
+    out["builder.originKey"] = sanitizeText(out["builder.originKey"], { maxLen: 64, collapse: true });
+  }
+
+  if (Object.prototype.hasOwnProperty.call(out, "builder.originKeystone")) {
+    out["builder.originKeystone"] = sanitizeText(out["builder.originKeystone"], { maxLen: 400, collapse: true });
   }
 
   if (Object.prototype.hasOwnProperty.call(out, "builder.attributes")) {

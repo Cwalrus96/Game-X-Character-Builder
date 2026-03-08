@@ -35,6 +35,11 @@ export const BUILDER_STEPS = [
     path: "builder-attributes.html",
   },
 
+  {
+    id: "origin",
+    title: "Origin",
+    path: "builder-origin.html",
+  },
 
   {
     id: "techniques",

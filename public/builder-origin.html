@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game X — Character Builder (Origin)</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="builder.css" />
+  </head>
+  <body>
+    <div class="topbar">
+      <div>
+        <a class="btn" href="characters.html">← Characters</a>
+        <span class="muted" id="gmHint" style="display:none; margin-left: 8px;"></span>
+      </div>
+      <div class="right">
+        <span class="muted" id="whoami">Loading…</span>
+        <button id="signOutBtn" class="btn" style="display:none; margin-left: 8px;">Sign out</button>
+      </div>
+    </div>
+
+    <main class="builder" data-builder-step="origin">
+      <header class="builderHeader">
+        <div>
+          <h1>Character Builder</h1>
+          <p class="muted" id="status">Loading…</p>
+          <p class="error" id="error" style="display:none"></p>
+        </div>
+        <div id="builderNavTop"></div>
+      </header>
+
+      <section class="card">
+        <div class="cardHeaderRow">
+          <h2>Step 4 — Origin</h2>
+          <span class="muted" id="originStatusHint"></span>
+        </div>
+
+        <div class="grid2">
+          <div>
+            <label class="label" for="originSelect">Origin</label>
+            <select id="originSelect" class="input">
+              <option value="">Select an origin…</option>
+            </select>
+            <p class="help" id="originHelp">Origins determine how your character got their powers and usually add non-combat hooks.</p>
+
+            <label class="label" for="originKeystone" style="margin-top:12px">Origin Keystone</label>
+            <input id="originKeystone" class="input" type="text" maxlength="400" placeholder="A short statement that describes the origin of your powers" />
+            <p class="help">Your character gets one Origin Keystone at character creation.</p>
+          </div>
+
+          <div>
+            <h3 class="h3" style="margin-top:0">At a glance</h3>
+            <div id="originSummary" class="builderItem muted">Select an origin to see its details.</div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px" id="originDetails"></div>
+      </section>
+
+      <footer class="builderFooter">
+        <div id="builderNavBottom"></div>
+
+        <div class="actions">
+          <button id="saveBtn" class="btn" type="button">Save</button>
+          <button id="saveAndOpenBtn" class="btn secondary" type="button">Save &amp; Open Character Sheet</button>
+        </div>
+      </footer>
+    </main>
+
+    <script type="module" src="builder-origin.js"></script>
+  </body>
+</html>

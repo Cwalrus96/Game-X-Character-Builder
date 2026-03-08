@@ -2,6 +2,8 @@
 
 Game rules content (classes, features, feats, techniques) is edited in **Google Sheets**, exported as `.xlsx`, and then converted into JSON files that the web app can fetch at runtime.
 
+Origins currently live in versioned JSON (`public/data/game-x/origins.json`) because the builder now depends on them, but they do not yet have a dedicated workbook tab/export path.
+
 ## Why this exists
 - Editing rules content in a spreadsheet is faster than editing JSON by hand.
 - The UI can be data-driven without forcing a database migration.
@@ -46,6 +48,7 @@ A recommended approach:
 - `public/data/game-x/class-features.json`
 - `public/data/game-x/feats.json`
 - `public/data/game-x/techniques.json`
+- `public/data/game-x/origins.json` – origin definitions used by the builder
 - `public/data/game-x/export-report.json` – warnings and counts
 
 The UI may choose either:

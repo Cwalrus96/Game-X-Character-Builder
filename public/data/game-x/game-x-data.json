@@ -5295,5 +5295,413 @@
       "prerequisites": null,
       "sourceNote": null
     }
+  ],
+  "origins": [
+    {
+      "originKey": "artifact",
+      "name": "Artifact",
+      "status": "playable",
+      "summary": "A semi-sentient magical or technological relic chose you and now grants your powers.",
+      "description": "A powerful magical or technological item grants the hero their powers. The item was not created by the character; it was given, found, or chose them. The artifact has a long and mysterious history, a will of its own, and a purpose that its wielder must uncover.",
+      "features": [
+        {
+          "name": "Bonded Relic",
+          "description": "You gain a Rank 2 bond with the Artifact. Determine the Artifact’s goal in a short statement. Whenever you perform an action that helps the Artifact further its goal, increment your Power Die."
+        },
+        {
+          "name": "Living Archive",
+          "description": "The Artifact starts out knowing 3 Skills. When its wielder makes a skill check using one of those known skills, they can spend 2 energy to allow the Artifact to Assist them on the action."
+        }
+      ],
+      "originKeystone": "You gain one Keystone that describes the origin of your character’s powers.",
+      "roleplayQuestions": [
+        "What type of object is the Artifact, and what is unique about its appearance?",
+        "What does your character know about the Artifact’s origins or history?",
+        "Who else wants to take the Artifact’s power for themselves?",
+        "What is the Artifact trying to accomplish?",
+        "Why did it choose your character as its wielder?",
+        "How does the Artifact communicate with you?",
+        "What is your relationship with the Artifact?"
+      ],
+      "higherLevelUpgrades": [
+        "Artifact dimension",
+        "Voices of the past"
+      ],
+      "examples": [
+        "Sailor Moon (Legendary Silver Crystal)",
+        "Sora (Keyblade)",
+        "Yugi Mutou (Millennium Puzzle)"
+      ]
+    },
+    {
+      "originKey": "inventor",
+      "name": "Inventor",
+      "status": "playable",
+      "summary": "Your powers come from technology and inventions that you built yourself.",
+      "description": "The character created machines or technology that manipulate energy for them, granting them special powers. They do not actually have powers per se, but can mimic those effects with their technology.",
+      "features": [
+        {
+          "name": "Powerful Inventions",
+          "description": "Your powers come from inventions with a physical form. They must be equipped and take up inventory space. Your powers gain the Technology tag and lose the Magic tag, if any."
+        },
+        {
+          "name": "Flexible Gadgets",
+          "description": "You have invented a number of utility gadgets equal to your Intellect. Each gadget grants a +1D equipment bonus to a single Utility Skill that you have at least Rank 1 training in. You may only activate one gadget at a time and may switch your activated gadget as an action."
+        },
+        {
+          "name": "Empowering Tech",
+          "description": "Once per round, when you make a Skill roll with an equipment bonus, you may increment your Power Die."
+        }
+      ],
+      "originKeystone": "You gain one Keystone that describes the origin of your character’s powers.",
+      "roleplayQuestions": [
+        "How did your character learn to create this technology?",
+        "Who wants to get their hands on your inventions?",
+        "What opus does your character hope to invent one day?",
+        "Where does your character create their inventions?",
+        "Where are the inventions stored when not in use?",
+        "How does your character carry their inventions?",
+        "What physical form do your powers take?"
+      ],
+      "higherLevelUpgrades": [
+        "More potent inventions",
+        "Shared inventions",
+        "Power Bank",
+        "Microverse Backpack",
+        "Portable workshop",
+        "Quick-Swap"
+      ],
+      "examples": [
+        "Tony Stark",
+        "Rintarou Okabe",
+        "Bulma",
+        "Syndrome"
+      ]
+    },
+    {
+      "originKey": "spiritual-bloodline",
+      "name": "Spiritual Bloodline",
+      "status": "playable",
+      "summary": "Your family line carries an innate connection to spirit energy and long-standing spiritual traditions.",
+      "description": "You come from a bloodline with an innate and powerful connection to the flow of spiritual energy. Your family can sense spirit phenomena, and you carry both their gifts and the burden of their expectations.",
+      "features": [
+        {
+          "name": "Eyes of Legend",
+          "description": "On your turn, you may spend 1 Energy to activate your eye technique, allowing you to see invisible creatures by sensing their spiritual energy. You can also see traces of concentrated spiritual energy. This causes an obvious change in your eyes’ appearance."
+        },
+        {
+          "name": "Soul Reader",
+          "description": "You may perform Investigation Actions using Attunement instead of Intellect. Once per round, when you act upon knowledge learned from an Investigation Action, you may increment your Power Die."
+        }
+      ],
+      "originKeystone": "You gain one Keystone that describes the origin of your character’s powers.",
+      "roleplayQuestions": [
+        "Who are some of your famous ancestors, and what are they known for?",
+        "What role do you play in the family?",
+        "What traditions and expectations does your family have?",
+        "How common are powers among your family?",
+        "How does your bloodline relate to your powers?"
+      ],
+      "higherLevelUpgrades": [
+        "Innate spiritual armor",
+        "Spiritual Form",
+        "More powerful eyes",
+        "Spiritual Link",
+        "Suppress your own spiritual energy"
+      ],
+      "examples": [
+        "Ichigo Kurosaki",
+        "Sasuke Uchiha",
+        "Megumi Fushiguro"
+      ]
+    },
+    {
+      "originKey": "soul-vessel",
+      "name": "Soul Vessel",
+      "status": "playable",
+      "summary": "A powerful entity lives within you, and you draw on its strength at great risk.",
+      "description": "Your power comes from another spirit or being that lives within you. The relationship is symbiotic, but often dangerous or hostile.",
+      "features": [
+        {
+          "name": "Font of Power",
+          "description": "At any time, you may choose to take 1 Strain and gain a number of energy equal to your Willpower. Once per round, when you take Strain, you may increment your Power Die."
+        },
+        {
+          "name": "Lurking Threat",
+          "description": "When you drop to 0 HP or become Overstrained, the entity temporarily possesses you and activates an unleashed transformation. You regain all HP, must attempt to deal as much damage as possible without distinguishing allies from enemies, and deal additional damage equal to your Willpower. The form ends when you drop to 0 HP again or combat ends."
+        }
+      ],
+      "originKeystone": "You gain one Keystone that describes the origin of your character’s powers.",
+      "roleplayQuestions": [
+        "Who is the spirit trapped inside you?",
+        "How did the spirit become trapped, and who trapped it?",
+        "Why were you chosen as the vessel?",
+        "What would it take for the entity to escape?",
+        "What threat does the entity pose if it were to get free?"
+      ],
+      "higherLevelUpgrades": [
+        "Draw on more of the entity’s power with less risk",
+        "Intentionally trigger and control the berserk form",
+        "Form a bond with the entity",
+        "Fully transform into the entity’s true form",
+        "Combined form"
+      ],
+      "examples": [
+        "Naruto Uzumaki",
+        "Yuji Itadori",
+        "Parasyte",
+        "Chainsaw Man"
+      ]
+    },
+    {
+      "originKey": "mutation",
+      "name": "Mutation",
+      "status": "playable",
+      "summary": "Your powers come from your altered biology and rapid adaptation to the world around you.",
+      "description": "You are the next step in genetic evolution, and your powers are rooted in your unique biology. Your mutation lets you adapt to situations in moments, but also marks you as other.",
+      "features": [
+        {
+          "name": "Exploratory Adaptations",
+          "description": "By spending 1 action and 2 energy, you activate one adaptation at a time. Starting options include Amphibious Form, Wall Crawler, and Camouflage."
+        },
+        {
+          "name": "Defensive Evolution",
+          "description": "When you take damage, you may spend 2 energy to adapt to that attack. Choose one of that attack’s tags; you gain Armor against attacks with that tag equal to your Strength until the end of combat. Once per round when you reduce damage due to Armor, you may increment your Power Die."
+        }
+      ],
+      "originKeystone": "You gain one Keystone that describes the origin of your character’s powers.",
+      "roleplayQuestions": [
+        "What unusual physical traits does your mutation grant you?",
+        "Was your mutation obvious from birth, or did it appear later?",
+        "Who has mistreated you due to your mutations, and who has shown you empathy?",
+        "Do you see your mutations as a gift or a curse?",
+        "Do you try to hide your appearance or display it proudly?"
+      ],
+      "higherLevelUpgrades": [
+        "Temporary gliding or flight",
+        "Natural Armor",
+        "Natural Weapons",
+        "Size changing",
+        "Enhanced senses"
+      ],
+      "examples": [
+        "Tsuyu Asui",
+        "Titan-shifters",
+        "Diclonius"
+      ]
+    },
+    {
+      "originKey": "getaba-warrior",
+      "name": "Getaba Warrior",
+      "status": "playable",
+      "summary": "You are a disciplined alien warrior from a predatory, militaristic species.",
+      "description": "You are a member of the Getaba species, a society built on military prowess. Getaba are powerful and disciplined warriors whose humanoid forms still show traits of predatory animals.",
+      "features": [
+        {
+          "name": "Hunter’s Instinct",
+          "description": "You may make an Investigation Action against a group of enemies instead of an individual. When you act on that information, you gain the usual +1D Circumstance bonus."
+        },
+        {
+          "name": "Thrill of Battle",
+          "description": "Once per round, when you take damage from a melee attack, you may increment your Power Die."
+        },
+        {
+          "name": "Keen Senses",
+          "description": "You can detect hidden non-spirit creatures within 60 feet, know their location, and treat them as obscured rather than concealed. If you know a particular scent, you can also detect whether that creature or object was recently nearby and the direction they are in when close enough."
+        }
+      ],
+      "originKeystone": "You gain one Keystone that describes the origin of your character’s powers.",
+      "roleplayQuestions": [
+        "What is your relationship with the Getaba army?",
+        "What predatory animal do you take traits from?",
+        "What is your opinion of other species such as humans?",
+        "How do you feel about your predatory instincts?"
+      ],
+      "higherLevelUpgrades": [
+        "Getaba elite or beast transformations",
+        "Improved flanking and teamwork",
+        "War Cry"
+      ],
+      "examples": []
+    },
+    {
+      "originKey": "powerful-patron",
+      "name": "Powerful Patron",
+      "status": "playable",
+      "summary": "A stronger being lends you power, influence, and expectations you are meant to fulfill.",
+      "description": "You get your powers from another, more powerful being. Your Patron grants you a portion of their power, but expects something in return, and their influence can help you beyond combat.",
+      "features": [
+        {
+          "name": "Bond of Patronage",
+          "description": "You gain a level 1 Bond with your Patron. If you fail to live up to the bargain, the bond can be broken and your Patron can restrict or prevent access to your powers."
+        },
+        {
+          "name": "Irresistible Authority",
+          "description": "When you perform an action with the Emotion trait, you can spend energy up to your Bond Rank with your Patron to gain an equal status bonus to the roll. You can also gain this bonus on defense checks against Emotion effects."
+        },
+        {
+          "name": "Friends in High Places",
+          "description": "When making a skill check for resources or connections, your Patron may Assist you with the roll."
+        }
+      ],
+      "originKeystone": "You gain one Keystone that describes the origin of your character’s powers.",
+      "roleplayQuestions": [
+        "Who is your Patron, and what kind of power and influence do they have?",
+        "How did you meet your Patron?",
+        "Why did you form a bond with your Patron?",
+        "What are your Patron’s goals, and how do they expect you to help?",
+        "What kind of behavior does your Patron expect or forbid?",
+        "What is your relationship with your Patron like?"
+      ],
+      "higherLevelUpgrades": [
+        "Summon the Patron temporarily",
+        "Ward around self or allies",
+        "Emotion abilities affect multiple nearby targets"
+      ],
+      "examples": [
+        "Power Rangers + Zordon",
+        "Cardcaptor Sakura (Cerberus)",
+        "Deku + All Might"
+      ]
+    },
+    {
+      "originKey": "slimefolk",
+      "name": "Slimefolk",
+      "status": "incomplete",
+      "summary": "A slime-based origin exists in the handbook outline, but the current source text is incomplete.",
+      "description": "The handbook table of contents lists Slimefolk as an origin, but the current body text available in the handbook source does not provide a distinct completed rules block for it.",
+      "features": [],
+      "originKeystone": "You gain one Keystone that describes the origin of your character’s powers.",
+      "roleplayQuestions": [],
+      "higherLevelUpgrades": [],
+      "examples": []
+    },
+    {
+      "originKey": "magical-dimension",
+      "name": "Magical Dimension",
+      "status": "draft",
+      "summary": "You came to this world from another realm where supernatural powers are normal.",
+      "description": "You recently arrived in this world from another, and still retain the powers of your home realm. The concept is present in the handbook, but its mechanical features are still TBD.",
+      "features": [],
+      "originKeystone": "You gain one Keystone that describes the origin of your character’s powers.",
+      "roleplayQuestions": [
+        "Are your powers innate or learned, and are they common where you come from?",
+        "Which time, place, or dimension are you from, and how did you get here?",
+        "What parts of this world are unfamiliar to you?",
+        "How are you still connected to your home realm?",
+        "Could you eventually travel back and forth more easily?",
+        "What knowledge and connections do you still have in your home realm?"
+      ],
+      "higherLevelUpgrades": [],
+      "examples": [
+        "The Devil is a Part-Timer",
+        "Fate series"
+      ]
+    },
+    {
+      "originKey": "curse",
+      "name": "Curse",
+      "status": "draft",
+      "summary": "Your power is the product of a curse or malicious magic that grants strength at a cost.",
+      "description": "This origin is listed as conceptual in the handbook and is not implemented in Version 2.0.",
+      "features": [],
+      "originKeystone": "You gain one Keystone that describes the origin of your character’s powers.",
+      "roleplayQuestions": [
+        "Who cursed you, and why?",
+        "What part of your past led to the curse?",
+        "How can the curse be broken, and do you want to break it?",
+        "What is the cost of the curse?",
+        "How does using the cursed power affect you?"
+      ],
+      "higherLevelUpgrades": [],
+      "examples": [
+        "Inuyasha",
+        "Nezuko",
+        "Guts"
+      ]
+    },
+    {
+      "originKey": "manifest-spirit",
+      "name": "Manifest Spirit",
+      "status": "draft",
+      "summary": "Your subconscious power takes shape as a separate entity tied to your emotions.",
+      "description": "This origin is listed as conceptual in the handbook and is not implemented in Version 2.0.",
+      "features": [],
+      "originKeystone": "You gain one Keystone that describes the origin of your character’s powers.",
+      "roleplayQuestions": [
+        "Which emotion strengthens the spirit, and which one weakens it?",
+        "What form does the spirit take?",
+        "How did your character first manifest this spirit?",
+        "How does the spirit reflect or react to your emotions?"
+      ],
+      "higherLevelUpgrades": [
+        "Behind the Mask"
+      ],
+      "examples": [
+        "Jotaro Kujo",
+        "Joker",
+        "Tokoyami"
+      ]
+    },
+    {
+      "originKey": "demon-of-hard-work",
+      "name": "Demon of Hard Work",
+      "status": "draft",
+      "summary": "Your power comes from extreme training, discipline, and self-imposed limits rather than magic or technology.",
+      "description": "This origin is listed as conceptual in the handbook and is not implemented in Version 2.0.",
+      "features": [],
+      "originKeystone": "You gain one Keystone that describes the origin of your character’s powers.",
+      "roleplayQuestions": [
+        "Why do you work so hard?",
+        "What sort of training built your power?",
+        "What limiters do you keep on yourself, and what happens when you remove them?"
+      ],
+      "higherLevelUpgrades": [
+        "Limiter Removal"
+      ],
+      "examples": [
+        "Saitama",
+        "Rock Lee",
+        "Krillin"
+      ]
+    },
+    {
+      "originKey": "legend-reborn",
+      "name": "Legend Reborn",
+      "status": "draft",
+      "summary": "You are the reincarnation of an earlier hero and are only beginning to access their legacy.",
+      "description": "This origin is listed as conceptual in the handbook and is not implemented in Version 2.0.",
+      "features": [],
+      "originKeystone": "You gain one Keystone that describes the origin of your character’s powers.",
+      "roleplayQuestions": [
+        "Who was the original legend?",
+        "What memories or powers have begun to surface?",
+        "What evil from the past has returned, and why are you tied to it now?"
+      ],
+      "higherLevelUpgrades": [],
+      "examples": [
+        "Aang / Korra",
+        "Yugi Muto / Atem",
+        "Sailor Moon",
+        "Link"
+      ]
+    },
+    {
+      "originKey": "experiment",
+      "name": "Experiment",
+      "status": "draft",
+      "summary": "Your powers were forced on you through a dangerous scientific, governmental, or spiritual experiment.",
+      "description": "This origin is conceptually described in the handbook, but no distinct mechanical feature block is provided yet.",
+      "features": [],
+      "originKeystone": "You gain one Keystone that describes the origin of your character’s powers.",
+      "roleplayQuestions": [
+        "Who performed the experiment?",
+        "Why were you chosen?",
+        "What did the experiment do to you?",
+        "Who is still trying to repeat or control the results?"
+      ],
+      "higherLevelUpgrades": [],
+      "examples": []
+    }
   ]
 }
