@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game X — Character Builder (Skills)</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="builder.css" />
+  </head>
+  <body>
+    <div class="topbar">
+      <div>
+        <a class="btn" href="characters.html">← Characters</a>
+        <span class="muted" id="gmHint" style="display:none; margin-left: 8px;"></span>
+      </div>
+      <div class="right">
+        <span class="muted" id="whoami">Loading…</span>
+        <button id="signOutBtn" class="btn secondary" style="display:none;">Sign Out</button>
+      </div>
+    </div>
+
+    <main class="builderPage" data-builder-step="skills">
+      <header class="builderHero card">
+        <div>
+          <div class="eyebrow">Character Builder</div>
+          <h1>Skills</h1>
+          <p class="muted">Set Defense Training, Core Skill ranks, Combat &amp; Class Skills, and Setting Skills.</p>
+        </div>
+        <div class="builderHeroStatus">
+          <div id="status" class="status">Loading…</div>
+          <div id="error" class="error" style="display:none;"></div>
+        </div>
+      </header>
+
+      <div id="builderNav"></div>
+
+      <section class="card">
+        <div class="cardHeaderRow">
+          <h2>Defense Training</h2>
+          <span class="muted">These ranks are granted by your class and update automatically as you level.</span>
+        </div>
+        <div class="skill-grid" id="defenseSkillGrid"></div>
+      </section>
+
+      <section class="card">
+        <div class="cardHeaderRow">
+          <h2>Core Skills</h2>
+          <span class="muted">Set your starting ranks for the core shared skills.</span>
+        </div>
+        <div class="skill-grid" id="coreSkillGrid"></div>
+      </section>
+
+      <section class="card">
+        <div class="cardHeaderRow">
+          <h2>Combat &amp; Class Skills</h2>
+          <button class="btn secondary" id="addCombatSkillBtn" type="button">Add Skill</button>
+        </div>
+        <p class="muted">Granted combat skills are shown separately below. Only add extra combat or class skills here when they come from a source that is not already granted automatically.</p>
+        <div class="skill-grid skill-grid-2" id="grantedCombatSkillGrid"></div>
+        <div class="skill-grid skill-grid-2" id="combatSkillGrid"></div>
+      </section>
+
+      <section class="card">
+        <div class="cardHeaderRow">
+          <h2>Setting Skills</h2>
+          <button class="btn secondary" id="addSettingSkillBtn" type="button">Add Skill</button>
+        </div>
+        <p class="muted">Use this for campaign or setting-specific skills.</p>
+        <div class="skill-grid" id="settingSkillGrid"></div>
+      </section>
+
+      <footer class="builderFooter">
+        <div id="builderNavBottom"></div>
+        <div class="actions">
+          <button id="saveBtn" class="btn" type="button">Save</button>
+          <button id="saveAndOpenBtn" class="btn secondary" type="button">Save &amp; Open Character Sheet</button>
+        </div>
+      </footer>
+    </main>
+
+    <template id="skillChipTemplate">
+      <div class="skill-chip" data-repeatable-item>
+        <input aria-label="Skill name" class="skill-name-input" data-field="skill" placeholder="Skill" type="text" />
+        <select aria-label="Skill rank" class="skill-rank-select" data-field="rank"></select>
+        <button aria-label="Remove skill" class="mini-btn danger" data-action="remove" type="button">×</button>
+      </div>
+    </template>
+
+    <script type="module" src="builder-skills.js"></script>
+  </body>
+</html>

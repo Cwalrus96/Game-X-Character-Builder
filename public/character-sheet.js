@@ -9,7 +9,15 @@ import { db, storage } from "./firebase.js";
 import { onAuth, getClaims } from "./auth-ui.js";
 
 import { CHARACTER_SCHEMA_VERSION, getPortraitStoragePath } from "./database-writer.js";
-import { ATTR_KEYS, labelForAttrKey, clampLevel, coerceAttrKey } from "./character-rules.js";
+import {
+  ATTR_KEYS,
+  labelForAttrKey,
+  clampLevel,
+  coerceAttrKey,
+  DEFENSE_SKILL_FIELDS,
+  CORE_SKILL_FIELDS,
+  SKILL_RANK_OPTIONS,
+} from "./character-rules.js";
 import {
   loadGameXClasses,
   loadGameXData,
@@ -17,7 +25,15 @@ import {
   resolveTechniqueRef,
   computeKnownCombatSkillsAndGrants,
 } from "./game-data.js";
-import { sanitizeCharName, sanitizeStoragePath, sanitizeText, toInt, escapeHtml } from "./data-sanitization.js";
+import {
+  sanitizeCharName,
+  sanitizeStoragePath,
+  sanitizeText,
+  toInt,
+  escapeHtml,
+  sanitizeSkillFields,
+  sanitizeNamedSkillList,
+} from "./data-sanitization.js";
 
 import {
   getAttributeEffectiveCap,
@@ -145,69 +161,68 @@ import {
   ]);
 
 
-  const SKILL_RANK_OPTIONS = [
-    { value: '', label: '' },
-    { value: '0', label: '0 - Untrained' },
-    { value: '1', label: '1 - Beginner' },
-    { value: '2', label: '2 - Advanced' },
-    { value: '3', label: '3 - Master' },
-    { value: '4', label: '4 - Legendary' },
-    { value: '5', label: '5 - Super' },
-    { value: '6', label: '6 - Cosmic' },
-  ];
+  const READ_ONLY_SKILL_FIELD_KEYS = [...DEFENSE_SKILL_FIELDS, ...CORE_SKILL_FIELDS].map(({ key }) => key);
+  const READ_ONLY_SKILL_LABELS = new Map(SKILL_RANK_OPTIONS.map(({ value, label }) => [String(value), String(label)]));
+  const READ_ONLY_SKILL_MIN_ROWS = {
+    combatSkillsExtra: 2,
+    settingSkills: 5,
+  };
 
-  const DEFENSE_SKILL_FIELDS = [
-    { key: 'rank_physdef', label: 'Physical Defense Training' },
-    { key: 'rank_mentdef', label: 'Mental Defense Training' },
-    { key: 'rank_spiritdef', label: 'Spiritual Defense Training' },
-  ];
-
-  const CORE_SKILL_FIELDS = [
-    { key: 'rank_academics', label: 'Academics' },
-    { key: 'rank_athletics', label: 'Athletics' },
-    { key: 'rank_crafting', label: 'Crafting' },
-    { key: 'rank_culinary', label: 'Culinary' },
-    { key: 'rank_deception', label: 'Deception' },
-    { key: 'rank_influence', label: 'Influence' },
-    { key: 'rank_insight', label: 'Insight' },
-    { key: 'rank_medicine', label: 'Medicine' },
-    { key: 'rank_nature', label: 'Nature' },
-    { key: 'rank_observation', label: 'Observation' },
-    { key: 'rank_performance', label: 'Performance' },
-    { key: 'rank_roguery', label: 'Roguery' },
-    { key: 'rank_society', label: 'Society' },
-    { key: 'rank_spirituality', label: 'Spirituality' },
-    { key: 'rank_stealth', label: 'Stealth' },
-  ];
+  let readOnlySkillFields = sanitizeSkillFields({}, { allowedKeys: READ_ONLY_SKILL_FIELD_KEYS });
+  let readOnlySkillRepeatables = {
+    combatSkillsExtra: [],
+    settingSkills: [],
+  };
 
   function escapeAttr(value) {
     return escapeHtml(String(value ?? '')).replaceAll('"', '&quot;');
   }
 
-  function skillRankOptionsHtml(selectedValue = '') {
-    return SKILL_RANK_OPTIONS
-      .map(({ value, label }) => `<option value="${escapeAttr(value)}"${String(selectedValue) === String(value) ? ' selected' : ''}>${escapeHtml(label)}</option>`)
-      .join('');
+  function skillRankLabel(value) {
+    return READ_ONLY_SKILL_LABELS.get(String(value ?? '')) || '';
   }
 
-  function renderFixedSkillGrid(containerId, items) {
+  function renderReadOnlyFixedSkillGrid(containerId, items, values) {
     const container = document.getElementById(containerId);
     if (!container) return;
     container.innerHTML = (Array.isArray(items) ? items : [])
       .map(({ key, label }) => `
-        <label class="skill-chip skill-chip-static">
+        <div class="skill-chip skill-chip-static">
           <span class="skill-chip-label">${escapeHtml(label)}</span>
-          <select aria-label="${escapeAttr(label)} rank" class="skill-rank-select" name="${escapeAttr(key)}">
-            ${skillRankOptionsHtml()}
-          </select>
-        </label>
+          <span class="skill-chip-value">${escapeHtml(skillRankLabel(values?.[key] ?? '')) || '&mdash;'}</span>
+        </div>
       `)
       .join('');
   }
 
-  function initFixedSkillGrids() {
-    renderFixedSkillGrid('defenseSkillGrid', DEFENSE_SKILL_FIELDS);
-    renderFixedSkillGrid('coreSkillGrid', CORE_SKILL_FIELDS);
+  function renderReadOnlyNamedSkillGrid(containerId, items, { minRows = 0 } = {}) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const rows = Array.isArray(items) ? items.slice() : [];
+    while (rows.length < minRows) rows.push({ skill: '', rank: '' });
+
+    container.innerHTML = rows
+      .map((item) => `
+        <div class="skill-chip skill-chip-static">
+          <span class="skill-chip-label">${escapeHtml(String(item?.skill || '')) || '&mdash;'}</span>
+          <span class="skill-chip-value">${escapeHtml(skillRankLabel(item?.rank ?? '')) || '&mdash;'}</span>
+        </div>
+      `)
+      .join('');
+  }
+
+  function applyReadOnlySkillState({ fields = {}, repeatables = {} } = {}) {
+    readOnlySkillFields = sanitizeSkillFields(fields, { allowedKeys: READ_ONLY_SKILL_FIELD_KEYS });
+    readOnlySkillRepeatables = {
+      combatSkillsExtra: sanitizeNamedSkillList(repeatables?.combatSkillsExtra, { maxItems: 50 }),
+      settingSkills: sanitizeNamedSkillList(repeatables?.settingSkills, { maxItems: 50 }),
+    };
+
+    renderReadOnlyFixedSkillGrid('defenseSkillGrid', DEFENSE_SKILL_FIELDS, readOnlySkillFields);
+    renderReadOnlyFixedSkillGrid('coreSkillGrid', CORE_SKILL_FIELDS, readOnlySkillFields);
+    renderReadOnlyNamedSkillGrid('combatSkillGrid', readOnlySkillRepeatables.combatSkillsExtra, { minRows: READ_ONLY_SKILL_MIN_ROWS.combatSkillsExtra });
+    renderReadOnlyNamedSkillGrid('settingSkillGrid', readOnlySkillRepeatables.settingSkills, { minRows: READ_ONLY_SKILL_MIN_ROWS.settingSkills });
   }
 
   function buildCanonicalFromForm(fields) {
@@ -257,9 +272,9 @@ import {
 
     try {
       const speed = computeSpeed(canon.attributes);
-const physdef = computePhysicalDefense({ attributes: canon.attributes, trainingRank: allFields.rank_physdef });
-const mentdef = computeMentalDefense({ attributes: canon.attributes, trainingRank: allFields.rank_mentdef });
-const spiritdef = computeSpiritDefense({ attributes: canon.attributes, trainingRank: allFields.rank_spiritdef });
+const physdef = computePhysicalDefense({ attributes: canon.attributes, trainingRank: readOnlySkillFields.rank_physdef });
+const mentdef = computeMentalDefense({ attributes: canon.attributes, trainingRank: readOnlySkillFields.rank_mentdef });
+const spiritdef = computeSpiritDefense({ attributes: canon.attributes, trainingRank: readOnlySkillFields.rank_spiritdef });
 
 setNumberFieldByName('speed', speed);
 setNumberFieldByName('physdef', physdef);
@@ -428,6 +443,7 @@ async function renderBuilderTechniquesReadOnly(builder) {
         const sheetFields = (b?.sheet?.fields && typeof b.sheet.fields === 'object') ? b.sheet.fields : {};
         const sheetOnlyFields = pickSheetOnlyFields(sheetFields);
         const repeatables = (b?.sheet?.repeatables && typeof b.sheet.repeatables === 'object') ? b.sheet.repeatables : {};
+        applyReadOnlySkillState({ fields: sheetFields, repeatables });
         const selectedTechniques = Array.isArray(b?.selectedTechniques) ? b.selectedTechniques : [];
         lockedAbilityNames = new Set(Array.isArray(b?.autoAbilityNames) ? b.autoAbilityNames.map((name) => String(name || '').trim()).filter(Boolean) : []);
 
@@ -485,8 +501,15 @@ async function renderBuilderTechniquesReadOnly(builder) {
           primaryAttribute: coerceAttrKey(canon?.primaryAttribute),
           // Editor-owned sheet data lives under builder.sheet.*
           sheet: {
-            fields: pickSheetOnlyFields(allFields),
-            repeatables: state?.repeatables || {},
+            fields: {
+              ...pickSheetOnlyFields(allFields),
+              ...readOnlySkillFields,
+            },
+            repeatables: {
+              ...(state?.repeatables || {}),
+              combatSkillsExtra: readOnlySkillRepeatables.combatSkillsExtra,
+              settingSkills: readOnlySkillRepeatables.settingSkills,
+            },
           },
         },
         createdAt: serverTimestamp(),
@@ -560,8 +583,15 @@ async function renderBuilderTechniquesReadOnly(builder) {
           classKey: sanitizeText(canon?.classKey || '', { maxLen: 64 }),
           primaryAttribute: coerceAttrKey(canon?.primaryAttribute),
           sheet: {
-            fields: pickSheetOnlyFields(allFields),
-            repeatables: state?.repeatables || {},
+            fields: {
+              ...pickSheetOnlyFields(allFields),
+              ...readOnlySkillFields,
+            },
+            repeatables: {
+              ...(state?.repeatables || {}),
+              combatSkillsExtra: readOnlySkillRepeatables.combatSkillsExtra,
+              settingSkills: readOnlySkillRepeatables.settingSkills,
+            },
           },
         },
         updatedAt: serverTimestamp(),
@@ -1341,10 +1371,6 @@ async function renderBuilderTechniquesReadOnly(builder) {
     if (repeatableLists.bondKeystones) repeatableLists.bondKeystones.load([]);
     if (repeatableLists.backgroundKeystones) repeatableLists.backgroundKeystones.load([]);
 
-    // Skills: 2 blank combat/class entries, 5 setting entries
-    if (repeatableLists.combatSkillsExtra) repeatableLists.combatSkillsExtra.load([]);
-    if (repeatableLists.settingSkills) repeatableLists.settingSkills.load([]);
-
     // Techniques: none by default
     if (repeatableLists.techniques) repeatableLists.techniques.load([]);
 
@@ -1358,9 +1384,6 @@ async function renderBuilderTechniquesReadOnly(builder) {
   // Initialize Pass 2 repeatable sections
   initRepeatableList({ key: 'bondKeystones', containerId: 'bondKeystoneBody', templateId: 'bondKeystoneRowTemplate', addBtnId: 'addBondKeystoneBtn', fields: ['name','rank','notes'], minRows: 1 });
   initRepeatableList({ key: 'backgroundKeystones', containerId: 'backgroundKeystoneBody', templateId: 'keystoneSingleRowTemplate', addBtnId: 'addBackgroundKeystoneBtn', fields: ['text'], minRows: 1 });
-
-  initRepeatableList({ key: 'combatSkillsExtra', containerId: 'combatSkillGrid', templateId: 'skillChipTemplate', addBtnId: 'addCombatSkillBtn', fields: ['skill','rank'], minRows: 2 });
-  initRepeatableList({ key: 'settingSkills', containerId: 'settingSkillGrid', templateId: 'skillChipTemplate', addBtnId: 'addSettingSkillBtn', fields: ['skill','rank'], minRows: 5 });
 
     initRepeatableList({ key: 'techniques', containerId: 'techniqueCards', templateId: 'techniqueCardTemplate', addBtnId: 'addTechniqueBtn', fields: ['name','actions','energy','text'], minRows: 0 });
 
@@ -1403,7 +1426,7 @@ if (classSelect) {
     createRepeatableList
   };
 
-  initFixedSkillGrids();
+  applyReadOnlySkillState();
 
   // Initialize tooltip text + behavior
   applyTooltipText();

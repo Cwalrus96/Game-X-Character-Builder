@@ -127,14 +127,12 @@
 <div class="subsection">
 <div class="subhead">
 <h3>Combat &amp; Class Skills</h3>
-<button class="mini-btn" id="addCombatSkillBtn" type="button">Add Skill</button>
 </div>
 <div aria-label="Combat and class skills" class="skill-grid skill-grid-2" id="combatSkillGrid"></div>
 </div>
 <div class="subsection">
 <div class="subhead">
 <h3>Setting Skills</h3>
-<button class="mini-btn" id="addSettingSkillBtn" type="button">Add Skill</button>
 </div>
 <div aria-label="Setting skills" class="skill-grid" id="settingSkillGrid"></div>
 </div>
@@ -256,22 +254,7 @@
 </td>
 </tr>
 </template>
-<template id="skillChipTemplate">
-<div class="skill-chip" data-repeatable-item="">
-<input aria-label="Skill name" class="skill-name-input" data-field="skill" placeholder="Skill" type="text"/>
-<select aria-label="Skill rank" class="skill-rank-select" data-field="rank">
-<option value=""></option>
-<option value="0">0 - Untrained</option>
-<option value="1">1 - Beginner</option>
-<option value="2">2 - Advanced</option>
-<option value="3">3 - Master</option>
-<option value="4">4 - Legendary</option>
-<option value="5">5 - Super</option>
-<option value="6">6 - Cosmic</option>
-</select>
-<button aria-label="Remove skill" class="mini-btn danger" data-action="remove" type="button">×</button>
-</div>
-</template>
+
 <template id="abilityCardTemplate">
 <div class="ability-card" data-repeatable-item="">
 <div class="ability-card-head">

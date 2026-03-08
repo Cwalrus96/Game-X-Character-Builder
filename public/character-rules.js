@@ -39,6 +39,55 @@ export function coerceAttrKey(v) {
   return ATTR_KEYS.includes(s) ? s : "";
 }
 
+
+
+export const SKILL_RANK_OPTIONS = [
+  { value: '', label: '' },
+  { value: '0', label: '0 - Untrained' },
+  { value: '1', label: '1 - Beginner' },
+  { value: '2', label: '2 - Advanced' },
+  { value: '3', label: '3 - Master' },
+  { value: '4', label: '4 - Legendary' },
+  { value: '5', label: '5 - Super' },
+  { value: '6', label: '6 - Cosmic' },
+];
+
+export const DEFENSE_SKILL_FIELDS = [
+  { key: 'rank_physdef', label: 'Physical Defense Training' },
+  { key: 'rank_mentdef', label: 'Mental Defense Training' },
+  { key: 'rank_spiritdef', label: 'Spiritual Defense Training' },
+];
+
+export const CORE_SKILL_FIELDS = [
+  { key: 'rank_academics', label: 'Academics' },
+  { key: 'rank_athletics', label: 'Athletics' },
+  { key: 'rank_crafting', label: 'Crafting' },
+  { key: 'rank_culinary', label: 'Culinary' },
+  { key: 'rank_deception', label: 'Deception' },
+  { key: 'rank_influence', label: 'Influence' },
+  { key: 'rank_insight', label: 'Insight' },
+  { key: 'rank_medicine', label: 'Medicine' },
+  { key: 'rank_nature', label: 'Nature' },
+  { key: 'rank_observation', label: 'Observation' },
+  { key: 'rank_performance', label: 'Performance' },
+  { key: 'rank_roguery', label: 'Roguery' },
+  { key: 'rank_society', label: 'Society' },
+  { key: 'rank_spirituality', label: 'Spirituality' },
+  { key: 'rank_stealth', label: 'Stealth' },
+];
+
+export function normalizeSkillRank(value, { allowBlank = true } = {}) {
+  const raw = sanitizeText(value, { maxLen: 8, collapse: true });
+  if (allowBlank && raw === '') return '';
+  return String(toInt(raw, { min: 0, max: 6 }));
+}
+
+export function formatSkillRankLabel(value) {
+  const normalized = normalizeSkillRank(value, { allowBlank: true });
+  const found = SKILL_RANK_OPTIONS.find((it) => String(it.value) === String(normalized));
+  return found ? found.label : '';
+}
+
 export function normalizeAttributes(obj, { min = 0, max = 99 } = {}) {
   const src = (obj && typeof obj === "object") ? obj : {};
   const out = {};

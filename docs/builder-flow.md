@@ -49,6 +49,7 @@ The current registry contains these pages:
 - `public/builder-class.html` / `public/builder-class.js` – Class
 - `public/builder-attributes.html` / `public/builder-attributes.js` – Attributes
 - `public/builder-origin.html` / `public/builder-origin.js` – Origin
+- `public/builder-skills.html` / `public/builder-skills.js` – Skills
 - `public/builder-techniques.html` / `public/builder-techniques.js` – Techniques
 
 ## Extending with new pages
