@@ -53,6 +53,12 @@ export const BUILDER_STEPS = [
     title: "Techniques",
     path: "builder-techniques.html",
   },
+
+  {
+    id: "bonds-keystones",
+    title: "Bonds & Keystones",
+    path: "builder-bonds-keystones.html",
+  },
 ];
 
 /**

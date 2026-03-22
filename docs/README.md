@@ -58,6 +58,7 @@ From the repo root:
     - `builder-class.js` – Class / level / primary-attribute / class-feature selection
     - `builder-attributes.js` – Attributes step
     - `builder-techniques.js` – Techniques step
+    - `builder-bonds-keystones.js` – Bonds + Background Keystones step
   - Character sheet/editor:
     - `character-sheet.html` / `character-sheet.js` – character sheet rendering + saving
   - Other pages:

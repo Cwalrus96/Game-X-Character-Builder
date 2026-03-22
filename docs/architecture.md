@@ -49,9 +49,12 @@ Fields are intentionally flexible, but the current schema centers around:
   - `primaryAttribute` (string)
   - `attributes` (object)
   - `originKey` / `originKeystone` (origin step state)
-  - `selectedClassFeatureOptions` / `selectedFeats` / `autoAbilityNames` (arrays)
+  - `selectedClassFeatureOptions` / `selectedClassUtilitySkills` / `selectedFeats` / `autoAbilityNames` (arrays)
+  - `grantedCoreSkillSnapshot` / `grantedSkillSnapshot` (skills-step bookkeeping for granted class skills)
+  - `bonds` (builder-owned structured bond records: name, rank, keystone)
+- `backgroundKeystones` (builder-owned background keystone strings)
   - `visitedSteps` / `lastVisitedAt` (builder flow state)
-  - `sheet.fields` / `sheet.repeatables` (editor-owned sheet fields)
+  - `sheet.fields` / `sheet.repeatables` (character-sheet-owned gameplay/custom fields only)
 - `createdAt` / `updatedAt` (timestamps; server-side)
 
 Note: we store only `portraitPath` in Firestore. Download URLs are resolved at runtime via the Storage SDK.
@@ -82,3 +85,6 @@ The source of truth is a Google Sheet (exported to XLSX), converted by a script 
 This keeps the UI and the rules content loosely coupled.
 
 See `docs/data-pipeline.md`.
+
+
+Keystone handling is source-owned in storage (origin, background, bond), but UI rendering should derive from a unified normalized keystone view rather than duplicating display logic in each page. Bonds stay separate from that generic keystone view because a bond record contains more than its keystone text.

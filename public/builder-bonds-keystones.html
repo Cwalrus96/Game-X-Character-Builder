@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game X — Character Builder (Bonds &amp; Keystones)</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="builder.css" />
+  </head>
+  <body>
+    <div class="topbar">
+      <div>
+        <a class="btn" href="characters.html">← Characters</a>
+        <span class="muted" id="gmHint" style="display:none; margin-left: 8px;"></span>
+      </div>
+      <div class="right">
+        <span class="muted" id="whoami">Loading…</span>
+        <button id="signOutBtn" class="btn" style="display:none; margin-left: 8px;">Sign out</button>
+      </div>
+    </div>
+
+    <main class="builder" data-builder-step="bonds-keystones">
+      <header class="builderHeader">
+        <div>
+          <h1>Character Builder</h1>
+          <p class="muted" id="status">Loading…</p>
+          <p class="error" id="error" style="display:none"></p>
+        </div>
+        <div id="builderNavTop"></div>
+      </header>
+
+      <section class="card">
+        <div class="cardHeaderRow">
+          <h2>Step 7 — Bonds &amp; Background Keystones</h2>
+          <span class="muted" id="bondStatusHint"></span>
+        </div>
+        <div class="pillRow">
+          <span class="pill">Level: <strong id="levelValue">—</strong></span>
+          <span class="pill">Heart: <strong id="heartValue">—</strong></span>
+          <span class="pill">Bond Rank Cap: <strong id="bondRankCapValue">—</strong></span>
+          <span class="pill">Current Bonds: <strong id="bondCountValue">—</strong></span>
+        </div>
+        <p class="help" id="bondRulesHelp">At character creation, you can start with up to Heart Rank 1 bonds. Each bond gets one Bond Keystone. You also get 2 Background Keystones.</p>
+      </section>
+
+      <section class="card">
+        <div class="cardHeaderRow">
+          <h2>Bonds</h2>
+          <button class="btn secondary" id="addBondBtn" type="button">Add Bond</button>
+        </div>
+        <p class="help" id="bondCountHelp">Bonds represent spiritual connections to other characters. Each bond row includes the bond target, its rank, and one Bond Keystone.</p>
+        <div class="optionList" id="bondList"></div>
+      </section>
+
+      <section class="card">
+        <div class="cardHeaderRow">
+          <h2>Background Keystones</h2>
+          <span class="muted">Add 2 keystones that describe your background, history, or personality.</span>
+        </div>
+        <div class="grid2" style="margin-top: 12px;">
+          <div>
+            <label class="label" for="backgroundKeystone1">Background Keystone 1</label>
+            <input id="backgroundKeystone1" class="input" type="text" maxlength="400" placeholder="A short, double-edged character truth" />
+          </div>
+          <div>
+            <label class="label" for="backgroundKeystone2">Background Keystone 2</label>
+            <input id="backgroundKeystone2" class="input" type="text" maxlength="400" placeholder="A second background keystone" />
+          </div>
+        </div>
+        <p class="help">Background Keystones should not describe your powers. They should be clear, useful, and easy to invoke or compel.</p>
+      </section>
+
+      <footer class="builderFooter">
+        <div id="builderNavBottom"></div>
+
+        <div class="actions">
+          <button id="saveBtn" class="btn" type="button">Save</button>
+          <button id="saveAndOpenBtn" class="btn secondary" type="button">Save &amp; Open Character Sheet</button>
+        </div>
+      </footer>
+    </main>
+
+    <template id="bondRowTemplate">
+      <div class="optionRow" data-bond-row>
+        <div style="flex:1; display:grid; grid-template-columns: minmax(0, 1fr) 130px; gap: 8px 10px; align-items:end;">
+          <div>
+            <label class="label">Bond</label>
+            <input class="input" data-field="name" type="text" maxlength="96" placeholder="Who is this bond with?" />
+          </div>
+          <div>
+            <label class="label">Rank</label>
+            <select class="input" data-field="rank"></select>
+          </div>
+          <div style="grid-column: 1 / -1;">
+            <label class="label">Bond Keystone</label>
+            <input class="input" data-field="keystone" type="text" maxlength="400" placeholder="Describe the person and your relationship" />
+          </div>
+        </div>
+        <button class="btn secondary" data-action="remove" type="button">Remove</button>
+      </div>
+    </template>
+
+    <script type="module" src="builder-bonds-keystones.js"></script>
+  </body>
+</html>

@@ -15,6 +15,7 @@ import {
   sanitizeStoragePath,
   sanitizeStringArray,
   sanitizeRepeatableAbilities,
+  sanitizeBondList,
   toInt,
 } from "./data-sanitization.js";
 
@@ -82,6 +83,14 @@ export function buildOriginUpdatePatch({ originKey, originKeystone } = {}) {
   };
 }
 
+export function buildBondsKeystonesUpdatePatch({ bonds, backgroundKeystones } = {}) {
+  return {
+    schemaVersion: CHARACTER_SCHEMA_VERSION,
+    "builder.bonds": sanitizeBondList(bonds, { maxItems: 50 }),
+    "builder.backgroundKeystones": sanitizeStringArray(backgroundKeystones, { maxItems: 2, maxLen: 400 }),
+  };
+}
+
 // ---- Patch sanitization gate for builder pages ----
 
 /**
@@ -136,17 +145,26 @@ export function sanitizeUpdatePatch(patch) {
     out["builder.attributes"] = normalizeAttributes(out["builder.attributes"], { min: 0, max: 99 });
   }
 
-  for (const key of [
-    "builder.selectedClassFeatureOptions",
-    "builder.selectedClassUtilitySkills",
-    "builder.selectedFeats",
-    "builder.autoAbilityNames",
-    "builder.visitedSteps",
-    "builder.selectedTechniques",
-  ]) {
+  const arrayFieldSanitizers = {
+    "builder.selectedClassFeatureOptions": { maxItems: 200, maxLen: 160 },
+    "builder.selectedClassUtilitySkills": { maxItems: 50, maxLen: 96 },
+    "builder.selectedFeats": { maxItems: 200, maxLen: 160 },
+    "builder.autoAbilityNames": { maxItems: 500, maxLen: 200 },
+    "builder.grantedCoreSkillSnapshot": { maxItems: 50, maxLen: 64 },
+    "builder.grantedSkillSnapshot": { maxItems: 200, maxLen: 96 },
+    "builder.backgroundKeystones": { maxItems: 2, maxLen: 400 },
+    "builder.visitedSteps": { maxItems: 50, maxLen: 64 },
+    "builder.selectedTechniques": { maxItems: 500, maxLen: 200 },
+  };
+
+  for (const [key, opts] of Object.entries(arrayFieldSanitizers)) {
     if (Object.prototype.hasOwnProperty.call(out, key)) {
-      out[key] = sanitizeStringArray(out[key], { maxItems: 500, maxLen: 200 });
+      out[key] = sanitizeStringArray(out[key], opts);
     }
+  }
+
+  if (Object.prototype.hasOwnProperty.call(out, "builder.bonds")) {
+    out["builder.bonds"] = sanitizeBondList(out["builder.bonds"], { maxItems: 50 });
   }
 
   // Repeatables we currently understand

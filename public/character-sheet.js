@@ -17,10 +17,13 @@ import {
   DEFENSE_SKILL_FIELDS,
   CORE_SKILL_FIELDS,
   SKILL_RANK_OPTIONS,
+  formatSkillRankLabel,
 } from "./character-rules.js";
 import {
   loadGameXClasses,
   loadGameXData,
+  loadGameXOrigins,
+  getOriginByKey,
   buildTechniqueIndexes,
   resolveTechniqueRef,
   computeKnownCombatSkillsAndGrants,
@@ -33,6 +36,8 @@ import {
   escapeHtml,
   sanitizeSkillFields,
   sanitizeNamedSkillList,
+  sanitizeBondList,
+  buildCharacterKeystoneEntries,
 } from "./data-sanitization.js";
 
 import {
@@ -417,14 +422,6 @@ async function renderBuilderTechniquesReadOnly(builder) {
 
   async function renderOriginReadOnly({ originKey, originKeystone } = {}) {
     const originEl = document.getElementById('originValue');
-    const keystoneEl = document.getElementById('originKeystoneValue');
-
-    if (keystoneEl) {
-      const text = sanitizeText(originKeystone || '', { maxLen: 400, collapse: true });
-      keystoneEl.textContent = text || '—';
-      keystoneEl.classList.toggle('empty', !text);
-    }
-
     if (!originEl) return;
 
     try {
@@ -438,6 +435,55 @@ async function renderBuilderTechniquesReadOnly(builder) {
       originEl.textContent = '—';
       originEl.classList.add('empty');
     }
+  }
+
+  function renderBondsReadOnly(bonds) {
+    const mount = document.getElementById('bondCards');
+    if (!mount) return;
+
+    const items = sanitizeBondList(bonds, { maxItems: 50 });
+    if (!items.length) {
+      mount.innerHTML = '<article class="ability-card"><div class="muted">—</div></article>';
+      return;
+    }
+
+    mount.innerHTML = items.map((bond, index) => {
+      const name = sanitizeText(bond?.name || '', { maxLen: 96, collapse: true }) || `Bond ${index + 1}`;
+      const rankLabel = formatSkillRankLabel(bond?.rank) || '—';
+      const keystone = sanitizeText(bond?.keystone || '', { maxLen: 400, collapse: true });
+      return `
+        <article class="ability-card technique-card-readonly">
+          <div class="ability-card-head">
+            <div class="technique-title-static">${escapeHtml(name)}</div>
+          </div>
+          <div class="cards">
+            <div><strong>Rank:</strong> ${escapeHtml(rankLabel)}</div>
+            <div><strong>Bond Keystone:</strong> ${keystone ? escapeHtml(keystone) : '&mdash;'}</div>
+          </div>
+        </article>
+      `;
+    }).join('');
+  }
+
+  function renderKeystonesReadOnly(builder) {
+    const mount = document.getElementById('keystoneCards');
+    if (!mount) return;
+
+    const items = buildCharacterKeystoneEntries(builder).filter((entry) => entry.source !== 'bond');
+    if (!items.length) {
+      mount.innerHTML = '<article class="ability-card"><div class="muted">—</div></article>';
+      return;
+    }
+
+    mount.innerHTML = items.map((entry) => `
+      <article class="ability-card technique-card-readonly">
+        <div class="ability-card-head">
+          <div class="technique-title-static">${escapeHtml(entry.title || 'Keystone')}</div>
+          <span class="technique-source-badge">${escapeHtml(entry.source || 'keystone')}</span>
+        </div>
+        <div class="technique-text-static">${entry.text ? escapeHtml(entry.text) : '&mdash;'}</div>
+      </article>
+    `).join('');
   }
 
   async function resolvePortraitUrl(path) {
@@ -468,6 +514,9 @@ async function renderBuilderTechniquesReadOnly(builder) {
         const level = clampLevel(b?.level ?? 1);
         const primaryAttribute = coerceAttrKey(b?.primaryAttribute);
         const classKey = sanitizeText(b?.classKey, { maxLen: 64 });
+        const originKey = sanitizeText(b?.originKey || '', { maxLen: 64, collapse: true });
+        const originKeystone = sanitizeText(b?.originKeystone || '', { maxLen: 400, collapse: true });
+        const bonds = sanitizeBondList(b?.bonds, { maxItems: 50 });
 
         const attrs = normalizeAttributes(b?.attributes || {});
         for (const k of ATTR_KEYS) {
@@ -505,6 +554,8 @@ async function renderBuilderTechniquesReadOnly(builder) {
 
         applyState(state);
         renderOriginReadOnly({ originKey, originKeystone });
+        renderBondsReadOnly(bonds);
+        renderKeystonesReadOnly(b);
         // Render Builder-selected techniques (read-only) alongside custom technique cards.
         renderBuilderTechniquesReadOnly(b);
         if (portraitApi && portraitPath) {
@@ -525,6 +576,8 @@ async function renderBuilderTechniquesReadOnly(builder) {
       const state = collectState();
 
       renderOriginReadOnly({ originKey: '', originKeystone: '' });
+      renderBondsReadOnly([]);
+      renderKeystonesReadOnly({});
 
       const baseline = {
         schemaVersion: CHARACTER_SCHEMA_VERSION,
@@ -1380,23 +1433,10 @@ async function renderBuilderTechniquesReadOnly(builder) {
     return out;
   }
 
-  function migrateKeystoneSingles(items) {
-    const arr = Array.isArray(items) ? items : [];
-    return arr.map((it) => {
-      if (!it || typeof it !== 'object') return { text: '' };
-      if ('text' in it) return { text: String(it.text || '') };
-      const name = String(it.name || '').trim();
-      const notes = String(it.notes || '').trim();
-      const text = (name && notes) ? `${name}: ${notes}` : (name || notes || '');
-      return { text };
-    });
-  }
 
   function applyRepeatables(repeatables) {
     const rep = (repeatables && typeof repeatables === 'object') ? { ...repeatables } : {};
 
-    // Migration: older Pass 2 keystone rows used {name, notes}; single-field keystones now use {text}.
-    if (rep.backgroundKeystones) rep.backgroundKeystones = migrateKeystoneSingles(rep.backgroundKeystones);
 
     Object.keys(repeatableLists).forEach((k) => {
       repeatableLists[k].load(rep[k]);
@@ -1404,9 +1444,6 @@ async function renderBuilderTechniquesReadOnly(builder) {
   }
 
   function resetRepeatablesToDefaults() {
-    // Keystones: 1 blank each
-    if (repeatableLists.bondKeystones) repeatableLists.bondKeystones.load([]);
-    if (repeatableLists.backgroundKeystones) repeatableLists.backgroundKeystones.load([]);
 
     // Techniques: none by default
     if (repeatableLists.techniques) repeatableLists.techniques.load([]);
@@ -1418,11 +1455,8 @@ async function renderBuilderTechniquesReadOnly(builder) {
   // ---------- Wire up events ----------
   portraitApi = initPortrait(scheduleSave);
 
-  // Initialize Pass 2 repeatable sections
-  initRepeatableList({ key: 'bondKeystones', containerId: 'bondKeystoneBody', templateId: 'bondKeystoneRowTemplate', addBtnId: 'addBondKeystoneBtn', fields: ['name','rank','notes'], minRows: 1 });
-  initRepeatableList({ key: 'backgroundKeystones', containerId: 'backgroundKeystoneBody', templateId: 'keystoneSingleRowTemplate', addBtnId: 'addBackgroundKeystoneBtn', fields: ['text'], minRows: 1 });
-
-    initRepeatableList({ key: 'techniques', containerId: 'techniqueCards', templateId: 'techniqueCardTemplate', addBtnId: 'addTechniqueBtn', fields: ['name','actions','energy','text'], minRows: 0 });
+  // Initialize read/write repeatable sections
+  initRepeatableList({ key: 'techniques', containerId: 'techniqueCards', templateId: 'techniqueCardTemplate', addBtnId: 'addTechniqueBtn', fields: ['name','actions','energy','text'], minRows: 0 });
 
 initRepeatableList({ key: 'abilities', containerId: 'abilityCards', templateId: 'abilityCardTemplate', addBtnId: 'addAbilityBtn', fields: ['name','text'], minRows: 3, decorateRow: lockGrantedAbilityRow });
 

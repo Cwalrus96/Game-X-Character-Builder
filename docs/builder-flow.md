@@ -51,6 +51,7 @@ The current registry contains these pages:
 - `public/builder-origin.html` / `public/builder-origin.js` – Origin
 - `public/builder-skills.html` / `public/builder-skills.js` – Skills
 - `public/builder-techniques.html` / `public/builder-techniques.js` – Techniques
+- `public/builder-bonds-keystones.html` / `public/builder-bonds-keystones.js` – Bonds + Background Keystones
 
 ## Extending with new pages
 A new builder step should generally:
@@ -59,3 +60,9 @@ A new builder step should generally:
 3. on edits, update local state and enforce caps/remaining points
 4. on save, write a sanitized patch
 5. call `renderBuilderNav()` with `onBeforeNext` to auto-save
+
+
+Notes on the current flow:
+- `builder-origin.*` remains the editing step for the Origin Keystone.
+- `builder-bonds-keystones.*` edits structured bonds plus the 2 Background Keystones.
+- The character sheet should render Bonds in their own section, while the generic Keystones section shows the non-bond keystones through a shared derived keystone model.

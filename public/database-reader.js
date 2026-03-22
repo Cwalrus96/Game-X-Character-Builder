@@ -9,6 +9,8 @@ import {
   sanitizeStoragePath,
   sanitizeStringArray,
   sanitizeRepeatableAbilities,
+  sanitizeBondList,
+  sanitizeKeystoneList,
   toInt,
 } from "./data-sanitization.js";
 
@@ -47,8 +49,13 @@ export function createDefaultCharacterDoc({ ownerUid } = {}) {
       originKeystone: "",
 
       selectedClassFeatureOptions: [],
+      selectedClassUtilitySkills: [],
       selectedFeats: [],
       autoAbilityNames: [],
+      grantedCoreSkillSnapshot: [],
+      grantedSkillSnapshot: [],
+      bonds: [],
+      backgroundKeystones: [],
 
       visitedSteps: [],
       lastVisitedAt: null,
@@ -114,8 +121,13 @@ export function normalizeCharacterDoc(raw) {
       originKeystone: sanitizeText(b.originKeystone || "", { maxLen: 400, collapse: true }),
 
       selectedClassFeatureOptions: sanitizeStringArray(b.selectedClassFeatureOptions, { maxItems: 200, maxLen: 160 }),
+      selectedClassUtilitySkills: sanitizeStringArray(b.selectedClassUtilitySkills, { maxItems: 50, maxLen: 96 }),
       selectedFeats: sanitizeStringArray(b.selectedFeats, { maxItems: 200, maxLen: 160 }),
       autoAbilityNames: sanitizeStringArray(b.autoAbilityNames, { maxItems: 500, maxLen: 200 }),
+      grantedCoreSkillSnapshot: sanitizeStringArray(b.grantedCoreSkillSnapshot, { maxItems: 50, maxLen: 64 }),
+      grantedSkillSnapshot: sanitizeStringArray(b.grantedSkillSnapshot, { maxItems: 200, maxLen: 96 }),
+      bonds: sanitizeBondList(b.bonds, { maxItems: 50 }),
+      backgroundKeystones: sanitizeKeystoneList(b.backgroundKeystones, { maxItems: 2, maxLen: 400 }),
 
       visitedSteps: sanitizeStringArray(b.visitedSteps, { maxItems: 50, maxLen: 64 }),
       lastVisitedAt: b.lastVisitedAt ?? null,

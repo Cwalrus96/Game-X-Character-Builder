@@ -109,6 +109,67 @@ export function sanitizeNamedSkillList(value, { maxItems = 200 } = {}) {
   }
   return out;
 }
+
+
+export function sanitizeBondList(value, { maxItems = 50 } = {}) {
+  const arr = Array.isArray(value) ? value : [];
+  const out = [];
+  for (const item of arr) {
+    const row = (item && typeof item === "object") ? item : {};
+    const name = sanitizeText(row.name, { maxLen: 96, collapse: true });
+    const keystone = sanitizeText(row.keystone, { maxLen: 400, collapse: true });
+    const rawRank = sanitizeText(row.rank, { maxLen: 8, collapse: true });
+    const rank = rawRank === "" ? "" : String(toInt(rawRank, { min: 1, max: 6 }));
+    if (!name && !keystone && rank === "") continue;
+    out.push({ name, rank, keystone });
+    if (out.length >= maxItems) break;
+  }
+  return out;
+}
+
+export function sanitizeKeystoneList(value, { maxItems = 20, maxLen = 400 } = {}) {
+  return sanitizeStringArray(value, { maxItems, maxLen });
+}
+
+
+export function buildCharacterKeystoneEntries(builder) {
+  const src = (builder && typeof builder === "object") ? builder : {};
+  const originKeystone = sanitizeText(src.originKeystone || "", { maxLen: 400, collapse: true });
+  const backgroundKeystones = sanitizeKeystoneList(src.backgroundKeystones, { maxItems: 20, maxLen: 400 });
+  const bonds = sanitizeBondList(src.bonds, { maxItems: 50 });
+  const out = [];
+
+  if (originKeystone) {
+    out.push({
+      source: "origin",
+      title: "Origin Keystone",
+      text: originKeystone,
+    });
+  }
+
+  backgroundKeystones.forEach((text, index) => {
+    if (!text) return;
+    out.push({
+      source: "background",
+      title: `Background Keystone ${index + 1}`,
+      text,
+    });
+  });
+
+  bonds.forEach((bond, index) => {
+    const text = sanitizeText(bond?.keystone || "", { maxLen: 400, collapse: true });
+    if (!text) return;
+    out.push({
+      source: "bond",
+      title: sanitizeText(bond?.name || "", { maxLen: 96, collapse: true }) || `Bond ${index + 1}`,
+      text,
+      rank: sanitizeSkillRank(bond?.rank, { allowBlank: true }),
+      bondName: sanitizeText(bond?.name || "", { maxLen: 96, collapse: true }),
+    });
+  });
+
+  return out;
+}
 export function buildGroupId(group) {
   const cls = sanitizeText(group?.classKey || "", { maxLen: 64, collapse: true });
   const lvl = Number.isFinite(group?.level) ? group.level : 0;

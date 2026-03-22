@@ -12,11 +12,11 @@ import { renderBuilderNav } from "./builder-nav.js";
 import {
   DEFENSE_SKILL_FIELDS,
   CORE_SKILL_FIELDS,
-  SKILL_RANK_OPTIONS,
   clampLevel,
   getStandardSkillRankCap,
   getSpendableSkillPoints,
   getSkillPointCostForRank,
+  buildConstrainedSkillRankOptionsHtml,
 } from "./character-rules.js";
 import {
   sanitizeSkillFields,
@@ -298,23 +298,6 @@ function computeSkillCapBonusMap() {
   return out;
 }
 
-function skillRankOptionsHtml(selectedValue = "") {
-  return SKILL_RANK_OPTIONS
-    .map(({ value, label }) => `<option value="${escapeHtml(value)}"${String(selectedValue) === String(value) ? " selected" : ""}>${escapeHtml(label)}</option>`)
-    .join("");
-}
-
-function constrainedSkillRankOptionsHtml(selectedValue = "", maxAllowed = 6) {
-  const selected = normalizeRankValue(selectedValue);
-  return SKILL_RANK_OPTIONS
-    .map(({ value, label }) => {
-      const normalizedValue = normalizeRankValue(value);
-      const numericValue = Number.parseInt(normalizedValue, 10);
-      const shouldDisable = normalizedValue !== "" && Number.isFinite(numericValue) && numericValue > maxAllowed && normalizedValue !== selected;
-      return `<option value="${escapeHtml(value)}"${String(selected) === String(value) ? " selected" : ""}${shouldDisable ? " disabled" : ""}>${escapeHtml(label)}</option>`;
-    })
-    .join("");
-}
 
 function renderGrantedSkillGrid(containerId, rows, markerAttr) {
   const container = document.getElementById(containerId);
@@ -327,7 +310,7 @@ function renderGrantedSkillGrid(containerId, rows, markerAttr) {
       <label class="skill-chip skill-chip-static" ${markerAttr}>
         <span class="skill-chip-label">${escapeHtml(normalizeSkillName(row?.skill))}</span>
         <select aria-label="${escapeHtml(normalizeSkillName(row?.skill))} rank" class="skill-rank-select" disabled>
-          ${skillRankOptionsHtml(String(row?.rank ?? ""))}
+          ${buildConstrainedSkillRankOptionsHtml(String(row?.rank ?? ""), { maxAllowed: 6 })}
         </select>
       </label>
     `)
@@ -349,7 +332,7 @@ function renderFixedSkillGrid(containerId, items, values) {
         <label class="skill-chip skill-chip-static">
           <span class="skill-chip-label">${escapeHtml(label)}</span>
           <select aria-label="${escapeHtml(label)} rank" class="skill-rank-select" name="${escapeHtml(key)}"${isLocked ? " disabled" : ""}>
-            ${skillRankOptionsHtml(rankValue)}
+            ${buildConstrainedSkillRankOptionsHtml(rankValue, { maxAllowed: 6 })}
           </select>
         </label>
       `;
@@ -372,7 +355,7 @@ function createRepeatableList({ key, containerId, addBtnId, minRows = 0, preserv
     const rankSelect = root.querySelector('[data-field="rank"]');
     const removeBtn = root.querySelector('[data-action="remove"]');
     const rankValue = normalizeRankValue(data.rank ?? "");
-    if (rankSelect) rankSelect.innerHTML = skillRankOptionsHtml(rankValue);
+    if (rankSelect) rankSelect.innerHTML = buildConstrainedSkillRankOptionsHtml(rankValue, { maxAllowed: 6 });
     if (skillInput) {
       skillInput.value = String(data.skill || "");
       skillInput.addEventListener("input", refreshSkillPointSummaryAndCaps);
@@ -586,7 +569,7 @@ function computeSpendState() {
 function constrainRankSelect(selectEl, { skillName, maxAllowed }) {
   if (!selectEl || selectEl.disabled) return;
   const currentValue = normalizeRankValue(selectEl.value);
-  selectEl.innerHTML = constrainedSkillRankOptionsHtml(currentValue, maxAllowed);
+  selectEl.innerHTML = buildConstrainedSkillRankOptionsHtml(currentValue, { maxAllowed });
   selectEl.value = currentValue;
   const selected = selectEl.querySelector(`option[value="${CSS.escape(currentValue)}"]`);
   if (selected) selected.selected = true;

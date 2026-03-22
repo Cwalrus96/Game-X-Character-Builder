@@ -3,7 +3,7 @@
 // Single source of truth for Game X rule math and derived values.
 // Pure logic only: no Firestore, no DOM.
 
-import { sanitizeText, toInt } from "./data-sanitization.js";
+import { sanitizeText, toInt, escapeHtml } from "./data-sanitization.js";
 import { loadGameXClasses } from "./game-data.js";
 
 export const ATTR_KEYS = [
@@ -86,6 +86,30 @@ export function formatSkillRankLabel(value) {
   const normalized = normalizeSkillRank(value, { allowBlank: true });
   const found = SKILL_RANK_OPTIONS.find((it) => String(it.value) === String(normalized));
   return found ? found.label : '';
+}
+
+
+export function buildConstrainedSkillRankOptionsHtml(selectedValue = "", { maxAllowed = 6 } = {}) {
+  const selected = normalizeSkillRank(selectedValue, { allowBlank: true });
+  return SKILL_RANK_OPTIONS
+    .map(({ value, label }) => {
+      const normalizedValue = normalizeSkillRank(value, { allowBlank: true });
+      const numericValue = Number.parseInt(normalizedValue, 10);
+      const shouldDisable = normalizedValue !== "" && Number.isFinite(numericValue) && numericValue > maxAllowed && normalizedValue !== selected;
+      return `<option value="${escapeHtml(value)}"${String(selected) === String(value) ? " selected" : ""}${shouldDisable ? " disabled" : ""}>${escapeHtml(label)}</option>`;
+    })
+    .join("");
+}
+
+export function getBondRulesState({ level, heart } = {}) {
+  const normalizedLevel = clampLevel(level ?? 1);
+  const normalizedHeart = toInt(heart ?? 0, { min: 0, max: 99 });
+  return {
+    level: normalizedLevel,
+    heart: normalizedHeart,
+    rankCap: Math.max(1, getStandardSkillRankCap(normalizedLevel)),
+    bondCountCap: normalizedHeart,
+  };
 }
 
 

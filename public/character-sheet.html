@@ -172,46 +172,12 @@
 <button class="mini-btn" id="addWeaponBtn" type="button">Add Weapon</button>
 </div>
 <div class="weapons-list" id="weaponsList"></div>
+</div><div aria-labelledby="bonds_title" class="section" id="bonds">
+<h2 id="bonds_title">Bonds</h2>
+<div class="cards" id="bondCards"></div>
 </div><div aria-labelledby="keystones_title" class="section" id="keystones">
 <h2 id="keystones_title">Keystones</h2>
-<div class="subsection">
-<div class="subhead">
-<h3>Origin Keystone</h3>
-</div>
-<div class="readonly-value empty" id="originKeystoneValue">—</div>
-</div>
-<div class="subsection">
-<div class="subhead">
-<h3>Bond Keystones</h3>
-<button class="mini-btn" id="addBondKeystoneBtn" type="button">Add Keystone</button>
-</div>
-<table aria-label="Bond keystones" class="repeatable-table compact">
-<thead>
-<tr>
-<th scope="col" style="width: 28%;">Bond</th>
-<th scope="col" style="width: 110px;">Rank</th>
-<th scope="col">Notes / Hooks</th>
-<th scope="col" style="width: 46px;"> </th>
-</tr>
-</thead>
-<tbody id="bondKeystoneBody"></tbody>
-</table>
-</div>
-<div class="subsection">
-<div class="subhead">
-<h3>Background Keystones</h3>
-<button class="mini-btn" id="addBackgroundKeystoneBtn" type="button">Add Keystone</button>
-</div>
-<table aria-label="Background keystones" class="repeatable-table compact">
-<thead>
-<tr>
-<th scope="col">Keystone</th>
-<th scope="col" style="width: 46px;"> </th>
-</tr>
-</thead>
-<tbody id="backgroundKeystoneBody"></tbody>
-</table>
-</div>
+<div class="cards" id="keystoneCards"></div>
 </div><div aria-labelledby="techniques_title" class="section" id="techniques"><h2 id="techniques_title">Techniques</h2><div class="repeatable-header"><button class="mini-btn" id="addTechniqueBtn" type="button">Add Technique</button></div><div id="selectedTechniquesFromBuilder" style="margin-top:10px;"></div><div aria-label="Techniques" class="cards" id="techniqueCards"></div></div><div aria-labelledby="abilities_title" class="section" id="abilities">
 <h2 id="abilities_title">Abilities &amp; Features</h2>
 <div class="subhead" style="margin-bottom: 10px;">
@@ -226,34 +192,6 @@
     New Lancaster University • ALIAS Records
   </div></div>
 <!-- Repeatable templates (Pass 2) -->
-<template id="keystoneSingleRowTemplate">
-<tr data-repeatable-item="">
-<td><input aria-label="Keystone" class="skill-name-input" data-field="text" placeholder="Keystone" type="text"/></td>
-<td style="text-align:center;">
-<button aria-label="Remove keystone" class="mini-btn danger" data-action="remove" type="button">×</button>
-</td>
-</tr>
-</template>
-<template id="bondKeystoneRowTemplate">
-<tr data-repeatable-item="">
-<td><input aria-label="Bond name" class="skill-name-input" data-field="name" placeholder="Bond name" type="text"/></td>
-<td>
-<select aria-label="Bond rank" class="bond-rank-select" data-field="rank">
-<option value=""></option>
-<option value="1">1</option>
-<option value="2">2</option>
-<option value="3">3</option>
-<option value="4">4</option>
-<option value="5">5</option>
-<option value="6">6</option>
-</select>
-</td>
-<td><input aria-label="Bond notes or hooks" class="bond-input" data-field="notes" placeholder="Notes / hooks" type="text"/></td>
-<td style="text-align:center;">
-<button aria-label="Remove bond keystone" class="mini-btn danger" data-action="remove" type="button">×</button>
-</td>
-</tr>
-</template>
 
 <template id="abilityCardTemplate">
 <div class="ability-card" data-repeatable-item="">
