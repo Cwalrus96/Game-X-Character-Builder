@@ -727,6 +727,17 @@ async function renderBuilderTechniquesReadOnly(builder) {
         back.href = (isGMUser && requestedUidParam) ? `characters.html?uid=${encodeURIComponent(requestedUidParam)}` : 'characters.html';
       }
 
+      const edit = document.getElementById('editCharacterLink');
+      if (edit) {
+        const editUrl = new URL('builder-profile.html', window.location.href);
+        editUrl.searchParams.set('charId', editingCharId);
+        if (isGMUser && requestedUidParam) {
+          editUrl.searchParams.set('uid', requestedUidParam);
+        }
+        edit.href = editUrl.toString();
+      }
+
+
       await loadCloudOrInit();
     });
   }

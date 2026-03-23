@@ -173,6 +173,20 @@ function clearCharacterList() {
   if (charactersList) charactersList.innerHTML = "";
 }
 
+function buildCharacterUrl(page, { charId, ownerUid, isViewingSelf }) {
+  const url = new URL(page, window.location.href);
+  url.searchParams.set("charId", charId);
+
+  // Only set uid param when GM viewing another user (or if the character doc owner differs)
+  if (!isViewingSelf && claims.gm) {
+    url.searchParams.set("uid", viewingUid);
+  } else if (claims.gm && ownerUid && ownerUid !== currentUser.uid) {
+    url.searchParams.set("uid", ownerUid);
+  }
+
+  return url.toString();
+}
+
 function renderCharacters(docs) {
   clearCharacterList();
   hide(charactersError);
@@ -202,19 +216,26 @@ function renderCharacters(docs) {
     `;
 
     const right = li.querySelector(".right");
-    const a = document.createElement("a");
-    a.className = "btn";
-    a.textContent = "Continue";
-    const url = new URL("builder-profile.html", window.location.href);
-    url.searchParams.set("charId", d.id);
-    // Only set uid param when GM viewing another user (or if the character doc owner differs)
-    if (!isViewingSelf && claims.gm) {
-      url.searchParams.set("uid", viewingUid);
-    } else if (claims.gm && owner && owner !== currentUser.uid) {
-      url.searchParams.set("uid", owner);
-    }
-    a.href = url.toString();
-    right.appendChild(a);
+
+    const editLink = document.createElement("a");
+    editLink.className = "btn";
+    editLink.textContent = "Edit";
+    editLink.href = buildCharacterUrl("builder-profile.html", {
+      charId: d.id,
+      ownerUid: owner,
+      isViewingSelf,
+    });
+    right.appendChild(editLink);
+
+    const viewLink = document.createElement("a");
+    viewLink.className = "btn secondary";
+    viewLink.textContent = "View";
+    viewLink.href = buildCharacterUrl("character-sheet.html", {
+      charId: d.id,
+      ownerUid: owner,
+      isViewingSelf,
+    });
+    right.appendChild(viewLink);
 
     charactersList.appendChild(li);
   });

@@ -58,11 +58,10 @@ From the repo root:
     - `builder-class.js` – Class / level / primary-attribute / class-feature selection
     - `builder-attributes.js` – Attributes step
     - `builder-techniques.js` – Techniques step
-    - `builder-bonds-keystones.js` – Bonds + Background Keystones step
   - Character sheet/editor:
-    - `character-sheet.html` / `character-sheet.js` – character sheet rendering + saving
+    - `character-sheet.html` / `character-sheet.js` – character sheet rendering + saving, with an Edit link back into the builder
   - Other pages:
-    - `characters.html` / `characters.js` – list/create characters
+    - `characters.html` / `characters.js` – list/create characters, with separate Edit and View actions
     - `login.html` / `login.js` – sign-in flow
     - `gm_users.html` / `gm_users.js` – GM tools (if enabled)
 
