@@ -31,6 +31,7 @@ import {
 } from "./game-data.js";
 
 import { safeHtmlText } from "./data-sanitization.js";
+import { renderCombatProfileHtml } from "./weapon-utils.js";
 
 const CURRENT_STEP_ID = "techniques";
 
@@ -419,29 +420,13 @@ function renderTechniqueGroups() {
 
       const body = document.createElement("div");
       body.style.flex = "1";
-
-      const title = document.createElement("div");
-      title.className = "optionTitle";
-      title.textContent = name;
-
-      const metaParts = [];
-      if (t.skill) metaParts.push(String(t.skill));
-      if (t.actionType) metaParts.push(String(t.actionType));
-      if (t.actions != null) metaParts.push(`${t.actions}A`);
-      if (t.energyCost != null) metaParts.push(`Energy ${t.energyCost}`);
-
-      const meta = document.createElement("div");
-      meta.className = "builderItemMeta muted";
-      meta.textContent = metaParts.join(" • ") || "";
-
-      const desc = document.createElement("div");
-      desc.className = "optionDesc muted";
-      const d = String(t.description || "").trim();
-      const n = String(t.notes || "").trim();
-      desc.textContent = d || n || "";
-
-      body.append(title, meta);
-      if (desc.textContent) body.append(desc);
+      body.innerHTML = renderCombatProfileHtml(t, {
+        rankValue: Number(t?.rank || 0),
+        heading: name,
+        headingTag: "div",
+        headingClass: "optionTitle",
+        showRank: true,
+      });
 
       row.append(cb, body);
       listEl.append(row);

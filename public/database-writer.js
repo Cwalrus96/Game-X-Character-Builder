@@ -16,6 +16,7 @@ import {
   sanitizeStringArray,
   sanitizeRepeatableAbilities,
   sanitizeBondList,
+  sanitizeWeaponList,
   toInt,
 } from "./data-sanitization.js";
 
@@ -27,7 +28,7 @@ import {
   getAttributeEffectiveCap,
 } from "./character-rules.js";
 
-export const CHARACTER_SCHEMA_VERSION = 3;
+export const CHARACTER_SCHEMA_VERSION = 4;
 
 // ---- Storage path helpers ----
 
@@ -88,6 +89,13 @@ export function buildBondsKeystonesUpdatePatch({ bonds, backgroundKeystones } = 
     schemaVersion: CHARACTER_SCHEMA_VERSION,
     "builder.bonds": sanitizeBondList(bonds, { maxItems: 50 }),
     "builder.backgroundKeystones": sanitizeStringArray(backgroundKeystones, { maxItems: 2, maxLen: 400 }),
+  };
+}
+
+export function buildWeaponsUpdatePatch({ weapons } = {}) {
+  return {
+    schemaVersion: CHARACTER_SCHEMA_VERSION,
+    "builder.weapons": sanitizeWeaponList(weapons, { maxItems: 20 }),
   };
 }
 
@@ -165,6 +173,10 @@ export function sanitizeUpdatePatch(patch) {
 
   if (Object.prototype.hasOwnProperty.call(out, "builder.bonds")) {
     out["builder.bonds"] = sanitizeBondList(out["builder.bonds"], { maxItems: 50 });
+  }
+
+  if (Object.prototype.hasOwnProperty.call(out, "builder.weapons")) {
+    out["builder.weapons"] = sanitizeWeaponList(out["builder.weapons"], { maxItems: 20 });
   }
 
   // Repeatables we currently understand

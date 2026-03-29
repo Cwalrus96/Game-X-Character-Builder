@@ -49,6 +49,12 @@ export const BUILDER_STEPS = [
   },
 
   {
+    id: "equipment",
+    title: "Equipment",
+    path: "builder-equipment.html",
+  },
+
+  {
     id: "techniques",
     title: "Techniques",
     path: "builder-techniques.html",

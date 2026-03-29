@@ -11,6 +11,7 @@ import {
   sanitizeRepeatableAbilities,
   sanitizeBondList,
   sanitizeKeystoneList,
+  sanitizeWeaponList,
   toInt,
 } from "./data-sanitization.js";
 
@@ -56,6 +57,7 @@ export function createDefaultCharacterDoc({ ownerUid } = {}) {
       grantedSkillSnapshot: [],
       bonds: [],
       backgroundKeystones: [],
+      weapons: [],
 
       visitedSteps: [],
       lastVisitedAt: null,
@@ -128,6 +130,7 @@ export function normalizeCharacterDoc(raw) {
       grantedSkillSnapshot: sanitizeStringArray(b.grantedSkillSnapshot, { maxItems: 200, maxLen: 96 }),
       bonds: sanitizeBondList(b.bonds, { maxItems: 50 }),
       backgroundKeystones: sanitizeKeystoneList(b.backgroundKeystones, { maxItems: 2, maxLen: 400 }),
+      weapons: sanitizeWeaponList(b.weapons, { maxItems: 20 }),
 
       visitedSteps: sanitizeStringArray(b.visitedSteps, { maxItems: 50, maxLen: 64 }),
       lastVisitedAt: b.lastVisitedAt ?? null,

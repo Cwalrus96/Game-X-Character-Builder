@@ -1110,3 +1110,80 @@
   font-size:0.9rem;
   opacity:0.9;
 }
+
+.weapon-card-meta {
+  margin-top: 4px;
+  color: var(--muted-text-color, #666);
+}
+
+.weapon-card-subsection {
+  margin-top: 10px;
+}
+
+.weapon-tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.weapon-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border: 1px solid var(--input-border-color);
+  border-radius: 999px;
+  font-size: 0.85em;
+  background: var(--paper-color);
+}
+
+.weapon-profile-list {
+  margin: 8px 0 0;
+  padding-left: 20px;
+}
+
+.weapon-profile-list li + li {
+  margin-top: 6px;
+}
+
+.combat-profile + .combat-profile {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--input-border-color);
+}
+
+.combat-profile-title {
+  margin: 0 0 8px;
+  font-weight: 700;
+}
+
+.combat-profile-line + .combat-profile-line {
+  margin-top: 4px;
+}
+
+.combat-profile-cost {
+  font-weight: 700;
+}
+
+.enhancement-detail-list {
+  margin-top: 8px;
+}
+
+.enhancement-detail + .enhancement-detail {
+  margin-top: 8px;
+}
+
+.enhancement-detail {
+  border: 1px solid var(--input-border-color);
+  background: var(--paper-color);
+  padding: 8px 10px;
+}
+
+.enhancement-detail-summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.enhancement-detail-body {
+  margin-top: 6px;
+}

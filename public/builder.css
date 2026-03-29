@@ -868,3 +868,168 @@ textarea {
     grid-template-columns: 1fr 78px;
   }
 }
+
+.equipmentToolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.equipmentToolbarField,
+.equipmentField {
+  min-width: 0;
+}
+
+.equipmentToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.equipmentGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(140px, 220px);
+  gap: 12px;
+  margin: 12px 0;
+}
+
+.equipmentGrid--enhancement,
+.equipmentGrid--enhancementSelections {
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 180px);
+}
+
+.equipmentField--compact {
+  max-width: 220px;
+}
+
+.equipmentWeaponCard {
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.equipmentCardHeader {
+  align-items: flex-start;
+}
+
+.equipmentMetaList {
+  margin: 10px 0 0;
+  padding-left: 20px;
+}
+
+.equipmentMetaList li + li {
+  margin-top: 6px;
+}
+
+.tagChipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tagChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 9px;
+  border: 2px solid #171920;
+  background: #171920;
+  color: #f8f3e8;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.warningList {
+  margin: 12px 0 0;
+  padding: 10px 14px 10px 28px;
+  border: 2px solid #8f1e15;
+  background: #fff0ee;
+  color: #8f1e15;
+  font-weight: 700;
+}
+
+.emptyState {
+  padding: 14px;
+  border: 2px dashed rgba(23, 25, 32, 0.24);
+  background: rgba(255, 255, 255, 0.54);
+  color: var(--builder-card-muted);
+}
+
+.emptyState--nested {
+  margin-top: 10px;
+}
+
+.equipmentSubsection {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 2px solid rgba(23, 25, 32, 0.12);
+}
+
+.equipmentEnhancementRow {
+  align-items: flex-start;
+}
+
+.equipmentEnhancementMain {
+  flex: 1;
+  min-width: 0;
+}
+
+.equipmentRowActions {
+  display: flex;
+  align-items: flex-start;
+}
+
+@media (max-width: 760px) {
+  .equipmentToolbar,
+  .equipmentGrid,
+  .equipmentGrid--enhancement,
+  .equipmentGrid--enhancementSelections {
+    grid-template-columns: 1fr;
+  }
+
+  .equipmentField--compact {
+    max-width: none;
+  }
+}
+
+.combat-profile + .combat-profile {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 2px solid rgba(23, 25, 32, 0.12);
+}
+
+.combat-profile-title {
+  margin: 0 0 8px;
+  color: var(--builder-card-text);
+  font-family: var(--title-font);
+  font-size: 0.95rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: none;
+}
+
+.combat-profile-line + .combat-profile-line {
+  margin-top: 4px;
+}
+
+.combat-profile-cost {
+  font-weight: 800;
+}
+
+.enhancement-detail {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 2px solid rgba(23, 25, 32, 0.16);
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.enhancement-detail-title,
+.enhancement-detail-summary {
+  font-weight: 900;
+}
+
+.enhancement-detail-body {
+  margin-top: 6px;
+  color: var(--builder-card-muted);
+}

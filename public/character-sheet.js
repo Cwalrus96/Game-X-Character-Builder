@@ -29,6 +29,16 @@ import {
   computeKnownCombatSkillsAndGrants,
 } from "./game-data.js";
 import {
+  computeWeaponSlotCost,
+  getEffectiveTags,
+  getEnhancementDef,
+  getWeaponDef,
+  renderTagChipsHtml,
+  summarizeWeaponProfilesHtml,
+  renderCombatProfileHtml,
+  renderEnhancementDetailHtml,
+} from "./weapon-utils.js";
+import {
   sanitizeCharName,
   sanitizeStoragePath,
   sanitizeText,
@@ -37,6 +47,7 @@ import {
   sanitizeSkillFields,
   sanitizeNamedSkillList,
   sanitizeBondList,
+  sanitizeWeaponList,
   buildCharacterKeystoneEntries,
 } from "./data-sanitization.js";
 
@@ -348,15 +359,6 @@ setNumberFieldByName('hpmax', hpmax);
     }
     return { gameData: _gameXDataForTechniques, indexes: _techniqueIndexes };
   }
-
-  function techniqueMetaLine(t) {
-    const parts = [];
-    if (t?.skill) parts.push(String(t.skill));
-    if (t?.actionType) parts.push(String(t.actionType));
-    if (t?.actions != null) parts.push(`${t.actions}A`);
-    if (t?.energyCost != null) parts.push(`Energy ${t.energyCost}`);
-    return parts.join(" • ");
-  }
 async function renderBuilderTechniquesReadOnly(builder) {
   try {
     const mount = document.getElementById("selectedTechniquesFromBuilder");
@@ -394,27 +396,69 @@ async function renderBuilderTechniquesReadOnly(builder) {
 
     mount.className = 'cards';
     mount.innerHTML = items.map(({ source, tech }) => {
-      const rank = Number.parseInt(String(tech?.rank ?? 0), 10) || 0;
-      const metaParts = [];
-      if (rank > 0) metaParts.push(`Rank ${rank}`);
-      const meta = techniqueMetaLine(tech);
-      if (meta) metaParts.push(meta);
-      const description = String(tech?.description || tech?.notes || '').trim();
       return `
         <article class="ability-card technique-card technique-card-readonly">
           <div class="ability-card-head">
-            <div>
-              <div class="ability-name technique-title-static">${escapeHtml(String(tech?.techniqueName || 'Technique'))}</div>
-              ${metaParts.length ? `<div class="muted tech-readonly-meta">${escapeHtml(metaParts.join(' • '))}</div>` : ''}
-            </div>
+            <div style="flex:1; min-width:0;">${renderCombatProfileHtml(tech, { rankValue: Number(tech?.rank || 0), heading: String(tech?.techniqueName || 'Technique'), headingTag: 'div', headingClass: 'ability-name technique-title-static', showRank: true })}</div>
             <span class="technique-source-badge">${escapeHtml(source)}</span>
           </div>
-          ${description ? `<div class="ability-text technique-text-static">${escapeHtml(description)}</div>` : ''}
         </article>
       `;
     }).join('');
   } catch (e) {
     console.warn('renderBuilderTechniquesReadOnly failed', e);
+  }
+}
+
+
+async function renderBuilderWeaponsReadOnly(builder) {
+  try {
+    const mount = document.getElementById("builderWeaponsCards");
+    if (!mount) return;
+
+    const b = builder && typeof builder === "object" ? builder : {};
+    const weapons = sanitizeWeaponList(b.weapons, { maxItems: 20 });
+    if (!weapons.length) {
+      mount.innerHTML = '<article class="ability-card"><div class="muted">—</div></article>';
+      return;
+    }
+
+    const { gameData } = await ensureTechniqueData();
+    const weaponBases = Array.isArray(gameData?.weaponBases) ? gameData.weaponBases : [];
+    const weaponEnhancements = Array.isArray(gameData?.weaponEnhancements) ? gameData.weaponEnhancements : [];
+
+    mount.innerHTML = weapons.map((weapon, index) => {
+      const weaponDef = getWeaponDef(weaponBases, weapon.weaponKey);
+      const displayName = sanitizeText(weapon.customName || weaponDef?.name || weapon.weaponKey || `Weapon ${index + 1}`, { maxLen: 160, collapse: true });
+      const baseName = sanitizeText(weaponDef?.name || weapon.weaponKey || "", { maxLen: 160, collapse: true });
+      const tags = getEffectiveTags(weapon, weaponBases);
+      const slotCost = computeWeaponSlotCost(weapon, weaponBases);
+      const profilesHtml = weaponDef
+        ? summarizeWeaponProfilesHtml(weaponDef, weapon.rank).replace(/equipmentMetaList/g, 'weapon-profile-list')
+        : '<div class="muted">Unknown weapon base.</div>';
+      const enhancements = Array.isArray(weapon.enhancements) ? weapon.enhancements : [];
+      const enhancementsHtml = enhancements.length
+        ? `<div class="weapon-card-subsection"><strong>Enhancements:</strong><div class="enhancement-detail-list">${enhancements.map((enh) => {
+            const def = getEnhancementDef(weaponEnhancements, enh.enhancementKey);
+            return renderEnhancementDetailHtml(def, enh, { collapsible: true });
+          }).join('')}</div></div>`
+        : '';
+
+      return `
+        <article class="ability-card technique-card-readonly">
+          <div class="ability-card-head">
+            <div>
+              <div class="technique-title-static">${escapeHtml(displayName)}</div>
+              <div class="weapon-card-meta">${baseName ? `${escapeHtml(baseName)} • ` : ''}Rank ${Number(weapon.rank || 0)} • Slots ${slotCost}</div>
+            </div>
+          </div>
+          <div class="weapon-tag-row">${renderTagChipsHtml(tags, 'weapon-tag-chip')}</div>
+          ${enhancementsHtml}
+          <div class="weapon-card-subsection">${profilesHtml}</div>
+        </article>`;
+    }).join('');
+  } catch (e) {
+    console.warn('renderBuilderWeaponsReadOnly failed', e);
   }
 }
 
@@ -558,6 +602,7 @@ async function renderBuilderTechniquesReadOnly(builder) {
         renderKeystonesReadOnly(b);
         // Render Builder-selected techniques (read-only) alongside custom technique cards.
         renderBuilderTechniquesReadOnly(b);
+        renderBuilderWeaponsReadOnly(b);
         if (portraitApi && portraitPath) {
           const url = await resolvePortraitUrl(portraitPath);
           portraitApi.set({ path: portraitPath, previewUrl: url });
@@ -578,6 +623,7 @@ async function renderBuilderTechniquesReadOnly(builder) {
       renderOriginReadOnly({ originKey: '', originKeystone: '' });
       renderBondsReadOnly([]);
       renderKeystonesReadOnly({});
+      renderBuilderWeaponsReadOnly({ weapons: [] });
 
       const baseline = {
         schemaVersion: CHARACTER_SCHEMA_VERSION,
@@ -589,6 +635,7 @@ async function renderBuilderTechniquesReadOnly(builder) {
           attributes: normalizeAttributes(canon?.attributes || {}),
           classKey: sanitizeText(canon?.classKey || '', { maxLen: 64 }),
           primaryAttribute: coerceAttrKey(canon?.primaryAttribute),
+          weapons: sanitizeWeaponList(currentDoc?.builder?.weapons, { maxItems: 20 }),
           // Editor-owned sheet data lives under builder.sheet.*
           sheet: {
             fields: {
@@ -609,6 +656,7 @@ async function renderBuilderTechniquesReadOnly(builder) {
       await setDoc(cloudDocRef, baseline, { merge: true });
 
       renderBuilderTechniquesReadOnly((baseline && baseline.builder) ? baseline.builder : {});
+      renderBuilderWeaponsReadOnly((baseline && baseline.builder) ? baseline.builder : {});
 
       cloudReady = true;
       setCloudStatus('Cloud: Ready');
@@ -672,6 +720,7 @@ async function renderBuilderTechniquesReadOnly(builder) {
           attributes: normalizeAttributes(canon?.attributes || {}),
           classKey: sanitizeText(canon?.classKey || '', { maxLen: 64 }),
           primaryAttribute: coerceAttrKey(canon?.primaryAttribute),
+          weapons: sanitizeWeaponList(currentDoc?.builder?.weapons, { maxItems: 20 }),
           sheet: {
             fields: {
               ...pickSheetOnlyFields(allFields),
@@ -1475,7 +1524,6 @@ initRepeatableList({ key: 'abilities', containerId: 'abilityCards', templateId: 
   
   // Initialize Pass 3 repeatable sections
   initRepeatableList({ key: 'conditions', containerId: 'conditionsList', templateId: 'conditionRowTemplate', addBtnId: 'addConditionBtn', fields: ['name','n','notes'], minRows: 1 });
-  initRepeatableList({ key: 'weapons', containerId: 'weaponsList', templateId: 'weaponRowTemplate', addBtnId: 'addWeaponBtn', fields: ['name','skill','notes'], minRows: 1 });
 if (classSelect) {
     classSelect.addEventListener('change', (e) => {
       setTheme(e.target.value);

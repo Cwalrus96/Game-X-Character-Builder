@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game X — Character Builder (Equipment)</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="builder.css" />
+  </head>
+  <body>
+    <div class="topbar">
+      <div>
+        <a class="btn" href="characters.html">← Characters</a>
+        <span class="muted" id="gmHint" style="display:none; margin-left: 8px;"></span>
+      </div>
+      <div class="right">
+        <span class="muted" id="whoami">Loading…</span>
+        <button id="signOutBtn" class="btn" style="display:none; margin-left: 8px;">Sign out</button>
+      </div>
+    </div>
+
+    <main class="builder" data-builder-step="equipment">
+      <header class="builderHeader">
+        <div>
+          <h1>Character Builder</h1>
+          <p class="muted" id="status">Loading…</p>
+          <p class="error" id="error" style="display:none"></p>
+        </div>
+        <div id="builderNavTop"></div>
+      </header>
+
+      <section class="card">
+        <div class="cardHeaderRow">
+          <h2>Step 6 — Equipment</h2>
+          <span class="muted" id="equipmentStatusHint"></span>
+        </div>
+
+        <div class="pillRow">
+          <span class="pill">Weapons: <strong id="weaponCountValue">0</strong></span>
+          <span class="pill">Enhancements: <strong id="enhancementCountValue">0</strong></span>
+          <span class="pill" id="slotUsagePill">Slots: <strong id="slotUsageValue">0 / 4</strong></span>
+          <span class="pill">Melee Weapons: <strong id="meleeSkillRankValue">0</strong></span>
+          <span class="pill">Targeting: <strong id="targetingSkillRankValue">0</strong></span>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="cardHeaderRow">
+          <h2>Add Weapon</h2>
+          <label class="equipmentToggle muted"><input id="showOutOfRank" type="checkbox" /> Show out-of-rank options</label>
+        </div>
+
+        <div class="equipmentToolbar">
+          <div class="equipmentToolbarField">
+            <label class="label" for="weaponBaseSelect">Weapon Base</label>
+            <select id="weaponBaseSelect" class="input"></select>
+          </div>
+          <button id="addWeaponBtn" class="btn" type="button">Add Weapon</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="cardHeaderRow">
+          <h2>Weapons</h2>
+        </div>
+        <div id="weaponList" class="optionList"></div>
+      </section>
+
+      <footer class="builderFooter">
+        <div id="builderNavBottom"></div>
+
+        <div class="actions">
+          <button id="saveBtn" class="btn" type="button">Save</button>
+          <button id="saveAndOpenBtn" class="btn secondary" type="button">Save &amp; Open Character Sheet</button>
+        </div>
+      </footer>
+    </main>
+
+    <script type="module" src="builder-equipment.js"></script>
+  </body>
+</html>

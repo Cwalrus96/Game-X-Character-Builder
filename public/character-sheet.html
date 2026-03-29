@@ -169,10 +169,9 @@
 </div><div aria-labelledby="weapons_title" class="section" id="weapons">
 <h2 id="weapons_title">Weapons</h2>
 <div class="repeatable-header">
-<div class="hint">Gear is light in this game — this section is just for quickly tracking your current weapons.</div>
-<button class="mini-btn" id="addWeaponBtn" type="button">Add Weapon</button>
+<div class="hint">Weapons selected in the builder are shown here.</div>
 </div>
-<div class="weapons-list" id="weaponsList"></div>
+<div class="cards" id="builderWeaponsCards"></div>
 </div><div aria-labelledby="bonds_title" class="section" id="bonds">
 <h2 id="bonds_title">Bonds</h2>
 <div class="cards" id="bondCards"></div>
@@ -228,14 +227,7 @@
   </div>
 </template>
 
-<template id="weaponRowTemplate">
-  <div class="weapon-row" data-repeatable-item>
-    <input type="text" class="weapon-name" data-field="name" placeholder="Weapon" aria-label="Weapon name" />
-    <input type="text" class="weapon-skill" data-field="skill" placeholder="Skill" aria-label="Associated combat skill" />
-    <input type="text" class="weapon-notes" data-field="notes" placeholder="Notes / tags" aria-label="Weapon notes or tags" />
-    <button type="button" class="mini-btn danger" data-action="remove" aria-label="Remove">×</button>
-  </div>
-</template>
+
 
 <div id="gxTooltip" class="gx-tooltip" role="tooltip" aria-hidden="true"></div>
 

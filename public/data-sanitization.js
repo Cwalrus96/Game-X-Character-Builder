@@ -132,6 +132,52 @@ export function sanitizeKeystoneList(value, { maxItems = 20, maxLen = 400 } = {}
 }
 
 
+export function sanitizeWeaponEnhancementSelections(value) {
+  const src = (value && typeof value === "object" && !Array.isArray(value)) ? value : {};
+  const out = {};
+  for (const [key, raw] of Object.entries(src)) {
+    const safeKey = normalizeEnumToken(key, { maxLen: 64 });
+    if (!safeKey) continue;
+    const safeValue = sanitizeText(raw, { maxLen: 96, collapse: true });
+    if (!safeValue) continue;
+    out[safeKey] = safeValue;
+  }
+  return out;
+}
+
+export function sanitizeWeaponEnhancementList(value, { maxItems = 20 } = {}) {
+  const arr = Array.isArray(value) ? value : [];
+  const out = [];
+  for (const item of arr) {
+    const row = (item && typeof item === "object") ? item : {};
+    const id = sanitizeText(row.id, { maxLen: 64, collapse: true });
+    const enhancementKey = normalizeEnumToken(row.enhancementKey, { maxLen: 64 });
+    const rank = toInt(row.rank, { min: 0, max: 8 });
+    const selections = sanitizeWeaponEnhancementSelections(row.selections);
+    if (!id && !enhancementKey) continue;
+    out.push({ id, enhancementKey, rank, selections });
+    if (out.length >= maxItems) break;
+  }
+  return out;
+}
+
+export function sanitizeWeaponList(value, { maxItems = 20 } = {}) {
+  const arr = Array.isArray(value) ? value : [];
+  const out = [];
+  for (const item of arr) {
+    const row = (item && typeof item === "object") ? item : {};
+    const id = sanitizeText(row.id, { maxLen: 64, collapse: true });
+    const weaponKey = normalizeEnumToken(row.weaponKey, { maxLen: 64 });
+    const rank = toInt(row.rank, { min: 0, max: 8 });
+    const customName = sanitizeText(row.customName, { maxLen: 120, collapse: true });
+    const enhancements = sanitizeWeaponEnhancementList(row.enhancements, { maxItems: 20 });
+    if (!id && !weaponKey && !customName && !enhancements.length) continue;
+    out.push({ id, weaponKey, rank, customName, enhancements });
+    if (out.length >= maxItems) break;
+  }
+  return out;
+}
+
 export function buildCharacterKeystoneEntries(builder) {
   const src = (builder && typeof builder === "object") ? builder : {};
   const originKeystone = sanitizeText(src.originKeystone || "", { maxLen: 400, collapse: true });
