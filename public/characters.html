@@ -5,47 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Game X Character Builder – Characters</title>
   <link rel="stylesheet" href="styles.css" />
-  <style>
-    body { background: var(--secondary-color); color: var(--body-text-color); }
-    .page { max-width: 900px; margin: 32px auto; padding: 0 16px 48px; }
-    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; }
-    .brand { font-family: var(--title-font); font-size: 20px; }
-    .pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; border: 2px solid var(--primary-color); border-radius: 999px; background: var(--panel-bg-color); }
-    .btn { padding: 10px 14px; border: 2px solid var(--primary-color); background: var(--header-bg-color); color: var(--header-text-color); border-radius: 8px; cursor: pointer; font-weight: 700; text-decoration: none; display: inline-block; }
-    .btn.secondary { background: transparent; color: var(--body-text-color); }
-    .card { background: var(--panel-bg-color); border: 2px solid var(--primary-color); border-radius: 10px; padding: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
-    .grid { display: grid; gap: 16px; }
-    .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-    .muted { opacity: 0.82; }
-    .error { color: #b00020; font-weight: 700; }
-    .list { margin: 0; padding: 0; list-style: none; }
-    .list li { border-top: 1px solid rgba(0,0,0,0.08); padding: 12px 0; }
-    .list li:first-child { border-top: none; }
-    .name { font-weight: 800; }
-    .sub { font-size: 13px; opacity: 0.8; }
-    .input { padding: 10px 12px; border-radius: 8px; border: 2px solid var(--input-border-color); min-width: 240px; }
-    .right { margin-left: auto; display: flex; gap: 8px; justify-content: flex-end; }
-  </style>
+  <link rel="stylesheet" href="characters.css" />
 </head>
-<body data-theme="na">
+<body data-theme="na" class="characters-home">
   <div class="page">
-    <div class="topbar">
+    <div class="topbar topbar-panel">
       <div class="brand">Game X Character Builder</div>
-      <div class="row">
+      <div class="topbar-actions">
         <span class="pill" id="whoami">Checking sign-in…</span>
         <a class="btn secondary" href="login.html" id="loginLink" style="display:none">Sign in</a>
         <button class="btn secondary" id="signOutBtn" type="button" style="display:none">Sign out</button>
       </div>
     </div>
 
-    <div class="grid">
+    <div class="grid content-grid">
       <div class="card" id="profileCard" style="display:none">
-        <h2 style="margin-top:0">Profile</h2>
-        <p class="muted" id="profileHint" style="margin-top:0"></p>
+        <div class="section-head">
+          <h2 class="section-title">Profile</h2>
+        </div>
+        <p class="muted profile-hint" id="profileHint" style="margin-top:0"></p>
 
         <div id="displayNameSetup" style="display:none">
-          <div class="row">
-            <label>
+          <div class="row profile-setup-row">
+            <label class="field-block">
               <div class="sub">Choose a display name (shown to GMs and campaign members)</div>
               <input class="input" id="displayNameInput" type="text" maxlength="32" placeholder="Display name" />
             </label>
@@ -55,8 +37,8 @@
         </div>
 
         <div id="profileView" style="display:none">
-          <div class="row">
-            <div>
+          <div class="row profile-row">
+            <div class="profile-meta">
               <div class="name" id="displayNameLabel"></div>
               <div class="sub" id="emailLabel"></div>
             </div>
@@ -69,16 +51,15 @@
       </div>
 
       <div class="card" id="charactersCard" style="display:none">
-        <div class="row" style="justify-content: space-between;">
+        <div class="section-head section-head-split">
           <div>
-            <h2 style="margin:0">Characters</h2>
-            <div class="sub" id="charactersSub"></div>
+            <h2 class="section-title">Characters</h2>
+            <div class="sub characters-sub" id="charactersSub"></div>
           </div>
           <button class="btn" id="createCharacterBtn" type="button">Create New Character</button>
         </div>
 
-        <div style="height: 10px"></div>
-        <div id="charactersStatus" class="muted">Loading…</div>
+        <div id="charactersStatus" class="muted status-text">Loading…</div>
         <ul class="list" id="charactersList"></ul>
         <div id="charactersError" class="error" style="display:none"></div>
       </div>

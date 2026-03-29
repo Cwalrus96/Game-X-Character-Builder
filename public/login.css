@@ -1,0 +1,142 @@
+.login-page {
+  --login-bg: #0a0a0f;
+  --login-panel: rgba(18, 18, 24, 0.94);
+  --login-border: #f4ede1;
+  --login-accent: #da3b31;
+  --login-text: #f8f3eb;
+  --login-muted: rgba(248, 243, 235, 0.76);
+  min-height: 100vh;
+  margin: 0;
+  padding: 20px;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at top left, rgba(218, 59, 49, 0.2), transparent 26%),
+    linear-gradient(145deg, rgba(255,255,255,0.04) 0 6%, transparent 6% 100%),
+    linear-gradient(180deg, #08080c 0%, #101018 100%);
+  color: var(--login-text);
+}
+
+.login-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.18;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.26) 1px, transparent 1.4px);
+  background-size: 10px 10px;
+}
+
+.login-page .page {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 760px);
+}
+
+.login-page .card {
+  position: relative;
+  overflow: hidden;
+  padding: 28px;
+  border: 3px solid var(--login-border);
+  background: var(--login-panel);
+  box-shadow: 12px 12px 0 rgba(0,0,0,0.3);
+  clip-path: polygon(0 0, calc(100% - 40px) 0, 100% 40px, 100% 100%, 0 100%);
+}
+
+.login-page .card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(120deg, rgba(218,59,49,0.18), transparent 42%),
+    linear-gradient(180deg, rgba(255,255,255,0.05), transparent 65%);
+}
+
+.login-page .section-kicker {
+  display: inline-block;
+  margin: 0;
+  padding: 4px 10px;
+  background: var(--login-accent);
+  color: #fff9f4;
+  border: 2px solid var(--login-border);
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transform: skew(-14deg);
+  box-shadow: 5px 5px 0 rgba(0,0,0,0.24);
+}
+
+.login-page h1 {
+  margin: 12px 0 8px;
+  font-family: var(--title-font);
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 0.95;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.login-page .muted,
+.login-page .login-copy,
+.login-page .status-text {
+  color: var(--login-muted);
+}
+
+.login-page .login-copy {
+  margin: 0 0 18px;
+  max-width: 34rem;
+}
+
+.login-page .row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.login-page .actions-row {
+  margin-bottom: 18px;
+}
+
+.login-page .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 2px solid var(--login-border);
+  border-radius: 0;
+  background: var(--login-accent);
+  color: #fff9f4;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.24);
+}
+
+.login-page .btn.secondary {
+  background: rgba(255,255,255,0.08);
+  color: var(--login-text);
+}
+
+.login-page .btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 6px 6px 0 rgba(0,0,0,0.24);
+}
+
+.login-page .error {
+  margin-top: 12px;
+  color: #ff9d8f;
+  font-weight: 800;
+}
+
+@media (max-width: 640px) {
+  .login-page .card {
+    padding: 20px;
+  }
+
+  .login-page .row {
+    align-items: stretch;
+  }
+}
