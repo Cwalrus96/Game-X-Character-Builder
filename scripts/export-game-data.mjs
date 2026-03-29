@@ -17,6 +17,9 @@
  *   - class-features.json
  *   - feats.json
  *   - techniques.json
+ *   - origins.json
+ *   - weapon-bases.json
+ *   - weapon-enhancements.json
  *   - export-report.json (warnings + counts)
  */
 
@@ -26,6 +29,9 @@ import process from "node:process";
 import * as XLSX from "xlsx/xlsx.mjs"; // SheetJS ESM build (use XLSX.read with a Buffer)
 
 const REQUIRED_SHEETS = ["Classes", "ClassFeatures", "Feats", "Techniques"];
+const OPTIONAL_ORIGIN_SHEETS = ["Origins", "OriginFeatures"];
+const OPTIONAL_WEAPON_SHEETS = ["WeaponBases", "WeaponProfiles", "WeaponEnhancements"];
+const VALID_ORIGIN_STATUSES = new Set(["playable", "draft", "incomplete"]);
 
 function die(msg) {
   console.error(`\nERROR: ${msg}\n`);
@@ -64,6 +70,35 @@ function splitList(v) {
     .split(/[;,]/g)
     .map((x) => x.trim())
     .filter(Boolean);
+}
+
+function cleanBulletPrefix(v) {
+  return String(v ?? "")
+    .replace(/^\s*(?:[-*•▪◦‣]+|\d+[.)])\s*/, "")
+    .trim();
+}
+
+function parseTextBlockList(v, { dropIntroLineWhenBulleted = true } = {}) {
+  const s = String(v ?? "").replace(/\r\n/g, "\n").trim();
+  if (!s) return [];
+
+  const lines = s
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  if (!lines.length) return [];
+
+  const hasBulletedLines = lines.some((line) => /^\s*(?:[-*•▪◦‣]+|\d+[.)])\s*/.test(line));
+  if (hasBulletedLines) {
+    const items = lines.filter((line, index) => {
+      if (/^\s*(?:[-*•▪◦‣]+|\d+[.)])\s*/.test(line)) return true;
+      return !dropIntroLineWhenBulleted && index === 0;
+    });
+    return items.map(cleanBulletPrefix).filter(Boolean);
+  }
+
+  return splitList(s);
 }
 
 function parseSkillProgressionList(v) {
@@ -140,6 +175,23 @@ function main() {
   for (const s of REQUIRED_SHEETS) {
     if (!wb.SheetNames.includes(s)) die(`Workbook is missing required sheet: ${s}`);
   }
+
+  const hasOriginsSheet = wb.SheetNames.includes("Origins");
+  const hasOriginFeaturesSheet = wb.SheetNames.includes("OriginFeatures");
+  if (hasOriginsSheet !== hasOriginFeaturesSheet) {
+    die(`Workbook must include both optional origin sheets together: ${OPTIONAL_ORIGIN_SHEETS.join(", ")}`);
+  }
+  const hasOriginData = hasOriginsSheet && hasOriginFeaturesSheet;
+
+  const hasWeaponBasesSheet = wb.SheetNames.includes("WeaponBases");
+  const hasWeaponProfilesSheet = wb.SheetNames.includes("WeaponProfiles");
+  const hasWeaponEnhancementsSheet = wb.SheetNames.includes("WeaponEnhancements");
+  const hasAnyWeaponSheet = hasWeaponBasesSheet || hasWeaponProfilesSheet || hasWeaponEnhancementsSheet;
+  const hasAllWeaponSheets = hasWeaponBasesSheet && hasWeaponProfilesSheet && hasWeaponEnhancementsSheet;
+  if (hasAnyWeaponSheet && !hasAllWeaponSheets) {
+    die(`Workbook must include all optional weapon sheets together: ${OPTIONAL_WEAPON_SHEETS.join(", ")}`);
+  }
+  const hasWeaponData = hasAllWeaponSheets;
 
   const report = {
     input: path.resolve(inputXlsx),
@@ -367,6 +419,211 @@ function main() {
     }
   }
 
+  // --- Origins ---
+  let origins = [];
+  if (hasOriginData) {
+    const originRows = readSheetAsObjects(wb, "Origins");
+    const originFeatureRows = readSheetAsObjects(wb, "OriginFeatures");
+
+    assertUnique(originRows.map((r) => r.originKey), "Origins.originKey");
+
+    const originRowMap = new Map();
+    for (const r of originRows) {
+      const originKey = toStr(r.originKey);
+      if (!originKey) die("Origins: originKey is required");
+      originRowMap.set(originKey, r);
+
+      const status = toStr(r.status).toLowerCase();
+      if (status && !VALID_ORIGIN_STATUSES.has(status)) {
+        report.warnings.push(`Origins: ${originKey} has unrecognized status \"${toStr(r.status)}\" (expected playable, draft, or incomplete).`);
+      }
+    }
+
+    const featuresByOrigin = new Map();
+    for (const r of originFeatureRows) {
+      const originKey = toStr(r.originKey);
+      if (!originKey) {
+        report.warnings.push("OriginFeatures: row missing originKey (skipped)");
+        continue;
+      }
+      if (!originRowMap.has(originKey)) {
+        report.warnings.push(`OriginFeatures: row references unknown originKey \"${originKey}\" (skipped).`);
+        continue;
+      }
+
+      const featureName = toStr(r.featureName);
+      const featureText = toStr(r.featureText);
+      if (!featureName || !featureText) {
+        report.warnings.push(`OriginFeatures: ${originKey} row missing featureName or featureText (skipped).`);
+        continue;
+      }
+
+      if (!featuresByOrigin.has(originKey)) featuresByOrigin.set(originKey, []);
+      featuresByOrigin.get(originKey).push({
+        featureOrder: toIntOrNull(r.featureOrder) ?? Number.MAX_SAFE_INTEGER,
+        name: featureName,
+        description: featureText,
+      });
+    }
+
+    origins = originRows
+      .map((r, index) => {
+        const originKey = toStr(r.originKey);
+        const status = toStr(r.status).toLowerCase() || "draft";
+        const features = (featuresByOrigin.get(originKey) || [])
+          .sort((a, b) => a.featureOrder - b.featureOrder || a.name.localeCompare(b.name))
+          .map(({ featureOrder, ...feature }) => feature);
+
+        if (!features.length) {
+          report.warnings.push(`Origins: ${originKey} has no OriginFeatures rows.`);
+        }
+
+        return {
+          originKey,
+          name: toStr(r.name),
+          status,
+          summary: toStr(r.summary),
+          description: toStr(r.description),
+          features,
+          originKeystone: toStr(r.originKeystone),
+          roleplayQuestions: parseTextBlockList(r.roleplayQuestionsText),
+          higherLevelUpgrades: parseTextBlockList(r.futureUpgradesText),
+          examples: parseTextBlockList(r.examplesText),
+          _sortOrder: toIntOrNull(r.sortOrder) ?? (index + 1),
+        };
+      })
+      .sort((a, b) => a._sortOrder - b._sortOrder || a.name.localeCompare(b.name))
+      .map(({ _sortOrder, ...origin }) => origin);
+  } else {
+    report.warnings.push("Origins export skipped: workbook does not include Origins + OriginFeatures sheets yet.");
+  }
+
+
+  // --- Weapons ---
+  let weaponBases = [];
+  let weaponEnhancements = [];
+  if (hasWeaponData) {
+    const weaponBaseRows = readSheetAsObjects(wb, "WeaponBases");
+    const weaponProfileRows = readSheetAsObjects(wb, "WeaponProfiles");
+    const weaponEnhancementRows = readSheetAsObjects(wb, "WeaponEnhancements");
+
+    assertUnique(weaponBaseRows.map((r) => r.weaponKey), "WeaponBases.weaponKey");
+    assertUnique(weaponEnhancementRows.map((r) => r.enhancementKey), "WeaponEnhancements.enhancementKey");
+
+    const weaponKeySet = new Set(weaponBaseRows.map((r) => toStr(r.weaponKey)).filter(Boolean));
+
+    const weaponProfilesByKey = new Map();
+
+    weaponProfileRows.forEach((r, index) => {
+      const weaponKey = toStr(r.weaponKey);
+      if (!weaponKey) die(`WeaponProfiles: weaponKey is required on row ${index + 2}`);
+      if (!weaponKeySet.has(weaponKey)) {
+        report.warnings.push(`WeaponProfiles: row ${index + 2} references unknown weaponKey "${weaponKey}".`);
+      }
+
+      const profileName = toStr(r.profileName);
+      if (!profileName) {
+        report.warnings.push(`WeaponProfiles: ${weaponKey} row ${index + 2} is missing profileName.`);
+      }
+
+      const actionType = toStr(r.actionType);
+      const trigger = toStr(r.trigger);
+      if ((actionType === "Reaction" || actionType === "ActionOrReaction") && !trigger) {
+        report.warnings.push(`WeaponProfiles "${weaponKey}" / "${profileName || "(unnamed)"}": actionType=${actionType} but trigger is blank.`);
+      }
+
+      const rollRequired = toBoolOrNull(r.rollRequired);
+      if (rollRequired === null && toStr(r.rollRequired)) {
+        report.warnings.push(`WeaponProfiles "${weaponKey}" / "${profileName || "(unnamed)"}": rollRequired value "${toStr(r.rollRequired)}" not recognized (use Y/N).`);
+      }
+
+      const sustained = toBoolOrNull(r.sustained);
+      if (sustained === null && toStr(r.sustained)) {
+        report.warnings.push(`WeaponProfiles "${weaponKey}" / "${profileName || "(unnamed)"}": sustained value "${toStr(r.sustained)}" not recognized (use Y/N).`);
+      }
+
+      const profile = {
+        profileType: toStr(r.profileType) || null,
+        profileName: profileName || null,
+        description: toStr(r.description) || null,
+        rank: toIntOrNull(r.rank),
+        tags: splitList(r.tags),
+
+        actionType: actionType || null,
+        actions: toIntOrNull(r.actions),
+        trigger: trigger || null,
+
+        energyCost: toIntOrNull(r.energyCost),
+        strainCost: toIntOrNull(r.strainCost),
+        sustained,
+
+        rollRequired,
+        attribute: toStr(r.attribute) || null,
+        skill: toStr(r.skill) || null,
+        defense: toStr(r.defense) || null,
+
+        range: toStr(r.range) || null,
+        targets: toStr(r.targets) || null,
+
+        damage: toStr(r.damage) || null,
+        damageTier: toStr(r.damageTier) || null,
+        onSuccess: toStr(r.onSuccess) || null,
+        onCriticalSuccess: toStr(r.onCriticalSuccess) || null,
+        onFailure: toStr(r.onFailure) || null,
+        onCriticalFailure: toStr(r.onCriticalFailure) || null,
+        bondEffect: toStr(r.bondEffect) || null,
+        notes: toStr(r.notes) || null,
+
+        damageByRank: parseRankMap(r.damageByRank),
+        pumpDamageByRank: parseRankMap(r.pumpDamageByRank),
+        rankNotes: parseRankMap(r.rankNotes),
+
+        prerequisites: toStr(r.prerequisites) || null,
+        sourceNote: toStr(r.sourceNote) || null,
+      };
+
+      if (!weaponProfilesByKey.has(weaponKey)) weaponProfilesByKey.set(weaponKey, []);
+      weaponProfilesByKey.get(weaponKey).push(profile);
+    });
+
+    weaponBases = weaponBaseRows.map((r) => {
+      const weaponKey = toStr(r.weaponKey);
+      if (!weaponKey) die("WeaponBases: weaponKey is required");
+      const minRank = toIntOrNull(r.minRank);
+      if (minRank === null) {
+        report.warnings.push(`WeaponBases "${weaponKey}": minRank is missing.`);
+      }
+
+      return {
+        weaponKey,
+        name: toStr(r.name),
+        description: toStr(r.description) || null,
+        minRank,
+        tags: splitList(r.tags),
+        profiles: weaponProfilesByKey.get(weaponKey) || [],
+        notes: toStr(r.notes) || null,
+        sourceNote: toStr(r.sourceNote) || null,
+      };
+    });
+
+    weaponEnhancements = weaponEnhancementRows.map((r) => {
+      const enhancementKey = toStr(r.enhancementKey);
+      if (!enhancementKey) die("WeaponEnhancements: enhancementKey is required");
+
+      return {
+        enhancementKey,
+        name: toStr(r.name),
+        description: toStr(r.description) || null,
+        minRank: toIntOrNull(r.minRank),
+        prerequisites: toStr(r.prerequisites) || null,
+        notes: toStr(r.notes) || null,
+        sourceNote: toStr(r.sourceNote) || null,
+      };
+    });
+  } else {
+    report.warnings.push("Weapons export skipped: workbook does not include WeaponBases + WeaponProfiles + WeaponEnhancements sheets yet.");
+  }
+
   // Sort for stable output
   classes.sort((a, b) => a.classKey.localeCompare(b.classKey));
   techniques.sort((a, b) => a.techniqueName.localeCompare(b.techniqueName));
@@ -378,6 +635,10 @@ function main() {
     classFeaturesClasses: Object.keys(featuresByClass).length,
     feats: feats.length,
     techniques: techniques.length,
+    origins: origins.length,
+    weaponBases: weaponBases.length,
+    weaponProfiles: weaponBases.reduce((sum, weapon) => sum + weapon.profiles.length, 0),
+    weaponEnhancements: weaponEnhancements.length,
     warnings: report.warnings.length,
   };
 
@@ -391,6 +652,9 @@ function main() {
     classFeatures: featuresByClass,
     feats,
     techniques,
+    origins,
+    weaponBases,
+    weaponEnhancements,
   };
 
   writeJson(path.join(outDir, "game-x-data.json"), combined);
@@ -398,6 +662,9 @@ function main() {
   writeJson(path.join(outDir, "class-features.json"), featuresByClass);
   writeJson(path.join(outDir, "feats.json"), feats);
   writeJson(path.join(outDir, "techniques.json"), techniques);
+  writeJson(path.join(outDir, "origins.json"), origins);
+  writeJson(path.join(outDir, "weapon-bases.json"), weaponBases);
+  writeJson(path.join(outDir, "weapon-enhancements.json"), weaponEnhancements);
   writeJson(path.join(outDir, "export-report.json"), report);
 
   console.log(`\n✅ Export complete`);
@@ -406,6 +673,10 @@ function main() {
   console.log(`Classes: ${report.counts.classes}`);
   console.log(`Techniques: ${report.counts.techniques}`);
   console.log(`Feats: ${report.counts.feats}`);
+  console.log(`Origins: ${report.counts.origins}`);
+  console.log(`Weapon Bases: ${report.counts.weaponBases}`);
+  console.log(`Weapon Profiles: ${report.counts.weaponProfiles}`);
+  console.log(`Weapon Enhancements: ${report.counts.weaponEnhancements}`);
   if (report.warnings.length) {
     console.log(`\n⚠️  Warnings (${report.warnings.length}):`);
     for (const w of report.warnings.slice(0, 25)) console.log(` - ${w}`);

@@ -1,0 +1,272 @@
+[
+  {
+    "enhancementKey": "rapid_retrieval",
+    "name": "Rapid Retrieval",
+    "description": "A thrown weapon gains the Returning tag, letting it come back to the wielder after being thrown.",
+    "minRank": 1,
+    "prerequisites": "Requires \"Thrown\" tag",
+    "notes": "Simple passive enhancement.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "basic_elemental_infusion",
+    "name": "Basic Elemental Infusion",
+    "description": "Choose Water, Fire, Earth, or Wind; attacks made with the weapon gain that elemental tag and its related effects.",
+    "minRank": 1,
+    "prerequisites": "None",
+    "notes": "See Elemental Subsystem for exact effects.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "extended_reach",
+    "name": "Extended Reach",
+    "description": "A melee weapon's attack range increases beyond normal melee reach.",
+    "minRank": 1,
+    "prerequisites": "Melee weapon only",
+    "notes": "Increase the weapon's reach by 1 square; use normalized reach wording in export/display.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "enhanced_targeting",
+    "name": "Enhanced Targeting",
+    "description": "The weapon is easier to line up for careful shots.",
+    "minRank": 1,
+    "prerequisites": "None",
+    "notes": "Gain an additional +1D status bonus when taking the Aim action.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "agile_weapon",
+    "name": "Agile Weapon",
+    "description": "The weapon is balanced for speed and finesse rather than brute force.",
+    "minRank": 1,
+    "prerequisites": "Melee weapon only",
+    "notes": "Attack rolls and damage use Agility instead of Strength.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "spiritual_weapon",
+    "name": "Spiritual Weapon",
+    "description": "The weapon is infused with spirit energy so it strikes at the soul instead of the body.",
+    "minRank": 1,
+    "prerequisites": "None",
+    "notes": "Attacks made with the weapon target Spiritual Defense instead of Physical Defense.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "weighted",
+    "name": "Weighted",
+    "description": "The weapon is deliberately built heavier to hit harder.",
+    "minRank": 1,
+    "prerequisites": "None",
+    "notes": "Attacks deal +2 damage on a success, but the weapon gains the Heavy tag.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "lightweight",
+    "name": "Lightweight",
+    "description": "The weapon is made from a lighter material without losing its edge or durability.",
+    "minRank": 1,
+    "prerequisites": "None",
+    "notes": "The weapon loses the \"Heavy\" tag.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "defensive",
+    "name": "Defensive",
+    "description": "The weapon is specially built to block and deflect incoming blows.",
+    "minRank": 1,
+    "prerequisites": "None",
+    "notes": "The weapon gains the \"Defensive\" tag.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "armor_piercing",
+    "name": "Armor Piercing",
+    "description": "The weapon is designed to punch through defensive gear and protective equipment.",
+    "minRank": 2,
+    "prerequisites": "None",
+    "notes": "This weapon ignores Equipment Bonuses to defenses.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "shapeshifting_weapon",
+    "name": "Shapeshifting Weapon",
+    "description": "The weapon can switch between multiple forms to suit the situation.",
+    "minRank": 2,
+    "prerequisites": "None",
+    "notes": "Has 3 forms: 1 inconspicuous non-weapon form and 2 distinct weapon forms.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "swiss_army_weapon",
+    "name": "Swiss-Army Weapon",
+    "description": "The weapon includes an integrated tool or utility function beyond combat use.",
+    "minRank": 2,
+    "prerequisites": "None",
+    "notes": "Choose a utility skill; gain +1 Equipment bonus to checks using that skill while wielding the weapon.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "bane_weapon",
+    "name": "Bane Weapon",
+    "description": "The weapon is especially deadly against a chosen kind of enemy.",
+    "minRank": 2,
+    "prerequisites": "None",
+    "notes": "Deals +2 damage against enemies with a chosen trait, such as Spirit.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "high_impact_ammunition",
+    "name": "High-Impact Ammunition",
+    "description": "The weapon fires rounds that hit with enough force to shove targets backward.",
+    "minRank": 2,
+    "prerequisites": "Ranged weapon only",
+    "notes": "On hit, enemies are also pushed back; distance increases at higher ranks.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "instant_retrieval",
+    "name": "Instant Retrieval",
+    "description": "A thrown weapon can be recalled to the wielder's hand immediately after it is thrown.",
+    "minRank": 3,
+    "prerequisites": "Requires \"Thrown\" tag",
+    "notes": "Recall requires no action.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "size_changing_extending",
+    "name": "Size Changing / Extending",
+    "description": "The weapon can grow, shrink, or elongate to fit the needs of the moment.",
+    "minRank": 3,
+    "prerequisites": "None",
+    "notes": "Draft-level entry; intended to increase size/reach, possibly with drawbacks in tight spaces.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "sentient_weapon",
+    "name": "Sentient Weapon",
+    "description": "The weapon is alive or self-aware and can communicate with its wielder.",
+    "minRank": 3,
+    "prerequisites": "None",
+    "notes": "May speak aloud or communicate telepathically.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "heart_seeker",
+    "name": "Heart-Seeker",
+    "description": "The weapon is unusually precise at striking vital openings.",
+    "minRank": 3,
+    "prerequisites": "None",
+    "notes": "Attacks with this weapon score a critical hit if they exceed the TN by 2 or more.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "energy_drain",
+    "name": "Energy Drain",
+    "description": "The weapon siphons energy during combat and feeds it back to its wielder.",
+    "minRank": 3,
+    "prerequisites": "None",
+    "notes": "Absorbs energy on hit, or when used to defend against attacks.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "freeze_beam",
+    "name": "Freeze Beam",
+    "description": "The weapon can project a line of freezing cold in addition to its normal attacks.",
+    "minRank": 3,
+    "prerequisites": "None",
+    "notes": "Rank of Ice equals the weapon's skill rank minus 1; area increases at higher ranks.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "lightning_launcher",
+    "name": "Lightning Launcher",
+    "description": "The weapon can project a line of lightning in addition to its normal attacks.",
+    "minRank": 3,
+    "prerequisites": "None",
+    "notes": "Handbook text appears to contain a copy/paste typo; likely intended to use Lightning rather than Ice.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "flamethrowing_weapon",
+    "name": "Flamethrowing Weapon",
+    "description": "The weapon can spew flame in a line or cone as an additional attack mode.",
+    "minRank": 3,
+    "prerequisites": "None",
+    "notes": "Rank of Flame equals the weapon's skill rank minus 1; area increases at higher ranks.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "explosive_ammunition",
+    "name": "Explosive Ammunition",
+    "description": "The weapon fires ammunition that detonates on impact.",
+    "minRank": 3,
+    "prerequisites": "Ranged weapon only",
+    "notes": "Deals damage to nearby creatures around the point of impact.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "beast_bullets",
+    "name": "Beast Bullets",
+    "description": "The weapon fires spiritual creatures as ammunition to attack enemies.",
+    "minRank": 4,
+    "prerequisites": "None",
+    "notes": "Example given: Caster Shell #5 from Outlaw Star.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "titan_weapon",
+    "name": "Titan Weapon",
+    "description": "The weapon is massively oversized and built for truly gigantic force.",
+    "minRank": 4,
+    "prerequisites": "None",
+    "notes": "Draft-level entry with minimal defined mechanics.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "autonomous_weapon",
+    "name": "Autonomous Weapon",
+    "description": "The weapon can act and attack on its own without being directly wielded.",
+    "minRank": 4,
+    "prerequisites": "None",
+    "notes": "Draft-level entry with minimal defined mechanics.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "gravity_weapon",
+    "name": "Gravity Weapon",
+    "description": "The weapon manipulates gravity to empower swings and pull or repel enemies.",
+    "minRank": 4,
+    "prerequisites": "Heavy weapon concept",
+    "notes": "Draft-level entry; combines swing enhancement with attraction/repulsion effects.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "seismic_weapon",
+    "name": "Seismic Weapon",
+    "description": "A heavy weapon that creates shockwaves, tremors, and fissures in the ground.",
+    "minRank": 5,
+    "prerequisites": "Heavy weapon concept",
+    "notes": "Draft-level entry with minimal defined mechanics.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "black_hole_shooter",
+    "name": "Black Hole Shooter",
+    "description": "The weapon fires miniature black holes as devastating projectiles.",
+    "minRank": 6,
+    "prerequisites": "None",
+    "notes": "Draft-level entry with minimal defined mechanics.",
+    "sourceNote": "Player's Handbook"
+  },
+  {
+    "enhancementKey": "conceptual_weapon",
+    "name": "Conceptual Weapon",
+    "description": "The weapon attacks a target on a deeper metaphysical level rather than only harming the body.",
+    "minRank": 6,
+    "prerequisites": "None",
+    "notes": "Draft-level entry; handbook notes ideas like attacking a target's \"name,\" \"identity,\" or \"existence.\"",
+    "sourceNote": "Player's Handbook"
+  }
+]
