@@ -188,6 +188,52 @@ function normalizeCombatSkillName(raw) {
   return out;
 }
 
+function splitCombatSkillNames(raw) {
+  const s = sanitizeText(raw, { maxLen: 200, collapse: true });
+  if (!s) return [];
+  return s
+    .split(",")
+    .map((part) => normalizeCombatSkillName(part))
+    .filter(Boolean);
+}
+
+function matchesPrimaryCondition(text, primaryAttribute) {
+  const s = sanitizeText(text, { maxLen: 200, collapse: true }).toLowerCase();
+  if (!s) return true;
+  const primary = sanitizeText(primaryAttribute, { maxLen: 32, collapse: true }).toLowerCase();
+  if (!/primary/.test(s)) return true;
+  if (!primary) return false;
+  return s.includes(primary);
+}
+
+function resolveClassCombatSkillEntries(cls, primaryAttribute) {
+  const out = [];
+  const rawEntries = Array.isArray(cls?.combatSkills) ? cls.combatSkills : [];
+  let pendingSkillName = "";
+
+  for (const entry of rawEntries) {
+    const rawName = sanitizeText(entry?.name, { maxLen: 160, collapse: true });
+    const explicitProgression = normalizeSkillProgression(entry?.progression);
+    if (!rawName && !explicitProgression) continue;
+
+    const skillName = normalizeCombatSkillName(rawName);
+    const progression = explicitProgression || extractSkillProgressionFromText(rawName);
+
+    if (skillName) {
+      pendingSkillName = skillName;
+      if (!matchesPrimaryCondition(rawName, primaryAttribute)) continue;
+      out.push({ skillName, progression });
+      continue;
+    }
+
+    if (pendingSkillName && progression && matchesPrimaryCondition(rawName, primaryAttribute)) {
+      out.push({ skillName: pendingSkillName, progression });
+    }
+  }
+
+  return out;
+}
+
 /**
  * Computes:
  * - knownCombatSkills: combat skills available to the character (used for filtering)
@@ -198,6 +244,7 @@ export function computeKnownCombatSkillsAndGrants(gameData, builder) {
   const b = (builder && typeof builder === "object") ? builder : {};
 
   const classKey = sanitizeText(b.classKey || "", { maxLen: 64, collapse: true });
+  const primaryAttribute = sanitizeText(b.primaryAttribute || "", { maxLen: 32, collapse: true });
   const level = Number.parseInt(String(b.level ?? 1), 10);
   const L = Number.isFinite(level) ? Math.max(1, Math.min(12, level)) : 1;
 
@@ -209,15 +256,13 @@ export function computeKnownCombatSkillsAndGrants(gameData, builder) {
   const cls = classes.find((c) => String(c?.classKey || "") === String(classKey)) || null;
 
   if (cls) {
-    if (cls.combatTechniqueSkill) {
-      const n = normalizeCombatSkillName(cls.combatTechniqueSkill);
-      if (n) knownCombatSkills.add(n);
+    for (const n of splitCombatSkillNames(cls.combatTechniqueSkill)) {
+      knownCombatSkills.add(n);
     }
 
-    const combatSkills = Array.isArray(cls.combatSkills) ? cls.combatSkills : [];
+    const combatSkills = resolveClassCombatSkillEntries(cls, primaryAttribute);
     for (const cs of combatSkills) {
-      const n = normalizeCombatSkillName(cs?.name);
-      if (n) knownCombatSkills.add(n);
+      if (cs?.skillName) knownCombatSkills.add(cs.skillName);
     }
   }
 
@@ -295,6 +340,7 @@ export function computeGrantedSkillsState(gameData, builder) {
   const b = (builder && typeof builder === "object") ? builder : {};
 
   const classKey = sanitizeText(b.classKey || "", { maxLen: 64, collapse: true });
+  const primaryAttribute = sanitizeText(b.primaryAttribute || "", { maxLen: 32, collapse: true });
   const level = Number.parseInt(String(b.level ?? 1), 10);
   const L = Number.isFinite(level) ? Math.max(1, Math.min(12, level)) : 1;
 
@@ -316,23 +362,21 @@ export function computeGrantedSkillsState(gameData, builder) {
   const cls = classes.find((c) => String(c?.classKey || "") === String(classKey)) || null;
 
   if (cls) {
-    const classCombatSkills = Array.isArray(cls.combatSkills) ? cls.combatSkills : [];
+    const classCombatSkills = resolveClassCombatSkillEntries(cls, primaryAttribute);
     for (const entry of classCombatSkills) {
-      const parsed = parseGrantedSkillEntry(entry?.name, entry?.progression);
-      if (!parsed.skillName) continue;
+      if (!entry.skillName) continue;
 
-      const rank = computeProgressionRankAtLevel(parsed.progression, L);
-      grantedSkillNames.add(parsed.skillName);
+      const rank = computeProgressionRankAtLevel(entry.progression, L);
+      grantedSkillNames.add(entry.skillName);
 
-      if (defenseLabelToField.has(parsed.skillName)) {
-        fixedRanks[defenseLabelToField.get(parsed.skillName)] = rank;
+      if (defenseLabelToField.has(entry.skillName)) {
+        fixedRanks[defenseLabelToField.get(entry.skillName)] = rank;
       } else {
-        pushGrantedSkill(grantedCombatSkills, parsed.skillName, rank, "Class");
+        pushGrantedSkill(grantedCombatSkills, entry.skillName, rank, "Class");
       }
     }
 
-    const baseCombatSkill = normalizeCombatSkillName(cls.combatTechniqueSkill);
-    if (baseCombatSkill) {
+    for (const baseCombatSkill of splitCombatSkillNames(cls.combatTechniqueSkill)) {
       grantedSkillNames.add(baseCombatSkill);
       if (!grantedCombatSkills.has(baseCombatSkill) && !defenseLabelToField.has(baseCombatSkill)) {
         pushGrantedSkill(grantedCombatSkills, baseCombatSkill, "", "Class");

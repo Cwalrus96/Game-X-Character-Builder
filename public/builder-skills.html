@@ -19,20 +19,22 @@
       </div>
     </div>
 
-    <main class="builderPage" data-builder-step="skills">
-      <header class="builderHero card">
+    <main class="builder" data-builder-step="skills">
+      <header class="builderHeader">
         <div>
-          <div class="eyebrow">Character Builder</div>
-          <h1>Skills</h1>
-          <p class="muted">Set Defense Training, Core Skill ranks, Combat &amp; Class Skills, and Setting Skills.</p>
+          <h1>Character Builder</h1>
+          <p class="muted" id="status">Loading…</p>
+          <p class="error" id="error" style="display:none"></p>
         </div>
-        <div class="builderHeroStatus">
-          <div id="status" class="status">Loading…</div>
-          <div id="error" class="error" style="display:none;"></div>
-        </div>
+        <div id="builderNavTop"></div>
       </header>
 
-      <div id="builderNav"></div>
+      <section class="card">
+        <div class="cardHeaderRow">
+          <h2>Step 5 — Skills</h2>
+          <span class="muted">Set Defense Training, Core Skill ranks, Combat &amp; Class Skills, and Setting Skills.</span>
+        </div>
+      </section>
 
       <section class="card">
         <div class="cardHeaderRow">

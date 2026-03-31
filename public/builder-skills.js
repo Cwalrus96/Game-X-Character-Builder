@@ -36,7 +36,7 @@ const gmHintEl = document.getElementById("gmHint");
 const statusEl = document.getElementById("status");
 const errorEl = document.getElementById("error");
 
-const navTop = document.getElementById("builderNav");
+const navTop = document.getElementById("builderNavTop");
 const navBottom = document.getElementById("builderNavBottom");
 
 const saveBtn = document.getElementById("saveBtn");

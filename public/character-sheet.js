@@ -27,6 +27,7 @@ import {
   buildTechniqueIndexes,
   resolveTechniqueRef,
   computeKnownCombatSkillsAndGrants,
+  computeGrantedSkillsState,
 } from "./game-data.js";
 import {
   computeWeaponSlotCost,
@@ -235,10 +236,56 @@ import {
       .filter(Boolean);
   }
 
-  function mergeGrantedClassUtilitySkillsIntoReadOnlyState({ fields = {}, repeatables = {}, selectedClassUtilitySkills = [] } = {}) {
+  function mergeGrantedClassUtilitySkillsIntoReadOnlyState({
+    fields = {},
+    repeatables = {},
+    selectedClassUtilitySkills = [],
+    grantedFixedRanks = {},
+    grantedCombatSkills = [],
+  } = {}) {
     const mergedFields = sanitizeSkillFields(fields, { allowedKeys: READ_ONLY_SKILL_FIELD_KEYS });
     const combatSkillsExtra = sanitizeNamedSkillList(repeatables?.combatSkillsExtra, { maxItems: 50 });
     const settingSkills = sanitizeNamedSkillList(repeatables?.settingSkills, { maxItems: 50 });
+
+    for (const [fieldKey, rawRank] of Object.entries((grantedFixedRanks && typeof grantedFixedRanks === 'object') ? grantedFixedRanks : {})) {
+      if (!READ_ONLY_SKILL_FIELD_KEYS.includes(fieldKey)) continue;
+      const nextRank = sanitizeText(rawRank, { maxLen: 8, collapse: true });
+      if (!nextRank) continue;
+
+      const prev = Number.parseInt(String(mergedFields[fieldKey] || ''), 10);
+      const next = Number.parseInt(String(nextRank), 10);
+      if (!Number.isFinite(prev) || (Number.isFinite(next) && next > prev)) {
+        mergedFields[fieldKey] = nextRank;
+      }
+    }
+
+    const combatSeen = new Map();
+    for (const row of combatSkillsExtra) {
+      const skillName = sanitizeText(row?.skill, { maxLen: 96, collapse: true });
+      if (!skillName) continue;
+      combatSeen.set(skillName.toLowerCase(), row);
+    }
+
+    for (const entry of (Array.isArray(grantedCombatSkills) ? grantedCombatSkills : [])) {
+      const skillName = sanitizeText(entry?.skill, { maxLen: 96, collapse: true });
+      const rank = sanitizeText(entry?.rank, { maxLen: 8, collapse: true });
+      if (!skillName) continue;
+
+      const key = skillName.toLowerCase();
+      const existing = combatSeen.get(key);
+      if (!existing) {
+        const row = { skill: skillName, rank };
+        combatSkillsExtra.unshift(row);
+        combatSeen.set(key, row);
+        continue;
+      }
+
+      const prev = Number.parseInt(String(existing.rank || ''), 10);
+      const next = Number.parseInt(String(rank || ''), 10);
+      if (!Number.isFinite(prev) || (Number.isFinite(next) && next > prev)) {
+        existing.rank = rank;
+      }
+    }
 
     const grantedUtilitySkills = normalizeGrantedClassUtilitySkills(selectedClassUtilitySkills);
     const settingSeen = new Set(settingSkills.map((row) => sanitizeText(row?.skill, { maxLen: 96, collapse: true }).toLowerCase()).filter(Boolean));
@@ -265,8 +312,20 @@ import {
     };
   }
 
-  function applyReadOnlySkillState({ fields = {}, repeatables = {}, selectedClassUtilitySkills = [] } = {}) {
-    const merged = mergeGrantedClassUtilitySkillsIntoReadOnlyState({ fields, repeatables, selectedClassUtilitySkills });
+  function applyReadOnlySkillState({
+    fields = {},
+    repeatables = {},
+    selectedClassUtilitySkills = [],
+    grantedFixedRanks = {},
+    grantedCombatSkills = [],
+  } = {}) {
+    const merged = mergeGrantedClassUtilitySkillsIntoReadOnlyState({
+      fields,
+      repeatables,
+      selectedClassUtilitySkills,
+      grantedFixedRanks,
+      grantedCombatSkills,
+    });
 
     readOnlySkillFields = merged.fields;
     readOnlySkillRepeatables = merged.repeatables;
@@ -573,7 +632,14 @@ async function renderBuilderWeaponsReadOnly(builder) {
         const sheetOnlyFields = pickSheetOnlyFields(sheetFields);
         const repeatables = (b?.sheet?.repeatables && typeof b.sheet.repeatables === 'object') ? b.sheet.repeatables : {};
         const selectedClassUtilitySkills = Array.isArray(b?.selectedClassUtilitySkills) ? b.selectedClassUtilitySkills : [];
-        applyReadOnlySkillState({ fields: sheetFields, repeatables, selectedClassUtilitySkills });
+        const computedGrantedSkills = computeGrantedSkillsState(await loadGameXData(), b);
+        applyReadOnlySkillState({
+          fields: sheetFields,
+          repeatables,
+          selectedClassUtilitySkills,
+          grantedFixedRanks: computedGrantedSkills?.fixedRanks,
+          grantedCombatSkills: computedGrantedSkills?.grantedCombatSkills,
+        });
         const selectedTechniques = Array.isArray(b?.selectedTechniques) ? b.selectedTechniques : [];
         lockedAbilityNames = new Set(Array.isArray(b?.autoAbilityNames) ? b.autoAbilityNames.map((name) => String(name || '').trim()).filter(Boolean) : []);
 

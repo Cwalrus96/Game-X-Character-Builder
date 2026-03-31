@@ -26,7 +26,7 @@
           <p class="muted" id="status">Loading…</p>
           <p class="error" id="error" style="display:none"></p>
         </div>
-        <div id="builderNav"></div>
+        <div id="builderNavTop"></div>
       </header>
 
       <section class="card">
@@ -135,24 +135,27 @@
             </div>
           </div>
         </div>
-
-        <div class="actions">
-          <button id="saveBtn" class="btn" type="button">Save</button>
-          <button id="saveAndOpenBtn" class="btn secondary" type="button">Save &amp; Open Character Sheet</button>
-        </div>
       </section>
 
-      <div id="confirmModal" class="modalOverlay" style="display:none">
-        <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMsg">
-          <h3 id="confirmTitle">Save anyway?</h3>
-          <p id="confirmMsg" class="muted"></p>
-          <div class="modalActions">
-            <button id="confirmCancelBtn" class="btn secondary" type="button">Cancel</button>
-            <button id="confirmOkBtn" class="btn" type="button">Save anyway</button>
-          </div>
+      <footer class="builderFooter">
+        <div id="builderNavBottom"></div>
+        <div class="actions">
+          <button id="saveBtn" class="btn" type="button">Save</button>
+          <button id="saveAndOpenBtn" class="btn secondary" type="button">Save &amp; Open Sheet</button>
+        </div>
+      </footer>
+    </main>
+
+    <div id="confirmOverlay" class="modalOverlay" style="display:none">
+      <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMsg">
+        <h3 id="confirmTitle">Save anyway?</h3>
+        <p id="confirmMsg" class="muted"></p>
+        <div class="modalActions">
+          <button id="confirmCancelBtn" class="btn secondary" type="button">Cancel</button>
+          <button id="confirmOkBtn" class="btn" type="button">Save anyway</button>
         </div>
       </div>
-    </main>
+    </div>
 
     <script type="module" src="builder-attributes.js"></script>
   </body>

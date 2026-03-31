@@ -61,7 +61,9 @@ export function buildBuilderUrl(path, ctx) {
  */
 export function setStatus(el, msg) {
   if (!el) return;
-  el.textContent = msg;
+  const value = String(msg || "").trim();
+  el.textContent = value;
+  el.style.display = value && value !== "Ready." ? "" : "none";
 }
 
 /**

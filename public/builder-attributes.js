@@ -32,7 +32,8 @@ const statusEl = document.getElementById("status");
 const errorEl = document.getElementById("error");
 
 // ---- Nav mount ----
-const navMount = document.getElementById("builderNav");
+const navTopEl = document.getElementById("builderNavTop");
+const navBottomEl = document.getElementById("builderNavBottom");
 
 // ---- UI ----
 const levelLabel = document.getElementById("levelLabel");
@@ -413,13 +414,15 @@ async function main() {
     }
 
     // Render nav (this is currently the last step, but nav still shows orientation)
-    renderBuilderNav({
-      mountEl: navMount,
-      currentStepId: CURRENT_STEP_ID,
-      characterDoc: currentDoc,
-      ctx: { charId: ctx.charId, requestedUid: ctx.requestedUid },
-      onBeforeNavigate: async () => await saveBuilder({ openSheetAfter: false, intent: "navigate" }),
-    });
+    const navConfig = {
+       currentStepId: CURRENT_STEP_ID,
+       characterDoc: currentDoc,
+       ctx: { charId: ctx.charId, requestedUid: ctx.requestedUid },
+       onBeforeNavigate: async () => await saveBuilder({ openSheetAfter: false, intent: "navigate" }),
+    };
+
+    renderBuilderNav({ mountEl: navTopEl, ...navConfig });
+    renderBuilderNav({ mountEl: navBottomEl, ...navConfig });
 
     saveBtn.addEventListener("click", () => saveBuilder({ openSheetAfter: false, intent: "save" }));
     saveAndOpenBtn.addEventListener("click", () => saveBuilder({ openSheetAfter: true, intent: "save" }));

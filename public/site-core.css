@@ -1,0 +1,35 @@
+:root {
+  --site-bg-base: #08080c;
+  --site-bg-deep: #101018;
+  --site-bg-accent: rgba(218, 59, 49, 0.2);
+  --site-bg-glow: rgba(255, 255, 255, 0.06);
+  --site-text: #f8f3eb;
+  --site-muted: rgba(248, 243, 235, 0.78);
+  --site-border: #f3efe5;
+  --site-accent: #da3b31;
+  --site-shadow: 10px 10px 0 rgba(0,0,0,0.28);
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, var(--site-bg-accent), transparent 24%),
+    radial-gradient(circle at 88% 14%, var(--site-bg-glow), transparent 18%),
+    linear-gradient(145deg, rgba(255,255,255,0.04) 0 6%, transparent 6% 100%),
+    linear-gradient(180deg, var(--site-bg-base) 0%, var(--site-bg-deep) 100%);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.18;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.24) 1px, transparent 1.35px);
+  background-size: 10px 10px;
+  mask-image: linear-gradient(180deg, rgba(0,0,0,0.78), transparent 76%);
+}
+
+body > * {
+  position: relative;
+  z-index: 1;
+}

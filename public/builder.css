@@ -145,7 +145,7 @@ textarea {
   border: 3px solid #f3efe5;
   background: var(--builder-topbar);
   box-shadow: var(--builder-shadow);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .builderHeader h1,
@@ -231,7 +231,7 @@ textarea {
 
 .card {
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   background: var(--builder-card);
   color: var(--builder-card-text);
   border: 3px solid var(--builder-card-border);
@@ -593,6 +593,7 @@ textarea {
   line-height: 1;
   padding: 0;
   cursor: help;
+  z-index: 2;
 }
 
 .tipBtn::after {
@@ -601,7 +602,7 @@ textarea {
   left: 50%;
   transform: translateX(-50%);
   bottom: calc(100% + 10px);
-  width: min(320px, 65vw);
+  width: min(360px, 72vw);
   padding: 11px 12px;
   border: 2px solid #f3efe5;
   border-radius: 0;
@@ -609,7 +610,9 @@ textarea {
   color: #fff8f3;
   font-weight: 500;
   font-size: 0.9rem;
+  line-height: 1.4;
   text-align: left;
+  white-space: normal;
   box-shadow: 0 12px 32px rgba(0,0,0,0.28);
   opacity: 0;
   pointer-events: none;
@@ -991,45 +994,4 @@ textarea {
   .equipmentField--compact {
     max-width: none;
   }
-}
-
-.combat-profile + .combat-profile {
-  margin-top: 14px;
-  padding-top: 12px;
-  border-top: 2px solid rgba(23, 25, 32, 0.12);
-}
-
-.combat-profile-title {
-  margin: 0 0 8px;
-  color: var(--builder-card-text);
-  font-family: var(--title-font);
-  font-size: 0.95rem;
-  font-weight: 900;
-  letter-spacing: 0.06em;
-  text-transform: none;
-}
-
-.combat-profile-line + .combat-profile-line {
-  margin-top: 4px;
-}
-
-.combat-profile-cost {
-  font-weight: 800;
-}
-
-.enhancement-detail {
-  margin-top: 10px;
-  padding: 10px 12px;
-  border: 2px solid rgba(23, 25, 32, 0.16);
-  background: rgba(255, 255, 255, 0.68);
-}
-
-.enhancement-detail-title,
-.enhancement-detail-summary {
-  font-weight: 900;
-}
-
-.enhancement-detail-body {
-  margin-top: 6px;
-  color: var(--builder-card-muted);
 }

@@ -1,3 +1,5 @@
+@import url('./site-core.css');
+
 :root {
     /* Default neutral theme – colours kept simple for fallback */
     --primary-color: #333333;
@@ -1143,47 +1145,5 @@
 }
 
 .weapon-profile-list li + li {
-  margin-top: 6px;
-}
-
-.combat-profile + .combat-profile {
-  margin-top: 14px;
-  padding-top: 12px;
-  border-top: 1px solid var(--input-border-color);
-}
-
-.combat-profile-title {
-  margin: 0 0 8px;
-  font-weight: 700;
-}
-
-.combat-profile-line + .combat-profile-line {
-  margin-top: 4px;
-}
-
-.combat-profile-cost {
-  font-weight: 700;
-}
-
-.enhancement-detail-list {
-  margin-top: 8px;
-}
-
-.enhancement-detail + .enhancement-detail {
-  margin-top: 8px;
-}
-
-.enhancement-detail {
-  border: 1px solid var(--input-border-color);
-  background: var(--paper-color);
-  padding: 8px 10px;
-}
-
-.enhancement-detail-summary {
-  cursor: pointer;
-  font-weight: 700;
-}
-
-.enhancement-detail-body {
   margin-top: 6px;
 }
