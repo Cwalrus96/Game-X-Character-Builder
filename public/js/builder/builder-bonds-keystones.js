@@ -9,9 +9,9 @@ import {
   confirmSaveWarnings,
 } from "./builder-common.js";
 import { renderBuilderNav } from "./builder-nav.js";
-import { buildBondsKeystonesUpdatePatch } from "./database-writer.js";
-import { buildConstrainedSkillRankOptionsHtml, getBondRulesState } from "./character-rules.js";
-import { sanitizeBondList, sanitizeKeystoneList, sanitizeText } from "./data-sanitization.js";
+import { buildBondsKeystonesUpdatePatch } from "../core/database-writer.js";
+import { buildConstrainedSkillRankOptionsHtml, getBondRulesState } from "../core/character-rules.js";
+import { sanitizeBondList, sanitizeKeystoneList, sanitizeText } from "../core/data-sanitization.js";
 
 const CURRENT_STEP_ID = document.querySelector("[data-builder-step]")?.getAttribute("data-builder-step") || "bonds-keystones";
 
@@ -230,7 +230,7 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
     setStatus(statusEl, "Saved.");
 
     if (openSheetAfter) {
-      const url = new URL("character-sheet.html", window.location.href);
+      const url = new URL("/character-sheet.html", window.location.href);
       url.searchParams.set("charId", ctx.charId);
       if (ctx.claims?.gm && ctx.requestedUid) url.searchParams.set("uid", ctx.requestedUid);
       window.location.href = url.toString();

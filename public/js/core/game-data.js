@@ -11,7 +11,8 @@ export async function loadGameXData({ cache = "no-store" } = {}) {
   if (_gameXDataPromise) return _gameXDataPromise;
 
   _gameXDataPromise = (async () => {
-    const res = await fetch("data/game-x/game-x-data.json", { cache });
+    const dataUrl = new URL("../../data/game-x/game-x-data.json", import.meta.url);
+    const res = await fetch(dataUrl, { cache });
     if (!res.ok) throw new Error(`Could not load game-x-data.json (${res.status})`);
     return await res.json();
   })();

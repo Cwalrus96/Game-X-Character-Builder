@@ -10,14 +10,14 @@ import {
 } from "./builder-common.js";
 import { renderBuilderNav } from "./builder-nav.js";
 
-import { ATTR_KEYS, ATTR_LABELS, clampLevel } from "./character-rules.js";
-import { buildAttributesUpdatePatch } from "./database-writer.js";
+import { ATTR_KEYS, ATTR_LABELS, clampLevel } from "../core/character-rules.js";
+import { buildAttributesUpdatePatch } from "../core/database-writer.js";
 
 import {
   getAttributePointsToSpend,
   getAttributeFinalCap,
   getAttributeEffectiveCap,
-} from "./character-rules.js";
+} from "../core/character-rules.js";
 
 
 // ---- Page identity ----
@@ -269,7 +269,7 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
     setStatus(statusEl, "Saved.");
 
     if (openSheetAfter) {
-      const url = new URL("character-sheet.html", window.location.href);
+      const url = new URL("/character-sheet.html", window.location.href);
       url.searchParams.set("charId", ctx.charId);
       if (ctx.claims?.gm && ctx.requestedUid) url.searchParams.set("uid", ctx.requestedUid);
       window.location.href = url.toString();

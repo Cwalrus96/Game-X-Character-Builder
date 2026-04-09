@@ -1,4 +1,4 @@
-import { storage } from "./firebase.js";
+import { storage } from "../core/firebase.js";
 import {
   initBuilderAuth,
   loadCharacterDoc,
@@ -11,7 +11,7 @@ import {
   confirmSaveWarnings,
 } from "./builder-common.js";
 import { renderBuilderNav } from "./builder-nav.js";
-import { getPortraitStoragePath } from "./database-writer.js";
+import { getPortraitStoragePath } from "../core/database-writer.js";
 
 import {
   ref as storageRef,
@@ -161,7 +161,7 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
     currentDoc.builder = { ...(currentDoc.builder || {}), name: patch["builder.name"], portraitPath };
 
     if (openSheetAfter) {
-      const url = new URL("character-sheet.html", window.location.href);
+      const url = new URL("/character-sheet.html", window.location.href);
       url.searchParams.set("charId", ctx.charId);
       if (ctx.claims?.gm && ctx.requestedUid) url.searchParams.set("uid", ctx.requestedUid);
       window.location.href = url.toString();

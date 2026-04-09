@@ -14,10 +14,10 @@ import {
 
 import { renderBuilderNav } from "./builder-nav.js";
 
-import { loadGameXData } from "./game-data.js";
+import { loadGameXData } from "../core/game-data.js";
 
-import { ATTR_KEYS, clampLevel, coerceAttrKey, labelForAttrKey } from "./character-rules.js";
-import { sanitizeText, buildGroupId, buildOptionKey } from "./data-sanitization.js";
+import { ATTR_KEYS, clampLevel, coerceAttrKey, labelForAttrKey } from "../core/character-rules.js";
+import { sanitizeText, buildGroupId, buildOptionKey } from "../core/data-sanitization.js";
 const CURRENT_STEP_ID = "class";
 
 /** @type {any} */
@@ -729,7 +729,7 @@ async function saveClassStep({ openSheetAfter = false, intent = "save" } = {}) {
     setStatus(statusEl, "Saved.");
 
     if (openSheetAfter) {
-      const url = new URL("character-sheet.html", window.location.href);
+      const url = new URL("/character-sheet.html", window.location.href);
       url.searchParams.set("charId", ctx.charId);
       if (ctx.claims?.gm && ctx.requestedUid) url.searchParams.set("uid", ctx.requestedUid);
       window.location.href = url.toString();

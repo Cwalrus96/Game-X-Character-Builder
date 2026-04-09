@@ -19,19 +19,19 @@ import {
   coerceAttrKey,
   labelForAttrKey,
   computeTechniqueSlots,
-} from "./character-rules.js";
+} from "../core/character-rules.js";
 
-import { buildTechniquesUpdatePatch } from "./database-writer.js";
+import { buildTechniquesUpdatePatch } from "../core/database-writer.js";
 
 import {
   loadGameXData,
   buildTechniqueIndexes,
   resolveTechniqueRef,
   computeKnownCombatSkillsAndGrants,
-} from "./game-data.js";
+} from "../core/game-data.js";
 
-import { safeHtmlText } from "./data-sanitization.js";
-import { renderCombatProfileHtml } from "./weapon-utils.js";
+import { safeHtmlText } from "../core/data-sanitization.js";
+import { renderCombatProfileHtml } from "../core/weapon-utils.js";
 
 const CURRENT_STEP_ID = "techniques";
 
@@ -96,7 +96,7 @@ let autoAdjustWarnings = [];
 // ---- Helpers ----
 
 function openSheet() {
-  const url = new URL("character-sheet.html", window.location.href);
+  const url = new URL("/character-sheet.html", window.location.href);
   url.searchParams.set("charId", ctx.charId);
   if (ctx.claims?.gm && ctx.requestedUid) url.searchParams.set("uid", ctx.requestedUid);
   window.location.href = url.toString();

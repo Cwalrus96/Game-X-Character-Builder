@@ -1,5 +1,5 @@
-import { onAuth } from "./auth-ui.js";
-import { initAuthRedirectHandling, signInInteractive } from "./auth-ui.js";
+import { onAuth } from "../core/auth-ui.js";
+import { initAuthRedirectHandling, signInInteractive } from "../core/auth-ui.js";
 
 const signInBtn = document.getElementById("signInBtn");
 const continueLink = document.getElementById("continueLink");
@@ -48,11 +48,11 @@ onAuth((user) => {
   statusEl.textContent = `Signed in as ${user.email || user.displayName || "(unknown)"}`;
   const nextHref = getSafeNextHref();
   if (continueLink) {
-    continueLink.href = nextHref || "characters.html";
+    continueLink.href = nextHref || "/characters.html";
     continueLink.style.display = "inline-block";
   }
   // Keep this simple: auto-redirect after a moment.
   setTimeout(() => {
-    window.location.href = nextHref || "characters.html";
+    window.location.href = nextHref || "/characters.html";
   }, 250);
 });

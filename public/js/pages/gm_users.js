@@ -1,5 +1,5 @@
-import { db } from "./firebase.js";
-import { onAuth, signOutNow, initAuthRedirectHandling, getClaims } from "./auth-ui.js";
+import { db } from "../core/firebase.js";
+import { onAuth, signOutNow, initAuthRedirectHandling, getClaims } from "../core/auth-ui.js";
 
 import {
   collection,
@@ -73,7 +73,7 @@ async function loadUsers() {
     const a = document.createElement("a");
     a.className = "btn";
     a.textContent = "View Characters";
-    a.href = `characters.html?uid=${encodeURIComponent(uid)}`;
+    a.href = `/characters.html?uid=${encodeURIComponent(uid)}`;
     td.appendChild(a);
 
     userRowsEl.appendChild(tr);
@@ -90,12 +90,12 @@ if (signOutBtn) {
 
 onAuth(async (user) => {
   if (!user) {
-    window.location.href = "login.html";
+    window.location.href = "/login.html";
     return;
   }
   const claims = await getClaims(user, { forceRefresh: true });
   if (!claims.gm) {
-    window.location.href = "characters.html";
+    window.location.href = "/characters.html";
     return;
   }
 

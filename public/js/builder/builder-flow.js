@@ -20,50 +20,50 @@ export const BUILDER_STEPS = [
   {
     id: "basics",
     title: "Name & Profile",
-    path: "builder-profile.html",
+    path: "/builder/builder-profile.html",
   },
 
   {
     id: "class",
     title: "Class",
-    path: "builder-class.html",
+    path: "/builder/builder-class.html",
   },
   
   {
     id: "attributes",
     title: "Attributes",
-    path: "builder-attributes.html",
+    path: "/builder/builder-attributes.html",
   },
 
 
   {
     id: "origin",
     title: "Origin",
-    path: "builder-origin.html",
+    path: "/builder/builder-origin.html",
   },
 
   {
     id: "skills",
     title: "Skills",
-    path: "builder-skills.html",
+    path: "/builder/builder-skills.html",
   },
 
   {
     id: "equipment",
     title: "Equipment",
-    path: "builder-equipment.html",
+    path: "/builder/builder-equipment.html",
   },
 
   {
     id: "techniques",
     title: "Techniques",
-    path: "builder-techniques.html",
+    path: "/builder/builder-techniques.html",
   },
 
   {
     id: "bonds-keystones",
     title: "Bonds & Keystones",
-    path: "builder-bonds-keystones.html",
+    path: "/builder/builder-bonds-keystones.html",
   },
 ];
 

@@ -9,9 +9,9 @@ import {
   confirmSaveWarnings,
 } from "./builder-common.js";
 import { renderBuilderNav } from "./builder-nav.js";
-import { loadGameXOrigins, getOriginByKey } from "./game-data.js";
-import { buildOriginUpdatePatch } from "./database-writer.js";
-import { escapeHtml, sanitizeText } from "./data-sanitization.js";
+import { loadGameXOrigins, getOriginByKey } from "../core/game-data.js";
+import { buildOriginUpdatePatch } from "../core/database-writer.js";
+import { escapeHtml, sanitizeText } from "../core/data-sanitization.js";
 
 const CURRENT_STEP_ID = "origin";
 
@@ -173,7 +173,7 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
     setStatus(statusEl, "Saved.");
 
     if (openSheetAfter) {
-      const url = new URL("character-sheet.html", window.location.href);
+      const url = new URL("/character-sheet.html", window.location.href);
       url.searchParams.set("charId", ctx.charId);
       if (ctx.claims?.gm && ctx.requestedUid) url.searchParams.set("uid", ctx.requestedUid);
       window.location.href = url.toString();

@@ -1,6 +1,6 @@
-import { db } from "./firebase.js";
-import { onAuth, signOutNow, initAuthRedirectHandling, getClaims } from "./auth-ui.js";
-import { createDefaultCharacterDoc } from "./database-reader.js";
+import { db } from "../core/firebase.js";
+import { onAuth, signOutNow, initAuthRedirectHandling, getClaims } from "../core/auth-ui.js";
+import { createDefaultCharacterDoc } from "../core/database-reader.js";
 
 import {
   doc,
@@ -220,7 +220,7 @@ function renderCharacters(docs) {
     const editLink = document.createElement("a");
     editLink.className = "btn";
     editLink.textContent = "Edit";
-    editLink.href = buildCharacterUrl("builder-profile.html", {
+    editLink.href = buildCharacterUrl("/builder/builder-profile.html", {
       charId: d.id,
       ownerUid: owner,
       isViewingSelf,
@@ -230,7 +230,7 @@ function renderCharacters(docs) {
     const viewLink = document.createElement("a");
     viewLink.className = "btn secondary";
     viewLink.textContent = "View";
-    viewLink.href = buildCharacterUrl("character-sheet.html", {
+    viewLink.href = buildCharacterUrl("/character-sheet.html", {
       charId: d.id,
       ownerUid: owner,
       isViewingSelf,
@@ -290,7 +290,7 @@ async function createCharacter() {
 
   const docRef = await addDoc(col, docData);
 
-  const url = new URL("builder-profile.html", window.location.href);
+  const url = new URL("/builder/builder-profile.html", window.location.href);
   url.searchParams.set("charId", docRef.id);
   if (!isViewingSelf && claims.gm) url.searchParams.set("uid", viewingUid);
   window.location.href = url.toString();
@@ -331,7 +331,7 @@ onAuth(async (user) => {
     show(loginLink);
     hide(profileCard);
     hide(charactersCard);
-    window.location.href = "login.html";
+    window.location.href = "/login.html";
     return;
   }
 
@@ -352,7 +352,7 @@ onAuth(async (user) => {
 
   // If a non-GM tries to pass uid=, ignore it.
   if (requestedUid && !claims.gm) {
-    window.location.href = "characters.html";
+    window.location.href = "/characters.html";
     return;
   }
 

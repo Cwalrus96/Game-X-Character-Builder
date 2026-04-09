@@ -1,18 +1,18 @@
 // public/builder-common.js
-import { auth, db } from "./firebase.js";
-import { onAuth, signOutNow, initAuthRedirectHandling, getClaims } from "./auth-ui.js";
+import { auth, db } from "../core/firebase.js";
+import { onAuth, signOutNow, initAuthRedirectHandling, getClaims } from "../core/auth-ui.js";
 
 import {
   doc,
   getDoc,  deleteField,
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-import { normalizeCharacterDoc } from "./database-reader.js";
-import { escapeHtml } from "./data-sanitization.js";
+import { normalizeCharacterDoc } from "../core/database-reader.js";
+import { escapeHtml } from "../core/data-sanitization.js";
 import {
   saveCharacterPatch as _saveCharacterPatch,
   markStepVisited as _markStepVisited,
-} from "./database-writer.js";
+} from "../core/database-writer.js";
 
 /**
  * Small shared utilities for Builder pages:
@@ -40,7 +40,7 @@ export function getBuilderUrlParams() {
  */
 export function makeLoginUrl(href) {
   const next = encodeURIComponent(href);
-  return `login.html?next=${next}`;
+  return `/login.html?next=${next}`;
 }
 
 /**
@@ -111,7 +111,7 @@ export async function initBuilderAuth(ui = {}) {
 
   const { charId, requestedUid } = getBuilderUrlParams();
   if (!charId) {
-    window.location.replace("characters.html");
+    window.location.replace("/characters.html");
     throw new Error("Missing charId");
   }
 
@@ -142,7 +142,7 @@ export async function initBuilderAuth(ui = {}) {
     signOutBtn.style.display = "inline-block";
     signOutBtn.onclick = async () => {
       await signOutNow();
-      window.location.href = "login.html";
+      window.location.href = "/login.html";
     };
   }
 
@@ -157,7 +157,7 @@ export async function initBuilderAuth(ui = {}) {
   let editingUid = user.uid;
   if (requestedUid) {
     if (!claims.gm) {
-      window.location.href = "characters.html";
+      window.location.href = "/characters.html";
       throw new Error("GM uid requested but user is not GM");
     }
     editingUid = requestedUid;

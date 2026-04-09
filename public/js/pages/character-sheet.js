@@ -5,10 +5,10 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-import { db, storage } from "./firebase.js";
-import { onAuth, getClaims } from "./auth-ui.js";
+import { db, storage } from "../core/firebase.js";
+import { onAuth, getClaims } from "../core/auth-ui.js";
 
-import { CHARACTER_SCHEMA_VERSION, getPortraitStoragePath } from "./database-writer.js";
+import { CHARACTER_SCHEMA_VERSION, getPortraitStoragePath } from "../core/database-writer.js";
 import {
   ATTR_KEYS,
   labelForAttrKey,
@@ -18,7 +18,7 @@ import {
   CORE_SKILL_FIELDS,
   SKILL_RANK_OPTIONS,
   formatSkillRankLabel,
-} from "./character-rules.js";
+} from "../core/character-rules.js";
 import {
   loadGameXClasses,
   loadGameXData,
@@ -28,7 +28,7 @@ import {
   resolveTechniqueRef,
   computeKnownCombatSkillsAndGrants,
   computeGrantedSkillsState,
-} from "./game-data.js";
+} from "../core/game-data.js";
 import {
   computeWeaponSlotCost,
   getEffectiveTags,
@@ -38,7 +38,7 @@ import {
   summarizeWeaponProfilesHtml,
   renderCombatProfileHtml,
   renderEnhancementDetailHtml,
-} from "./weapon-utils.js";
+} from "../core/weapon-utils.js";
 import {
   sanitizeCharName,
   sanitizeStoragePath,
@@ -50,7 +50,7 @@ import {
   sanitizeBondList,
   sanitizeWeaponList,
   buildCharacterKeystoneEntries,
-} from "./data-sanitization.js";
+} from "../core/data-sanitization.js";
 
 import {
   getAttributeEffectiveCap,
@@ -60,7 +60,7 @@ import {
   computeMentalDefense,
   computeSpiritDefense,
   computeMaxHP,
-} from "./character-rules.js";
+} from "../core/character-rules.js";
 
 import {
   ref as storageRef,
@@ -78,7 +78,7 @@ import {
   const requestedUidParam = urlParams.get('uid');
 
   if (!charIdParam) {
-    window.location.replace('characters.html');
+    window.location.replace('/characters.html');
     return;
   }
 
@@ -821,7 +821,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
         setCloudStatus('Cloud: Off');
         // Require auth for editing (D&D Beyond-style flow)
         const next = encodeURIComponent(window.location.href);
-        window.location.href = `login.html?next=${next}`;
+        window.location.href = `/login.html?next=${next}`;
         return;
       }
 
@@ -839,12 +839,12 @@ async function renderBuilderWeaponsReadOnly(builder) {
       // Make the "Characters" link return to the correct list view.
       const back = document.getElementById('backToCharactersLink');
       if (back) {
-        back.href = (isGMUser && requestedUidParam) ? `characters.html?uid=${encodeURIComponent(requestedUidParam)}` : 'characters.html';
+        back.href = (isGMUser && requestedUidParam) ? `/characters.html?uid=${encodeURIComponent(requestedUidParam)}` : '/characters.html';
       }
 
       const edit = document.getElementById('editCharacterLink');
       if (edit) {
-        const editUrl = new URL('builder-profile.html', window.location.href);
+        const editUrl = new URL('/builder/builder-profile.html', window.location.href);
         editUrl.searchParams.set('charId', editingCharId);
         if (isGMUser && requestedUidParam) {
           editUrl.searchParams.set('uid', requestedUidParam);

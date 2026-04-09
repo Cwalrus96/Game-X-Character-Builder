@@ -17,15 +17,15 @@ import {
   getSpendableSkillPoints,
   getSkillPointCostForRank,
   buildConstrainedSkillRankOptionsHtml,
-} from "./character-rules.js";
+} from "../core/character-rules.js";
 import {
   sanitizeSkillFields,
   sanitizeNamedSkillList,
   sanitizeText,
   sanitizeStringArray,
   buildOptionKey,
-} from "./data-sanitization.js";
-import { loadGameXData, computeGrantedSkillsState } from "./game-data.js";
+} from "../core/data-sanitization.js";
+import { loadGameXData, computeGrantedSkillsState } from "../core/game-data.js";
 
 const CURRENT_STEP_ID =
   document.querySelector("[data-builder-step]")?.getAttribute("data-builder-step") || "skills";
@@ -710,7 +710,7 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
     setStatus(statusEl, "Saved.");
 
     if (openSheetAfter) {
-      const url = new URL("character-sheet.html", window.location.href);
+      const url = new URL("/character-sheet.html", window.location.href);
       url.searchParams.set("charId", ctx.charId);
       if (ctx.claims?.gm && ctx.requestedUid) url.searchParams.set("uid", ctx.requestedUid);
       window.location.href = url.toString();

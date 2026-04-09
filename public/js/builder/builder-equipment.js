@@ -9,9 +9,9 @@ import {
   confirmSaveWarnings,
 } from "./builder-common.js";
 import { renderBuilderNav } from "./builder-nav.js";
-import { buildWeaponsUpdatePatch } from "./database-writer.js";
-import { escapeHtml, sanitizeNamedSkillList, sanitizeText } from "./data-sanitization.js";
-import { loadGameXData, computeGrantedSkillsState } from "./game-data.js";
+import { buildWeaponsUpdatePatch } from "../core/database-writer.js";
+import { escapeHtml, sanitizeNamedSkillList, sanitizeText } from "../core/data-sanitization.js";
+import { loadGameXData, computeGrantedSkillsState } from "../core/game-data.js";
 import {
   computeTotalWeaponSlots,
   computeWeaponSlotCost,
@@ -25,7 +25,7 @@ import {
   renderEnhancementDetailHtml,
   renderTagChipsHtml,
   summarizeWeaponProfilesHtml,
-} from "./weapon-utils.js";
+} from "../core/weapon-utils.js";
 
 const CURRENT_STEP_ID = "equipment";
 const MAX_WEAPON_SLOTS = 4;
@@ -522,7 +522,7 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
     renderWeapons();
     setStatus(statusEl, "Saved.");
     if (openSheetAfter) {
-      const url = new URL("character-sheet.html", window.location.href);
+      const url = new URL("/character-sheet.html", window.location.href);
       url.searchParams.set("charId", ctx.charId);
       if (ctx.claims?.gm && ctx.requestedUid) url.searchParams.set("uid", ctx.requestedUid);
       window.location.href = url.toString();

@@ -43,23 +43,16 @@ From the repo root:
   Security rules for Firestore and Cloud Storage.
 
 - `public/`  
-  Everything served to the browser (pages, scripts, styles).
-  - `firebase.js` – Firebase client initialization (Auth/Firestore/Storage)
-  - `auth-ui.js` – shared auth helpers (sign-in/out, redirect handling, claims)
-  - `security.js` – centralized *client-side* “good enough” sanitization + portrait validation
-  - `character-schema.js` – canonical character model and game-facing definitions
-  - Builder files:
-    - `builder-flow.js` – step registry (add/reorder steps here)
-    - `builder-nav.js` – step list + Prev/Next rendering
-    - `builder-common.js` – shared builder page utilities (auth bootstrap, load/save, modals)
-    - `builder-profile.js` – Name & Profile step
-  - Character sheet/editor:
-    - `character-sheet.html` / `character-sheet.js` – character sheet rendering + saving, with an Edit link back into the builder
+  Everything served to the browser (pages, scripts, styles). Most HTML pages remain at the `public/` root; builder HTML pages live under `public/builder/`.
+  - `css/` – shared and page-specific stylesheets
+  - `js/core/` – shared browser modules (Firebase, auth, sanitization, rules, database helpers, game data, weapon helpers)
+  - `js/builder/` – builder flow/navigation utilities and builder step modules
+  - `js/pages/` – root-page entry modules
+  - `character-sheet.html` / `js/pages/character-sheet.js` – character sheet rendering + saving, with an Edit link back into the builder
   - Other pages:
-    - `characters.html` / `characters.js` – list/create characters, with separate Edit and View actions
-    - `login.html` / `login.js` – sign-in flow
-    - `gm_users.html` / `gm_users.js` – GM tools (if enabled)
-
+    - `characters.html` / `js/pages/characters.js` – list/create characters, with separate Edit and View actions
+    - `login.html` / `js/pages/login.js` – sign-in flow
+    - `gm_users.html` / `js/pages/gm_users.js` – GM tools (if enabled)
 - `scripts/`  
   Dev-only tooling (not served by Hosting).
   - `export-game-data.mjs` – XLSX ➜ JSON exporter for classes/feats/techniques
@@ -82,7 +75,7 @@ From the repo root:
 
 ### 2) Builder steps are data-driven
 Builder pages are meant to be independent.
-Navigation (step list, Prev/Next) is derived from `public/builder-flow.js`, not hardcoded per page.
+Navigation (step list, Prev/Next) is derived from `public/js/builder/builder-flow.js`, not hardcoded per page.
 
 ### 3) Data is sourced from a Sheet (XLSX export)
 Classes/feats/techniques are edited in Google Sheets, exported to XLSX, then converted to JSON for the site.
@@ -120,8 +113,8 @@ See `docs/security.md` for details.
 
 ## Adding a new builder step (high level)
 
-1. Add a new HTML+JS page under `public/`
-2. Add the step to `BUILDER_STEPS` in `public/builder-flow.js`
+1. Add a new HTML page under `public/builder/` and its JS module under `public/js/builder/`
+2. Add the step to `BUILDER_STEPS` in `public/js/builder/builder-flow.js` using the `/builder/...` page path
 3. Use `builder-common.js` utilities to:
    - bootstrap auth
    - load the character doc

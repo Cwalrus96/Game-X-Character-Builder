@@ -9,18 +9,18 @@ The character builder is designed as a multi-step wizard.
 
 ## Step registry
 The canonical step order lives in:
-- `public/builder-flow.js`
+- `public/js/builder/builder-flow.js`
 
 To add a new step, add a new entry to `BUILDER_STEPS`:
 - `id`: stable identifier for visited tracking
 - `title`: label shown in the step list
-- `path`: page URL (relative to `public/`)
+- `path`: page URL (site-root-relative from the `public/` Hosting root, for example `/builder/builder-profile.html`)
 
 Prev/Next relationships are derived at runtime.
 
 ## Navigation / orientation UI
 Rendered by:
-- `public/builder-nav.js`
+- `public/js/builder/builder-nav.js`
 
 Behavior:
 - shows all enabled steps
@@ -29,7 +29,7 @@ Behavior:
 
 ## Shared builder utilities
 Provided by:
-- `public/builder-common.js`
+- `public/js/builder/builder-common.js`
 
 Common responsibilities:
 - authenticate the user and optionally support GM “edit as”
@@ -45,21 +45,22 @@ The design intent is:
 
 ## Current implemented steps
 The current registry contains these pages:
-- `public/builder-profile.html` / `public/builder-profile.js` – Name & Profile
-- `public/builder-class.html` / `public/builder-class.js` – Class
-- `public/builder-attributes.html` / `public/builder-attributes.js` – Attributes
-- `public/builder-origin.html` / `public/builder-origin.js` – Origin
-- `public/builder-skills.html` / `public/builder-skills.js` – Skills
-- `public/builder-techniques.html` / `public/builder-techniques.js` – Techniques
-- `public/builder-bonds-keystones.html` / `public/builder-bonds-keystones.js` – Bonds + Background Keystones
+- `public/builder/builder-profile.html` / `public/js/builder/builder-profile.js` – Name & Profile
+- `public/builder/builder-class.html` / `public/js/builder/builder-class.js` – Class
+- `public/builder/builder-attributes.html` / `public/js/builder/builder-attributes.js` – Attributes
+- `public/builder/builder-origin.html` / `public/js/builder/builder-origin.js` – Origin
+- `public/builder/builder-skills.html` / `public/js/builder/builder-skills.js` – Skills
+- `public/builder/builder-techniques.html` / `public/js/builder/builder-techniques.js` – Techniques
+- `public/builder/builder-bonds-keystones.html` / `public/js/builder/builder-bonds-keystones.js` – Bonds + Background Keystones
 
 ## Extending with new pages
 A new builder step should generally:
-1. call `initBuilderAuth()` and `loadCharacterDoc()`
-2. render the page UI from the current doc
-3. on edits, update local state and enforce caps/remaining points
-4. on save, write a sanitized patch
-5. call `renderBuilderNav()` with `onBeforeNext` to auto-save
+1. add the HTML page under `public/builder/` and point its module script at the JS file in `public/js/builder/`
+2. call `initBuilderAuth()` and `loadCharacterDoc()`
+3. render the page UI from the current doc
+4. on edits, update local state and enforce caps/remaining points
+5. on save, write a sanitized patch
+6. call `renderBuilderNav()` with `onBeforeNext` to auto-save
 
 
 Notes on the current flow:
