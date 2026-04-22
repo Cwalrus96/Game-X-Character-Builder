@@ -179,7 +179,7 @@
 </div><div aria-labelledby="keystones_title" class="section" id="keystones">
 <h2 id="keystones_title">Keystones</h2>
 <div class="cards" id="keystoneCards"></div>
-</div><div aria-labelledby="techniques_title" class="section" id="techniques"><h2 id="techniques_title">Techniques</h2><div class="repeatable-header"><button class="mini-btn" id="addTechniqueBtn" type="button">Add Technique</button></div><div id="selectedTechniquesFromBuilder" style="margin-top:10px;"></div><div aria-label="Techniques" class="cards" id="techniqueCards"></div></div><div aria-labelledby="abilities_title" class="section" id="abilities">
+</div><div aria-labelledby="techniques_title" class="section" id="techniques"><h2 id="techniques_title">Techniques</h2><div id="selectedTechniquesFromBuilder" style="margin-top:10px;"></div></div><div aria-labelledby="abilities_title" class="section" id="abilities">
 <h2 id="abilities_title">Abilities &amp; Features</h2>
 <div class="subhead" style="margin-bottom: 10px;">
 <h3 style="margin:0;">Ability Entries</h3>
@@ -202,22 +202,7 @@
 </div>
 <textarea aria-label="Ability details" class="ability-text" data-field="text" placeholder="Effect, cost, notes..." rows="3"></textarea>
 </div>
-</template><template id="techniqueCardTemplate"><div class="ability-card technique-card" data-repeatable-item="">
-<div class="ability-card-head">
-<input aria-label="Technique name" class="ability-name" data-field="name" placeholder="Technique name" type="text"/>
-<div class="tech-meta">
-<select aria-label="Actions cost" class="tech-select" data-field="actions">
-<option value=""></option>
-<option value="1">1 Action</option>
-<option value="2">2 Actions</option>
-<option value="3">3 Actions</option>
-</select>
-<input aria-label="Energy cost" class="tech-number" data-field="energy" inputmode="numeric" min="0" placeholder="Energy" step="1" type="number"/>
-</div>
-<button aria-label="Remove technique" class="mini-btn danger" data-action="remove" type="button">Remove</button>
-</div>
-<textarea aria-label="Technique details" class="ability-text" data-field="text" placeholder="Effect / notes..." rows="3"></textarea>
-</div></template>
+</template>
 
 <template id="conditionRowTemplate">
   <div class="condition-row" data-repeatable-item>

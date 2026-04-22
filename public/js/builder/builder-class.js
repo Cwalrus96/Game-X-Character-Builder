@@ -6,6 +6,7 @@ import {
   loadCharacterDoc,
   saveCharacterPatch,
   markStepVisited,
+  openCharacterSheet,
   setStatus,
   showError,
   clearError,
@@ -728,12 +729,7 @@ async function saveClassStep({ openSheetAfter = false, intent = "save" } = {}) {
 
     setStatus(statusEl, "Saved.");
 
-    if (openSheetAfter) {
-      const url = new URL("/character-sheet.html", window.location.href);
-      url.searchParams.set("charId", ctx.charId);
-      if (ctx.claims?.gm && ctx.requestedUid) url.searchParams.set("uid", ctx.requestedUid);
-      window.location.href = url.toString();
-    }
+    if (openSheetAfter) openCharacterSheet(ctx);
 
     return true;
   } catch (e) {

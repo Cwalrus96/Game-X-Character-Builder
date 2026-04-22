@@ -56,6 +56,16 @@ export function buildBuilderUrl(path, ctx) {
 }
 
 /**
+ * @param {{ charId: string, requestedUid?: string|null, claims?: any }} ctx
+ */
+export function openCharacterSheet(ctx) {
+  const url = new URL("/character-sheet.html", window.location.href);
+  url.searchParams.set("charId", ctx.charId);
+  if (ctx.claims?.gm && ctx.requestedUid) url.searchParams.set("uid", ctx.requestedUid);
+  window.location.href = url.toString();
+}
+
+/**
  * @param {HTMLElement|null} el
  * @param {string} msg
  */

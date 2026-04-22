@@ -1,12 +1,13 @@
 // public/builder-techniques.js
 // Techniques selection step: choose combat techniques by reference (techniqueName) and
-// display granted techniques separately (doesn't use slots).
+// enforce slot/rank gating while keeping granted techniques locked in the main list.
 
 import {
   initBuilderAuth,
   loadCharacterDoc,
   saveCharacterPatch,
   markStepVisited,
+  openCharacterSheet,
   setStatus,
   showError,
   clearError,
@@ -28,10 +29,11 @@ import {
   buildTechniqueIndexes,
   resolveTechniqueRef,
   computeKnownCombatSkillsAndGrants,
+  computeGrantedSkillsState,
 } from "../core/game-data.js";
 
-import { safeHtmlText } from "../core/data-sanitization.js";
-import { renderCombatProfileHtml } from "../core/weapon-utils.js";
+import { sanitizeNamedSkillList, sanitizeText } from "../core/data-sanitization.js";
+import { renderTechniqueProfileHtml } from "../core/technique-utils.js";
 
 const CURRENT_STEP_ID = "techniques";
 
@@ -52,10 +54,8 @@ const slotPillsEl = document.getElementById("slotPills");
 const techSearchEl = document.getElementById("techSearch");
 const filterKnownSkillsEl = document.getElementById("filterKnownSkills");
 const knownSkillsHelpEl = document.getElementById("knownSkillsHelp");
-const grantedListEl = document.getElementById("grantedList");
 const missingListEl = document.getElementById("missingList");
 const techniqueGroupsEl = document.getElementById("techniqueGroups");
-const openSheetLinkEl = document.getElementById("openSheetLink");
 
 const saveBtn = document.getElementById("saveBtn");
 const saveAndOpenBtn = document.getElementById("saveAndOpenBtn");
@@ -86,6 +86,7 @@ let slots = 0;
 let knownCombatSkills = new Set();
 /** @type {Set<string>} */
 let grantedTechniqueNames = new Set();
+let grantedSkillState = null;
 
 // If we auto-adjust stored selections due to class/level/skill/slot changes,
 // we surface a one-time warning so the user understands what happened.
@@ -94,13 +95,6 @@ let didAutoAdjustOnLoad = false;
 let autoAdjustWarnings = [];
 
 // ---- Helpers ----
-
-function openSheet() {
-  const url = new URL("/character-sheet.html", window.location.href);
-  url.searchParams.set("charId", ctx.charId);
-  if (ctx.claims?.gm && ctx.requestedUid) url.searchParams.set("uid", ctx.requestedUid);
-  window.location.href = url.toString();
-}
 
 function resolveRef(ref) {
   const res = resolveTechniqueRef(ref, techIndexes);
@@ -128,10 +122,13 @@ function passesSearch(t) {
 }
 
 function passesKnownSkillFilter(t) {
+  const name = String(t?.techniqueName || "").trim();
+  if (name && grantedTechniqueNames.has(name)) return true;
   if (!filterKnownSkills) return true;
   const skill = String(t?.skill || "").trim();
   if (!skill) return false;
-  return knownCombatSkills.has(skill);
+  if (!knownCombatSkills.has(skill)) return false;
+  return getTechniqueSkillRank(t) >= Number.parseInt(String(t?.rank ?? 0), 10);
 }
 
 function deriveSkillsAndGrants() {
@@ -139,11 +136,43 @@ function deriveSkillsAndGrants() {
   const out = computeKnownCombatSkillsAndGrants(gameData, b);
   knownCombatSkills = out.knownCombatSkills;
   grantedTechniqueNames = out.grantedTechniqueNames;
+  grantedSkillState = computeGrantedSkillsState(gameData, b);
 
   // If something is now granted, drop it from manual selection.
   for (const g of grantedTechniqueNames) {
     if (selectedTechniques.has(g)) selectedTechniques.delete(g);
   }
+}
+
+function getTechniqueSkillRank(technique) {
+  const skillName = sanitizeText(technique?.skill, { maxLen: 96, collapse: true });
+  if (!skillName) return Number(technique?.rank || 0);
+
+  let rank = 0;
+  const grantedCombat = Array.isArray(grantedSkillState?.grantedCombatSkills) ? grantedSkillState.grantedCombatSkills : [];
+  for (const row of grantedCombat) {
+    const skill = sanitizeText(row?.skill, { maxLen: 96, collapse: true });
+    if (skill !== skillName) continue;
+    const value = Number.parseInt(String(row?.rank || "0"), 10);
+    if (Number.isFinite(value)) rank = Math.max(rank, value);
+  }
+
+  const repeatables = currentDoc?.builder?.sheet?.repeatables;
+  const extraCombatSkills = sanitizeNamedSkillList(repeatables?.combatSkillsExtra, { maxItems: 50 });
+  for (const row of extraCombatSkills) {
+    const skill = sanitizeText(row?.skill, { maxLen: 96, collapse: true });
+    if (skill !== skillName) continue;
+    const value = Number.parseInt(String(row?.rank || "0"), 10);
+    if (Number.isFinite(value)) rank = Math.max(rank, value);
+  }
+
+  return rank;
+}
+
+function getKnownCombatSkillRows() {
+  return Array.from(knownCombatSkills)
+    .sort((a, b) => a.localeCompare(b))
+    .map((skill) => ({ skill, rank: getTechniqueSkillRank({ skill }) }));
 }
 
 function pruneSelectionsToCurrentContext() {
@@ -166,16 +195,28 @@ function pruneSelectionsToCurrentContext() {
   // 3) Remove picks whose skill is no longer known (class/feature/feat changes).
   // This keeps selection consistent with the Techniques page's skill-gated list.
   const invalidBySkill = [];
+  const invalidByRank = [];
   for (const ref of selectedTechniques) {
     const t = resolveRef(ref);
     const skill = String(t?.skill || "").trim();
     if (!skill) continue;
-    if (!knownCombatSkills.has(skill)) invalidBySkill.push(ref);
+    if (!knownCombatSkills.has(skill)) {
+      invalidBySkill.push(ref);
+      continue;
+    }
+    const requiredRank = Number.parseInt(String(t?.rank ?? 0), 10);
+    if (getTechniqueSkillRank(t) < requiredRank) invalidByRank.push(ref);
   }
   if (invalidBySkill.length) {
     for (const ref of invalidBySkill) selectedTechniques.delete(ref);
     warnings.push(
       `Removed ${invalidBySkill.length} technique(s) whose combat skill is no longer known for your current class/features.`
+    );
+  }
+  if (invalidByRank.length) {
+    for (const ref of invalidByRank) selectedTechniques.delete(ref);
+    warnings.push(
+      `Removed ${invalidByRank.length} technique(s) whose required combat skill rank is no longer met.`
     );
   }
 
@@ -211,7 +252,7 @@ function pruneSelectionsToCurrentContext() {
 
 function renderSlotSummary() {
   if (slotHintEl) {
-    const label = primaryAttrKey ? (labelForAttrKey(primaryAttrKey) || primaryAttrKey) : "—";
+    const label = primaryAttrKey ? (labelForAttrKey(primaryAttrKey) || primaryAttrKey) : "n/a";
     slotHintEl.textContent = primaryAttrKey
       ? `Slots = ${label} (${slots})`
       : "Primary Attribute not set.";
@@ -220,7 +261,7 @@ function renderSlotSummary() {
   if (!slotPillsEl) return;
   slotPillsEl.innerHTML = "";
 
-  const { total, missing } = getSelectedCounts();
+  const { total } = getSelectedCounts();
 
   const pillSlots = document.createElement("span");
   pillSlots.className = "pill";
@@ -232,81 +273,45 @@ function renderSlotSummary() {
   if (total > slots) pillSel.classList.add("danger");
   else if (slots > 0 && total === slots) pillSel.classList.add("ok");
 
-  const pillMissing = document.createElement("span");
-  pillMissing.className = "pill";
-  pillMissing.textContent = `Missing refs: ${missing}`;
-  if (missing) pillMissing.classList.add("danger");
-
-  slotPillsEl.append(pillSlots, pillSel, pillMissing);
+  slotPillsEl.append(pillSlots, pillSel);
 }
 
 function renderKnownSkills() {
   if (!knownSkillsHelpEl) return;
-  if (!knownCombatSkills.size) {
+  const techniqueSkillNames = new Set(
+    (Array.isArray(gameData?.techniques) ? gameData.techniques : [])
+      .map((tech) => sanitizeText(tech?.skill, { maxLen: 96, collapse: true }))
+      .filter(Boolean)
+  );
+  const rows = getKnownCombatSkillRows().filter(({ skill }) => techniqueSkillNames.has(skill));
+
+  if (!rows.length) {
     knownSkillsHelpEl.textContent = "No combat skills detected (derived from class + feature/feat grants).";
     return;
   }
-  const list = Array.from(knownCombatSkills).sort((a, b) => a.localeCompare(b));
-  knownSkillsHelpEl.textContent = `Combat skills: ${list.join(", ")}`;
-}
 
-function renderGranted() {
-  if (!grantedListEl) return;
-  if (!grantedTechniqueNames.size) {
-    grantedListEl.textContent = "—";
-    return;
+  const label = document.createElement("div");
+  label.className = "muted";
+  label.style.marginBottom = "6px";
+  label.textContent = "Combat skills used for technique availability:";
+
+  const pills = document.createElement("div");
+  pills.className = "pillRow";
+  for (const { skill, rank } of rows) {
+    const pill = document.createElement("span");
+    pill.className = "pill";
+    pill.textContent = `${skill} — Rank ${rank}`;
+    pills.append(pill);
   }
-  const names = Array.from(grantedTechniqueNames).sort((a, b) => a.localeCompare(b));
-  grantedListEl.innerHTML = `<ul>${names.map((n) => `<li>${safeHtmlText(n, 200)}</li>`).join("")}</ul>`;
+
+  knownSkillsHelpEl.innerHTML = "";
+  knownSkillsHelpEl.append(label, pills);
 }
 
 function renderMissingRefs() {
   if (!missingListEl) return;
-
-  const missing = Array.from(selectedTechniques)
-    .filter((ref) => !resolveRef(ref))
-    .sort((a, b) => String(a).localeCompare(String(b)));
-
   missingListEl.innerHTML = "";
-  if (!missing.length) {
-    missingListEl.textContent = "—";
-    return;
-  }
-
-  const wrap = document.createElement("div");
-  wrap.className = "optionList";
-
-  for (const ref of missing) {
-    const row = document.createElement("div");
-    row.className = "optionRow";
-
-    const left = document.createElement("div");
-    left.style.flex = "1";
-
-    const title = document.createElement("div");
-    title.className = "optionTitle";
-    title.textContent = ref;
-
-    const desc = document.createElement("div");
-    desc.className = "optionDesc muted";
-    desc.textContent = "This technique no longer exists in the JSON data. Remove it or replace it.";
-
-    left.append(title, desc);
-
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "btn secondary";
-    btn.textContent = "Remove";
-    btn.addEventListener("click", () => {
-      selectedTechniques.delete(ref);
-      renderAll();
-    });
-
-    row.append(left, btn);
-    wrap.append(row);
-  }
-
-  missingListEl.append(wrap);
+  missingListEl.style.display = "none";
 }
 
 function renderTechniqueGroups() {
@@ -319,8 +324,7 @@ function renderTechniqueGroups() {
     .filter((t) => {
       const name = String(t?.techniqueName || "").trim();
       if (!name) return false;
-      if (grantedTechniqueNames.has(name)) return false;
-      return true;
+      return !!name;
     })
     .filter(passesSearch)
     .filter(passesKnownSkillFilter);
@@ -360,21 +364,28 @@ function renderTechniqueGroups() {
       details.open = false;
 
       const summary = document.createElement("summary");
-      summary.textContent = `Rank 0 (informational) — ${items.length}`;
+      summary.textContent = `Rank 0 Basics - ${items.length}`;
       summary.style.cursor = "pointer";
       summary.style.fontWeight = "700";
       summary.style.marginBottom = "8px";
 
-      const ul = document.createElement("ul");
-      ul.style.margin = "8px 0 0 18px";
+      const listEl = document.createElement("div");
+      listEl.className = "optionList";
 
       for (const t of items) {
-        const li = document.createElement("li");
-        li.textContent = `${t.techniqueName}${t.skill ? ` — ${t.skill}` : ""}`;
-        ul.append(li);
+        const row = document.createElement("div");
+        row.className = "optionRow";
+        row.innerHTML = renderTechniqueProfileHtml(t, {
+          rankValue: getTechniqueSkillRank(t),
+          heading: String(t?.techniqueName || "Technique"),
+          headingTag: "div",
+          headingClass: "optionTitle",
+          showRank: true,
+        });
+        listEl.append(row);
       }
 
-      details.append(summary, ul);
+      details.append(summary, listEl);
       techniqueGroupsEl.append(details);
       continue;
     }
@@ -396,10 +407,15 @@ function renderTechniqueGroups() {
 
       const cb = document.createElement("input");
       cb.type = "checkbox";
-      cb.checked = selectedTechniques.has(name);
+      const isGranted = grantedTechniqueNames.has(name);
+      const rankRequirement = Number.parseInt(String(t?.rank ?? 0), 10);
+      const skillRank = getTechniqueSkillRank(t);
+      cb.checked = isGranted || selectedTechniques.has(name);
 
       const atCap = selectedCount >= slots;
-      if (slots <= 0) cb.disabled = true;
+      if (isGranted) cb.disabled = true;
+      else if (skillRank < rankRequirement) cb.disabled = true;
+      else if (slots <= 0) cb.disabled = true;
       else if (atCap && !cb.checked) cb.disabled = true;
 
       cb.addEventListener("change", () => {
@@ -420,8 +436,8 @@ function renderTechniqueGroups() {
 
       const body = document.createElement("div");
       body.style.flex = "1";
-      body.innerHTML = renderCombatProfileHtml(t, {
-        rankValue: Number(t?.rank || 0),
+      body.innerHTML = renderTechniqueProfileHtml(t, {
+        rankValue: getTechniqueSkillRank(t),
         heading: name,
         headingTag: "div",
         headingClass: "optionTitle",
@@ -440,7 +456,6 @@ function renderAll() {
   deriveSkillsAndGrants();
   renderSlotSummary();
   renderKnownSkills();
-  renderGranted();
   renderMissingRefs();
   renderTechniqueGroups();
 }
@@ -482,7 +497,7 @@ function getSaveIssues() {
 
 async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
   clearError(errorEl);
-  setStatus(statusEl, "Saving…");
+  setStatus(statusEl, "Saving...");
 
   // Keep stored selections consistent before validating/saving.
   const pruneWarnings = pruneSelectionsToCurrentContext();
@@ -526,7 +541,7 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
     currentDoc = currentDoc || {};
     currentDoc.builder = { ...(currentDoc.builder || {}), selectedTechniques: selectedArr };
 
-    if (openSheetAfter) openSheet();
+    if (openSheetAfter) openCharacterSheet(ctx);
     return true;
   } catch (e) {
     console.error(e);
@@ -548,11 +563,11 @@ async function main() {
       errorEl,
     });
 
-    setStatus(statusEl, "Loading game data…");
+    setStatus(statusEl, "Loading game data...");
     gameData = await loadGameXData({ cache: "no-store" });
     techIndexes = buildTechniqueIndexes(gameData?.techniques);
 
-    setStatus(statusEl, "Loading character…");
+    setStatus(statusEl, "Loading character...");
     const loaded = await loadCharacterDoc(ctx.editingUid, ctx.charId);
     charRef = loaded.charRef;
     currentDoc = loaded.characterDoc;
@@ -588,13 +603,6 @@ async function main() {
         renderAll();
       });
       filterKnownSkills = !!filterKnownSkillsEl.checked;
-    }
-
-    if (openSheetLinkEl) {
-      openSheetLinkEl.addEventListener("click", (e) => {
-        e.preventDefault();
-        openSheet();
-      });
     }
 
     if (saveBtn) saveBtn.addEventListener("click", () => saveBuilder({ openSheetAfter: false, intent: "save" }));

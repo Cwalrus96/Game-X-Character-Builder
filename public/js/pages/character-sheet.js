@@ -36,9 +36,9 @@ import {
   getWeaponDef,
   renderTagChipsHtml,
   summarizeWeaponProfilesHtml,
-  renderCombatProfileHtml,
   renderEnhancementDetailHtml,
 } from "../core/weapon-utils.js";
+import { renderTechniqueProfileHtml } from "../core/technique-utils.js";
 import {
   sanitizeCharName,
   sanitizeStoragePath,
@@ -427,12 +427,52 @@ async function renderBuilderTechniquesReadOnly(builder) {
     const selectedRefs = Array.isArray(b.selectedTechniques) ? b.selectedTechniques : [];
 
     const { gameData, indexes } = await ensureTechniqueData();
-    const grants =
-      computeKnownCombatSkillsAndGrants(gameData, b)?.grantedTechniqueNames || new Set();
+    const knownAndGrants = computeKnownCombatSkillsAndGrants(gameData, b) || {};
+    const grants = knownAndGrants.grantedTechniqueNames || new Set();
+    const knownCombatSkills = knownAndGrants.knownCombatSkills || new Set();
+    const grantedSkillState = computeGrantedSkillsState(gameData, b);
+    const repeatables = (b?.sheet?.repeatables && typeof b.sheet.repeatables === "object") ? b.sheet.repeatables : {};
+    const extraCombatSkills = sanitizeNamedSkillList(repeatables.combatSkillsExtra, { maxItems: 50 });
+
+    function getTechniqueSkillRank(technique) {
+      const skillName = sanitizeText(technique?.skill, { maxLen: 96, collapse: true });
+      if (!skillName) return Number(technique?.rank || 0);
+
+      let rank = 0;
+      const grantedCombat = Array.isArray(grantedSkillState?.grantedCombatSkills) ? grantedSkillState.grantedCombatSkills : [];
+      for (const row of grantedCombat) {
+        const skill = sanitizeText(row?.skill, { maxLen: 96, collapse: true });
+        if (skill !== skillName) continue;
+        const value = Number.parseInt(String(row?.rank || "0"), 10);
+        if (Number.isFinite(value)) rank = Math.max(rank, value);
+      }
+
+      for (const row of extraCombatSkills) {
+        const skill = sanitizeText(row?.skill, { maxLen: 96, collapse: true });
+        if (skill !== skillName) continue;
+        const value = Number.parseInt(String(row?.rank || "0"), 10);
+        if (Number.isFinite(value)) rank = Math.max(rank, value);
+      }
+
+      return rank;
+    }
 
     const origin = new Map();
     for (const ref of Array.from(grants)) origin.set(String(ref), 'Granted');
     for (const ref of selectedRefs) if (!origin.has(String(ref))) origin.set(String(ref), 'Selected');
+    const rankZeroBasics = Array.isArray(gameData?.techniques)
+      ? gameData.techniques.filter((tech) => {
+          const name = String(tech?.techniqueName || "").trim();
+          const skill = String(tech?.skill || "").trim();
+          const rank = Number.parseInt(String(tech?.rank ?? 0), 10);
+          if (!name || !skill || rank !== 0) return false;
+          return knownCombatSkills.has(skill);
+        })
+      : [];
+    for (const tech of rankZeroBasics) {
+      const name = String(tech?.techniqueName || "").trim();
+      if (name && !origin.has(name)) origin.set(name, 'Basic');
+    }
 
     const items = [];
     for (const [ref, source] of origin.entries()) {
@@ -453,17 +493,34 @@ async function renderBuilderTechniquesReadOnly(builder) {
       return String(a.tech?.techniqueName || '').localeCompare(String(b.tech?.techniqueName || ''));
     });
 
-    mount.className = 'cards';
-    mount.innerHTML = items.map(({ source, tech }) => {
+    function renderTechniqueCard({ source, tech }) {
       return `
         <article class="ability-card technique-card technique-card-readonly">
           <div class="ability-card-head">
-            <div style="flex:1; min-width:0;">${renderCombatProfileHtml(tech, { rankValue: Number(tech?.rank || 0), heading: String(tech?.techniqueName || 'Technique'), headingTag: 'div', headingClass: 'ability-name technique-title-static', showRank: true })}</div>
+            <div style="flex:1; min-width:0;">${renderTechniqueProfileHtml(tech, { rankValue: getTechniqueSkillRank(tech), heading: String(tech?.techniqueName || 'Technique'), headingTag: 'div', headingClass: 'ability-name technique-title-static', showRank: true })}</div>
             <span class="technique-source-badge">${escapeHtml(source)}</span>
           </div>
         </article>
       `;
-    }).join('');
+    }
+
+    const basics = items.filter(({ tech }) => (Number.parseInt(String(tech?.rank ?? 0), 10) || 0) === 0);
+    const ranked = items.filter(({ tech }) => (Number.parseInt(String(tech?.rank ?? 0), 10) || 0) > 0);
+
+    mount.className = '';
+    const sections = [];
+    if (ranked.length) {
+      sections.push(`<div class="cards">${ranked.map(renderTechniqueCard).join('')}</div>`);
+    }
+    if (basics.length) {
+      sections.push(`
+        <details style="margin-top:${ranked.length ? '12px' : '0'};">
+          <summary style="cursor:pointer; font-weight:700; margin-bottom:8px;">Rank 0 Basics (${basics.length})</summary>
+          <div class="cards" style="margin-top:8px;">${basics.map(renderTechniqueCard).join('')}</div>
+        </details>
+      `);
+    }
+    mount.innerHTML = sections.join('');
   } catch (e) {
     console.warn('renderBuilderTechniquesReadOnly failed', e);
   }
@@ -1570,10 +1627,6 @@ async function renderBuilderWeaponsReadOnly(builder) {
   }
 
   function resetRepeatablesToDefaults() {
-
-    // Techniques: none by default
-    if (repeatableLists.techniques) repeatableLists.techniques.load([]);
-
     // Abilities: 3 blank cards
     if (repeatableLists.abilities) repeatableLists.abilities.load([]);
   }
@@ -1582,8 +1635,6 @@ async function renderBuilderWeaponsReadOnly(builder) {
   portraitApi = initPortrait(scheduleSave);
 
   // Initialize read/write repeatable sections
-  initRepeatableList({ key: 'techniques', containerId: 'techniqueCards', templateId: 'techniqueCardTemplate', addBtnId: 'addTechniqueBtn', fields: ['name','actions','energy','text'], minRows: 0 });
-
 initRepeatableList({ key: 'abilities', containerId: 'abilityCards', templateId: 'abilityCardTemplate', addBtnId: 'addAbilityBtn', fields: ['name','text'], minRows: 3, decorateRow: lockGrantedAbilityRow });
 
 

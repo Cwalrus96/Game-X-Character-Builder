@@ -3,6 +3,7 @@ import {
   initBuilderAuth,
   loadCharacterDoc,
   saveCharacterPatch,
+  openCharacterSheet,
   setStatus,
   showError,
   clearError,
@@ -160,12 +161,7 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
     currentDoc = currentDoc || {};
     currentDoc.builder = { ...(currentDoc.builder || {}), name: patch["builder.name"], portraitPath };
 
-    if (openSheetAfter) {
-      const url = new URL("/character-sheet.html", window.location.href);
-      url.searchParams.set("charId", ctx.charId);
-      if (ctx.claims?.gm && ctx.requestedUid) url.searchParams.set("uid", ctx.requestedUid);
-      window.location.href = url.toString();
-    }
+    if (openSheetAfter) openCharacterSheet(ctx);
 
     return true;
   } catch (e) {

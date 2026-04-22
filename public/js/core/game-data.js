@@ -252,6 +252,10 @@ export function computeKnownCombatSkillsAndGrants(gameData, builder) {
   const knownCombatSkills = new Set();
   const grantedTechniqueNames = new Set();
 
+  for (const skill of ["Martial Arts", "Melee Weapons", "Targeting"]) {
+    knownCombatSkills.add(skill);
+  }
+
   // ---- Base skills from class ----
   const classes = Array.isArray(data.classes) ? data.classes : [];
   const cls = classes.find((c) => String(c?.classKey || "") === String(classKey)) || null;
@@ -358,6 +362,10 @@ export function computeGrantedSkillsState(gameData, builder) {
 
   const grantedSkillNames = new Set();
   const grantedCombatSkills = new Map();
+
+  for (const skill of ["Martial Arts", "Melee Weapons", "Targeting"]) {
+    pushGrantedSkill(grantedCombatSkills, skill, "0", "Common");
+  }
 
   const classes = Array.isArray(data.classes) ? data.classes : [];
   const cls = classes.find((c) => String(c?.classKey || "") === String(classKey)) || null;
