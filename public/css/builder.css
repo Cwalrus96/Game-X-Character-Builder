@@ -226,7 +226,12 @@ textarea {
 }
 
 .warn {
-  color: #ffe0b1;
+  color: #5f3b00;
+  background: #fff0c2;
+}
+
+.card .warn {
+  color: #5f3b00;
 }
 
 .card {

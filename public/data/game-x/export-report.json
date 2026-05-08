@@ -2,7 +2,6 @@
   "input": "C:\\Windows\\System32\\Firebase\\Game-X-Character-Builder\\data\\game-x-class-data.xlsx",
   "generatedAt": "2026-03-29T18:05:46.922Z",
   "warnings": [
-    "Techniques \"Visor Scan\": pumpable (energyCost=-1) but neither damage nor damageByRank is set.",
     "Origins: magical-dimension has no OriginFeatures rows.",
     "Origins: curse has no OriginFeatures rows.",
     "Origins: manifest-spirit has no OriginFeatures rows.",
@@ -19,6 +18,6 @@
     "weaponBases": 31,
     "weaponProfiles": 33,
     "weaponEnhancements": 30,
-    "warnings": 7
+    "warnings": 6
   }
 }

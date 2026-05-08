@@ -249,6 +249,19 @@
   .identity-field input::placeholder {
     color: var(--accent-color);
   }
+  .sheet-readonly-value {
+    min-height: 1.8em;
+    border-bottom: 1px solid var(--input-border-color);
+    padding: 4px;
+    color: var(--panel-text-color);
+    overflow-wrap: anywhere;
+  }
+  .attribute-item .sheet-readonly-value,
+  .resource-inline .sheet-readonly-value,
+  td > .sheet-readonly-value {
+    min-width: 48px;
+    text-align: center;
+  }
   .portrait-box {
     width: clamp(96px, 22vw, 150px);
     height: clamp(96px, 22vw, 150px);
@@ -377,7 +390,7 @@
     background: var(--chip-bg-color);
   }
   .skill-chip-static {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 140px);
+    grid-template-columns: minmax(0, 1fr);
   }
   .skill-chip-label {
     display: block;
@@ -399,8 +412,6 @@
   .skill-chip-value {
     display: block;
     min-width: 0;
-    padding-left: 10px;
-    border-left: 1px solid var(--input-border-color);
     color: var(--panel-text-color);
     font-family: var(--body-font);
     line-height: 1.2;
@@ -1095,6 +1106,150 @@
     display: none;
   }
   .gx-tooltip[data-show="1"] { display: block; }
+
+  @media (max-width: 680px) {
+    body {
+      padding: 8px;
+    }
+
+    #sheet {
+      width: min(100%, 100vw - 16px);
+      padding: 10px;
+    }
+
+    #sheet::before,
+    #sheet::after {
+      display: none;
+    }
+
+    .sheet-tools,
+    .identity-grid,
+    .identity-fields,
+    .attribute-groups,
+    .ability-card-head,
+    .repeatable-header {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    .sheet-tools .tools-left,
+    .tools-right {
+      justify-content: stretch;
+    }
+
+    .sheet-tools .tool-link,
+    .sheet-tools button {
+      text-align: center;
+    }
+
+    .portrait-box {
+      order: -1;
+      justify-self: center;
+      margin-bottom: 8px;
+    }
+
+    .section {
+      padding: 10px;
+      margin-bottom: 12px;
+    }
+
+    .section h2 {
+      font-size: 1.08em;
+      padding-top: 5px;
+      padding-bottom: 5px;
+    }
+
+    table,
+    tbody,
+    tr,
+    th,
+    td {
+      display: block;
+      width: 100%;
+    }
+
+    th {
+      border-bottom: 0;
+    }
+
+    td {
+      border-top: 0;
+    }
+
+    .resource-inline {
+      justify-content: flex-start;
+      margin-bottom: 8px;
+    }
+
+    #resources table,
+    #resources tbody {
+      display: block;
+    }
+
+    #resources tr:first-child {
+      display: none;
+    }
+
+    #resources tr:nth-child(2) {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    #resources td {
+      border: 1px solid var(--primary-color);
+      border-radius: 6px;
+      padding: 8px;
+      background: var(--chip-bg-color);
+    }
+
+    #resources td::before {
+      display: block;
+      margin-bottom: 6px;
+      font-family: var(--title-font);
+      font-weight: 700;
+      color: var(--panel-text-color);
+    }
+
+    #resources td:nth-child(1)::before {
+      content: "HP (Current / Max)";
+    }
+
+    #resources td:nth-child(2)::before {
+      content: "Strain / Overstrained";
+    }
+
+    #resources td:nth-child(3)::before {
+      content: "Speed";
+    }
+
+    #resources .resource-inline {
+      margin-bottom: 0;
+    }
+
+    .skill-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .skill-chip {
+      padding: 7px;
+    }
+
+    .skill-chip-label,
+    .skill-chip-value {
+      overflow-wrap: anywhere;
+    }
+
+    .condition-row,
+    .weapon-row {
+      grid-template-columns: 1fr;
+    }
+
+    .condition-row [data-action="remove"],
+    .weapon-row [data-action="remove"] {
+      width: 100%;
+    }
+  }
 
   @media print {
     .gx-tooltip { display: none !important; }

@@ -54,7 +54,7 @@ Fields are intentionally flexible, but the current schema centers around:
   - `bonds` (builder-owned structured bond records: name, rank, keystone)
 - `backgroundKeystones` (builder-owned background keystone strings)
   - `visitedSteps` / `lastVisitedAt` (builder flow state)
-  - `sheet.fields` / `sheet.repeatables` (character-sheet-owned gameplay/custom fields only)
+  - `sheet.fields` / `sheet.repeatables` (temporary character-sheet state only; permanent character data should come from builder-owned fields)
 - `createdAt` / `updatedAt` (timestamps; server-side)
 
 Note: we store only `portraitPath` in Firestore. Download URLs are resolved at runtime via the Storage SDK.

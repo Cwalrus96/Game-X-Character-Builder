@@ -93,6 +93,7 @@ import {
   let cloudDocRef = null;          // users/<uid>/characters/<charId>
   let cloudReady = false;
   let cloudSaveTimer = null;
+  let currentDoc = null;
   const CLOUD_SAVE_DEBOUNCE_MS = 1200;
 
   function setCloudStatus(msg, isError=false) {
@@ -151,6 +152,7 @@ import {
         }
 
         delete classSelect.dataset.pendingValue;
+        syncReadOnlyDisplays();
       } catch (e) {
         console.warn('Failed to populate class list:', e);
       }
@@ -175,6 +177,15 @@ import {
     'physdef',
     'mentdef',
     'spiritdef',
+  ]);
+  const TEMPORARY_SHEET_FIELD_NAMES = new Set([
+    'hpcur',
+    'strain',
+    'overstrained',
+    'notes',
+  ]);
+  const TEMPORARY_SHEET_REPEATABLE_KEYS = new Set([
+    'conditions',
   ]);
 
 
@@ -364,6 +375,45 @@ import {
     return out;
   }
 
+  function pickTemporarySheetFields(allFields) {
+    const out = {};
+    const src = (allFields && typeof allFields === 'object') ? allFields : {};
+    for (const [k, v] of Object.entries(src)) {
+      if (!TEMPORARY_SHEET_FIELD_NAMES.has(k)) continue;
+      out[k] = v;
+    }
+    return out;
+  }
+
+  function pickTemporarySheetRepeatables(repeatables) {
+    const out = {};
+    const src = (repeatables && typeof repeatables === 'object') ? repeatables : {};
+    for (const key of TEMPORARY_SHEET_REPEATABLE_KEYS) {
+      if (key in src) out[key] = src[key];
+    }
+    return out;
+  }
+
+  function buildMergedSheetStateForSave({ allFields = {}, repeatables = {} } = {}) {
+    const existingSheet = (currentDoc?.builder?.sheet && typeof currentDoc.builder.sheet === 'object') ? currentDoc.builder.sheet : {};
+    const existingFields = (existingSheet.fields && typeof existingSheet.fields === 'object') ? existingSheet.fields : {};
+    const existingRepeatables = (existingSheet.repeatables && typeof existingSheet.repeatables === 'object') ? existingSheet.repeatables : {};
+
+    return {
+      fields: {
+        ...existingFields,
+        ...pickTemporarySheetFields(allFields),
+        ...readOnlySkillFields,
+      },
+      repeatables: {
+        ...existingRepeatables,
+        ...pickTemporarySheetRepeatables(repeatables),
+        combatSkillsExtra: readOnlySkillRepeatables.combatSkillsExtra,
+        settingSkills: readOnlySkillRepeatables.settingSkills,
+      },
+    };
+  }
+
   // ---- Derived display (from character-schema.js) ----
 
   let derivedSeq = 0;
@@ -373,6 +423,53 @@ import {
     if (!el) return;
     const val = Number.isFinite(n) ? String(Math.round(n)) : '';
     if (el.value !== val) el.value = val;
+    syncReadOnlyFieldDisplay(el);
+  }
+
+  function accountDisplayName(user) {
+    if (!user) return '';
+    const displayName = sanitizeText(user.displayName || '', { maxLen: 120, collapse: true });
+    if (displayName) return displayName;
+    const email = sanitizeText(user.email || '', { maxLen: 160, collapse: true });
+    if (!email) return '';
+    return email.includes('@') ? email.split('@')[0] : email;
+  }
+
+  function displayTextForField(el) {
+    if (!el) return '';
+    if (el.tagName === 'SELECT') {
+      const selected = el.options?.[el.selectedIndex];
+      return sanitizeText(selected?.textContent || el.value || '', { maxLen: 160, collapse: true });
+    }
+    if (el.type === 'checkbox') return el.checked ? 'Yes' : 'No';
+    return sanitizeText(el.value || '', { maxLen: 400, collapse: true });
+  }
+
+  function ensureReadOnlyFieldDisplay(el) {
+    if (!el || !el.name) return null;
+    const field = el.closest('.identity-field, .attribute-item, td') || el.parentElement;
+    if (!field) return null;
+    let display = field.querySelector(`[data-readonly-display-for="${CSS.escape(el.name)}"]`);
+    if (!display) {
+      display = document.createElement('div');
+      display.className = 'readonly-value sheet-readonly-value empty';
+      display.dataset.readonlyDisplayFor = el.name;
+      el.insertAdjacentElement('afterend', display);
+    }
+    return display;
+  }
+
+  function syncReadOnlyFieldDisplay(el) {
+    if (!el || !el.name || !el.dataset.readonlyBacked) return;
+    const display = ensureReadOnlyFieldDisplay(el);
+    if (!display) return;
+    const text = displayTextForField(el);
+    display.textContent = text || '-';
+    display.classList.toggle('empty', !text);
+  }
+
+  function syncReadOnlyDisplays() {
+    document.querySelectorAll('[data-readonly-backed="true"]').forEach((el) => syncReadOnlyFieldDisplay(el));
   }
 
   async function updateDerivedDisplay(fieldsOverride = null) {
@@ -666,6 +763,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
       const snap = await getDoc(cloudDocRef);
       if (snap.exists()) {
         const raw = snap.data() || {};
+        currentDoc = raw;
 
         // Canonical read path (no legacy backfill):
         const b = (raw?.builder && typeof raw.builder === 'object') ? raw.builder : {};
@@ -723,7 +821,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
         renderOriginReadOnly({ originKey, originKeystone });
         renderBondsReadOnly(bonds);
         renderKeystonesReadOnly(b);
-        // Render Builder-selected techniques (read-only) alongside custom technique cards.
+        // Render Builder-selected techniques (read-only).
         renderBuilderTechniquesReadOnly(b);
         renderBuilderWeaponsReadOnly(b);
         if (portraitApi && portraitPath) {
@@ -742,6 +840,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
       const allFields = collectFields();
       const canon = buildCanonicalFromForm(allFields);
       const state = collectState();
+      const mergedSheetState = buildMergedSheetStateForSave({ allFields, repeatables: state?.repeatables || {} });
 
       renderOriginReadOnly({ originKey: '', originKeystone: '' });
       renderBondsReadOnly([]);
@@ -759,17 +858,10 @@ async function renderBuilderWeaponsReadOnly(builder) {
           classKey: sanitizeText(canon?.classKey || '', { maxLen: 64 }),
           primaryAttribute: coerceAttrKey(canon?.primaryAttribute),
           weapons: sanitizeWeaponList(currentDoc?.builder?.weapons, { maxItems: 20 }),
-          // Editor-owned sheet data lives under builder.sheet.*
+          // Temporary character-sheet state lives under builder.sheet.*
           sheet: {
-            fields: {
-              ...pickSheetOnlyFields(allFields),
-              ...readOnlySkillFields,
-            },
-            repeatables: {
-              ...(state?.repeatables || {}),
-              combatSkillsExtra: readOnlySkillRepeatables.combatSkillsExtra,
-              settingSkills: readOnlySkillRepeatables.settingSkills,
-            },
+            fields: mergedSheetState.fields,
+            repeatables: mergedSheetState.repeatables,
           },
         },
         createdAt: serverTimestamp(),
@@ -777,6 +869,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
       };
 
       await setDoc(cloudDocRef, baseline, { merge: true });
+      currentDoc = baseline;
 
       renderBuilderTechniquesReadOnly((baseline && baseline.builder) ? baseline.builder : {});
       renderBuilderWeaponsReadOnly((baseline && baseline.builder) ? baseline.builder : {});
@@ -799,9 +892,11 @@ async function renderBuilderWeaponsReadOnly(builder) {
       const allFields = collectFields();
       const canon = buildCanonicalFromForm(allFields);
       const state = collectState();
+      const mergedSheetState = buildMergedSheetStateForSave({ allFields, repeatables: state?.repeatables || {} });
+      const existingBuilder = (currentDoc?.builder && typeof currentDoc.builder === 'object') ? currentDoc.builder : {};
 
       // Portrait upload (Cloud Storage).
-      let portraitPath = sanitizeStoragePath(state?.portrait?.path || '');
+      let portraitPath = sanitizeStoragePath(existingBuilder?.portraitPath || state?.portrait?.path || '');
       const pendingDelete = portraitApi?.consumePendingDelete ? portraitApi.consumePendingDelete() : '';
       const pending = portraitApi?.consumePendingUpload ? portraitApi.consumePendingUpload() : null;
       if (pending && pending.blob) {
@@ -837,29 +932,28 @@ async function renderBuilderWeaponsReadOnly(builder) {
         schemaVersion: CHARACTER_SCHEMA_VERSION,
         ownerUid: editingUid,
         builder: {
-          name: sanitizeCharName(canon?.name || 'Character'),
+          name: sanitizeCharName(existingBuilder?.name || canon?.name || 'Character'),
           portraitPath: portraitPath,
-          level: clampLevel(canon?.level ?? 1),
-          attributes: normalizeAttributes(canon?.attributes || {}),
-          classKey: sanitizeText(canon?.classKey || '', { maxLen: 64 }),
-          primaryAttribute: coerceAttrKey(canon?.primaryAttribute),
-          weapons: sanitizeWeaponList(currentDoc?.builder?.weapons, { maxItems: 20 }),
+          level: clampLevel(existingBuilder?.level ?? canon?.level ?? 1),
+          attributes: normalizeAttributes(existingBuilder?.attributes || canon?.attributes || {}),
+          classKey: sanitizeText(existingBuilder?.classKey || canon?.classKey || '', { maxLen: 64 }),
+          primaryAttribute: coerceAttrKey(existingBuilder?.primaryAttribute ?? canon?.primaryAttribute),
+          weapons: sanitizeWeaponList(existingBuilder?.weapons, { maxItems: 20 }),
           sheet: {
-            fields: {
-              ...pickSheetOnlyFields(allFields),
-              ...readOnlySkillFields,
-            },
-            repeatables: {
-              ...(state?.repeatables || {}),
-              combatSkillsExtra: readOnlySkillRepeatables.combatSkillsExtra,
-              settingSkills: readOnlySkillRepeatables.settingSkills,
-            },
+            fields: mergedSheetState.fields,
+            repeatables: mergedSheetState.repeatables,
           },
         },
         updatedAt: serverTimestamp(),
       };
 
       await setDoc(cloudDocRef, cloudDoc, { merge: true });
+
+      currentDoc = currentDoc || {};
+      currentDoc.builder = {
+        ...(currentDoc.builder || {}),
+        ...(cloudDoc.builder || {}),
+      };
 
       setCloudStatus('Cloud: Saved');
     } catch (e) {
@@ -935,7 +1029,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
 
   // ---------- Portrait module ----------
 
-  function initPortrait(scheduleSave) {
+  function initPortrait(scheduleSave, { canEdit = true } = {}) {
     const box = document.querySelector('.portrait-box');
     const imgEl = document.getElementById('portraitPreview');
     const placeholderEl = document.getElementById('portraitPlaceholder');
@@ -958,7 +1052,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
         imgEl.style.display = src ? 'block' : 'none';
       }
       if (placeholderEl) placeholderEl.style.display = src ? 'none' : 'block';
-      if (clearBtn) clearBtn.style.display = src ? 'flex' : 'none';
+      if (clearBtn) clearBtn.style.display = (canEdit && src) ? 'flex' : 'none';
     }
 
     function set(next = {}) {
@@ -1085,7 +1179,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
       img.src = dataUrl;
     }
 
-    if (box && input) {
+    if (box && input && canEdit) {
       box.addEventListener('click', (e) => {
         // Ignore clicks on the clear button
         if (e && e.target && (e.target === clearBtn)) return;
@@ -1101,7 +1195,9 @@ async function renderBuilderWeaponsReadOnly(builder) {
     }
 
     if (input) {
+      input.disabled = !canEdit;
       input.addEventListener('change', () => {
+        if (!canEdit) return;
         const file = input.files && input.files[0];
         if (!file) return;
         handleFile(file);
@@ -1109,10 +1205,19 @@ async function renderBuilderWeaponsReadOnly(builder) {
     }
 
     if (clearBtn) {
+      clearBtn.disabled = !canEdit;
       clearBtn.addEventListener('click', (e) => {
         if (e) e.stopPropagation();
+        if (!canEdit) return;
         clear();
       });
+    }
+
+    if (box && !canEdit) {
+      box.removeAttribute('role');
+      box.removeAttribute('tabindex');
+      box.setAttribute('aria-disabled', 'true');
+      box.style.cursor = 'default';
     }
 
     render();
@@ -1158,14 +1263,15 @@ async function renderBuilderWeaponsReadOnly(builder) {
       } else {
         el.value = (val ?? '');
       }
+      syncReadOnlyFieldDisplay(el);
     });
   }
 
   function collectState() {
     const allFields = collectFields();
     const canon = buildCanonicalFromForm(allFields);
-    const sheetOnly = pickSheetOnlyFields(allFields);
-    const rep = collectRepeatables();
+    const sheetOnly = pickTemporarySheetFields(allFields);
+    const rep = pickTemporarySheetRepeatables(collectRepeatables());
     const portraitState = portraitApi?.getState ? portraitApi.getState() : { path: '', previewDataUrl: '' };
 
     return {
@@ -1209,6 +1315,9 @@ async function renderBuilderWeaponsReadOnly(builder) {
     const mergedFields = {
       ...(state.fields && typeof state.fields === 'object' ? state.fields : {}),
       charName: sanitizeCharName(canon?.name || ''),
+      playerName: editingUid === currentUser?.uid
+        ? accountDisplayName(currentUser)
+        : sanitizeText(state.fields?.playerName || requestedUidParam || '', { maxLen: 120, collapse: true }),
       classSelect: classKey,
       primaryAttribute: primaryAttribute,
       level: level,
@@ -1271,6 +1380,49 @@ async function renderBuilderWeaponsReadOnly(builder) {
 
   // ---------- Repeatable list utility (for Pass 2+) ----------
   const repeatableLists = {}; 
+
+  function setElementEditable(el, editable) {
+    if (!el) return;
+    const canEdit = !!editable;
+    if (el.tagName === 'SELECT') {
+      el.disabled = !canEdit;
+      return;
+    }
+    if (el.type === 'checkbox' || el.type === 'radio') {
+      el.disabled = !canEdit;
+      return;
+    }
+    if ('readOnly' in el) el.readOnly = !canEdit;
+    if ('disabled' in el) el.disabled = false;
+  }
+
+  function applySheetOwnershipMode() {
+    const namedElements = document.querySelectorAll('input[name], select[name], textarea[name]');
+    namedElements.forEach((el) => {
+      if (el.type === 'file') return;
+      const key = String(el.name || '');
+      if (!key) return;
+      const editable = TEMPORARY_SHEET_FIELD_NAMES.has(key);
+      const displayOnly = !editable || DERIVED_FIELD_NAMES.has(key);
+      if (displayOnly) {
+        el.dataset.readonlyBacked = 'true';
+        ensureReadOnlyFieldDisplay(el);
+        el.hidden = true;
+        setElementEditable(el, true);
+        syncReadOnlyFieldDisplay(el);
+        return;
+      }
+      delete el.dataset.readonlyBacked;
+      el.hidden = false;
+      setElementEditable(el, true);
+    });
+
+    const addAbilityBtn = document.getElementById('addAbilityBtn');
+    if (addAbilityBtn) {
+      addAbilityBtn.hidden = true;
+      addAbilityBtn.disabled = true;
+    }
+  }
   
   // Normalize saved values for repeatable row fields so inputs never display "undefined" or "[object Object]".
   function normalizeRowValue(v) {
@@ -1279,21 +1431,27 @@ async function renderBuilderWeaponsReadOnly(builder) {
     return String(v);
   }
 
-  function lockGrantedAbilityRow(root, data) {
-    const name = String(data?.name || '').trim();
-    const locked = !!name && lockedAbilityNames.has(name);
-    root.classList.toggle('ability-card-locked', locked);
-
+  function lockAbilityRow(root) {
+    root.classList.add('ability-card-locked');
     const removeBtn = root.querySelector('[data-action="remove"]');
     if (removeBtn) {
-      removeBtn.hidden = locked;
-      removeBtn.disabled = locked;
+      removeBtn.hidden = true;
+      removeBtn.disabled = true;
     }
 
     root.querySelectorAll('[data-field]').forEach((el) => {
-      if ('readOnly' in el) el.readOnly = locked;
-      if (!locked && 'readOnly' in el) el.readOnly = false;
+      if ('readOnly' in el) el.readOnly = true;
+      if (el.tagName === 'SELECT' || el.type === 'checkbox' || el.type === 'radio') {
+        el.disabled = true;
+      }
     });
+  }
+
+  function lockGrantedAbilityRow(root, data) {
+    const name = String(data?.name || '').trim();
+    const locked = !!name && lockedAbilityNames.has(name);
+    lockAbilityRow(root);
+    root.classList.toggle('ability-card-locked', locked);
   }
   
   // This is a lightweight helper around <template> cloning.
@@ -1319,7 +1477,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
 
 
   // ---------- Repeatable lists (Pass 2) ----------
-  function initRepeatableList({ key, containerId, templateId, addBtnId, fields, minRows, decorateRow }) {
+  function initRepeatableList({ key, containerId, templateId, addBtnId, fields, minRows, decorateRow, editable = true }) {
     const container = document.getElementById(containerId);
     const addBtn = document.getElementById(addBtnId);
 
@@ -1348,9 +1506,10 @@ async function renderBuilderWeaponsReadOnly(builder) {
         });
 
         if (typeof decorateRow === 'function') decorateRow(root, data);
+        if (!editable) lockAbilityRow(root);
 
         const removeBtn = root.querySelector('[data-action="remove"]');
-        if (removeBtn) {
+        if (removeBtn && editable) {
           removeBtn.addEventListener('click', () => {
             root.remove();
             scheduleSave();
@@ -1408,6 +1567,11 @@ async function renderBuilderWeaponsReadOnly(builder) {
     }
 
     if (addBtn) {
+      addBtn.hidden = !editable;
+      addBtn.disabled = !editable;
+    }
+
+    if (addBtn && editable) {
       addBtn.addEventListener('click', () => {
         addRow();
         scheduleSave();
@@ -1440,6 +1604,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
     }
 
     if (current) sel.value = current;
+    syncReadOnlyDisplays();
   }
 
 // ---------- Tooltips (short hover/focus explanations) ----------
@@ -1632,10 +1797,10 @@ async function renderBuilderWeaponsReadOnly(builder) {
   }
 
   // ---------- Wire up events ----------
-  portraitApi = initPortrait(scheduleSave);
+  portraitApi = initPortrait(scheduleSave, { canEdit: false });
 
   // Initialize read/write repeatable sections
-initRepeatableList({ key: 'abilities', containerId: 'abilityCards', templateId: 'abilityCardTemplate', addBtnId: 'addAbilityBtn', fields: ['name','text'], minRows: 3, decorateRow: lockGrantedAbilityRow });
+initRepeatableList({ key: 'abilities', containerId: 'abilityCards', templateId: 'abilityCardTemplate', addBtnId: 'addAbilityBtn', fields: ['name','text'], minRows: 3, decorateRow: lockGrantedAbilityRow, editable: false });
 
 
   
@@ -1674,6 +1839,7 @@ if (classSelect) {
   };
 
   applyReadOnlySkillState();
+  applySheetOwnershipMode();
 
   // Initialize tooltip text + behavior
   applyTooltipText();
