@@ -1,11 +1,14 @@
-import { db } from "../core/firebase.js";
+import { db, storage } from "../core/firebase.js";
 import { onAuth, signOutNow, initAuthRedirectHandling, getClaims } from "../core/auth-ui.js";
 import { createDefaultCharacterDoc } from "../core/database-reader.js";
+import { sanitizeStoragePath } from "../core/data-sanitization.js";
+import { loadGameXData } from "../core/game-data.js";
 
 import {
   doc,
   getDoc,
   setDoc,
+  deleteDoc,
   collection,
   query,
   orderBy,
@@ -13,6 +16,12 @@ import {
   serverTimestamp,
   addDoc,
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+import {
+  ref as storageRef,
+  getDownloadURL,
+  deleteObject,
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-storage.js";
 
 const whoamiEl = document.getElementById("whoami");
 const signOutBtn = document.getElementById("signOutBtn");
@@ -42,6 +51,9 @@ let claims = { gm: false };
 let viewingUid = null;
 let viewingUserDoc = null;
 let unsubscribeCharacters = null;
+const portraitUrlCache = new Map();
+let classNameByKey = new Map();
+let originNameByKey = new Map();
 
 function qsParam(name) {
   const params = new URLSearchParams(window.location.search);
@@ -187,6 +199,103 @@ function buildCharacterUrl(page, { charId, ownerUid, isViewingSelf }) {
   return url.toString();
 }
 
+function humanizeKey(key) {
+  return String(key || "")
+    .trim()
+    .split("-")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+async function loadCharacterMetadataLookups() {
+  try {
+    const data = await loadGameXData({ cache: "no-store" });
+    classNameByKey = new Map(
+      (Array.isArray(data?.classes) ? data.classes : [])
+        .map((cls) => [String(cls?.classKey || ""), String(cls?.name || cls?.classKey || "")])
+        .filter(([key]) => key)
+    );
+    originNameByKey = new Map(
+      (Array.isArray(data?.origins) ? data.origins : [])
+        .map((origin) => [String(origin?.originKey || ""), String(origin?.name || origin?.originKey || "")])
+        .filter(([key]) => key)
+    );
+  } catch (e) {
+    console.warn("Could not load class/origin names for character list:", e);
+    classNameByKey = new Map();
+    originNameByKey = new Map();
+  }
+}
+
+function buildCharacterMetaParts(builder = {}) {
+  const parts = [];
+
+  const level = Number.parseInt(String(builder?.level ?? ""), 10);
+  if (Number.isFinite(level) && level > 0) parts.push(`Level ${level}`);
+
+  const classKey = String(builder?.classKey || "").trim();
+  if (classKey) parts.push(classNameByKey.get(classKey) || humanizeKey(classKey));
+
+  const originKey = String(builder?.originKey || "").trim();
+  if (originKey) parts.push(originNameByKey.get(originKey) || humanizeKey(originKey));
+
+  return parts;
+}
+
+async function resolvePortraitUrl(path) {
+  const cleanPath = sanitizeStoragePath(path || "");
+  if (!cleanPath) return "";
+  if (portraitUrlCache.has(cleanPath)) return portraitUrlCache.get(cleanPath);
+
+  try {
+    const url = await getDownloadURL(storageRef(storage, cleanPath));
+    portraitUrlCache.set(cleanPath, url);
+    return url;
+  } catch (e) {
+    console.warn("Could not load character portrait thumbnail:", e);
+    portraitUrlCache.set(cleanPath, "");
+    return "";
+  }
+}
+
+async function applyPortraitThumbnail(img, placeholder, path) {
+  const url = await resolvePortraitUrl(path);
+  if (!img || !placeholder) return;
+  if (!url) {
+    img.hidden = true;
+    placeholder.hidden = false;
+    return;
+  }
+  img.src = url;
+  img.hidden = false;
+  placeholder.hidden = true;
+}
+
+async function deleteCharacter({ charId, name, portraitPath }) {
+  if (!currentUser || !viewingUid || !charId) return;
+
+  const displayName = String(name || "").trim() || "(Unnamed character)";
+  const required = String(name || "").trim() || "DELETE";
+  const typed = window.prompt(
+    `Delete ${displayName}?\n\nThis cannot be undone. Type ${required} to confirm.`
+  );
+  if (typed !== required) return;
+
+  const characterRef = doc(db, "users", viewingUid, "characters", charId);
+  await deleteDoc(characterRef);
+
+  const cleanPortraitPath = sanitizeStoragePath(portraitPath || "");
+  if (cleanPortraitPath) {
+    try {
+      await deleteObject(storageRef(storage, cleanPortraitPath));
+      portraitUrlCache.delete(cleanPortraitPath);
+    } catch (e) {
+      console.warn("Character deleted, but portrait cleanup failed:", e);
+    }
+  }
+}
+
 function renderCharacters(docs) {
   clearCharacterList();
   hide(charactersError);
@@ -200,15 +309,24 @@ function renderCharacters(docs) {
   const isViewingSelf = viewingUid === currentUser.uid;
   docs.forEach((d) => {
     const data = d.data() || {};
-    const name = data?.builder?.name || "(Unnamed character)";
+    const builder = data?.builder || {};
+    const name = builder?.name || "(Unnamed character)";
+    const rawName = builder?.name || "";
+    const portraitPath = sanitizeStoragePath(builder?.portraitPath || "");
+    const metaParts = buildCharacterMetaParts(builder);
     const updatedAt = data.updatedAt?.toDate ? data.updatedAt.toDate().toLocaleString() : "";
     const owner = data.ownerUid || viewingUid;
 
     const li = document.createElement("li");
     li.innerHTML = `
-      <div class="row">
-        <div>
+      <div class="character-row">
+        <div class="character-thumb" aria-hidden="true">
+          <img alt="" hidden />
+          <span>${escapeHtml((rawName || "?").trim().charAt(0).toUpperCase() || "?")}</span>
+        </div>
+        <div class="character-meta">
           <div class="name">${escapeHtml(name)}</div>
+          ${metaParts.length ? `<div class="character-facts">${metaParts.map((part) => `<span>${escapeHtml(part)}</span>`).join("")}</div>` : ""}
           <div class="sub">Last updated: ${escapeHtml(updatedAt || "(unknown)")}</div>
         </div>
         <div class="right"></div>
@@ -216,6 +334,9 @@ function renderCharacters(docs) {
     `;
 
     const right = li.querySelector(".right");
+    const thumbImg = li.querySelector(".character-thumb img");
+    const thumbFallback = li.querySelector(".character-thumb span");
+    applyPortraitThumbnail(thumbImg, thumbFallback, portraitPath);
 
     const editLink = document.createElement("a");
     editLink.className = "btn";
@@ -236,6 +357,23 @@ function renderCharacters(docs) {
       isViewingSelf,
     });
     right.appendChild(viewLink);
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "btn danger";
+    deleteBtn.type = "button";
+    deleteBtn.textContent = "Delete";
+    deleteBtn.addEventListener("click", async () => {
+      deleteBtn.disabled = true;
+      try {
+        await deleteCharacter({ charId: d.id, name: rawName, portraitPath });
+      } catch (e) {
+        console.error(e);
+        showError(charactersError, "Could not delete character.");
+      } finally {
+        deleteBtn.disabled = false;
+      }
+    });
+    right.appendChild(deleteBtn);
 
     charactersList.appendChild(li);
   });
@@ -363,6 +501,7 @@ onAuth(async (user) => {
 
   // Load the viewing user document (self, or GM-selected user).
   await loadViewingUserDoc();
+  await loadCharacterMetadataLookups();
   renderProfile();
 
   await startCharactersListener();
