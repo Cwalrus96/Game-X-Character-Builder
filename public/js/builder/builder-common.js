@@ -9,6 +9,7 @@ import {
 
 import { normalizeCharacterDoc } from "../core/database-reader.js";
 import { escapeHtml } from "../core/data-sanitization.js";
+import { ensureAppTopNav } from "../core/app-nav.js";
 import {
   saveCharacterPatch as _saveCharacterPatch,
   markStepVisited as _markStepVisited,
@@ -22,6 +23,36 @@ import {
  * - confirm modal helper
  * - visited step tracking
  */
+
+/**
+ * Ensure common builder shell controls exist and use consistent labels/classes.
+ * Existing pages can keep their markup; this helper normalizes it and gives
+ * future pages a single place to get the shared chrome.
+ */
+export function ensureBuilderShellUi() {
+  let topbar = document.querySelector(".topbar");
+  if (!topbar) {
+    topbar = document.createElement("div");
+    topbar.className = "topbar";
+    document.body.prepend(topbar);
+  }
+
+  const { signOut, charactersLink } = ensureAppTopNav({
+    mount: topbar,
+    active: "builder",
+  });
+  charactersLink.id = "builderCharactersLink";
+  let gmHint = document.getElementById("gmHint");
+  if (!gmHint) {
+    gmHint = document.createElement("span");
+    gmHint.id = "gmHint";
+    gmHint.className = "muted app-gm-hint";
+    gmHint.style.display = "none";
+    topbar.after(gmHint);
+  }
+
+  return { topbar, charactersLink, gmHint, signOut };
+}
 
 /**
  * @returns {{ charId: string|null, requestedUid: string|null }}
@@ -99,7 +130,6 @@ export function clearError(el) {
  * Initialize auth + resolve which user doc we are editing (supports GM view).
  *
  * @param {{
- *   whoamiEl?: HTMLElement|null,
  *   signOutBtn?: HTMLButtonElement|null,
  *   gmHintEl?: HTMLElement|null,
  *   statusEl?: HTMLElement|null,
@@ -114,7 +144,7 @@ export function clearError(el) {
  * }>}
  */
 export async function initBuilderAuth(ui = {}) {
-  const { whoamiEl, signOutBtn, gmHintEl, statusEl, errorEl } = ui;
+  const { signOutBtn, gmHintEl, statusEl, errorEl } = ui;
 
   setStatus(statusEl, "Loading…");
   clearError(errorEl);
@@ -142,26 +172,28 @@ export async function initBuilderAuth(ui = {}) {
     throw new Error("Not signed in");
   }
 
-  if (whoamiEl) {
-    const name = user.displayName || "Signed in";
-    const email = user.email ? ` (${user.email})` : "";
-    whoamiEl.textContent = `${name}${email}`;
-  }
-
-  if (signOutBtn) {
-    signOutBtn.style.display = "inline-block";
-    signOutBtn.onclick = async () => {
-      await signOutNow();
-      window.location.href = "/login.html";
-    };
-  }
-
   let claims = { gm: false };
   try {
     // Only force refresh if GM editing is requested, otherwise normal read is faster.
     claims = await getClaims(user, { forceRefresh: !!requestedUid });
   } catch (e) {
     console.warn("Could not read claims:", e);
+  }
+
+  const nav = ensureAppTopNav({
+    mount: document.querySelector(".topbar"),
+    active: "builder",
+    requestedUid,
+    isGM: !!claims.gm,
+  });
+  if (nav.charactersLink) nav.charactersLink.id = "builderCharactersLink";
+  const activeSignOutBtn = nav.signOut || signOutBtn;
+  if (activeSignOutBtn) {
+    activeSignOutBtn.style.display = "inline-flex";
+    activeSignOutBtn.onclick = async () => {
+      await signOutNow();
+      window.location.href = "/login.html";
+    };
   }
 
   let editingUid = user.uid;
@@ -172,11 +204,18 @@ export async function initBuilderAuth(ui = {}) {
     }
     editingUid = requestedUid;
     if (gmHintEl) {
-      gmHintEl.style.display = "inline";
+      gmHintEl.style.display = "inline-flex";
       gmHintEl.textContent = "GM View";
     }
   } else {
     if (gmHintEl) gmHintEl.style.display = "none";
+  }
+
+  const charactersLink = document.getElementById("builderCharactersLink");
+  if (charactersLink) {
+    charactersLink.href = (requestedUid && claims.gm)
+      ? `/characters.html?uid=${encodeURIComponent(requestedUid)}`
+      : "/characters.html";
   }
 
   return { user, claims, charId, requestedUid, editingUid };

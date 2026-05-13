@@ -8,22 +8,21 @@ import {
   clearError,
   markStepVisited,
   confirmSaveWarnings,
+  ensureBuilderShellUi,
 } from "./builder-common.js";
-import { renderBuilderNav } from "./builder-nav.js";
+import { renderBuilderNavMounts } from "./builder-nav.js";
 import { buildBondsKeystonesUpdatePatch } from "../core/database-writer.js";
 import { buildConstrainedSkillRankOptionsHtml, getBondRulesState } from "../core/character-rules.js";
 import { sanitizeBondList, sanitizeKeystoneList, sanitizeText } from "../core/data-sanitization.js";
 
 const CURRENT_STEP_ID = document.querySelector("[data-builder-step]")?.getAttribute("data-builder-step") || "bonds-keystones";
 
-const whoamiEl = document.getElementById("whoami");
+ensureBuilderShellUi();
+
 const signOutBtn = document.getElementById("signOutBtn");
 const gmHintEl = document.getElementById("gmHint");
 const statusEl = document.getElementById("status");
 const errorEl = document.getElementById("error");
-const navTopEl = document.getElementById("builderNavTop");
-const navBottomEl = document.getElementById("builderNavBottom");
-
 const levelValueEl = document.getElementById("levelValue");
 const heartValueEl = document.getElementById("heartValue");
 const bondRankCapValueEl = document.getElementById("bondRankCapValue");
@@ -243,7 +242,7 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
 
 async function main() {
   try {
-    ctx = await initBuilderAuth({ whoamiEl, signOutBtn, gmHintEl, statusEl, errorEl });
+    ctx = await initBuilderAuth({ signOutBtn, gmHintEl, statusEl, errorEl });
     const loaded = await loadCharacterDoc(ctx.editingUid, ctx.charId);
     charRef = loaded.charRef;
     currentDoc = loaded.characterDoc;
@@ -269,8 +268,7 @@ async function main() {
       onBeforeNavigate: async () => await saveBuilder({ openSheetAfter: false, intent: "navigate" }),
     };
 
-    renderBuilderNav({ mountEl: navTopEl, ...navConfig });
-    renderBuilderNav({ mountEl: navBottomEl, ...navConfig });
+    renderBuilderNavMounts(navConfig);
 
     setStatus(statusEl, "Ready.");
   } catch (e) {

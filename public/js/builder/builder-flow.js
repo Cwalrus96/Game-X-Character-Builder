@@ -11,6 +11,7 @@
  * @typedef {Object} BuilderStep
  * @property {string} id           Stable identifier (used for visited tracking).
  * @property {string} title        Human-readable title for the step list.
+ * @property {string} [navTitle]   Short label used in compact navigation.
  * @property {string} path         HTML page path (relative to /public root).
  * @property {(characterDoc: any) => boolean} [isEnabled] Optional conditional inclusion.
  */
@@ -20,6 +21,7 @@ export const BUILDER_STEPS = [
   {
     id: "basics",
     title: "Name & Profile",
+    navTitle: "Profile",
     path: "/builder/builder-profile.html",
   },
 
@@ -63,6 +65,7 @@ export const BUILDER_STEPS = [
   {
     id: "bonds-keystones",
     title: "Bonds & Keystones",
+    navTitle: "Bonds",
     path: "/builder/builder-bonds-keystones.html",
   },
 ];

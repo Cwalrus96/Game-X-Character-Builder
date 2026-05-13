@@ -21,44 +21,6 @@
   margin: 0 auto;
 }
 
-.gm-users-page .topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-bottom: 22px;
-  padding: 18px 20px;
-  border: 3px solid var(--site-border);
-  background: rgba(18, 19, 27, 0.94);
-  box-shadow: 0 20px 44px var(--gm-shadow);
-  clip-path: polygon(0 0, calc(100% - 28px) 0, 100% 28px, 100% 100%, 0 100%);
-  position: relative;
-}
-
-.gm-users-page .topbar::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0 44px, transparent 44px),
-    linear-gradient(135deg, transparent calc(100% - 84px), rgba(255, 255, 255, 0.08) calc(100% - 84px));
-  pointer-events: none;
-}
-
-.gm-users-page .brand {
-  position: relative;
-  z-index: 1;
-  margin: 0;
-  color: var(--site-text);
-  font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
-  font-size: clamp(2rem, 4vw, 3rem);
-  line-height: 0.95;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  text-shadow: 4px 4px 0 rgba(0, 0, 0, 0.32);
-}
-
 .gm-users-page .row {
   display: flex;
   align-items: center;
@@ -245,14 +207,6 @@
 @media (max-width: 720px) {
   .gm-users-page {
     padding: 20px 14px 40px;
-  }
-
-  .gm-users-page .topbar {
-    padding: 16px;
-  }
-
-  .gm-users-page .brand {
-    font-size: clamp(1.5rem, 10vw, 2.5rem);
   }
 
   .gm-users-page .card {

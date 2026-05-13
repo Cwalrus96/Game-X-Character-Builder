@@ -8,8 +8,9 @@ import {
   clearError,
   markStepVisited,
   confirmSaveWarnings,
+  ensureBuilderShellUi,
 } from "./builder-common.js";
-import { renderBuilderNav } from "./builder-nav.js";
+import { renderBuilderNavMounts } from "./builder-nav.js";
 
 import { ATTR_KEYS, ATTR_LABELS, clampLevel } from "../core/character-rules.js";
 import { buildAttributesUpdatePatch } from "../core/database-writer.js";
@@ -25,16 +26,13 @@ import {
 const CURRENT_STEP_ID =
   document.querySelector("[data-builder-step]")?.getAttribute("data-builder-step") || "attributes";
 
+ensureBuilderShellUi();
+
 // ---- Common shell UI ----
-const whoamiEl = document.getElementById("whoami");
 const signOutBtn = document.getElementById("signOutBtn");
 const gmHintEl = document.getElementById("gmHint");
 const statusEl = document.getElementById("status");
 const errorEl = document.getElementById("error");
-
-// ---- Nav mount ----
-const navTopEl = document.getElementById("builderNavTop");
-const navBottomEl = document.getElementById("builderNavBottom");
 
 // ---- UI ----
 const levelLabel = document.getElementById("levelLabel");
@@ -358,7 +356,6 @@ function pruneAttributesToFit({ level, primaryAttr, eff }) {
 async function main() {
   try {
     ctx = await initBuilderAuth({
-      whoamiEl,
       signOutBtn,
       gmHintEl,
       statusEl,
@@ -417,8 +414,7 @@ async function main() {
        onBeforeNavigate: async () => await saveBuilder({ openSheetAfter: false, intent: "navigate" }),
     };
 
-    renderBuilderNav({ mountEl: navTopEl, ...navConfig });
-    renderBuilderNav({ mountEl: navBottomEl, ...navConfig });
+    renderBuilderNavMounts(navConfig);
 
     saveBtn.addEventListener("click", () => saveBuilder({ openSheetAfter: false, intent: "save" }));
     saveAndOpenBtn.addEventListener("click", () => saveBuilder({ openSheetAfter: true, intent: "save" }));

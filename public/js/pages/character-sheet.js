@@ -6,7 +6,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
 import { db, storage } from "../core/firebase.js";
-import { onAuth, getClaims } from "../core/auth-ui.js";
+import { onAuth, getClaims, signOutNow } from "../core/auth-ui.js";
 
 import { CHARACTER_SCHEMA_VERSION, getPortraitStoragePath } from "../core/database-writer.js";
 import {
@@ -39,6 +39,8 @@ import {
   renderEnhancementDetailHtml,
 } from "../core/weapon-utils.js";
 import { renderTechniqueProfileHtml } from "../core/technique-utils.js";
+import { ensureAppTopNav } from "../core/app-nav.js";
+import { renderBuilderNav } from "../builder/builder-nav.js";
 import {
   sanitizeCharName,
   sanitizeStoragePath,
@@ -87,8 +89,6 @@ import {
   let isGMUser = false;
 
 // ---------- Firebase (Auth + Firestore) ----------
-  const cloudStatusEl = document.getElementById('cloudStatus');
-
   let currentUser = null;
   let cloudDocRef = null;          // users/<uid>/characters/<charId>
   let cloudReady = false;
@@ -96,14 +96,47 @@ import {
   let currentDoc = null;
   const CLOUD_SAVE_DEBOUNCE_MS = 1200;
 
-  function setCloudStatus(msg, isError=false) {
-    if (!cloudStatusEl) return;
-    cloudStatusEl.textContent = msg;
-    cloudStatusEl.style.opacity = isError ? '1' : '0.9';
-  }
-
   function cloudEnabled() {
     return !!(currentUser && cloudDocRef && cloudReady);
+  }
+
+  async function flushPendingSheetSave() {
+    if (cloudSaveTimer) {
+      clearTimeout(cloudSaveTimer);
+      cloudSaveTimer = null;
+      await saveCloudNow();
+    }
+    return true;
+  }
+
+  function renderSheetBuilderNav(characterDoc) {
+    const appNav = ensureAppTopNav({
+      mount: document.querySelector('.topbar'),
+      active: 'builder',
+      requestedUid: requestedUidParam,
+      isGM: isGMUser,
+      onSignOut: async () => {
+        await signOutNow();
+        window.location.href = '/login.html';
+      },
+    });
+    if (appNav.signOut) appNav.signOut.style.display = 'inline-flex';
+
+    const mountEl = appNav.builderNavSlot;
+    if (!mountEl || !characterDoc) return;
+    renderBuilderNav({
+      mountEl,
+      currentStepId: '',
+      characterDoc,
+      ctx: {
+        charId: editingCharId,
+        requestedUid: (isGMUser && requestedUidParam) ? requestedUidParam : null,
+      },
+      allowAllSteps: true,
+      showControls: false,
+      ariaLabel: 'Edit this character in the builder',
+      onBeforeNavigate: flushPendingSheetSave,
+    });
   }
 
   // ---- Class list (from JSON) ----
@@ -757,7 +790,6 @@ async function renderBuilderWeaponsReadOnly(builder) {
 
   async function loadCloudOrInit() {
     if (!cloudDocRef) return;
-    setCloudStatus('Cloud: Loading…');
 
     try {
       const snap = await getDoc(cloudDocRef);
@@ -824,14 +856,13 @@ async function renderBuilderWeaponsReadOnly(builder) {
         // Render Builder-selected techniques (read-only).
         renderBuilderTechniquesReadOnly(b);
         renderBuilderWeaponsReadOnly(b);
+        renderSheetBuilderNav(raw);
         if (portraitApi && portraitPath) {
           const url = await resolvePortraitUrl(portraitPath);
           portraitApi.set({ path: portraitPath, previewUrl: url });
         }
 
-        setStatus('Loaded from cloud');
         cloudReady = true;
-        setCloudStatus('Cloud: Ready');
         return;
       }
 
@@ -873,14 +904,12 @@ async function renderBuilderWeaponsReadOnly(builder) {
 
       renderBuilderTechniquesReadOnly((baseline && baseline.builder) ? baseline.builder : {});
       renderBuilderWeaponsReadOnly((baseline && baseline.builder) ? baseline.builder : {});
+      renderSheetBuilderNav(baseline);
 
       cloudReady = true;
-      setCloudStatus('Cloud: Ready');
-      setStatus('Cloud initialized');
     } catch (e) {
       console.error('loadCloudOrInit error:', e);
       cloudReady = false;
-      setCloudStatus('Cloud: Error', true);
     }
   }
 
@@ -955,10 +984,8 @@ async function renderBuilderWeaponsReadOnly(builder) {
         ...(cloudDoc.builder || {}),
       };
 
-      setCloudStatus('Cloud: Saved');
     } catch (e) {
       console.error('saveCloudNow error:', e);
-      setCloudStatus('Cloud: Save failed', true);
     }
   }
 
@@ -969,7 +996,6 @@ async function renderBuilderWeaponsReadOnly(builder) {
       cloudReady = false;
 
       if (!user) {
-        setCloudStatus('Cloud: Off');
         // Require auth for editing (D&D Beyond-style flow)
         const next = encodeURIComponent(window.location.href);
         window.location.href = `/login.html?next=${next}`;
@@ -987,22 +1013,17 @@ async function renderBuilderWeaponsReadOnly(builder) {
       editingUid = (isGMUser && requestedUidParam) ? requestedUidParam : user.uid;
       cloudDocRef = doc(db, 'users', editingUid, 'characters', editingCharId);
 
-      // Make the "Characters" link return to the correct list view.
-      const back = document.getElementById('backToCharactersLink');
-      if (back) {
-        back.href = (isGMUser && requestedUidParam) ? `/characters.html?uid=${encodeURIComponent(requestedUidParam)}` : '/characters.html';
-      }
-
-      const edit = document.getElementById('editCharacterLink');
-      if (edit) {
-        const editUrl = new URL('/builder/builder-profile.html', window.location.href);
-        editUrl.searchParams.set('charId', editingCharId);
-        if (isGMUser && requestedUidParam) {
-          editUrl.searchParams.set('uid', requestedUidParam);
-        }
-        edit.href = editUrl.toString();
-      }
-
+      const appNav = ensureAppTopNav({
+        mount: document.querySelector('.topbar'),
+        active: 'builder',
+        requestedUid: requestedUidParam,
+        isGM: isGMUser,
+        onSignOut: async () => {
+          await signOutNow();
+          window.location.href = '/login.html';
+        },
+      });
+      if (appNav.signOut) appNav.signOut.style.display = 'inline-flex';
 
       await loadCloudOrInit();
     });
@@ -1010,7 +1031,6 @@ async function renderBuilderWeaponsReadOnly(builder) {
 
   const sheetEl = document.getElementById('sheet');
   const classSelect = document.getElementById('classSelect');
-  const saveStatusEl = document.getElementById('saveStatus');
 
   // Placeholder; initialized after scheduleSave is defined
   let portraitApi = { get: () => '', set: () => {} };
@@ -1019,12 +1039,6 @@ async function renderBuilderWeaponsReadOnly(builder) {
   function setTheme(classKey) {
     const key = sanitizeText(classKey, { maxLen: 64 });
     document.body.setAttribute('data-theme', key || 'na');
-  }
-
-  function setStatus(text, isError = false) {
-    if (!saveStatusEl) return;
-    saveStatusEl.textContent = text;
-    saveStatusEl.classList.toggle('error', !!isError);
   }
 
   // ---------- Portrait module ----------
@@ -1362,7 +1376,6 @@ async function renderBuilderWeaponsReadOnly(builder) {
     }
     clearTimeout(cloudSaveTimer);
     cloudSaveTimer = null;
-    setStatus('Saving…');
     saveCloudNow();
   }
 
@@ -1370,7 +1383,6 @@ async function renderBuilderWeaponsReadOnly(builder) {
     if (!cloudEnabled()) {
       return;
     }
-    setStatus('Saving…');
     clearTimeout(cloudSaveTimer);
     cloudSaveTimer = setTimeout(() => {
       cloudSaveTimer = null;

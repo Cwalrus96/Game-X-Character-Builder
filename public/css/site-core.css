@@ -33,3 +33,329 @@ body > * {
   position: relative;
   z-index: 1;
 }
+
+.app-topbar {
+  box-sizing: border-box;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 10px !important;
+  position: sticky !important;
+  top: 10px;
+  z-index: 2147483000 !important;
+  isolation: isolate;
+  max-width: min(1100px, calc(100vw - 32px));
+  width: calc(100% - 32px);
+  margin: 0 auto 18px !important;
+  padding: 18px 20px;
+  border: 3px solid var(--site-border);
+  background: rgba(18, 19, 27, 0.96);
+  box-shadow: var(--site-shadow);
+  clip-path: polygon(0 0, calc(100% - 38px) 0, 100% 38px, 100% 100%, 0 100%);
+  overflow: visible !important;
+  transform-origin: top center;
+  transition:
+    padding 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    opacity 160ms ease;
+  will-change: transform;
+}
+
+.app-topbar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.07) 0 8%, transparent 8% 100%),
+    linear-gradient(0deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+}
+
+.app-topbar-main {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.app-brand {
+  position: relative;
+  z-index: 1;
+  color: var(--site-text);
+  font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+  font-size: clamp(1.45rem, 3vw, 2.35rem);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-decoration: none;
+  text-transform: uppercase;
+  text-shadow: 3px 3px 0 rgba(0,0,0,0.28);
+  transition:
+    font-size 160ms ease,
+    opacity 160ms ease,
+    transform 160ms ease;
+  white-space: nowrap;
+}
+
+.app-nav {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+  min-width: 0;
+  transition: gap 160ms ease;
+}
+
+.app-builder-nav-slot {
+  position: relative;
+  z-index: 1;
+  max-height: 180px;
+  opacity: 1;
+  overflow: hidden;
+  transform: translateY(0);
+  transition:
+    max-height 180ms ease,
+    opacity 140ms ease,
+    transform 160ms ease;
+}
+
+.app-builder-nav-slot:empty {
+  display: none;
+}
+
+.app-builder-nav-slot .builderNav {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(110px, auto) minmax(0, 1fr) minmax(110px, auto);
+  align-items: center;
+  gap: 14px;
+  border: 2px solid var(--site-border);
+  border-radius: 0;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--site-text);
+  box-shadow: none;
+}
+
+.app-builder-nav-slot .builderNav--stepsOnly {
+  grid-template-columns: 1fr;
+}
+
+.app-builder-nav-slot .builderNav--leadingOnly {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.app-builder-nav-slot .builderNavControl {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.app-builder-nav-slot .builderNavControl--prev {
+  justify-content: flex-start;
+}
+
+.app-builder-nav-slot .builderNavControl--next {
+  justify-content: flex-end;
+}
+
+.app-builder-nav-slot .builderNavControl .btn {
+  min-height: 38px;
+  padding: 0 12px;
+  font-size: 0.95rem;
+  line-height: 1.1;
+}
+
+.app-builder-nav-slot .builderStepList {
+  list-style: none;
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 10px;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+}
+
+.app-builder-nav-slot .builderStep {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 6px;
+}
+
+.app-builder-nav-slot .builderStepNum {
+  width: 1.75em;
+  height: 1.75em;
+  border-radius: 999px;
+  border: 2px solid var(--site-border);
+  background: rgba(255,255,255,0.06);
+  color: var(--site-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78em;
+  font-weight: 900;
+}
+
+.app-builder-nav-slot .builderStepLabel,
+.app-builder-nav-slot .builderStepLabel a,
+.app-builder-nav-slot .builderStepLabel span {
+  color: var(--site-text);
+  text-decoration: none;
+  white-space: nowrap;
+  font-size: 0.95em;
+}
+
+.app-builder-nav-slot .builderStepLabel a {
+  border-bottom: 1px dotted rgba(243, 239, 229, 0.65);
+}
+
+.app-builder-nav-slot .builderStep.locked {
+  opacity: 0.55;
+}
+
+.app-nav-item {
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 2px solid var(--site-border);
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--site-text);
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.24);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1.1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    min-height 160ms ease,
+    padding 160ms ease,
+    font-size 160ms ease,
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.app-nav-item:hover:not(:disabled),
+.app-nav-item:focus-visible {
+  background: var(--site-accent);
+  transform: translate(-1px, -1px);
+}
+
+.app-nav-item[aria-current="page"] {
+  outline: 2px solid var(--site-border);
+  outline-offset: 2px;
+}
+
+.app-nav-item:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.app-topbar--collapsed:not(.app-topbar--expanded) {
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  transform: translateY(-2px);
+  opacity: 0.96;
+}
+
+.app-topbar--collapsed:not(.app-topbar--expanded) .app-brand {
+  font-size: 1.05rem;
+  opacity: 0.86;
+  transform: translateY(1px);
+}
+
+.app-topbar--collapsed:not(.app-topbar--expanded) .app-nav {
+  gap: 6px;
+}
+
+.app-topbar--collapsed:not(.app-topbar--expanded) .app-nav-item {
+  min-height: 34px;
+  padding: 0 10px;
+  font-size: 0.86rem;
+}
+
+.app-topbar--collapsed:not(.app-topbar--expanded) .app-builder-nav-slot {
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-6px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-topbar,
+  .app-brand,
+  .app-nav,
+  .app-builder-nav-slot,
+  .app-nav-item {
+    transition: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .app-topbar {
+    align-items: stretch;
+    flex-direction: column;
+    top: 6px;
+    max-width: calc(100vw - 16px);
+    width: calc(100% - 16px);
+    clip-path: none;
+  }
+
+  .app-topbar-main {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .app-brand {
+    white-space: normal;
+  }
+
+  .app-nav {
+    justify-content: stretch;
+  }
+
+  .app-nav-item {
+    flex: 1 1 140px;
+  }
+
+  .app-builder-nav-slot .builderNav {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .app-builder-nav-slot .builderStepList {
+    overflow: visible;
+  }
+
+  .app-builder-nav-slot .builderNavControl {
+    justify-content: stretch;
+  }
+
+  .app-builder-nav-slot .builderNavControl:empty {
+    display: none;
+  }
+
+  .app-builder-nav-slot .builderNavControl .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

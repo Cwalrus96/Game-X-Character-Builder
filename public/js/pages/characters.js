@@ -1,5 +1,6 @@
 import { db, storage } from "../core/firebase.js";
 import { onAuth, signOutNow, initAuthRedirectHandling, getClaims } from "../core/auth-ui.js";
+import { ensureAppTopNav } from "../core/app-nav.js";
 import { createDefaultCharacterDoc } from "../core/database-reader.js";
 import { sanitizeStoragePath } from "../core/data-sanitization.js";
 import { loadGameXData } from "../core/game-data.js";
@@ -23,9 +24,12 @@ import {
   deleteObject,
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-storage.js";
 
-const whoamiEl = document.getElementById("whoami");
-const signOutBtn = document.getElementById("signOutBtn");
-const loginLink = document.getElementById("loginLink");
+const topbarEl = document.querySelector(".topbar");
+let appNav = ensureAppTopNav({
+  mount: topbarEl,
+  active: window.location.hash === "#profileCard" ? "profile" : "characters",
+  onSignOut: async () => signOutNow(),
+});
 
 const profileCard = document.getElementById("profileCard");
 const profileHint = document.getElementById("profileHint");
@@ -436,12 +440,6 @@ async function createCharacter() {
 
 await initAuthRedirectHandling();
 
-if (signOutBtn) {
-  signOutBtn.addEventListener("click", async () => {
-    await signOutNow();
-  });
-}
-
 if (saveDisplayNameBtn) {
   saveDisplayNameBtn.addEventListener("click", () => {
     saveDisplayName().catch((e) => {
@@ -464,17 +462,12 @@ onAuth(async (user) => {
   currentUser = user;
 
   if (!user) {
-    setText(whoamiEl, "Signed out");
-    hide(signOutBtn);
-    show(loginLink);
     hide(profileCard);
     hide(charactersCard);
     window.location.href = "/login.html";
     return;
   }
 
-  hide(loginLink);
-  show(signOutBtn);
   show(profileCard);
   show(charactersCard);
 
@@ -494,7 +487,14 @@ onAuth(async (user) => {
     return;
   }
 
-  setText(whoamiEl, user.email || user.displayName || "Signed in");
+  appNav = ensureAppTopNav({
+    mount: topbarEl,
+    active: window.location.hash === "#profileCard" ? "profile" : "characters",
+    requestedUid,
+    isGM: !!claims.gm,
+    onSignOut: async () => signOutNow(),
+  });
+  show(appNav.signOut);
 
   // Only ensure/update profile doc for the signed-in user.
   await ensureOwnUserDoc(user);

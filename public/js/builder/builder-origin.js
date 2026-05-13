@@ -8,27 +8,26 @@ import {
   showError,
   clearError,
   confirmSaveWarnings,
+  ensureBuilderShellUi,
 } from "./builder-common.js";
-import { renderBuilderNav } from "./builder-nav.js";
+import { renderBuilderNavMounts } from "./builder-nav.js";
 import { loadGameXOrigins, getOriginByKey } from "../core/game-data.js";
 import { buildOriginUpdatePatch } from "../core/database-writer.js";
 import { escapeHtml, sanitizeText } from "../core/data-sanitization.js";
 
 const CURRENT_STEP_ID = "origin";
 
+ensureBuilderShellUi();
+
 let ctx;
 let charRef;
 let currentDoc;
 let origins = [];
 
-const whoamiEl = document.getElementById("whoami");
 const signOutBtn = document.getElementById("signOutBtn");
 const gmHintEl = document.getElementById("gmHint");
 const statusEl = document.getElementById("status");
 const errorEl = document.getElementById("error");
-
-const navTopEl = document.getElementById("builderNavTop");
-const navBottomEl = document.getElementById("builderNavBottom");
 
 const originSelectEl = document.getElementById("originSelect");
 const originKeystoneEl = document.getElementById("originKeystone");
@@ -186,7 +185,7 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
 
 async function main() {
   try {
-    ctx = await initBuilderAuth({ whoamiEl, signOutBtn, gmHintEl, statusEl, errorEl });
+    ctx = await initBuilderAuth({ signOutBtn, gmHintEl, statusEl, errorEl });
     const loaded = await loadCharacterDoc(ctx.editingUid, ctx.charId);
     charRef = loaded.charRef;
     currentDoc = loaded.characterDoc;
@@ -212,8 +211,7 @@ async function main() {
       onBeforeNavigate: async () => await saveBuilder({ openSheetAfter: false, intent: "navigate" }),
     };
 
-    renderBuilderNav({ mountEl: navTopEl, ...navConfig });
-    renderBuilderNav({ mountEl: navBottomEl, ...navConfig });
+    renderBuilderNavMounts(navConfig);
 
     setStatus(statusEl, "Ready.");
   } catch (e) {

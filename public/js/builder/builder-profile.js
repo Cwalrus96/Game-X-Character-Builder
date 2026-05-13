@@ -10,8 +10,9 @@ import {
   markStepVisited,
   confirmModal,
   confirmSaveWarnings,
+  ensureBuilderShellUi,
 } from "./builder-common.js";
-import { renderBuilderNav } from "./builder-nav.js";
+import { renderBuilderNavMounts } from "./builder-nav.js";
 import { getPortraitStoragePath } from "../core/database-writer.js";
 
 import {
@@ -26,15 +27,13 @@ import {
 const CURRENT_STEP_ID =
   document.querySelector("[data-builder-step]")?.getAttribute("data-builder-step") || "basics";
 
+ensureBuilderShellUi();
+
 // ---- Common shell UI ----
-const whoamiEl = document.getElementById("whoami");
 const signOutBtn = document.getElementById("signOutBtn");
 const gmHintEl = document.getElementById("gmHint");
 const statusEl = document.getElementById("status");
 const errorEl = document.getElementById("error");
-
-// ---- Nav mount ----
-const navMount = document.getElementById("builderNav");
 
 // ---- Step-specific UI ----
 const charNameInput = document.getElementById("charName");
@@ -176,7 +175,6 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
 async function main() {
   try {
     ctx = await initBuilderAuth({
-      whoamiEl,
       signOutBtn,
       gmHintEl,
       statusEl,
@@ -242,24 +240,12 @@ async function main() {
     saveAndOpenBtn.addEventListener("click", () => saveBuilder({ openSheetAfter: true, intent: "save" }));
 
     // Builder nav (prev/next). Next auto-saves before navigation.
-    renderBuilderNav({
-      mountEl: navMount,
+    renderBuilderNavMounts({
       currentStepId: CURRENT_STEP_ID,
       characterDoc: currentDoc,
       ctx: { charId: ctx.charId, requestedUid: ctx.requestedUid },
       onBeforeNavigate: async () => await saveBuilder({ openSheetAfter: false, intent: "navigate" }),
     });
-
-	const navBottom = document.getElementById("builderNavBottom");
-	renderBuilderNav({
-	  mountEl: navBottom,
-	  currentStepId: CURRENT_STEP_ID,
-	  characterDoc: currentDoc,
-	  ctx: { charId: ctx.charId, requestedUid: ctx.requestedUid },
-	  onBeforeNavigate: async () => {
-		return await saveBuilder({ openSheetAfter: false, intent: "navigate" });
-	  },
-	});
 
     setStatus(statusEl, "Ready.");
   } catch (e) {

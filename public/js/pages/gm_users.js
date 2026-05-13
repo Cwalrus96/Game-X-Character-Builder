@@ -1,5 +1,6 @@
 import { db } from "../core/firebase.js";
 import { onAuth, signOutNow, initAuthRedirectHandling, getClaims } from "../core/auth-ui.js";
+import { ensureAppTopNav } from "../core/app-nav.js";
 
 import {
   collection,
@@ -9,7 +10,12 @@ import {
 const statusEl = document.getElementById("status");
 const errorEl = document.getElementById("error");
 const userRowsEl = document.getElementById("userRows");
-const signOutBtn = document.getElementById("signOutBtn");
+const topbarEl = document.querySelector(".topbar");
+let appNav = ensureAppTopNav({
+  mount: topbarEl,
+  active: "gm-users",
+  onSignOut: async () => signOutNow(),
+});
 
 function showError(msg) {
   if (!errorEl) return;
@@ -82,12 +88,6 @@ async function loadUsers() {
 
 await initAuthRedirectHandling();
 
-if (signOutBtn) {
-  signOutBtn.addEventListener("click", async () => {
-    await signOutNow();
-  });
-}
-
 onAuth(async (user) => {
   if (!user) {
     window.location.href = "/login.html";
@@ -98,6 +98,14 @@ onAuth(async (user) => {
     window.location.href = "/characters.html";
     return;
   }
+
+  appNav = ensureAppTopNav({
+    mount: topbarEl,
+    active: "gm-users",
+    isGM: true,
+    onSignOut: async () => signOutNow(),
+  });
+  if (appNav.signOut) appNav.signOut.style.display = "inline-flex";
 
   try {
     await loadUsers();

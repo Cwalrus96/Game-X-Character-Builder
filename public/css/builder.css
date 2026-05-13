@@ -54,7 +54,6 @@ textarea {
   accent-color: var(--builder-accent);
 }
 
-.topbar,
 .builder,
 .builderPage,
 .builderFooter {
@@ -62,7 +61,6 @@ textarea {
   z-index: 1;
 }
 
-.topbar,
 .builder,
 .builderPage,
 .builderFooter {
@@ -71,20 +69,6 @@ textarea {
   margin-right: auto;
 }
 
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  margin-bottom: 18px;
-  padding: 18px 20px;
-  border: 3px solid #f3efe5;
-  background: var(--builder-topbar);
-  box-shadow: var(--builder-shadow);
-  clip-path: polygon(0 0, calc(100% - 38px) 0, 100% 38px, 100% 100%, 0 100%);
-}
-
-.topbar::before,
 .builderHeader::before,
 .builderHero::before,
 .card::before,
@@ -99,21 +83,7 @@ textarea {
     linear-gradient(0deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
 }
 
-.topbar > div:first-child,
-.topbar .right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.topbar .right {
-  justify-content: flex-end;
-  margin-left: auto;
-}
-
-#whoami,
-#gmHint {
+.app-gm-hint {
   display: inline-flex;
   align-items: center;
   min-height: 2.75rem;
@@ -124,9 +94,10 @@ textarea {
   font-weight: 700;
 }
 
-#gmHint {
+.app-gm-hint {
   border-color: rgba(218, 59, 49, 0.65);
   color: #ffd2ca;
+  margin-bottom: 18px;
 }
 
 .builder,
@@ -671,6 +642,10 @@ textarea {
 
 .builderNav {
   position: relative;
+  display: grid;
+  grid-template-columns: minmax(110px, auto) minmax(0, 1fr) minmax(110px, auto);
+  align-items: center;
+  gap: 14px;
   border: 3px solid #f3efe5;
   border-radius: 0;
   padding: 14px;
@@ -679,24 +654,36 @@ textarea {
   box-shadow: var(--builder-shadow);
 }
 
+.builderNav--stepsOnly {
+  grid-template-columns: 1fr;
+}
+
+.builderNav--leadingOnly {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
 .builderStepList {
   list-style: none;
   display: flex;
   flex-wrap: wrap;
-  gap: 10px 14px;
+  justify-content: center;
+  gap: 8px 10px;
+  min-width: 0;
+  overflow: hidden;
   padding: 0;
-  margin: 0 0 14px;
+  margin: 0;
 }
 
 .builderStep {
   display: flex;
   align-items: center;
-  gap: 8px;
+  flex: 0 0 auto;
+  gap: 6px;
 }
 
 .builderStepNum {
-  width: 1.9em;
-  height: 1.9em;
+  width: 1.75em;
+  height: 1.75em;
   border-radius: 999px;
   border: 2px solid #f3efe5;
   background: rgba(255,255,255,0.06);
@@ -704,7 +691,7 @@ textarea {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.82em;
+  font-size: 0.78em;
   font-weight: 900;
 }
 
@@ -713,6 +700,8 @@ textarea {
 .builderStepLabel span {
   color: var(--builder-text);
   text-decoration: none;
+  white-space: nowrap;
+  font-size: 0.95em;
 }
 
 .builderStep.visited a {
@@ -732,14 +721,49 @@ textarea {
   font-weight: 800;
 }
 
-.builderNavControls {
+.builderNavControl {
   display: flex;
-  justify-content: space-between;
-  gap: 12px;
+  align-items: center;
+  min-width: 0;
 }
 
-.builderNavSpacer {
-  flex: 1;
+.builderNavControl--prev {
+  justify-content: flex-start;
+}
+
+.builderNavControl--next {
+  justify-content: flex-end;
+}
+
+.builderNavControl .btn {
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1.1;
+}
+
+@media (max-width: 1100px) {
+  .builderNav:not(.builderNav--stepsOnly):not(.builderNav--leadingOnly) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "prev next"
+      "steps steps";
+  }
+
+  .builderNav:not(.builderNav--stepsOnly):not(.builderNav--leadingOnly) .builderNavControl--prev {
+    grid-area: prev;
+  }
+
+  .builderNav:not(.builderNav--stepsOnly):not(.builderNav--leadingOnly) .builderNavControl--next {
+    grid-area: next;
+  }
+
+  .builderNav:not(.builderNav--stepsOnly):not(.builderNav--leadingOnly) .builderStepList {
+    grid-area: steps;
+  }
+
+  .builderNav:not(.builderNav--stepsOnly):not(.builderNav--leadingOnly) .builderNavControl .btn {
+    min-width: 112px;
+  }
 }
 
 .srOnly {
@@ -828,7 +852,6 @@ textarea {
     padding: 14px;
   }
 
-  .topbar,
   .builderHeader,
   .builderHero,
   .card,
@@ -837,23 +860,36 @@ textarea {
     box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.24);
   }
 
-  .topbar,
-  .topbar .right,
   .builderHeader,
   .builderHero,
   .cardHeaderRow,
-  .builderNavControls,
   .portraitRow {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .topbar {
-    clip-path: none;
+  .builderNav {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
   }
 
-  .topbar .right {
-    margin-left: 0;
+  .builderStepList {
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+
+  .builderNavControl {
+    justify-content: stretch;
+  }
+
+  .builderNavControl:empty {
+    display: none;
+  }
+
+  .builderNavControl .btn {
+    width: 100%;
+    justify-content: center;
   }
 
   .skill-grid {

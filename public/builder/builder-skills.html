@@ -8,16 +8,7 @@
     <link rel="stylesheet" href="/css/builder.css" />
   </head>
   <body>
-    <div class="topbar">
-      <div>
-        <a class="btn" href="/characters.html">← Characters</a>
-        <span class="muted" id="gmHint" style="display:none; margin-left: 8px;"></span>
-      </div>
-      <div class="right">
-        <span class="muted" id="whoami">Loading…</span>
-        <button id="signOutBtn" class="btn secondary" style="display:none;">Sign Out</button>
-      </div>
-    </div>
+    <div class="topbar"></div>
 
     <main class="builder" data-builder-step="skills">
       <header class="builderHeader">
@@ -26,7 +17,6 @@
           <p class="muted" id="status">Loading…</p>
           <p class="error" id="error" style="display:none"></p>
         </div>
-        <div id="builderNavTop"></div>
       </header>
 
       <section class="card">
@@ -93,7 +83,6 @@
       </section>
 
       <footer class="builderFooter">
-        <div id="builderNavBottom"></div>
         <div class="actions">
           <button id="saveBtn" class="btn" type="button">Save</button>
           <button id="saveAndOpenBtn" class="btn secondary" type="button">Save &amp; Open Character Sheet</button>

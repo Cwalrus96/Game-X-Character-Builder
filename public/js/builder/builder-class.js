@@ -11,15 +11,18 @@ import {
   showError,
   clearError,
   confirmSaveWarnings,
+  ensureBuilderShellUi,
 } from "./builder-common.js";
 
-import { renderBuilderNav } from "./builder-nav.js";
+import { renderBuilderNavMounts } from "./builder-nav.js";
 
 import { loadGameXData } from "../core/game-data.js";
 
 import { ATTR_KEYS, clampLevel, coerceAttrKey, labelForAttrKey } from "../core/character-rules.js";
 import { sanitizeText, buildGroupId, buildOptionKey } from "../core/data-sanitization.js";
 const CURRENT_STEP_ID = "class";
+
+ensureBuilderShellUi();
 
 /** @type {any} */
 let ctx;
@@ -49,14 +52,10 @@ const optionByKey = new Map();
 const collapsedGroups = new Map();
 
 // ---- DOM ----
-const whoamiEl = document.getElementById("whoami");
 const signOutBtn = document.getElementById("signOutBtn");
 const gmHintEl = document.getElementById("gmHint");
 const statusEl = document.getElementById("status");
 const errorEl = document.getElementById("error");
-
-const navTopEl = document.getElementById("builderNavTop");
-const navBottomEl = document.getElementById("builderNavBottom");
 
 const classSelectEl = document.getElementById("classSelect");
 const levelEl = document.getElementById("level");
@@ -752,14 +751,12 @@ function renderNav() {
     },
   };
 
-  renderBuilderNav({ ...navArgs, mountEl: navTopEl });
-  renderBuilderNav({ ...navArgs, mountEl: navBottomEl });
+  renderBuilderNavMounts(navArgs);
 }
 
 async function main() {
   try {
     ctx = await initBuilderAuth({
-      whoamiEl,
       signOutBtn,
       gmHintEl,
       statusEl,

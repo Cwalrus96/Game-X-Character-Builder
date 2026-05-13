@@ -12,9 +12,10 @@ import {
   showError,
   clearError,
   confirmSaveWarnings,
+  ensureBuilderShellUi,
 } from "./builder-common.js";
 
-import { renderBuilderNav } from "./builder-nav.js";
+import { renderBuilderNavMounts } from "./builder-nav.js";
 
 import {
   coerceAttrKey,
@@ -37,16 +38,13 @@ import { renderTechniqueProfileHtml } from "../core/technique-utils.js";
 
 const CURRENT_STEP_ID = "techniques";
 
+ensureBuilderShellUi();
+
 // ---- Common shell UI ----
-const whoamiEl = document.getElementById("whoami");
 const signOutBtn = document.getElementById("signOutBtn");
 const gmHintEl = document.getElementById("gmHint");
 const statusEl = document.getElementById("status");
 const errorEl = document.getElementById("error");
-
-// ---- Nav mounts ----
-const navTop = document.getElementById("builderNavTop");
-const navBottom = document.getElementById("builderNavBottom");
 
 // ---- Step UI ----
 const slotHintEl = document.getElementById("slotHint");
@@ -556,7 +554,6 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
 async function main() {
   try {
     ctx = await initBuilderAuth({
-      whoamiEl,
       signOutBtn,
       gmHintEl,
       statusEl,
@@ -609,15 +606,7 @@ async function main() {
     if (saveAndOpenBtn) saveAndOpenBtn.addEventListener("click", () => saveBuilder({ openSheetAfter: true, intent: "save" }));
 
     // Nav
-    renderBuilderNav({
-      mountEl: navTop,
-      currentStepId: CURRENT_STEP_ID,
-      characterDoc: currentDoc,
-      ctx: { charId: ctx.charId, requestedUid: ctx.requestedUid },
-      onBeforeNavigate: async () => await saveBuilder({ openSheetAfter: false, intent: "navigate" }),
-    });
-    renderBuilderNav({
-      mountEl: navBottom,
+    renderBuilderNavMounts({
       currentStepId: CURRENT_STEP_ID,
       characterDoc: currentDoc,
       ctx: { charId: ctx.charId, requestedUid: ctx.requestedUid },

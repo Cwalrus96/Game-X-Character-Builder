@@ -670,69 +670,16 @@
     font-family: var(--body-font);
   }
 
-
-
-  /* Sheet tools (save/export/import) */
-  .sheet-tools {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 16px;
-    padding: 10px 12px;
-    border: 2px solid var(--primary-color);
-    border-radius: 6px;
-    background-color: var(--panel-bg-color);
-    color: var(--panel-text-color);
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1), 0 0 10px var(--primary-color);
-  }
-  .sheet-tools .tools-left {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
-  }
-  .sheet-tools button {
-    border: 1px solid var(--input-border-color);
-    background-color: var(--header-bg-color);
-    color: var(--header-text-color);
-    padding: 6px 10px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-family: var(--body-font);
-    font-size: 0.95em;
-  }
-  .sheet-tools .tool-link {
-    display: inline-block;
-    border: 1px solid var(--input-border-color);
-    background-color: var(--header-bg-color);
-    color: var(--header-text-color);
-    padding: 6px 10px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-family: var(--body-font);
-    font-size: 0.95em;
-    text-decoration: none;
-  }
-  .sheet-tools .tool-link:hover {
-    filter: brightness(0.98);
-  }
-  .sheet-tools button:hover {
-    filter: brightness(0.98);
-  }
-  .sheet-tools .save-status {
-    font-size: 0.95em;
-    color: var(--panel-text-color);
-    font-family: var(--body-font);
-  }
-  .sheet-tools .save-status.error {
-    color: #b00020;
-    font-weight: 600;
-  }
-  .sheet-tools .hint {
-    font-size: 0.85em;
-    color: var(--accent-color);
-    margin-left: 6px;
+  .srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
   }
 
   /* Subsections + repeatables (Pass 2) */
@@ -894,7 +841,6 @@
     }
 
     /* Portrait UI controls shouldn't print */
-    .sheet-tools { display: none !important; }
     .portrait-placeholder, .portrait-clear { display: none !important; }
     #portraitPreview { display: block !important; }
 
@@ -1122,7 +1068,6 @@
       display: none;
     }
 
-    .sheet-tools,
     .identity-grid,
     .identity-fields,
     .attribute-groups,
@@ -1130,16 +1075,6 @@
     .repeatable-header {
       display: grid;
       grid-template-columns: 1fr;
-    }
-
-    .sheet-tools .tools-left,
-    .tools-right {
-      justify-content: stretch;
-    }
-
-    .sheet-tools .tool-link,
-    .sheet-tools button {
-      text-align: center;
     }
 
     .portrait-box {
@@ -1263,7 +1198,7 @@
   margin-left:12px;
   flex-wrap:wrap;
 }
-.auth-user, .cloud-status{
+.auth-user{
   font-size:0.9rem;
   opacity:0.9;
 }

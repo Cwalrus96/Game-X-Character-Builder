@@ -8,8 +8,9 @@ import {
   showError,
   clearError,
   confirmSaveWarnings,
+  ensureBuilderShellUi,
 } from "./builder-common.js";
-import { renderBuilderNav } from "./builder-nav.js";
+import { renderBuilderNavMounts } from "./builder-nav.js";
 import { buildWeaponsUpdatePatch } from "../core/database-writer.js";
 import { escapeHtml, sanitizeNamedSkillList, sanitizeText } from "../core/data-sanitization.js";
 import { loadGameXData, computeGrantedSkillsState } from "../core/game-data.js";
@@ -30,6 +31,8 @@ import {
 
 const CURRENT_STEP_ID = "equipment";
 const MAX_WEAPON_SLOTS = 4;
+
+ensureBuilderShellUi();
 
 const ENHANCEMENT_SELECTION_SPECS = Object.freeze({
   basic_elemental_infusion: [
@@ -53,14 +56,10 @@ let weaponEnhancements = [];
 let grantedSkillState = null;
 let showOutOfRank = false;
 
-const whoamiEl = document.getElementById("whoami");
 const signOutBtn = document.getElementById("signOutBtn");
 const gmHintEl = document.getElementById("gmHint");
 const statusEl = document.getElementById("status");
 const errorEl = document.getElementById("error");
-
-const navTopEl = document.getElementById("builderNavTop");
-const navBottomEl = document.getElementById("builderNavBottom");
 
 const equipmentStatusHintEl = document.getElementById("equipmentStatusHint");
 const weaponCountValueEl = document.getElementById("weaponCountValue");
@@ -614,7 +613,7 @@ function bindPageEvents() {
 
 async function main() {
   try {
-    ctx = await initBuilderAuth({ whoamiEl, signOutBtn, gmHintEl, statusEl, errorEl });
+    ctx = await initBuilderAuth({ signOutBtn, gmHintEl, statusEl, errorEl });
     const loaded = await loadCharacterDoc(ctx.editingUid, ctx.charId);
     charRef = loaded.charRef;
     currentDoc = loaded.characterDoc;
@@ -636,8 +635,7 @@ async function main() {
       ctx: { charId: ctx.charId, requestedUid: ctx.requestedUid },
       onBeforeNavigate: async () => await saveBuilder({ openSheetAfter: false, intent: "navigate" }),
     };
-    renderBuilderNav({ mountEl: navTopEl, ...navConfig });
-    renderBuilderNav({ mountEl: navBottomEl, ...navConfig });
+    renderBuilderNavMounts(navConfig);
     setStatus(statusEl, "Ready.");
   } catch (e) {
     console.error(e);

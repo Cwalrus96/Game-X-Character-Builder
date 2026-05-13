@@ -8,8 +8,9 @@ import {
   clearError,
   markStepVisited,
   confirmSaveWarnings,
+  ensureBuilderShellUi,
 } from "./builder-common.js";
-import { renderBuilderNav } from "./builder-nav.js";
+import { renderBuilderNavMounts } from "./builder-nav.js";
 import {
   DEFENSE_SKILL_FIELDS,
   CORE_SKILL_FIELDS,
@@ -31,14 +32,12 @@ import { loadGameXData, computeGrantedSkillsState } from "../core/game-data.js";
 const CURRENT_STEP_ID =
   document.querySelector("[data-builder-step]")?.getAttribute("data-builder-step") || "skills";
 
-const whoamiEl = document.getElementById("whoami");
+ensureBuilderShellUi();
+
 const signOutBtn = document.getElementById("signOutBtn");
 const gmHintEl = document.getElementById("gmHint");
 const statusEl = document.getElementById("status");
 const errorEl = document.getElementById("error");
-
-const navTop = document.getElementById("builderNavTop");
-const navBottom = document.getElementById("builderNavBottom");
 
 const saveBtn = document.getElementById("saveBtn");
 const saveAndOpenBtn = document.getElementById("saveAndOpenBtn");
@@ -726,7 +725,7 @@ async function main() {
     createRepeatableList({ key: "combatSkillsExtra", containerId: "combatSkillGrid", addBtnId: "addCombatSkillBtn", minRows: MIN_COMBAT_SKILL_ROWS, preserveGrantedRows: true });
     createRepeatableList({ key: "settingSkills", containerId: "settingSkillGrid", addBtnId: "addSettingSkillBtn", minRows: MIN_SETTING_SKILL_ROWS, preserveGrantedRows: true });
 
-    ctx = await initBuilderAuth({ whoamiEl, signOutBtn, gmHintEl, statusEl, errorEl });
+    ctx = await initBuilderAuth({ signOutBtn, gmHintEl, statusEl, errorEl });
     gameData = await loadGameXData();
     const loaded = await loadCharacterDoc(ctx.editingUid, ctx.charId);
     charRef = loaded.charRef;
@@ -750,8 +749,7 @@ async function main() {
       ctx: { charId: ctx.charId, requestedUid: ctx.requestedUid },
       onBeforeNavigate: async () => await saveBuilder({ intent: "navigate" }),
     };
-    renderBuilderNav({ ...navArgs, mountEl: navTop });
-    renderBuilderNav({ ...navArgs, mountEl: navBottom });
+    renderBuilderNavMounts(navArgs);
 
     if (saveBtn) saveBtn.addEventListener("click", () => saveBuilder({ intent: "save" }));
     if (saveAndOpenBtn) saveAndOpenBtn.addEventListener("click", () => saveBuilder({ openSheetAfter: true, intent: "save" }));

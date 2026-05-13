@@ -16,24 +16,41 @@ import { buildBuilderUrl } from "./builder-common.js";
  *   characterDoc: any,
  *   ctx: { charId: string, requestedUid?: string|null },
  *   onBeforeNavigate?: (targetStep: any) => Promise<boolean> | boolean,
+ *   allowAllSteps?: boolean,
+ *   showControls?: boolean,
+ *   leadingLink?: { href: string, label: string } | null,
+ *   ariaLabel?: string,
  * }} args
  */
 export function renderBuilderNav(args) {
-  const { mountEl, currentStepId, characterDoc, ctx, onBeforeNavigate } = args;
+  const {
+    mountEl,
+    currentStepId,
+    characterDoc,
+    ctx,
+    onBeforeNavigate,
+    allowAllSteps = false,
+    showControls = true,
+    leadingLink = null,
+    ariaLabel = "Character builder steps",
+  } = args;
   if (!mountEl) return;
 
   const steps = getEnabledSteps(characterDoc);
   const { prev, next } = getPrevNext(currentStepId, characterDoc);
 
   const visited = new Set(characterDoc?.builder?.visitedSteps || []);
-  visited.add(currentStepId);
+  if (currentStepId) visited.add(currentStepId);
 
   // Clear mount
   mountEl.innerHTML = "";
 
   const nav = document.createElement("nav");
   nav.className = "builderNav";
-  nav.setAttribute("aria-label", "Character builder steps");
+  const showControlSlots = showControls || !!leadingLink;
+  if (!showControlSlots) nav.classList.add("builderNav--stepsOnly");
+  if (leadingLink && !showControls) nav.classList.add("builderNav--leadingOnly");
+  nav.setAttribute("aria-label", ariaLabel);
 
   // ---- Step list (orientation) ----
   const ol = document.createElement("ol");
@@ -57,8 +74,8 @@ export function renderBuilderNav(args) {
     li.className = "builderStep";
 
     const isCurrent = step.id === currentStepId;
-    const isVisited = visited.has(step.id);
-    const labelText = step.title || step.id;
+    const isVisited = allowAllSteps || visited.has(step.id);
+    const labelText = step.navTitle || step.title || step.id;
 
     // Visually show step number (simple orientation)
     const number = document.createElement("span");
@@ -108,46 +125,99 @@ export function renderBuilderNav(args) {
     ol.append(li);
   });
 
-  // ---- Prev/Next controls ----
-  const controls = document.createElement("div");
-  controls.className = "builderNavControls";
+  if (showControlSlots) {
+    // ---- Prev/Next controls ----
+    const prevSlot = document.createElement("div");
+    prevSlot.className = "builderNavControl builderNavControl--prev";
 
-  if (prev) {
-    const prevLink = document.createElement("a");
-    prevLink.className = "btn secondary";
-    prevLink.href = buildBuilderUrl(prev.path, ctx);
-    prevLink.textContent = "Previous";
+    const nextSlot = document.createElement("div");
+    nextSlot.className = "builderNavControl builderNavControl--next";
 
-    prevLink.addEventListener("click", (e) => {
-      if (typeof onBeforeNavigate !== "function") return;
-      e.preventDefault();
-      void goToStep(prev);
-    });
-    controls.append(prevLink);
+    if (leadingLink) {
+      const link = document.createElement("a");
+      link.className = "btn secondary";
+      link.href = leadingLink.href;
+      link.textContent = leadingLink.label;
+
+      link.addEventListener("click", (e) => {
+        if (typeof onBeforeNavigate !== "function") return;
+        e.preventDefault();
+        void (async () => {
+          const ok = await onBeforeNavigate({ path: leadingLink.href });
+          if (ok) window.location.href = leadingLink.href;
+        })();
+      });
+      prevSlot.append(link);
+    } else if (prev) {
+      const prevLink = document.createElement("a");
+      prevLink.className = "btn secondary";
+      prevLink.href = buildBuilderUrl(prev.path, ctx);
+      prevLink.textContent = "Previous";
+
+      prevLink.addEventListener("click", (e) => {
+        if (typeof onBeforeNavigate !== "function") return;
+        e.preventDefault();
+        void goToStep(prev);
+      });
+      prevSlot.append(prevLink);
+    }
+
+    if (showControls && next) {
+      const nextBtn = document.createElement("button");
+      nextBtn.className = "btn";
+      nextBtn.type = "button";
+      nextBtn.textContent = "Next";
+
+      nextBtn.addEventListener("click", async () => {
+        nextBtn.disabled = true;
+        try {
+          await goToStep(next);
+        } finally {
+          nextBtn.disabled = false;
+        }
+      });
+
+      nextSlot.append(nextBtn);
+    }
+
+    if (leadingLink && !showControls) {
+      nav.append(prevSlot, ol);
+    } else {
+      nav.append(prevSlot, ol, nextSlot);
+    }
   } else {
-    const spacer = document.createElement("span");
-    spacer.className = "builderNavSpacer";
-    controls.append(spacer);
+    nav.append(ol);
   }
 
-  if (next) {
-    const nextBtn = document.createElement("button");
-    nextBtn.className = "btn";
-    nextBtn.type = "button";
-    nextBtn.textContent = "Next";
-
-    nextBtn.addEventListener("click", async () => {
-      nextBtn.disabled = true;
-      try {
-        await goToStep(next);
-      } finally {
-        nextBtn.disabled = false;
-      }
-    });
-
-    controls.append(nextBtn);
-  }
-
-  nav.append(ol, controls);
   mountEl.append(nav);
+}
+
+/**
+ * Find or create the standard builder nav mount point inside the shared app bar.
+ * The builder has one navigation surface: the shared floating app bar.
+ *
+ * @returns {{ topEl: HTMLElement|null, bottomEl: HTMLElement|null }}
+ */
+export function ensureBuilderNavMounts() {
+  const topbar = document.querySelector(".app-topbar") || document.querySelector(".topbar");
+  let topEl = document.getElementById("appBuilderNavSlot");
+  if (!topEl && topbar) {
+    topEl = document.createElement("div");
+    topEl.id = "appBuilderNavSlot";
+    topEl.className = "app-builder-nav-slot";
+    topbar.append(topEl);
+  }
+
+  return { topEl, bottomEl: null };
+}
+
+/**
+ * Render the builder nav into the standard top and bottom mount points.
+ *
+ * @param {Omit<Parameters<typeof renderBuilderNav>[0], "mountEl">} args
+ */
+export function renderBuilderNavMounts(args) {
+  const { topEl } = ensureBuilderNavMounts();
+  if (topEl) renderBuilderNav({ ...args, mountEl: topEl });
+  return { topEl, bottomEl: null };
 }
