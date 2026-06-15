@@ -30,11 +30,17 @@ export function hasTag(tags, tagPrefix) {
   return (Array.isArray(tags) ? tags : []).some((tag) => String(tag || "").toLowerCase().startsWith(prefix));
 }
 
+function parseReachBonusTag(tag) {
+  const match = String(tag || "").trim().match(/^reach\s*\+(\d+)$/i);
+  return match ? Number.parseInt(match[1], 10) : 0;
+}
+
 export function getEffectiveTags(weapon, weaponBases) {
   const weaponDef = getWeaponDef(weaponBases, weapon?.weaponKey);
   const baseTags = Array.isArray(weaponDef?.tags) ? weaponDef.tags : [];
   const tags = [...baseTags];
   const enhancements = Array.isArray(weapon?.enhancements) ? weapon.enhancements : [];
+  let reachBonus = baseTags.reduce((max, tag) => Math.max(max, parseReachBonusTag(tag)), 0);
 
   const addTag = (tag) => {
     if (!tag) return;
@@ -50,6 +56,7 @@ export function getEffectiveTags(weapon, weaponBases) {
   for (const enhancement of enhancements) {
     const key = String(enhancement?.enhancementKey || "");
     if (key === "rapid_retrieval" || key === "instant_retrieval") addTag("Returning");
+    if (key === "extended_reach") reachBonus += 1;
     if (key === "weighted") addTag("Heavy");
     if (key === "lightweight") removeTag("Heavy");
     if (key === "defensive") addTag("Defensive");
@@ -59,6 +66,11 @@ export function getEffectiveTags(weapon, weaponBases) {
       if (element) addTag(element);
     }
   }
+
+  for (let i = tags.length - 1; i >= 0; i -= 1) {
+    if (parseReachBonusTag(tags[i])) tags.splice(i, 1);
+  }
+  if (reachBonus > 0) addTag(`Reach +${reachBonus}`);
 
   return tags;
 }

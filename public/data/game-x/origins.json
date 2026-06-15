@@ -5,14 +5,22 @@
     "status": "playable",
     "summary": "A semi-sentient magical or technological relic chose you and now grants your powers.",
     "description": "A powerful magical / technological item grants the heroes their powers. This item is very explicitly NOT created by the character - instead, they were given, chosen by, or simply found the item. The item has a long and mysterious history, which is unknown to the user at first. The artifact can take many forms, but is always at least semi-sentient, and has a will of its own. It has chosen its wielder for a purpose, but they must discover what that purpose is.",
+    "grants": [],
+    "grantNotes": null,
     "features": [
       {
+        "featureKey": "bonded-relic",
         "name": "Bonded Relic",
-        "description": "The artifact is not just an object - it has a will of its own, and a unique relationship with its wielder. You gain a Rank 2 bond with the Artifact. This relationship is a two-way street - the Artifact grants you power, but also expects something of you in return. Determine what the Artifact’s goal is, and summarize it in a short statement - a sentence or two. Whenever you perform an action that helps the Artifact further its goal, increment your Power Die."
+        "description": "The artifact is not just an object - it has a will of its own, and a unique relationship with its wielder. You gain a Rank 2 bond with the Artifact. This relationship is a two-way street - the Artifact grants you power, but also expects something of you in return. Determine what the Artifact’s goal is, and summarize it in a short statement - a sentence or two. Whenever you perform an action that helps the Artifact further its goal, increment your Power Die.",
+        "grants": [],
+        "grantNotes": null
       },
       {
+        "featureKey": "living-archive",
         "name": "Living Archive",
-        "description": "The Artifact grants its wielder more than just power - it can share a wealth of knowledge as well . This knowledge may be innate, or it may have been accumulated over time from the collective knowledge of its past wielders. Either way, the Artifact can allow its wielder to occasionally tap into this knowledge. The Artifact starts out knowing 3 Skills. When its wielder makes a skill check using one of those known skills, they can spend 2 energy to allow the Artifact to “Assist” them on the action."
+        "description": "The Artifact grants its wielder more than just power - it can share a wealth of knowledge as well . This knowledge may be innate, or it may have been accumulated over time from the collective knowledge of its past wielders. Either way, the Artifact can allow its wielder to occasionally tap into this knowledge. The Artifact starts out knowing 3 Skills. When its wielder makes a skill check using one of those known skills, they can spend 2 energy to allow the Artifact to “Assist” them on the action.",
+        "grants": [],
+        "grantNotes": null
       }
     ],
     "originKeystone": "You gain one Keystone that describes the origin of your character’s powers.",
@@ -41,18 +49,29 @@
     "status": "playable",
     "summary": "Your powers come from technology and inventions that you built yourself.",
     "description": "The character created machines / technology that manipulates energy for them, granting them special powers. This character does not actually have “Powers” per-se, but can mimic their effects with their technology.",
+    "grants": [],
+    "grantNotes": null,
     "features": [
       {
+        "featureKey": "powerful-inventions",
         "name": "Powerful Inventions",
-        "description": "Your character’s “Powers” come from their inventions. This means that they have a physical form, and take up physical space. Your character can only use their powers when they are “equipped”, and they take up space in their inventory. Your powers gain the “Technology” tag, and lose the “Magic” tag (if any).\n\nDesign Note: Need to implement an inventory / equipment system. Should be relatively simple and streamlined."
+        "description": "Your character’s “Powers” come from their inventions. This means that they have a physical form, and take up physical space. Your character can only use their powers when they are “equipped”, and they take up space in their inventory. Your powers gain the “Technology” tag, and lose the “Magic” tag (if any).\n\nDesign Note: Need to implement an inventory / equipment system. Should be relatively simple and streamlined.",
+        "grants": [],
+        "grantNotes": null
       },
       {
+        "featureKey": "flexible-gadgets",
         "name": "Flexible Gadgets",
-        "description": "You have invented a number of additional utility gadgets equal to your Intellect. You can carry as many of these inventions with you as you wish, but each one takes up a spot in your inventory, and you may only activate one gadget at a time. While activated, each gadget grants a +1D equipment bonus to a single Utility Skill that you have at least Rank 1 training in. You may switch your activated gadget with another in your inventory as an action."
+        "description": "You have invented a number of additional utility gadgets equal to your Intellect. You can carry as many of these inventions with you as you wish, but each one takes up a spot in your inventory, and you may only activate one gadget at a time. While activated, each gadget grants a +1D equipment bonus to a single Utility Skill that you have at least Rank 1 training in. You may switch your activated gadget with another in your inventory as an action.",
+        "grants": [],
+        "grantNotes": null
       },
       {
+        "featureKey": "empowering-tech",
         "name": "Empowering Tech",
-        "description": "Once per round, when you make a Skill roll with an equipment bonus, you may increment your Power Die."
+        "description": "Once per round, when you make a Skill roll with an equipment bonus, you may increment your Power Die.",
+        "grants": [],
+        "grantNotes": null
       }
     ],
     "originKeystone": "You gain one Keystone that describes the origin of your character’s powers",
@@ -86,14 +105,22 @@
     "status": "playable",
     "summary": "Your family line carries an innate connection to spirit energy and long-standing spiritual traditions.",
     "description": "You come from a bloodline with an innate and powerful connection to the flow of spiritual energy. Thanks to your family's special sensory abilities you can sense the flow of spirit energy and see spirit phenomena that are normally invisible to others. You have heard legends of ancestors that were able to perform incredible feats of spiritual power, but you are still just beginning to scratch the surface of the potential that lies within you. However, along with these incredible gifts, you also carry the incredible burden of familial expectations and traditions.",
+    "grants": [],
+    "grantNotes": null,
     "features": [
       {
+        "featureKey": "eyes-of-legend",
         "name": "Eyes of Legend",
-        "description": "One of your bloodline’s most foundational techniques is the ability to channel spiritual energy into their eyes. On your turn, you may spend 1 Energy to activate your eye technique, allowing you to see invisible creatures by sensing their spiritual energy. You can also see other traces of concentrated spiritual energy, such as infused objects or the remnants of recent spiritual activity.\nActivating this ability triggers an obvious physical change in your eyes’ appearance. They may begin to glow, change color, your pupil might change shape, or some other obvious physical transformation."
+        "description": "One of your bloodline’s most foundational techniques is the ability to channel spiritual energy into their eyes. On your turn, you may spend 1 Energy to activate your eye technique, allowing you to see invisible creatures by sensing their spiritual energy. You can also see other traces of concentrated spiritual energy, such as infused objects or the remnants of recent spiritual activity.\nActivating this ability triggers an obvious physical change in your eyes’ appearance. They may begin to glow, change color, your pupil might change shape, or some other obvious physical transformation.",
+        "grants": [],
+        "grantNotes": null
       },
       {
+        "featureKey": "soul-reader",
         "name": "Soul Reader",
-        "description": "You may perform Investigation Actions using Attunement instead of Intellect. Once per round, when you act upon knowledge learned from an Investigation Action, you may increment your Power die."
+        "description": "You may perform Investigation Actions using Attunement instead of Intellect. Once per round, when you act upon knowledge learned from an Investigation Action, you may increment your Power die.",
+        "grants": [],
+        "grantNotes": null
       }
     ],
     "originKeystone": "You gain one Keystone that describes the origin of your character’s powers.",
@@ -123,14 +150,22 @@
     "status": "playable",
     "summary": "A powerful entity lives within you, and you draw on its strength at great risk.",
     "description": "Your power comes from another spirit or being that lives within you. This relationship is mutualistically symbiotic - you rely on the entity for power, and it relies on you for survival. However, that doesn’t necessarily make it friendly - the entities are often malevolent, and don’t necessarily take kindly to having to share their power.",
+    "grants": [],
+    "grantNotes": null,
     "features": [
       {
+        "featureKey": "font-of-power",
         "name": "Font of Power",
-        "description": "The entity’s spiritual energy is enormous, and can be drawn upon to enhance your own abilities. However, calling upon such power is not without cost. At any time, you may choose to take 1 Strain and gain a number of energy equal to your Willpower.\nOnce per round, when you take Strain, you may increment your Power Die."
+        "description": "The entity’s spiritual energy is enormous, and can be drawn upon to enhance your own abilities. However, calling upon such power is not without cost. At any time, you may choose to take 1 Strain and gain a number of energy equal to your Willpower.\nOnce per round, when you take Strain, you may increment your Power Die.",
+        "grants": [],
+        "grantNotes": null
       },
       {
+        "featureKey": "lurking-threat",
         "name": "Lurking Threat",
-        "description": "The entity inside you doesn’t enjoy being restrained, and is always looking for an opportunity to break free. When you drop to 0 HP or become Overstrained, the entity seizes the opportunity and temporarily possesses you, gaining control of your body and activating an “unleashed” transformation. During this transformation your appearance changes to more closely resemble the Entity’s true form.\nWhen you enter this form you regain all of your HP. While transformed, you must attempt to deal as much total damage to other creatures as possible, and make no distinction between allies and enemies. Any time you would deal damage to a creature, deal additional damage equal to your Willpower. This form ends when you drop to 0 HP again or combat ends."
+        "description": "The entity inside you doesn’t enjoy being restrained, and is always looking for an opportunity to break free. When you drop to 0 HP or become Overstrained, the entity seizes the opportunity and temporarily possesses you, gaining control of your body and activating an “unleashed” transformation. During this transformation your appearance changes to more closely resemble the Entity’s true form.\nWhen you enter this form you regain all of your HP. While transformed, you must attempt to deal as much total damage to other creatures as possible, and make no distinction between allies and enemies. Any time you would deal damage to a creature, deal additional damage equal to your Willpower. This form ends when you drop to 0 HP again or combat ends.",
+        "grants": [],
+        "grantNotes": null
       }
     ],
     "originKeystone": "You gain one Keystone that describes the origin of your character’s powers.",
@@ -161,26 +196,43 @@
     "status": "playable",
     "summary": "Your powers come from your altered biology and rapid adaptation to the world around you.",
     "description": "You are the next step in genetic evolution, and your powers are rooted in your unique biology. In addition to granting you your abilities, your mutation makes you more able to adapt to your environment and circumstances. In mere moments, you can adapt to situations that would normally take evolution millions of years to overcome. However, these abilities come at a cost - your physical adaptations clearly mark you as “other”, and can make it more challenging to fit in with society.",
+    "grants": [],
+    "grantNotes": null,
     "features": [
       {
+        "featureKey": "exploratory-adaptations",
         "name": "Exploratory Adaptations",
-        "description": "Your mutations can be triggered by environmental factors, granting you a number of beneficial adaptations. You can activate these adaptations by spending 1 action and 2 energy. You may only have one adaptation active at a time."
+        "description": "Your mutations can be triggered by environmental factors, granting you a number of beneficial adaptations. You can activate these adaptations by spending 1 action and 2 energy. You may only have one adaptation active at a time.",
+        "grants": [],
+        "grantNotes": null
       },
       {
+        "featureKey": "amphibious-form",
         "name": "Amphibious Form",
-        "description": "Your shape changes to be more suited to navigating the water - your hands and feet become webbed, you sprout gills, and you may gain other traits of aquatic / semi-aquatic creatures. While in this form you can breathe both air and water, and can swim at your normal movement speed."
+        "description": "Your shape changes to be more suited to navigating the water - your hands and feet become webbed, you sprout gills, and you may gain other traits of aquatic / semi-aquatic creatures. While in this form you can breathe both air and water, and can swim at your normal movement speed.",
+        "grants": [],
+        "grantNotes": null
       },
       {
+        "featureKey": "wall-crawler",
         "name": "Wall Crawler",
-        "description": "You gain the ability to cling to vertical surfaces, allowing you to climb at full speed. You can climb even smooth surfaces and ceilings, as long as they are not wet or slippery."
+        "description": "You gain the ability to cling to vertical surfaces, allowing you to climb at full speed. You can climb even smooth surfaces and ceilings, as long as they are not wet or slippery.",
+        "grants": [],
+        "grantNotes": null
       },
       {
+        "featureKey": "camouflage",
         "name": "Camouflage",
-        "description": "Your skin adapts to blend in with your environment. You gain a +1 Status Bonus to Stealth checks."
+        "description": "Your skin adapts to blend in with your environment. You gain a +1 Status Bonus to Stealth checks.",
+        "grants": [],
+        "grantNotes": null
       },
       {
+        "featureKey": "defensive-evolution",
         "name": "Defensive Evolution",
-        "description": "Your mutation also helps protect you from external threats. When you take damage, you may spend 2 energy to adapt to that attack. If you do, choose 1 of that attack’s “tags” - you gain Armor (e.g. reduce damage) from attacks with the chosen tag equal to your Strength. For example, if you have Strength 3 and are hit with a fire-based attack, you can gain heat-resistant skin that grants Armor 3 to subsequent “fire” attacks. Lasts until the end of this combat.\nOnce per round when you reduce damage due to Armor, you may increment your Power Die."
+        "description": "Your mutation also helps protect you from external threats. When you take damage, you may spend 2 energy to adapt to that attack. If you do, choose 1 of that attack’s “tags” - you gain Armor (e.g. reduce damage) from attacks with the chosen tag equal to your Strength. For example, if you have Strength 3 and are hit with a fire-based attack, you can gain heat-resistant skin that grants Armor 3 to subsequent “fire” attacks. Lasts until the end of this combat.\nOnce per round when you reduce damage due to Armor, you may increment your Power Die.",
+        "grants": [],
+        "grantNotes": null
       }
     ],
     "originKeystone": "You gain one Keystone that describes the origin of your character’s powers.",
@@ -210,18 +262,29 @@
     "status": "playable",
     "summary": "You are a disciplined alien warrior from a predatory, militaristic species.",
     "description": "You are a member of the Getaba Species - a society that is built on a foundation of military prowess. Getaba warriors are some of the most powerful, disciplined warriors in the galaxy. Most of the time they appear mostly humanoid, but with some features that make them somewhat resemble a predatory animal - sharp teeth, slitted pupils, sometimes sharp pointed ears, and a tail. Getaba come in several varieties - some have features resembling Earth Wolves, while others are more akin to big cats such as Leopards or Tigers, or any number of other predatory beasts. When Getaba enter battle these features can become even more prominent, and some Getaba can even transform into a fully bestial form.",
+    "grants": [],
+    "grantNotes": null,
     "features": [
       {
+        "featureKey": "hunter-s-instinct",
         "name": "Hunter’s Instinct",
-        "description": "A skilled hunter chooses their prey carefully. You may make an investigation action against a group of enemies, rather than an individual. Examples of questions include:\n* Which enemy has the highest (or lowest) HP?\n* Which enemy has the weakest physical (or mental, or spiritual) defense?\n* Which enemy is the highest Threat Level?\n* Which enemy is the most wounded?\n* Which enemy has the highest Strength (or Agility)?\nAs usual for Investigation Actions, you gain a +1D Circumstance bonus when acting upon this information"
+        "description": "A skilled hunter chooses their prey carefully. You may make an investigation action against a group of enemies, rather than an individual. Examples of questions include:\n* Which enemy has the highest (or lowest) HP?\n* Which enemy has the weakest physical (or mental, or spiritual) defense?\n* Which enemy is the highest Threat Level?\n* Which enemy is the most wounded?\n* Which enemy has the highest Strength (or Agility)?\nAs usual for Investigation Actions, you gain a +1D Circumstance bonus when acting upon this information",
+        "grants": [],
+        "grantNotes": null
       },
       {
+        "featureKey": "thrill-of-battle",
         "name": "Thrill of Battle",
-        "description": "Once per round, when you take damage from a melee attack, you may increment your Power Die."
+        "description": "Once per round, when you take damage from a melee attack, you may increment your Power Die.",
+        "grants": [],
+        "grantNotes": null
       },
       {
+        "featureKey": "keen-senses",
         "name": "Keen Senses",
-        "description": "Your senses of hearing and smell are particularly sensitive. Using these powerful senses, you can detect the presence of hidden non-spirit creatures within 60 feet of you. You know their location, and they are only considered to be “obscured”, rather than “concealed”. In addition, if you know the scent of a particular creature or object, you can detect if they were in a particular location within the last hour, and if they are within 1000 feet you can detect which direction they are in."
+        "description": "Your senses of hearing and smell are particularly sensitive. Using these powerful senses, you can detect the presence of hidden non-spirit creatures within 60 feet of you. You know their location, and they are only considered to be “obscured”, rather than “concealed”. In addition, if you know the scent of a particular creature or object, you can detect if they were in a particular location within the last hour, and if they are within 1000 feet you can detect which direction they are in.",
+        "grants": [],
+        "grantNotes": null
       }
     ],
     "originKeystone": "You gain one Keystone that describes the origin of your character’s powers.",
@@ -244,18 +307,29 @@
     "status": "playable",
     "summary": "A stronger being lends you power, influence, and expectations you are meant to fulfill.",
     "description": "You get your powers from another, more powerful being - whether an ancient spirit, a powerful energy-user, or extradimensional being. This Patron grants you access to a portion of their power, but they expect something from you in return. Your patron is not just powerful spiritually - they also have influence, resources, and connections that you can occasionally tap into to help you accomplish their goals.",
+    "grants": [],
+    "grantNotes": null,
     "features": [
       {
+        "featureKey": "bond-of-patronage",
         "name": "Bond of Patronage",
-        "description": "You gain a level 1 Bond with your Patron. Your Patron has certain expectations of you. If you fail to live up to your side of the bargain, the bond can be “Broken”. If this happens, your Patron can choose to restrict access to your powers, or even temporarily prevent you from accessing them entirely."
+        "description": "You gain a level 1 Bond with your Patron. Your Patron has certain expectations of you. If you fail to live up to your side of the bargain, the bond can be “Broken”. If this happens, your Patron can choose to restrict access to your powers, or even temporarily prevent you from accessing them entirely.",
+        "grants": [],
+        "grantNotes": null
       },
       {
+        "featureKey": "irresistible-authority",
         "name": "Irresistible Authority",
-        "description": "Your patron’s influence is powerful and widespread. With the mere mention of their name, other creatures become more willing to help (or fear) you. When you perform an action with the “Emotion” trait, you can spend a number of energy up to your Bond Rank with your Patron. Add a status bonus to the roll equal to the amount of energy spent.\nYour Patron’s authority over you also helps shield you from other, lesser influences. You can also gain this Status Bonus when making a defense check against an effect with the “Emotion” trait."
+        "description": "Your patron’s influence is powerful and widespread. With the mere mention of their name, other creatures become more willing to help (or fear) you. When you perform an action with the “Emotion” trait, you can spend a number of energy up to your Bond Rank with your Patron. Add a status bonus to the roll equal to the amount of energy spent.\nYour Patron’s authority over you also helps shield you from other, lesser influences. You can also gain this Status Bonus when making a defense check against an effect with the “Emotion” trait.",
+        "grants": [],
+        "grantNotes": null
       },
       {
+        "featureKey": "friends-in-high-places",
         "name": "Friends in High Places",
-        "description": "When making a skill check for resources or connections, your Patron may “Assist” you with the roll.\n\nDesign Note: As of writing this, I have not written a system that requires making rolls for resources or connections. However, I plan to eventually implement a system for these types of checks. This system will cover things like “can I afford item X” (instead of tracking money), “Is Item Y available in this city”, “Can I find information on Z”, or “Do I know anyone who ____?”"
+        "description": "When making a skill check for resources or connections, your Patron may “Assist” you with the roll.\n\nDesign Note: As of writing this, I have not written a system that requires making rolls for resources or connections. However, I plan to eventually implement a system for these types of checks. This system will cover things like “can I afford item X” (instead of tracking money), “Is Item Y available in this city”, “Can I find information on Z”, or “Do I know anyone who ____?”",
+        "grants": [],
+        "grantNotes": null
       }
     ],
     "originKeystone": "You gain one Keystone that describes the origin of your character’s powers.",
@@ -283,41 +357,48 @@
     "originKey": "slimefolk",
     "name": "Slimefolk",
     "status": "incomplete",
-    "summary": "A slime-based origin exists in the handbook outline, but the current source text is incomplete.",
-    "description": "You get your powers from another, more powerful being - whether an ancient spirit, a powerful energy-user, or extradimensional being. This Patron grants you access to a portion of their power, but they expect something from you in return. Your patron is not just powerful spiritually - they also have influence, resources, and connections that you can occasionally tap into to help you accomplish their goals.\n\nDesign Note: Handbook body text currently duplicates the Powerful Patron writeup; this origin is still marked incomplete.",
+    "summary": "You are a sentient slime - a creature formed from the spirit energy, thoughts, and emotions of sapient beings.",
+    "description": "Not only does your slimy nature grant you an innate talent for manipulating spiritual energy, but it also grants you a number of unique physical characteristics. Your body is soft, pliable, but surprisingly durable, and you are able to change it's shape, color, and texture at will.",
+    "grants": [],
+    "grantNotes": null,
     "features": [
       {
-        "name": "Bond of Patronage",
-        "description": "You gain a level 1 Bond with your Patron. Your Patron has certain expectations of you. If you fail to live up to your side of the bargain, the bond can be “Broken”. If this happens, your Patron can choose to restrict access to your powers, or even temporarily prevent you from accessing them entirely."
+        "featureKey": "slime-physiology",
+        "name": "Slime Physiology",
+        "description": "While you have the ability to take on a humanoid shape, your natural form is an amorphous blob of translucent slime, bounded by a flexible surface. Because you are a spiritual being, and not a biological creature, you do not need to eat, sleep, or breathe.",
+        "grants": [],
+        "grantNotes": null
       },
       {
-        "name": "Irresistible Authority",
-        "description": "Your patron’s influence is powerful and widespread. With the mere mention of their name, other creatures become more willing to help (or fear) you. When you perform an action with the “Emotion” trait, you can spend a number of energy up to your Bond Rank with your Patron. Add a status bonus to the roll equal to the amount of energy spent.\nYour Patron’s authority over you also helps shield you from other, lesser influences. You can also gain this Status Bonus when making a defense check against an effect with the “Emotion” trait."
+        "featureKey": "slippery-ooze",
+        "name": "Slippery Ooze",
+        "description": "While in your slime form, you can squeeze through small spaces of Scale -2. You also gain a +1D Status bonus to defense rolls against grapples or other restraints.",
+        "grants": [],
+        "grantNotes": null
       },
       {
-        "name": "Friends in High Places",
-        "description": "When making a skill check for resources or connections, your Patron may “Assist” you with the roll.\n\nDesign Note: As of writing this, I have not written a system that requires making rolls for resources or connections. However, I plan to eventually implement a system for these types of checks. This system will cover things like “can I afford item X” (instead of tracking money), “Is Item Y available in this city”, “Can I find information on Z”, or “Do I know anyone who ____?”"
+        "featureKey": "slimy-storage",
+        "name": "Slimy Storage",
+        "description": "You have the uncanny ability to absorb and reform objects inside your body. As an action, you can absorb a scale -1 or smaller inorganic object or reassemble and eject that object. You can absorb up to 3 objects at a time.",
+        "grants": [],
+        "grantNotes": null
       }
     ],
     "originKeystone": "You gain one Keystone that describes the origin of your character’s powers.",
     "roleplayQuestions": [
-      "Who is your patron? What kind of being are they, what kind of power and influence do they have?",
-      "How did you meet your Patron?",
-      "Why did you form a bond with your Patron?",
-      "What are your Patron’s goals, and how do they expect you to help achieve them?",
-      "What kind of behavior does your Patron expect of you? What actions do they require, or prohibit?",
-      "What is your relationship like with your Patron. Do you agree with their goals, or are you just going along with them for Power?"
+      "Where did you form, and how did the spiritual energy of that place influence you?",
+      "Do you try to blend in with society, or hide from it?",
+      "What does your \"humanoid\" form look like, and why?",
+      "Who knows your true form?",
+      "Do you know of other slimes like yourself, or are you one of a kind?",
+      "How do you feel about regular, non-sentient slimes?"
     ],
-    "higherLevelUpgrades": [
-      "Ability to summon the Patron to temporarily fight along-side you?",
-      "Maybe abilities shouldn’t scale automatically with Bond Level - they should require feats to get stronger? Or maybe you can’t improve bond level normally - higher level upgrades might be required to increase bond level?",
-      "Defensive power - Ward around self or allies",
-      "Emotion abilities affect multiple nearby targets?"
-    ],
+    "higherLevelUpgrades": [],
     "examples": [
-      "Power Rangers + Zordon",
-      "Cardcaptor Sakura (Cerberus)",
-      "Deku + All Might (My Hero Academia)"
+      "Rimuru Tempest (Reincarnated as a Slime)",
+      "Ivan Ooze (Power Rangers)",
+      "Majin Buu (Dragon Ball Z)",
+      "Ditto (Pokemon)"
     ]
   },
   {
@@ -326,6 +407,8 @@
     "status": "draft",
     "summary": "You came to this world from another realm where supernatural powers are normal.",
     "description": "You have recently arrived in this world from another. In your homeworld, magical powers are commonplace - a far cry from the mundane, modern world you now find yourself in. Although you are no longer in your homeworld, you retain your supernatural abilities.\n\nDesign Note: The following origins are more conceptual, and have not been implemented (and will not be implemented in Version 2.0)\n\nDesign Note: Features TBD",
+    "grants": [],
+    "grantNotes": null,
     "features": [],
     "originKeystone": "You gain one Keystone that describes the origin of your character’s powers.",
     "roleplayQuestions": [
@@ -348,6 +431,8 @@
     "status": "draft",
     "summary": "Your power is the product of a curse or malicious magic that grants strength at a cost.",
     "description": "Your powers are granted by a curse, hex, or other malicious magic. Although your powers seem like a gift, they come with a cost.",
+    "grants": [],
+    "grantNotes": null,
     "features": [],
     "originKeystone": "",
     "roleplayQuestions": [
@@ -370,6 +455,8 @@
     "status": "draft",
     "summary": "Your subconscious power takes shape as a separate entity tied to your emotions.",
     "description": "You cannot control your power directly - rather, it is controlled by your subconscious, and manifests as a separate entity.",
+    "grants": [],
+    "grantNotes": null,
     "features": [],
     "originKeystone": "",
     "roleplayQuestions": [
@@ -392,6 +479,8 @@
     "status": "draft",
     "summary": "Your power comes from extreme training, discipline, and self-imposed limits rather than magic or technology.",
     "description": "Your powers are not biological, mechanical, magical, or spiritual. You simply learned to enhance your own body, and harness the energy that surrounds you, through sheer hard work.",
+    "grants": [],
+    "grantNotes": null,
     "features": [],
     "originKeystone": "",
     "roleplayQuestions": [
@@ -412,6 +501,8 @@
     "status": "draft",
     "summary": "You are the reincarnation of an earlier hero and are only beginning to access their legacy.",
     "description": "You are a reincarnation of a hero from the past. You inherit their powers, and perhaps some of their memories, but are still learning how to access them. You were reincarnated in this time and place for a reason - there is an evil from your past that has risen again, and it is up to you to stop them once again.",
+    "grants": [],
+    "grantNotes": null,
     "features": [],
     "originKeystone": "",
     "roleplayQuestions": [],
@@ -429,6 +520,8 @@
     "status": "draft",
     "summary": "Your powers were forced on you through a dangerous scientific, governmental, or spiritual experiment.",
     "description": "Your powers are man-made - granted by a scientific or government experiment in which you were an unwilling participant. These powers were triggered by dangerous chemical, biological, or spiritual manipulations, and many of the experimental subjects didn’t survive. You are one of the rare successes, and the organization that performed the experiments will do anything to learn how to repeat the outcome.\n\nDesign Note: Most of the “Core” Origins assume that the character is a human. For future “supplements” that explore settings beyond Earth X (E.g. Isekai World, Galactic Empire), characters will have more options that go beyond this assumption. Isekai World will have more “Classic Fantasy” races with a JRPG / Isekai Twist (Elves, Orcs, Slimes, Demi-humans). There might be a “Spirit World” expansion with more spiritual origins - “Kami”, “Kitsune”, “Yokai”, etc. The Galactic Empire Expansion might have more alien species as Origin options (e.g. “Celeston”, Droid / mechanical being)",
+    "grants": [],
+    "grantNotes": null,
     "features": [],
     "originKeystone": "",
     "roleplayQuestions": [],

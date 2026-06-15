@@ -51,9 +51,11 @@ test('players can read, upload, and delete only their own portrait files', async
 
 test('portrait uploads must be common raster images under 5MB', async () => {
   const aliceStorage = makeAuthedContext(testEnv, ALICE_UID).storage();
+  const gifRef = ref(aliceStorage, `portraits/${ALICE_UID}/char-1/portrait.gif`);
   const svgRef = ref(aliceStorage, `portraits/${ALICE_UID}/char-1/portrait.svg`);
   const tooLargeRef = ref(aliceStorage, `portraits/${ALICE_UID}/char-1/portrait-large.png`);
 
+  await assertSucceeds(uploadBytes(gifRef, new Blob([new Uint8Array([71, 73, 70, 56])], { type: 'image/gif' })));
   await assertFails(uploadBytes(svgRef, new Blob(['<svg></svg>'], { type: 'image/svg+xml' })));
 
   const oversizedBytes = new Uint8Array((5 * 1024 * 1024) + 1);

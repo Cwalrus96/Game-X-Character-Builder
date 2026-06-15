@@ -10,7 +10,7 @@
     "combatTechniqueSkill": "",
     "combatSkills": [],
     "utilitySkillOptions": [],
-    "notes": "OUTDATED: table-based class data; update to universal class benefits + features."
+    "notes": "Design Note: Magical Guardians that focus on Attunement tend to emphasize the “Magic” part of their name - they are deeply in-tune with the spiritual energy around them, and able to manipulate it more easily. Guardians that choose Heart as their primary attribute tend to focus on the bond they have with their teammates, and using these bonds to buff, heal, and protect their allies."
   },
   {
     "classKey": "henshin-hero",
@@ -46,7 +46,7 @@
       "Science",
       "Vehicles"
     ],
-    "notes": ""
+    "notes": "Design Note: Magical Guardians that focus on Attunement tend to emphasize the “Magic” part of their name - they are deeply in-tune with the spiritual energy around them, and able to manipulate it more easily. Guardians that choose Heart as their primary attribute tend to focus on the bond they have with their teammates, and using these bonds to buff, heal, and protect their allies."
   },
   {
     "classKey": "magical-guardian",
@@ -82,7 +82,7 @@
       "Influence",
       "Nature"
     ],
-    "notes": ""
+    "notes": "Design Note: Magical Guardians that focus on Attunement tend to emphasize the “Magic” part of their name - they are deeply in-tune with the spiritual energy around them, and able to manipulate it more easily. Guardians that choose Heart as their primary attribute tend to focus on the bond they have with their teammates, and using these bonds to buff, heal, and protect their allies."
   },
   {
     "classKey": "mech-pilot",
@@ -95,7 +95,7 @@
     "combatTechniqueSkill": "",
     "combatSkills": [],
     "utilitySkillOptions": [],
-    "notes": "OUTDATED: table-based class data; update to universal class benefits + features."
+    "notes": "Design Note: Magical Guardians that focus on Attunement tend to emphasize the “Magic” part of their name - they are deeply in-tune with the spiritual energy around them, and able to manipulate it more easily. Guardians that choose Heart as their primary attribute tend to focus on the bond they have with their teammates, and using these bonds to buff, heal, and protect their allies."
   },
   {
     "classKey": "metamorph",
@@ -131,7 +131,7 @@
       "Performance",
       "Roguery"
     ],
-    "notes": ""
+    "notes": "Design Note: Magical Guardians that focus on Attunement tend to emphasize the “Magic” part of their name - they are deeply in-tune with the spiritual energy around them, and able to manipulate it more easily. Guardians that choose Heart as their primary attribute tend to focus on the bond they have with their teammates, and using these bonds to buff, heal, and protect their allies."
   },
   {
     "classKey": "monster-tamer",
@@ -167,7 +167,7 @@
       "Athletics",
       "Stealth"
     ],
-    "notes": ""
+    "notes": "Design Note: Magical Guardians that focus on Attunement tend to emphasize the “Magic” part of their name - they are deeply in-tune with the spiritual energy around them, and able to manipulate it more easily. Guardians that choose Heart as their primary attribute tend to focus on the bond they have with their teammates, and using these bonds to buff, heal, and protect their allies."
   },
   {
     "classKey": "ninja",
@@ -203,7 +203,7 @@
       "Roguery",
       "Nature"
     ],
-    "notes": ""
+    "notes": "Design Note: Ninjas that focus on Intelligence tend to be tricksters and manipulators - using illusions and deception to influence their foes, and using their skills and cunning to set up advantages for themselves. Ninjas that prioritize Agility tend to be deadly skirmishers, striking quickly from the shadows and hiding away before they can be caught."
   },
   {
     "classKey": "psychic",
@@ -216,7 +216,7 @@
     "combatTechniqueSkill": "",
     "combatSkills": [],
     "utilitySkillOptions": [],
-    "notes": "OUTDATED: table-based class data; update to universal class benefits + features."
+    "notes": "Design Note: Magical Guardians that focus on Attunement tend to emphasize the “Magic” part of their name - they are deeply in-tune with the spiritual energy around them, and able to manipulate it more easily. Guardians that choose Heart as their primary attribute tend to focus on the bond they have with their teammates, and using these bonds to buff, heal, and protect their allies."
   },
   {
     "classKey": "spirit-warrior",
@@ -252,7 +252,7 @@
       "Culinary",
       "Insight"
     ],
-    "notes": ""
+    "notes": "Design Note: Magical Guardians that focus on Attunement tend to emphasize the “Magic” part of their name - they are deeply in-tune with the spiritual energy around them, and able to manipulate it more easily. Guardians that choose Heart as their primary attribute tend to focus on the bond they have with their teammates, and using these bonds to buff, heal, and protect their allies."
   },
   {
     "classKey": "weapon-master",
@@ -300,6 +300,6 @@
       "Observation",
       "Crafting"
     ],
-    "notes": ""
+    "notes": "Design Note: Magical Guardians that focus on Attunement tend to emphasize the “Magic” part of their name - they are deeply in-tune with the spiritual energy around them, and able to manipulate it more easily. Guardians that choose Heart as their primary attribute tend to focus on the bond they have with their teammates, and using these bonds to buff, heal, and protect their allies."
   }
 ]

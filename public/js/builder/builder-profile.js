@@ -54,6 +54,9 @@ let pendingPortraitFile = null;
 let portraitPath = "";
 let portraitUrl = "";
 
+const MAX_PORTRAIT_BYTES = 5 * 1024 * 1024;
+const SUPPORTED_PORTRAIT_TYPES = new Set(["image/png", "image/jpeg", "image/webp", "image/gif"]);
+
 // ---- Portrait storage helpers ----
 function setPortraitPreview(url) {
   if (!portraitPreview) return;
@@ -66,6 +69,16 @@ function setPortraitPreview(url) {
   portraitPreview.style.display = "block";
 }
 
+function validatePortraitFile(file) {
+  if (!file || !SUPPORTED_PORTRAIT_TYPES.has(file.type)) {
+    return "Please choose a PNG, JPG, WEBP, or GIF image.";
+  }
+  if (file.size >= MAX_PORTRAIT_BYTES) {
+    return "Portrait images must be smaller than 5 MB.";
+  }
+  return "";
+}
+
 async function uploadPortrait() {
   if (!pendingPortraitFile) return { url: portraitUrl, path: portraitPath };
 
@@ -74,7 +87,7 @@ async function uploadPortrait() {
   const storagePath = getPortraitStoragePath({ uid: ctx.editingUid, charId: ctx.charId });
   const r = storageRef(storage, storagePath);
 
-  await uploadBytes(r, file, { contentType: file.type || "image/*" });
+  await uploadBytes(r, file, { contentType: file.type });
   const url = await getDownloadURL(r);
 
   pendingPortraitFile = null;
@@ -204,8 +217,17 @@ async function main() {
     // Wire events
     if (portraitFile) {
       portraitFile.addEventListener("change", () => {
+        clearError(errorEl);
         const f = portraitFile.files && portraitFile.files[0];
         if (!f) return;
+        const validationError = validatePortraitFile(f);
+        if (validationError) {
+          showError(errorEl, validationError);
+          portraitFile.value = "";
+          pendingPortraitFile = null;
+          setPortraitPreview(portraitUrl || "");
+          return;
+        }
         pendingPortraitFile = f;
         setPortraitPreview(URL.createObjectURL(f));
       });

@@ -33,7 +33,7 @@
 
           <div>
             <label class="label" for="portraitFile">Portrait</label>
-            <input id="portraitFile" class="input" type="file" accept="image/*" />
+            <input id="portraitFile" class="input" type="file" accept="image/png,image/jpeg,image/webp,image/gif" />
             <div class="portraitRow">
               <div class="portrait-box" aria-label="Portrait preview">
                 <img id="portraitPreview" class="portraitPreview" alt="Portrait preview" />
@@ -41,7 +41,7 @@
               <div>
                 <button id="uploadPortraitBtn" class="btn" type="button">Upload</button>
                 <button id="clearPortraitBtn" class="btn secondary" type="button">Clear</button>
-                <p class="help">Stored in Firebase Cloud Storage (not Firestore). Selecting a file does <em>not</em> upload until you click Upload or Save.</p>
+                <p class="help">Stored in Firebase Cloud Storage (not Firestore). PNG, JPG, WEBP, and GIF are supported. Selecting a file does <em>not</em> upload until you click Upload or Save.</p>
               </div>
             </div>
           </div>
