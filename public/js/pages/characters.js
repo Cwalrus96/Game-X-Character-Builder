@@ -3,7 +3,7 @@ import { onAuth, signOutNow, initAuthRedirectHandling, getClaims } from "../core
 import { ensureAppTopNav } from "../core/app-nav.js";
 import { createDefaultCharacterDoc } from "../core/database-reader.js";
 import { sanitizeStoragePath } from "../core/data-sanitization.js";
-import { loadGameXData } from "../core/game-data.js";
+import { loadGameXData, getGameXClasses, getGameXOrigins } from "../core/game-data.js";
 
 import {
   doc,
@@ -216,12 +216,12 @@ async function loadCharacterMetadataLookups() {
   try {
     const data = await loadGameXData({ cache: "no-store" });
     classNameByKey = new Map(
-      (Array.isArray(data?.classes) ? data.classes : [])
+      getGameXClasses(data)
         .map((cls) => [String(cls?.classKey || ""), String(cls?.name || cls?.classKey || "")])
         .filter(([key]) => key)
     );
     originNameByKey = new Map(
-      (Array.isArray(data?.origins) ? data.origins : [])
+      getGameXOrigins(data)
         .map((origin) => [String(origin?.originKey || ""), String(origin?.name || origin?.originKey || "")])
         .filter(([key]) => key)
     );

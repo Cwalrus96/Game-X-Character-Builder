@@ -27,6 +27,7 @@ import { buildTechniquesUpdatePatch } from "../core/database-writer.js";
 
 import {
   loadGameXData,
+  getGameXTechniques,
   buildTechniqueIndexes,
   resolveTechniqueRef,
   computeKnownCombatSkillsAndGrants,
@@ -84,6 +85,8 @@ let slots = 0;
 let knownCombatSkills = new Set();
 /** @type {Set<string>} */
 let grantedTechniqueNames = new Set();
+/** @type {any[]} */
+let techniqueChoiceGrants = [];
 let grantedSkillState = null;
 
 // If we auto-adjust stored selections due to class/level/skill/slot changes,
@@ -125,6 +128,7 @@ function passesKnownSkillFilter(t) {
   if (!filterKnownSkills) return true;
   const skill = String(t?.skill || "").trim();
   if (!skill) return false;
+  if (techniqueChoiceGrants.some((grant) => grantMatchesTechniqueChoice(grant, t))) return true;
   if (!knownCombatSkills.has(skill)) return false;
   return getTechniqueSkillRank(t) >= Number.parseInt(String(t?.rank ?? 0), 10);
 }
@@ -134,12 +138,20 @@ function deriveSkillsAndGrants() {
   const out = computeKnownCombatSkillsAndGrants(gameData, b);
   knownCombatSkills = out.knownCombatSkills;
   grantedTechniqueNames = out.grantedTechniqueNames;
+  techniqueChoiceGrants = Array.isArray(out.techniqueChoiceGrants) ? out.techniqueChoiceGrants : [];
   grantedSkillState = computeGrantedSkillsState(gameData, b);
 
   // If something is now granted, drop it from manual selection.
   for (const g of grantedTechniqueNames) {
     if (selectedTechniques.has(g)) selectedTechniques.delete(g);
   }
+}
+
+function getTechniqueChoiceGrantCount() {
+  return techniqueChoiceGrants.reduce((total, grant) => {
+    const count = Number.parseInt(String(grant?.count ?? 1), 10);
+    return total + (Number.isFinite(count) ? Math.max(0, count) : 1);
+  }, 0);
 }
 
 function getTechniqueSkillRank(technique) {
@@ -165,6 +177,58 @@ function getTechniqueSkillRank(technique) {
   }
 
   return rank;
+}
+
+function grantMatchesTechniqueChoice(grant, technique) {
+  const grantSkill = sanitizeText(grant?.skill || grant?.name || grant?.key, { maxLen: 96, collapse: true }).toLowerCase();
+  if (!grantSkill) return false;
+  const techniqueSkill = sanitizeText(technique?.skill, { maxLen: 96, collapse: true }).toLowerCase();
+  if (grantSkill !== techniqueSkill) return false;
+
+  const requiredRank = Number.parseInt(String(technique?.rank ?? 0), 10);
+  if (getTechniqueSkillRank(technique) < requiredRank) return false;
+  return true;
+}
+
+function countExtraTechniqueAssignments(refs) {
+  const selected = Array.from(refs || [])
+    .map((ref) => resolveRef(ref))
+    .filter(Boolean);
+  const remainingBySkill = new Map();
+
+  for (const grant of techniqueChoiceGrants) {
+    const skill = sanitizeText(grant?.skill || grant?.name || grant?.key, { maxLen: 96, collapse: true }).toLowerCase();
+    if (!skill) continue;
+    const count = Number.parseInt(String(grant?.count ?? 1), 10);
+    remainingBySkill.set(skill, (remainingBySkill.get(skill) || 0) + (Number.isFinite(count) ? Math.max(0, count) : 1));
+  }
+
+  let assigned = 0;
+  for (const technique of selected) {
+    const skill = sanitizeText(technique?.skill, { maxLen: 96, collapse: true }).toLowerCase();
+    const remaining = remainingBySkill.get(skill) || 0;
+    if (remaining <= 0) continue;
+    if (!techniqueChoiceGrants.some((grant) => grantMatchesTechniqueChoice(grant, technique))) continue;
+    remainingBySkill.set(skill, remaining - 1);
+    assigned += 1;
+  }
+
+  return assigned;
+}
+
+function selectedTechniquesFitSlots(refs) {
+  const selected = refs instanceof Set ? refs : new Set(refs || []);
+  const total = selected.size;
+  if (total <= slots) return true;
+  const extraNeeded = total - Math.max(0, slots);
+  return countExtraTechniqueAssignments(selected) >= extraNeeded;
+}
+
+function canAddTechnique(name) {
+  if (selectedTechniques.has(name)) return true;
+  const next = new Set(selectedTechniques);
+  next.add(name);
+  return selectedTechniquesFitSlots(next);
 }
 
 function getKnownCombatSkillRows() {
@@ -229,17 +293,22 @@ function pruneSelectionsToCurrentContext() {
   }
 
   const { total } = getSelectedCounts();
-  if (total > slots) {
+  if (!selectedTechniquesFitSlots(selectedTechniques)) {
     // Keep the first N by our stable sort order (rank/name), drop the rest.
     const sorted = buildSortedSelectedArray();
-    const keep = new Set(sorted.slice(0, slots));
+    const keep = new Set();
+    for (const ref of sorted) {
+      const next = new Set(keep);
+      next.add(ref);
+      if (selectedTechniquesFitSlots(next)) keep.add(ref);
+    }
     const dropped = [];
     for (const ref of selectedTechniques) {
       if (!keep.has(ref)) dropped.push(ref);
     }
     for (const ref of dropped) selectedTechniques.delete(ref);
     warnings.push(
-      `Removed ${dropped.length} technique(s) because your selected techniques exceeded your ${slots} slot limit.`
+      `Removed ${dropped.length} technique(s) because your selected techniques exceeded your available technique picks.`
     );
   }
 
@@ -260,24 +329,34 @@ function renderSlotSummary() {
   slotPillsEl.innerHTML = "";
 
   const { total } = getSelectedCounts();
+  const extraSlots = getTechniqueChoiceGrantCount();
+  const maxTotal = slots + extraSlots;
 
   const pillSlots = document.createElement("span");
   pillSlots.className = "pill";
   pillSlots.textContent = `Slots: ${slots}`;
+  slotPillsEl.append(pillSlots);
+
+  if (extraSlots > 0) {
+    const pillExtra = document.createElement("span");
+    pillExtra.className = "pill";
+    pillExtra.textContent = `Granted picks: ${extraSlots}`;
+    slotPillsEl.append(pillExtra);
+  }
 
   const pillSel = document.createElement("span");
   pillSel.className = "pill";
-  pillSel.textContent = `Selected: ${total} / ${slots}`;
-  if (total > slots) pillSel.classList.add("danger");
-  else if (slots > 0 && total === slots) pillSel.classList.add("ok");
+  pillSel.textContent = `Selected: ${total} / ${maxTotal}`;
+  if (!selectedTechniquesFitSlots(selectedTechniques)) pillSel.classList.add("danger");
+  else if (maxTotal > 0 && total === maxTotal) pillSel.classList.add("ok");
 
-  slotPillsEl.append(pillSlots, pillSel);
+  slotPillsEl.append(pillSel);
 }
 
 function renderKnownSkills() {
   if (!knownSkillsHelpEl) return;
   const techniqueSkillNames = new Set(
-    (Array.isArray(gameData?.techniques) ? gameData.techniques : [])
+    getGameXTechniques(gameData)
       .map((tech) => sanitizeText(tech?.skill, { maxLen: 96, collapse: true }))
       .filter(Boolean)
   );
@@ -315,7 +394,7 @@ function renderMissingRefs() {
 function renderTechniqueGroups() {
   if (!techniqueGroupsEl) return;
 
-  const list = Array.isArray(gameData?.techniques) ? gameData.techniques : [];
+  const list = getGameXTechniques(gameData);
 
   // Filter out granted techniques (shown elsewhere)
   const visible = list
@@ -349,8 +428,6 @@ function renderTechniqueGroups() {
     techniqueGroupsEl.append(msg);
     return;
   }
-
-  const { total: selectedCount } = getSelectedCounts();
 
   for (const rank of ranks) {
     const items = (byRank.get(rank) || []).slice().sort((a, b) => {
@@ -410,17 +487,17 @@ function renderTechniqueGroups() {
       const skillRank = getTechniqueSkillRank(t);
       cb.checked = isGranted || selectedTechniques.has(name);
 
-      const atCap = selectedCount >= slots;
+      const atCap = !canAddTechnique(name);
       if (isGranted) cb.disabled = true;
       else if (skillRank < rankRequirement) cb.disabled = true;
-      else if (slots <= 0) cb.disabled = true;
+      else if (slots + getTechniqueChoiceGrantCount() <= 0) cb.disabled = true;
       else if (atCap && !cb.checked) cb.disabled = true;
 
       cb.addEventListener("change", () => {
         clearError(errorEl);
         if (cb.checked) {
           const { total } = getSelectedCounts();
-          if (total >= slots) {
+          if (!canAddTechnique(name)) {
             cb.checked = false;
             setStatus(statusEl, "No technique slots remaining.");
             return;
@@ -486,8 +563,12 @@ function getSaveIssues() {
 
   if (!primaryAttrKey) warnings.push("Primary Attribute not set (go back to Class step). Technique slots will be 0.");
 
-  if (total > slots) errors.push(`You selected ${total} techniques, but you only have ${slots} slots.`);
-  if (slots > 0 && total < slots) warnings.push(`You have ${slots} slots, but only selected ${total} techniques.`);
+  const extraSlots = getTechniqueChoiceGrantCount();
+  const maxTotal = slots + extraSlots;
+  if (!selectedTechniquesFitSlots(selectedTechniques)) {
+    errors.push(`You selected ${total} techniques, but those choices do not fit your available technique picks.`);
+  }
+  if (maxTotal > 0 && total < maxTotal) warnings.push(`You have ${maxTotal} technique pick(s), but only selected ${total}.`);
   if (missing) warnings.push(`${missing} selected technique reference(s) no longer exist in the JSON.`);
 
   return { errors, warnings };
@@ -562,7 +643,7 @@ async function main() {
 
     setStatus(statusEl, "Loading game data...");
     gameData = await loadGameXData({ cache: "no-store" });
-    techIndexes = buildTechniqueIndexes(gameData?.techniques);
+    techIndexes = buildTechniqueIndexes(getGameXTechniques(gameData));
 
     setStatus(statusEl, "Loading character...");
     const loaded = await loadCharacterDoc(ctx.editingUid, ctx.charId);

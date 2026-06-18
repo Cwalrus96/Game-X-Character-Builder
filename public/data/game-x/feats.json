@@ -1,5 +1,6 @@
 [
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": null,
     "minLevel": null,
@@ -12,6 +13,7 @@
     "review": null
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "henshin-hero",
     "minLevel": 2,
@@ -24,6 +26,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "henshin-hero",
     "minLevel": 2,
@@ -36,6 +39,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "henshin-hero",
     "minLevel": 2,
@@ -53,6 +57,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "henshin-hero",
     "minLevel": 2,
@@ -65,6 +70,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "henshin-hero",
     "minLevel": 2,
@@ -77,6 +83,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "magical-guardian",
     "minLevel": 2,
@@ -89,6 +96,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "optionGroup",
     "featType": "CLASS",
     "classKey": "magical-guardian",
     "minLevel": 2,
@@ -98,9 +106,53 @@
     "description": "Celestial Armor: While transformed, your Guardian form gains a suit of magical armor. This armor grants you a +1D Equipment bonus to all defenses while adjacent to an enemy. Knight Combat Training: You do not suffer a penalty when making a ranged Spell attack while within 5 feet of an enemy. You gain Beginner Training and a Slow skill progression in either Targeting or Melee Weapons.",
     "grants": [],
     "grantNotes": null,
-    "review": "VERIFY"
+    "review": "VERIFY",
+    "chooseCount": 1,
+    "options": [
+      {
+        "type": "option",
+        "featType": "CLASS",
+        "classKey": "magical-guardian",
+        "minLevel": 2,
+        "featKey": "celestial-knight-melee-weapons",
+        "name": "Celestial Knight Melee Weapons",
+        "prerequisites": null,
+        "description": null,
+        "grants": [
+          {
+            "type": "skill",
+            "name": "Melee Weapons",
+            "rank": 1,
+            "progression": "slow"
+          }
+        ],
+        "grantNotes": null,
+        "review": null
+      },
+      {
+        "type": "option",
+        "featType": "CLASS",
+        "classKey": "magical-guardian",
+        "minLevel": 2,
+        "featKey": "celestial-knight-targeting",
+        "name": "Celestial Knight Targeting",
+        "prerequisites": null,
+        "description": null,
+        "grants": [
+          {
+            "type": "skill",
+            "name": "Targeting",
+            "rank": 1,
+            "progression": "slow"
+          }
+        ],
+        "grantNotes": null,
+        "review": null
+      }
+    ]
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "magical-guardian",
     "minLevel": 2,
@@ -113,18 +165,25 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "magical-guardian",
     "minLevel": 2,
     "featKey": "dazzling-transformation",
     "name": "Dazzling Transformation",
     "prerequisites": null,
-    "description": "Your transformation sequence is so bright and sparkling that it has the potential to dazzle your enemies. When you transform, roll Spellcasting vs Spiritual Defense, affecting all hostile creatures within 4 squares. On a failed defense, those creatures are Off-Guard 1 , or Off-Guard 2 on a critical failure.",
-    "grants": [],
+    "description": "Your transformation sequence is so bright and sparkling that it has the potential to dazzle your enemies. You gain the \"Dazzling Transformation\" Technique.",
+    "grants": [
+      {
+        "type": "technique",
+        "name": "Dazzling Transformation"
+      }
+    ],
     "grantNotes": null,
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "magical-guardian",
     "minLevel": 2,
@@ -137,6 +196,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "magical-guardian",
     "minLevel": 2,
@@ -149,6 +209,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "magical-guardian",
     "minLevel": 2,
@@ -161,6 +222,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "magical-guardian",
     "minLevel": 2,
@@ -173,6 +235,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "magical-guardian",
     "minLevel": 4,
@@ -185,6 +248,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "Metamorph",
     "minLevel": 2,
@@ -202,6 +266,7 @@
     "review": null
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "monster-tamer",
     "minLevel": null,
@@ -214,6 +279,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "monster-tamer",
     "minLevel": null,
@@ -226,6 +292,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "monster-tamer",
     "minLevel": 2,
@@ -238,6 +305,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "ninja",
     "minLevel": 2,
@@ -250,6 +318,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "ninja",
     "minLevel": 2,
@@ -262,6 +331,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "ninja",
     "minLevel": 2,
@@ -274,6 +344,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "ninja",
     "minLevel": 2,
@@ -286,6 +357,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "spirit-warrior",
     "minLevel": 2,
@@ -298,6 +370,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "spirit-warrior",
     "minLevel": 2,
@@ -310,6 +383,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "spirit-warrior",
     "minLevel": 2,
@@ -322,6 +396,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "spirit-warrior",
     "minLevel": 2,
@@ -334,6 +409,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "spirit-warrior",
     "minLevel": 2,
@@ -346,6 +422,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "spirit-warrior",
     "minLevel": 2,
@@ -358,6 +435,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "spirit-warrior",
     "minLevel": 2,
@@ -370,6 +448,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "weapon-master",
     "minLevel": 2,
@@ -382,6 +461,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "weapon-master",
     "minLevel": 2,
@@ -394,6 +474,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "weapon-master",
     "minLevel": 2,
@@ -406,6 +487,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "weapon-master",
     "minLevel": 2,
@@ -418,6 +500,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "weapon-master",
     "minLevel": 2,
@@ -430,6 +513,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "weapon-master",
     "minLevel": 2,
@@ -442,6 +526,7 @@
     "review": "VERIFY"
   },
   {
+    "type": "feature",
     "featType": "CLASS",
     "classKey": "weapon-master",
     "minLevel": 2,
@@ -449,7 +534,13 @@
     "name": "Weaponsmith",
     "prerequisites": null,
     "description": "Choose an additional Level 1 weapon enhancement, and apply it to one of your weapons. This enhancement does not count towards that weapon’s enhancement slots. When you take a short rest, you can change this enhancement (either replacing it with a different enhancement, or moving it to a new weapon).",
-    "grants": [],
+    "grants": [
+      {
+        "type": "weapon-enhancement",
+        "rank": 1,
+        "count": 1
+      }
+    ],
     "grantNotes": null,
     "review": "VERIFY"
   }

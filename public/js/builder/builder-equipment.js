@@ -13,7 +13,7 @@ import {
 import { renderBuilderNavMounts } from "./builder-nav.js";
 import { buildWeaponsUpdatePatch } from "../core/database-writer.js";
 import { escapeHtml, sanitizeNamedSkillList, sanitizeText } from "../core/data-sanitization.js";
-import { loadGameXData, computeGrantedSkillsState } from "../core/game-data.js";
+import { loadGameXData, computeGrantedSkillsState, createCharacterGrantCollection, getGameXWeaponBases, getGameXWeaponEnhancements } from "../core/game-data.js";
 import {
   computeTotalWeaponSlots,
   computeWeaponSlotCost,
@@ -54,6 +54,7 @@ let gameData = null;
 let weaponBases = [];
 let weaponEnhancements = [];
 let grantedSkillState = null;
+let grantCollection = null;
 let showOutOfRank = false;
 
 const signOutBtn = document.getElementById("signOutBtn");
@@ -88,6 +89,23 @@ function compareByName(a, b) {
 function countEnhancements(weapons) {
   const list = Array.isArray(weapons) ? weapons : [];
   return list.reduce((sum, weapon) => sum + (Array.isArray(weapon?.enhancements) ? weapon.enhancements.length : 0), 0);
+}
+
+function getGrantedEnhancementSlots() {
+  const grants = Array.isArray(grantCollection?.weaponEnhancementGrants) ? grantCollection.weaponEnhancementGrants : [];
+  return grants.reduce((total, grant) => {
+    const count = Number.parseInt(String(grant?.count ?? 1), 10);
+    return total + (Number.isFinite(count) ? Math.max(0, count) : 1);
+  }, 0);
+}
+
+function computeEnhancementCapacity(weapons) {
+  const list = Array.isArray(weapons) ? weapons : [];
+  return list.reduce((sum, weapon) => sum + Math.max(0, Number(weapon?.rank || 0)), 0) + getGrantedEnhancementSlots();
+}
+
+function getWeaponEnhancementCapacity(weapon) {
+  return Math.max(0, Number(weapon?.rank || 0)) + getGrantedEnhancementSlots();
 }
 
 function getBuilderRepeatables() {
@@ -132,7 +150,7 @@ function getWeaponSkillRankCap(weaponDef, skillRanks) {
 function formatSkillRankLabel(weaponDef, skillRanks) {
   const relevantSkills = getWeaponSkillNames(weaponDef);
   if (!relevantSkills.length) return "No attack skill found.";
-  return relevantSkills.map((skillName) => `${skillName} ${Number(skillRanks?.[skillName] || 0)}`).join(" • ");
+  return relevantSkills.map((skillName) => `${skillName} ${Number(skillRanks?.[skillName] || 0)}`).join(" - ");
 }
 
 function getEnhancementSelectionSpecs(enhancementKey) {
@@ -156,7 +174,7 @@ function buildWeaponBaseOptions(selectedKey = "") {
   const selectedDef = getWeaponDef(weaponBases, selectedKey);
   const visible = getVisibleWeaponBases();
   const seen = new Set();
-  const parts = ['<option value="">Select a weapon…</option>'];
+  const parts = ['<option value="">Select a weapon...</option>'];
 
   for (const weapon of visible) {
     seen.add(String(weapon.weaponKey || ""));
@@ -165,7 +183,7 @@ function buildWeaponBaseOptions(selectedKey = "") {
   }
 
   if (selectedKey && selectedDef && !seen.has(String(selectedKey))) {
-    parts.push(`<option value="${escapeHtml(selectedDef.weaponKey)}" selected>${escapeHtml(selectedDef.name)} — out of rank</option>`);
+    parts.push(`<option value="${escapeHtml(selectedDef.weaponKey)}" selected>${escapeHtml(selectedDef.name)} - out of rank</option>`);
   }
 
   return parts.join("");
@@ -185,7 +203,7 @@ function buildEnhancementOptions(weapon, selectedKey) {
   const selectedDef = getEnhancementDef(weaponEnhancements, selectedKey);
   const compatible = getVisibleEnhancements(weapon);
   const seen = new Set();
-  const out = ['<option value="">Select an enhancement…</option>'];
+  const out = ['<option value="">Select an enhancement...</option>'];
 
   for (const enhancement of compatible) {
     seen.add(enhancement.enhancementKey);
@@ -193,9 +211,9 @@ function buildEnhancementOptions(weapon, selectedKey) {
   }
 
   if (selectedKey && selectedDef && !seen.has(selectedKey)) {
-    out.push(`<option value="${escapeHtml(selectedKey)}" selected>${escapeHtml(selectedDef.name)} — unavailable</option>`);
+    out.push(`<option value="${escapeHtml(selectedKey)}" selected>${escapeHtml(selectedDef.name)} - unavailable</option>`);
   } else if (selectedKey && !selectedDef) {
-    out.push(`<option value="${escapeHtml(selectedKey)}" selected>${escapeHtml(selectedKey)} — unknown</option>`);
+    out.push(`<option value="${escapeHtml(selectedKey)}" selected>${escapeHtml(selectedKey)} - unknown</option>`);
   }
 
   return out.join("");
@@ -207,7 +225,7 @@ function buildEnhancementSelectionFields(enhancement, weaponIndex, enhancementIn
   return specs.map((spec) => {
     const value = sanitizeText(enhancement?.selections?.[spec.key], { maxLen: 96, collapse: true });
     if (spec.type === "select") {
-      const options = ['<option value="">Choose…</option>']
+      const options = ['<option value="">Choose...</option>']
         .concat((Array.isArray(spec.options) ? spec.options : []).map((option) => `<option value="${escapeHtml(option)}"${option === value ? " selected" : ""}>${escapeHtml(option)}</option>`))
         .join("");
       return `
@@ -239,7 +257,6 @@ function collectWeaponWarnings(weapon, skillRanks) {
   if (selectedRank > skillCap) warnings.push(`Selected rank exceeds current supported skill rank (${skillCap}).`);
 
   const enhancements = Array.isArray(weapon?.enhancements) ? weapon.enhancements : [];
-  if (enhancements.length > selectedRank) warnings.push(`This weapon has ${enhancements.length} enhancement(s), but Rank ${selectedRank} supports ${selectedRank} slot(s).`);
 
   enhancements.forEach((enhancement) => {
     const enhancementDef = getEnhancementDef(weaponEnhancements, enhancement?.enhancementKey);
@@ -289,10 +306,11 @@ function renderWeapons() {
   const weapons = Array.isArray(currentWeapons) ? currentWeapons : [];
   const skillRanks = getSkillRanks();
   const enhancementCount = countEnhancements(weapons);
+  const enhancementCapacity = computeEnhancementCapacity(weapons);
   const slotUsage = computeTotalWeaponSlots(weapons, weaponBases);
 
   weaponCountValueEl.textContent = String(weapons.length);
-  enhancementCountValueEl.textContent = String(enhancementCount);
+  enhancementCountValueEl.textContent = `${enhancementCount} / ${enhancementCapacity}`;
   slotUsageValueEl.textContent = `${slotUsage} / ${MAX_WEAPON_SLOTS}`;
   meleeSkillRankValueEl.textContent = String(skillRanks["Melee Weapons"] || 0);
   targetingSkillRankValueEl.textContent = String(skillRanks.Targeting || 0);
@@ -320,6 +338,8 @@ function renderWeapons() {
     const warningsHtml = weaponWarnings.length ? `<ul class="warningList">${weaponWarnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join("")}</ul>` : "";
 
     const enhancements = Array.isArray(weapon.enhancements) ? weapon.enhancements : [];
+    const enhancementCapacity = getWeaponEnhancementCapacity(weapon);
+    const grantedEnhancementSlots = getGrantedEnhancementSlots();
     const enhancementRowsHtml = enhancements.length ? enhancements.map((enhancement, enhancementIndex) => {
       const enhancementDef = getEnhancementDef(weaponEnhancements, enhancement.enhancementKey);
       const minEnhancementRank = Number(enhancementDef?.minRank || 0);
@@ -357,7 +377,7 @@ function renderWeapons() {
         <div class="cardHeaderRow equipmentCardHeader">
           <div>
             <div class="builderItemTitle">${escapeHtml(displayName)}</div>
-            <div class="builderItemMeta">${weaponDef ? escapeHtml(weaponDef.name) : escapeHtml(weapon.weaponKey || "Unknown weapon")} • Slots ${slotCost} • ${escapeHtml(skillLabel)}</div>
+            <div class="builderItemMeta">${weaponDef ? escapeHtml(weaponDef.name) : escapeHtml(weapon.weaponKey || "Unknown weapon")} - Slots ${slotCost} - ${escapeHtml(skillLabel)}</div>
           </div>
           <button class="btn secondary" type="button" data-remove-weapon="${weaponIndex}">Remove Weapon</button>
         </div>
@@ -392,7 +412,7 @@ function renderWeapons() {
             <h3>Enhancements</h3>
             <button class="btn" type="button" data-add-enhancement="${weaponIndex}">Add Enhancement</button>
           </div>
-          <div class="help">${enhancements.length} / ${Math.max(0, selectedRank)} slot${Math.max(0, selectedRank) === 1 ? "" : "s"} used.</div>
+          <div class="help">${enhancements.length} / ${enhancementCapacity} slot${enhancementCapacity === 1 ? "" : "s"} used${grantedEnhancementSlots ? ` (${grantedEnhancementSlots} granted)` : ""}.</div>
           <div class="optionList">${enhancementRowsHtml}</div>
         </div>
       </section>`;
@@ -491,7 +511,12 @@ function getSaveWarnings() {
   const warnings = [];
   const skillRanks = getSkillRanks();
   const totalSlots = computeTotalWeaponSlots(currentWeapons, weaponBases);
+  const enhancementCount = countEnhancements(currentWeapons);
+  const enhancementCapacity = computeEnhancementCapacity(currentWeapons);
   if (totalSlots > MAX_WEAPON_SLOTS) warnings.push(`Weapon slots exceeded: ${totalSlots} / ${MAX_WEAPON_SLOTS}.`);
+  if (enhancementCount > enhancementCapacity) {
+    warnings.push(`Weapon enhancements exceeded: ${enhancementCount} / ${enhancementCapacity}.`);
+  }
   currentWeapons.forEach((weapon, index) => {
     const weaponDef = getWeaponDef(weaponBases, weapon.weaponKey);
     const label = sanitizeText(weapon.customName || weaponDef?.name || weapon.weaponKey || `Weapon ${index + 1}`, { maxLen: 160, collapse: true });
@@ -502,7 +527,7 @@ function getSaveWarnings() {
 
 async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
   clearError(errorEl);
-  setStatus(statusEl, "Saving…");
+  setStatus(statusEl, "Saving...");
 
   const warnings = getSaveWarnings();
   if (warnings.length) {
@@ -619,9 +644,10 @@ async function main() {
     currentDoc = loaded.characterDoc;
 
     gameData = await loadGameXData();
-    weaponBases = Array.isArray(gameData?.weaponBases) ? gameData.weaponBases.slice().sort(compareByName) : [];
-    weaponEnhancements = Array.isArray(gameData?.weaponEnhancements) ? gameData.weaponEnhancements.slice().sort(compareByName) : [];
+    weaponBases = getGameXWeaponBases(gameData).slice().sort(compareByName);
+    weaponEnhancements = getGameXWeaponEnhancements(gameData).slice().sort(compareByName);
     grantedSkillState = computeGrantedSkillsState(gameData, currentDoc?.builder || {});
+    grantCollection = createCharacterGrantCollection(gameData, currentDoc?.builder || {});
     currentWeapons = Array.isArray(currentDoc?.builder?.weapons) ? currentDoc.builder.weapons.map((weapon) => normalizeWeaponForUi(weapon)) : [];
 
     renderWeaponBaseSelect();

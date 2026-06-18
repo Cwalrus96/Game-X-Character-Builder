@@ -422,7 +422,38 @@
     },
     "rankNotes": null,
     "prerequisites": null,
-    "sourceNote": "magical-guardian L4 'Dazzling Ray'"
+    "sourceNote": null
+  },
+  {
+    "techniqueName": "Dazzling Transformation",
+    "description": "Your transformation is so bright that it dazzles your foes.",
+    "rank": 1,
+    "tags": [],
+    "actionType": "Reaction",
+    "actions": 0,
+    "trigger": "When you perform your \"Guardian Transformation\"",
+    "energyCost": 0,
+    "pumpable": false,
+    "strainCost": null,
+    "sustained": false,
+    "rollRequired": false,
+    "attribute": "Primary",
+    "skill": "Spellcasting",
+    "defense": "Spiritual",
+    "range": "4 Square Emanation",
+    "targets": "All Hostile Creatures in range",
+    "damage": null,
+    "onSuccess": "The creature is off-guard 1 until the start of your next turn",
+    "onCriticalSuccess": "They are off-guard 2 instead",
+    "onFailure": null,
+    "onCriticalFailure": null,
+    "bondEffect": null,
+    "notes": null,
+    "damageByRank": null,
+    "pumpDamageByRank": null,
+    "rankNotes": null,
+    "prerequisites": null,
+    "sourceNote": null
   },
   {
     "techniqueName": "Deflect Projectile",
@@ -1272,7 +1303,7 @@
   },
   {
     "techniqueName": "Lightning Dash",
-    "description": "You move forward up to half your speed in a straight line. You can move through other creatures during this movement, but cannot end the movement in another creature’s space. Make aa basic weapon attack against each creature whose space you move through.",
+    "description": "You move forward up to half your speed in a straight line. You can move through other creatures during this movement, but cannot end the movement in another creature’s space. Make a basic weapon attack against each creature whose space you move through.",
     "rank": 1,
     "tags": [],
     "actionType": "Action",
@@ -2423,7 +2454,7 @@
     "pumpDamageByRank": null,
     "rankNotes": null,
     "prerequisites": null,
-    "sourceNote": "ninja L2 'Substitution Technique'"
+    "sourceNote": null
   },
   {
     "techniqueName": "Sweeping Leg Strike",

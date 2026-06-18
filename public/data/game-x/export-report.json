@@ -1,6 +1,6 @@
 {
   "input": "C:\\Users\\Caleb\\Projects\\Game-X-Character-Builder\\data\\game-x-class-data.xlsx",
-  "generatedAt": "2026-05-15T11:56:46.956Z",
+  "generatedAt": "2026-06-18T12:08:35.749Z",
   "warnings": [
     "Techniques \"Visor Scan\": pumpable (energyCost=-1) but neither damage nor damageByRank is set.",
     "Origins: magical-dimension has no OriginFeatures rows.",
@@ -14,7 +14,7 @@
     "classes": 10,
     "classFeaturesClasses": 8,
     "feats": 37,
-    "techniques": 84,
+    "techniques": 85,
     "origins": 14,
     "weaponBases": 31,
     "weaponProfiles": 33,

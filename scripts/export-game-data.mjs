@@ -32,6 +32,9 @@ const REQUIRED_SHEETS = ["Classes", "ClassFeatures", "Feats", "Techniques"];
 const OPTIONAL_ORIGIN_SHEETS = ["Origins", "OriginFeatures"];
 const OPTIONAL_WEAPON_SHEETS = ["WeaponBases", "WeaponProfiles", "WeaponEnhancements"];
 const VALID_ORIGIN_STATUSES = new Set(["playable", "draft", "incomplete"]);
+const LEGACY_GRANT_COLUMNS = ["grantsSkills", "grantsTechniques", "grantsNotes"];
+const VALID_GRANT_TYPES = new Set(["skill", "technique", "technique-choice", "feat", "weapon", "weapon-enhancement", "equipment"]);
+const VALID_GRANT_FIELDS = new Set(["name", "key", "skill", "progression", "rank", "count", "note"]);
 
 function die(msg) {
   console.error(`\nERROR: ${msg}\n`);
@@ -70,6 +73,148 @@ function splitList(v) {
     .split(/[;,]/g)
     .map((x) => x.trim())
     .filter(Boolean);
+}
+
+function splitGrantLines(v) {
+  const s = toStr(v).replace(/\r\n/g, "\n");
+  if (!s) return [];
+  return s
+    .split(/\n+/g)
+    .map((x) => x.trim())
+    .filter(Boolean);
+}
+
+function assertNoLegacyGrantColumns(rows, sheetName) {
+  const headers = new Set(rows.flatMap((row) => Object.keys(row)));
+  const legacy = LEGACY_GRANT_COLUMNS.filter((column) => headers.has(column));
+  if (legacy.length) {
+    die(`${sheetName}: remove legacy grant column(s): ${legacy.join(", ")}. Use "grants" and "grantNotes" only.`);
+  }
+}
+
+function parseGrantType(value, context) {
+  const type = toStr(value);
+  if (!/^[a-z][a-z-]*$/.test(type)) {
+    die(`${context}: grant type "${value}" must be lowercase letters/hyphens only.`);
+  }
+  if (!VALID_GRANT_TYPES.has(type)) {
+    die(`${context}: unknown grant type "${type}". Add it to VALID_GRANT_TYPES if this is a new supported grant type.`);
+  }
+  return type;
+}
+
+function parseGrantLine(line, context) {
+  const parts = String(line ?? "")
+    .split("|")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (!parts.length) return null;
+
+  let type = parseGrantType(parts.shift(), context);
+
+  const grant = { type };
+  for (const part of parts) {
+    const idx = part.indexOf("=");
+    if (idx === -1) {
+      die(`${context}: grant field "${part}" must use key=value syntax.`);
+    }
+    const key = part.slice(0, idx).trim();
+    const value = part.slice(idx + 1).trim();
+    if (!key || !value) die(`${context}: grant field "${part}" must include both key and value.`);
+    if (!/^[a-z][a-zA-Z]*$/.test(key)) {
+      die(`${context}: grant field key "${key}" must be lower camelCase.`);
+    }
+    if (!VALID_GRANT_FIELDS.has(key)) {
+      die(`${context}: unknown grant field "${key}". Add it to VALID_GRANT_FIELDS if this is intentional.`);
+    }
+    if (Object.hasOwn(grant, key)) {
+      die(`${context}: duplicate grant field "${key}".`);
+    }
+    if (key === "rank" || key === "count") {
+      const n = Number.parseInt(value, 10);
+      if (!Number.isFinite(n) || String(n) !== value) die(`${context}: ${key} must be an integer, got "${value}".`);
+      grant[key] = n;
+    } else if (key === "progression") {
+      const progression = value.toLowerCase();
+      if (!["fast", "medium", "slow"].includes(progression)) {
+        die(`${context}: progression must be fast, medium, or slow, got "${value}".`);
+      }
+      grant[key] = progression;
+    } else {
+      grant[key] = value;
+    }
+  }
+
+  if (type === "technique" && grant.skill && !grant.name && !grant.key) {
+    type = "technique-choice";
+    grant.type = type;
+    if (!Object.hasOwn(grant, "count")) grant.count = 1;
+  }
+  if (type === "technique-choice") {
+    if (!grant.skill) die(`${context}: technique-choice grants must include skill=Skill Name.`);
+    if (!Object.hasOwn(grant, "count")) grant.count = 1;
+  }
+  if (type === "technique" && !grant.name && !grant.key) {
+    die(`${context}: technique grants must include name=Technique Name or key=technique-key.`);
+  }
+
+  return grant;
+}
+
+function parseGrants(v, context) {
+  return splitGrantLines(v).map((line, index) => parseGrantLine(line, `${context} grant ${index + 1}`)).filter(Boolean);
+}
+
+function describeRow(r) {
+  return toStr(r.featureKey) || toStr(r.featKey) || toStr(r.originKey) || toStr(r.name) || toStr(r.featureName) || "(unnamed)";
+}
+
+function getRowGrants(r, sheetName) {
+  return parseGrants(r.grants, `${sheetName} "${describeRow(r)}"`);
+}
+
+function getRowGrantNotes(r, sheetName) {
+  if (Object.hasOwn(r, "grantsNotes")) {
+    die(`${sheetName} "${describeRow(r)}": use grantNotes, not grantsNotes.`);
+  }
+  return toStr(r.grantNotes) || null;
+}
+
+function normalizeLookupKey(value) {
+  return toStr(value).toLowerCase();
+}
+
+function indexNestedRow(index, scopeKey, node, sheetName) {
+  const bucket = index.get(scopeKey) || new Map();
+  const idKeys = [node.featureKey, node.featKey].map(normalizeLookupKey).filter(Boolean);
+  for (const key of idKeys) {
+    const existing = bucket.get(key);
+    if (existing && existing !== null) {
+      die(`${sheetName}: duplicate row key "${key}" in scope "${scopeKey}" (${existing.name || "(unnamed)"} / ${node.name || "(unnamed)"}).`);
+    }
+    bucket.set(key, node);
+  }
+  const nameKey = normalizeLookupKey(node.name);
+  if (nameKey) {
+    if (bucket.has(nameKey) && bucket.get(nameKey) !== node) {
+      bucket.set(nameKey, null);
+    } else {
+      bucket.set(nameKey, node);
+    }
+  }
+  index.set(scopeKey, bucket);
+}
+
+function findNestedParent(index, scopeKey, parentKey) {
+  const bucket = index.get(scopeKey);
+  if (!bucket) return null;
+  return bucket.get(normalizeLookupKey(parentKey)) || null;
+}
+
+function pruneExportInternals(node) {
+  delete node.parentKey;
+  delete node._scopeKey;
+  return node;
 }
 
 function cleanBulletPrefix(v) {
@@ -296,6 +441,7 @@ function main() {
 
   // --- Feats ---
   const featRows = readSheetAsObjects(wb, "Feats");
+  assertNoLegacyGrantColumns(featRows, "Feats");
   // Feat names are not necessarily globally unique across types, but usually should be.
   // We warn instead of failing.
   const featNameCounts = new Map();
@@ -309,21 +455,51 @@ function main() {
     report.warnings.push(`Duplicate feat names detected (allowed but risky): ${dupFeatNames.sort().join(", ")}`);
   }
 
-  const feats = featRows.map((r) => ({
-    featType: toStr(r.featType),
-    classKey: toStr(r.classKey) || null,
-    minLevel: toIntOrNull(r.minLevel),
-    name: toStr(r.name),
-    prerequisites: toStr(r.prerequisites) || null,
-    description: toStr(r.description) || null,
-    grantsSkills: splitList(r.grantsSkills),
-    grantsTechniques: splitList(r.grantsTechniques),
-    grantsNotes: toStr(r.grantsNotes) || null,
-    review: toStr(r.review) || null,
-  }));
+  const featNodes = featRows.map((r) => {
+    const rowType = toStr(r.rowType) || "FEATURE";
+    const type = rowType === "OPTION_GROUP" ? "optionGroup" : rowType === "OPTION" ? "option" : "feature";
+    const node = {
+      type,
+      featType: toStr(r.featType),
+      classKey: toStr(r.classKey) || null,
+      minLevel: toIntOrNull(r.minLevel),
+      featKey: toStr(r.featKey) || null,
+      name: toStr(r.name),
+      parentKey: toStr(r.parentKey) || null,
+      prerequisites: toStr(r.prerequisites) || null,
+      description: toStr(r.description) || null,
+      grants: getRowGrants(r, "Feats"),
+      grantNotes: getRowGrantNotes(r, "Feats"),
+      review: toStr(r.review) || null,
+      _scopeKey: `${toStr(r.featType)}|${toStr(r.classKey)}`,
+    };
+    if (type === "optionGroup") {
+      node.chooseCount = toIntOrNull(r.chooseCount) ?? 1;
+      node.options = [];
+    }
+    return node;
+  });
+  const featIndex = new Map();
+  for (const node of featNodes) indexNestedRow(featIndex, node._scopeKey, node, "Feats");
+  const feats = [];
+  for (const node of featNodes) {
+    if (node.parentKey) {
+      const parent = findNestedParent(featIndex, node._scopeKey, node.parentKey);
+      if (!parent) {
+        report.warnings.push(`Feats: "${node.name || "(unnamed)"}" parentKey "${node.parentKey}" was not found; exported as top-level.`);
+        feats.push(pruneExportInternals(node));
+        continue;
+      }
+      if (!Array.isArray(parent.options)) parent.options = [];
+      parent.options.push(pruneExportInternals(node));
+      continue;
+    }
+    feats.push(pruneExportInternals(node));
+  }
 
-  // --- Class Features (with contiguous option groups) ---
+  // --- Class Features (with parentKey option trees) ---
   const cfRows = readSheetAsObjects(wb, "ClassFeatures");
+  assertNoLegacyGrantColumns(cfRows, "ClassFeatures");
   const featuresByClass = {};
 
   function ensureClassBucket(classKey) {
@@ -331,8 +507,7 @@ function main() {
     return featuresByClass[classKey];
   }
 
-  let currentGroup = null;
-
+  const cfNodes = [];
   for (const r of cfRows) {
     const classKey = toStr(r.classKey);
     const level = toIntOrNull(r.level);
@@ -347,56 +522,47 @@ function main() {
       continue;
     }
 
-    const bucket = ensureClassBucket(classKey);
-
     const base = {
+      type: rowType === "OPTION_GROUP" ? "optionGroup" : rowType === "OPTION" ? "option" : "feature",
       classKey,
       level,
+      featureKey: toStr(r.featureKey) || null,
       name: toStr(r.name) || null,
+      parentKey: toStr(r.parentKey) || null,
       description: toStr(r.description) || null,
       prereqs: toStr(r.prereqs) || null,
-      grantsSkills: splitList(r.grantsSkills),
-      grantsTechniques: splitList(r.grantsTechniques),
-      grantsNotes: toStr(r.grantsNotes) || null,
+      grants: getRowGrants(r, "ClassFeatures"),
+      grantNotes: getRowGrantNotes(r, "ClassFeatures"),
+      _scopeKey: classKey,
     };
 
     if (rowType === "OPTION_GROUP") {
-      currentGroup = {
-        type: "optionGroup",
-        ...base,
-        chooseCount: toIntOrNull(r.chooseCount) ?? 1,
-        options: [],
-      };
-      bucket.push(currentGroup);
-      continue;
+      base.chooseCount = toIntOrNull(r.chooseCount) ?? 1;
+      base.options = [];
     }
+    cfNodes.push(base);
+  }
 
-    if (rowType === "OPTION") {
-      if (!currentGroup) {
-        report.warnings.push(`ClassFeatures: OPTION row "${base.name || "(unnamed)"}" has no preceding OPTION_GROUP (classKey=${classKey}, level=${level}).`);
-        // Treat as standalone feature so you don't lose data
-        bucket.push({ type: "feature", ...base });
+  const cfIndex = new Map();
+  for (const node of cfNodes) indexNestedRow(cfIndex, node._scopeKey, node, "ClassFeatures");
+
+  for (const node of cfNodes) {
+    const bucket = ensureClassBucket(node.classKey);
+    if (node.parentKey) {
+      const parent = findNestedParent(cfIndex, node._scopeKey, node.parentKey);
+      if (!parent) {
+        report.warnings.push(`ClassFeatures: "${node.name || "(unnamed)"}" parentKey "${node.parentKey}" was not found; exported as top-level.`);
+        bucket.push(pruneExportInternals(node));
         continue;
       }
-      // Validate same classKey/level as group (warn, then still attach)
-      if (currentGroup.classKey !== classKey || currentGroup.level !== level) {
-        report.warnings.push(`ClassFeatures: OPTION row "${base.name || "(unnamed)"}" classKey/level differs from current group "${currentGroup.name}". Expected ${currentGroup.classKey} L${currentGroup.level}, got ${classKey} L${level}.`);
+      if (parent.classKey !== node.classKey || parent.level !== node.level) {
+        report.warnings.push(`ClassFeatures: "${node.name || "(unnamed)"}" parent "${parent.name || "(unnamed)"}" is ${parent.classKey} L${parent.level}, child is ${node.classKey} L${node.level}.`);
       }
-      currentGroup.options.push({
-        ...base,
-        type: "option",
-      });
+      if (!Array.isArray(parent.options)) parent.options = [];
+      parent.options.push(pruneExportInternals(node));
       continue;
     }
-
-    // Any non-option row closes the current group
-    currentGroup = null;
-
-    // Default: treat as automatic feature
-    bucket.push({
-      type: "feature",
-      ...base,
-    });
+    bucket.push(pruneExportInternals(node));
   }
 
   // Warn about missing skill progression in class feature skill-choice rows
@@ -404,11 +570,11 @@ function main() {
   for (const [classKey, entries] of Object.entries(featuresByClass)) {
     for (const entry of entries) {
       const checkEntry = (e) => {
-        // If a row grants skills but none have ":fast/medium/slow" syntax, warn.
-        if (e.grantsSkills && e.grantsSkills.length) {
-          const hasProg = e.grantsSkills.some((s) => /:\s*(fast|medium|slow)$/i.test(s));
+        const skillGrants = Array.isArray(e.grants) ? e.grants.filter((grant) => grant?.type === "skill") : [];
+        if (skillGrants.length) {
+          const hasProg = skillGrants.some((grant) => toStr(grant.progression));
           if (!hasProg) {
-            report.warnings.push(`ClassFeatures: ${classKey} L${e.level} "${e.name || "(unnamed)"}" grantsSkills has no progression (consider "Skill:Fast").`);
+            report.warnings.push(`ClassFeatures: ${classKey} L${e.level} "${e.name || "(unnamed)"}" grants has skill entries with no progression.`);
           }
         }
       };
@@ -424,6 +590,8 @@ function main() {
   if (hasOriginData) {
     const originRows = readSheetAsObjects(wb, "Origins");
     const originFeatureRows = readSheetAsObjects(wb, "OriginFeatures");
+    assertNoLegacyGrantColumns(originRows, "Origins");
+    assertNoLegacyGrantColumns(originFeatureRows, "OriginFeatures");
 
     assertUnique(originRows.map((r) => r.originKey), "Origins.originKey");
 
@@ -461,8 +629,11 @@ function main() {
       if (!featuresByOrigin.has(originKey)) featuresByOrigin.set(originKey, []);
       featuresByOrigin.get(originKey).push({
         featureOrder: toIntOrNull(r.featureOrder) ?? Number.MAX_SAFE_INTEGER,
+        featureKey: toStr(r.featureKey) || null,
         name: featureName,
         description: featureText,
+        grants: getRowGrants(r, "OriginFeatures"),
+        grantNotes: getRowGrantNotes(r, "OriginFeatures"),
       });
     }
 
@@ -484,6 +655,8 @@ function main() {
           status,
           summary: toStr(r.summary),
           description: toStr(r.description),
+          grants: getRowGrants(r, "Origins"),
+          grantNotes: getRowGrantNotes(r, "Origins"),
           features,
           originKeystone: toStr(r.originKeystone),
           roleplayQuestions: parseTextBlockList(r.roleplayQuestionsText),

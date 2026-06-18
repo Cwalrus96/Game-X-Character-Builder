@@ -25,9 +25,9 @@ import {
   sanitizeNamedSkillList,
   sanitizeText,
   sanitizeStringArray,
-  buildOptionKey,
 } from "../core/data-sanitization.js";
-import { loadGameXData, computeGrantedSkillsState } from "../core/game-data.js";
+import { loadGameXData, computeGrantedSkillsState, getGrantNotes, getGameXClasses, getGameXClassFeatures, getGameXFeats } from "../core/game-data.js";
+import { collectSelectedEntries } from "../core/option-groups.js";
 
 const CURRENT_STEP_ID =
   document.querySelector("[data-builder-step]")?.getAttribute("data-builder-step") || "skills";
@@ -272,27 +272,28 @@ function computeSkillCapBonusMap() {
   const level = currentLevel();
   const selectedOptionKeys = new Set(sanitizeStringArray(builder.selectedClassFeatureOptions, { maxItems: 500, maxLen: 200 }));
   const selectedFeatNames = new Set(sanitizeStringArray(builder.selectedFeats, { maxItems: 200, maxLen: 160 }));
+  const selectedFeatOptionKeys = new Set(sanitizeStringArray(builder.selectedFeatOptions, { maxItems: 500, maxLen: 200 }));
 
-  const featuresByClass = (gameData?.classFeatures && typeof gameData.classFeatures === "object") ? gameData.classFeatures : {};
-  const features = Array.isArray(featuresByClass[classKey]) ? featuresByClass[classKey] : [];
+  const features = getGameXClassFeatures(gameData, classKey);
   for (const feature of features) {
     const featureLevel = Number.parseInt(String(feature?.level ?? 0), 10);
     if (Number.isFinite(featureLevel) && featureLevel > level) continue;
-    extractSkillCapBonusesFromText([feature?.name, feature?.description, feature?.grantsNotes].filter(Boolean).join(" "), out);
-    for (const option of (Array.isArray(feature?.options) ? feature.options : [])) {
-      const optionKey = buildOptionKey(feature, option);
-      if (!selectedOptionKeys.has(optionKey)) continue;
-      extractSkillCapBonusesFromText([option?.name, option?.description, option?.grantsNotes].filter(Boolean).join(" "), out);
+    extractSkillCapBonusesFromText([feature?.name, feature?.description, getGrantNotes(feature)].filter(Boolean).join(" "), out);
+    for (const option of collectSelectedEntries([feature], selectedOptionKeys)) {
+      extractSkillCapBonusesFromText([option?.name, option?.description, getGrantNotes(option)].filter(Boolean).join(" "), out);
     }
   }
 
-  const feats = Array.isArray(gameData?.feats) ? gameData.feats : [];
+  const feats = getGameXFeats(gameData);
   for (const feat of feats) {
     const featName = sanitizeText(feat?.name || "", { maxLen: 160, collapse: true });
     if (!featName || !selectedFeatNames.has(featName)) continue;
     const minLevel = Number.parseInt(String(feat?.minLevel ?? 0), 10);
     if (Number.isFinite(minLevel) && minLevel > level) continue;
-    extractSkillCapBonusesFromText([feat?.name, feat?.description, feat?.grantsNotes].filter(Boolean).join(" "), out);
+    extractSkillCapBonusesFromText([feat?.name, feat?.description, getGrantNotes(feat)].filter(Boolean).join(" "), out);
+    for (const option of collectSelectedEntries([feat], selectedFeatOptionKeys)) {
+      extractSkillCapBonusesFromText([option?.name, option?.description, getGrantNotes(option)].filter(Boolean).join(" "), out);
+    }
   }
 
   return out;
@@ -454,7 +455,7 @@ function getLiveState() {
 
 function getClassRecord() {
   const classKey = sanitizeText(currentDoc?.builder?.classKey || "", { maxLen: 64, collapse: true });
-  return (Array.isArray(gameData?.classes) ? gameData.classes : []).find((it) => String(it?.classKey || "") === classKey) || null;
+  return getGameXClasses(gameData).find((it) => String(it?.classKey || "") === classKey) || null;
 }
 
 function renderClassUtilitySkillOptions() {

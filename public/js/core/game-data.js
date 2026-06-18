@@ -3,9 +3,19 @@
 // Single source of truth for reading Game X exported JSON.
 // All consumers should load via this module (no per-page fetch duplication).
 
-import { sanitizeText, sanitizeStringArray, buildOptionKey } from "./data-sanitization.js";
+import { sanitizeText, sanitizeStringArray } from "./data-sanitization.js";
+import { getEntryRequiredLevel, collectSelectedEntries } from "./option-groups.js";
+import {
+  getEntryGrants,
+  getGrantName,
+  getGrantNotes,
+  normalizeSkillProgression,
+  sanitizeGrantType,
+} from "./grants.js";
 
 let _gameXDataPromise = null;
+
+export { getEntryGrants, getGrantName, getGrantNotes } from "./grants.js";
 
 export async function loadGameXData({ cache = "no-store" } = {}) {
   if (_gameXDataPromise) return _gameXDataPromise;
@@ -27,17 +37,47 @@ export async function loadGameXData({ cache = "no-store" } = {}) {
 
 export async function loadGameXClasses({ cache = "no-store" } = {}) {
   const data = await loadGameXData({ cache });
-  return Array.isArray(data?.classes) ? data.classes : [];
+  return getGameXClasses(data);
 }
 
 export async function loadGameXTechniques({ cache = "no-store" } = {}) {
   const data = await loadGameXData({ cache });
-  return Array.isArray(data?.techniques) ? data.techniques : [];
+  return getGameXTechniques(data);
 }
 
 export async function loadGameXOrigins({ cache = "no-store" } = {}) {
   const data = await loadGameXData({ cache });
-  return Array.isArray(data?.origins) ? data.origins : [];
+  return getGameXOrigins(data);
+}
+
+export function getGameXClasses(gameData) {
+  return Array.isArray(gameData?.classes) ? gameData.classes : [];
+}
+
+export function getGameXClassFeatures(gameData, classKey) {
+  const key = sanitizeText(classKey || "", { maxLen: 64, collapse: true });
+  const featuresByClass = (gameData?.classFeatures && typeof gameData.classFeatures === "object") ? gameData.classFeatures : {};
+  return Array.isArray(featuresByClass[key]) ? featuresByClass[key] : [];
+}
+
+export function getGameXFeats(gameData) {
+  return Array.isArray(gameData?.feats) ? gameData.feats : [];
+}
+
+export function getGameXTechniques(gameData) {
+  return Array.isArray(gameData?.techniques) ? gameData.techniques : [];
+}
+
+export function getGameXOrigins(gameData) {
+  return Array.isArray(gameData?.origins) ? gameData.origins : [];
+}
+
+export function getGameXWeaponBases(gameData) {
+  return Array.isArray(gameData?.weaponBases) ? gameData.weaponBases : [];
+}
+
+export function getGameXWeaponEnhancements(gameData) {
+  return Array.isArray(gameData?.weaponEnhancements) ? gameData.weaponEnhancements : [];
 }
 
 export function getOriginByKey(origins, originKey) {
@@ -94,12 +134,107 @@ export function resolveTechniqueRef(refName, indexes) {
   return { ok: false, technique: null };
 }
 
-
-function normalizeSkillProgression(value) {
-  const s = sanitizeText(value, { maxLen: 32, collapse: true }).toLowerCase();
-  if (s === "fast" || s === "medium" || s === "slow") return s;
-  return "";
+function grantSourceText(entry) {
+  return descriptionBundle(entry?.description, getGrantNotes(entry), entry?.name);
 }
+
+function getClassFeaturesForBuilder(data, builder) {
+  const b = (builder && typeof builder === "object") ? builder : {};
+  const classKey = sanitizeText(b.classKey || "", { maxLen: 64, collapse: true });
+  const level = Number.parseInt(String(b.level ?? 1), 10);
+  const L = Number.isFinite(level) ? Math.max(1, Math.min(12, level)) : 1;
+  const selectedOptKeys = new Set(
+    sanitizeStringArray(b.selectedClassFeatureOptions, { maxItems: 500, maxLen: 200 })
+  );
+
+  const features = getGameXClassFeatures(data, classKey);
+  const out = [];
+
+  for (const f of features) {
+    if (getEntryRequiredLevel(f) > L) continue;
+    out.push(f);
+    collectSelectedEntries([f], selectedOptKeys, out);
+  }
+
+  return out;
+}
+
+function getSelectedFeatsForBuilder(data, builder) {
+  const b = (builder && typeof builder === "object") ? builder : {};
+  const level = Number.parseInt(String(b.level ?? 1), 10);
+  const L = Number.isFinite(level) ? Math.max(1, Math.min(12, level)) : 1;
+  const selectedFeatNames = new Set(
+    sanitizeStringArray(b.selectedFeats, { maxItems: 200, maxLen: 160 })
+  );
+  const selectedFeatOptKeys = new Set(
+    sanitizeStringArray(b.selectedFeatOptions, { maxItems: 500, maxLen: 200 })
+  );
+
+  const feats = getGameXFeats(data);
+  const out = [];
+  for (const feat of feats) {
+    const name = sanitizeText(feat?.name || "", { maxLen: 160, collapse: true });
+    if (!name || !selectedFeatNames.has(name)) continue;
+    if (getEntryRequiredLevel(feat) > L) continue;
+    out.push(feat);
+    collectSelectedEntries([feat], selectedFeatOptKeys, out);
+  }
+  return out;
+}
+
+function getOriginEntriesForBuilder(data, builder) {
+  const b = (builder && typeof builder === "object") ? builder : {};
+  const originKey = sanitizeText(b.originKey || "", { maxLen: 64, collapse: true });
+  if (!originKey) return [];
+  const origin = getOriginByKey(getGameXOrigins(data), originKey);
+  if (!origin) return [];
+  return [origin].concat(Array.isArray(origin.features) ? origin.features : []);
+}
+
+function getActiveGrantEntries(gameData, builder) {
+  const data = (gameData && typeof gameData === "object") ? gameData : {};
+  return []
+    .concat(getClassFeaturesForBuilder(data, builder))
+    .concat(getSelectedFeatsForBuilder(data, builder))
+    .concat(getOriginEntriesForBuilder(data, builder));
+}
+
+/**
+ * Builds the single grants view for a character.
+ *
+ * A grant collection answers: "Given this builder state, what mechanical
+ * grants are active?"  Pages should derive skills, techniques, equipment
+ * affordances, and future grant-driven UI from this object instead of
+ * rediscovering class features, selected options, feats, and origins.
+ */
+export function createCharacterGrantCollection(gameData, builder) {
+  const entries = getActiveGrantEntries(gameData, builder);
+  const grants = entries.flatMap((entry) => getEntryGrants(entry));
+  const byType = new Map();
+
+  for (const grant of grants) {
+    if (!byType.has(grant.type)) byType.set(grant.type, []);
+    byType.get(grant.type).push(grant);
+  }
+
+  const getAll = (type = "") => {
+    const cleanType = type ? sanitizeGrantType(type, { name: "grant collection lookup" }) : "";
+    return cleanType ? (byType.get(cleanType) || []) : grants;
+  };
+
+  return {
+    entries,
+    grants,
+    byType,
+    getAll,
+    skillGrants: byType.get("skill") || [],
+    techniqueGrants: byType.get("technique") || [],
+    techniqueChoiceGrants: byType.get("technique-choice") || [],
+    weaponGrants: byType.get("weapon") || [],
+    weaponEnhancementGrants: byType.get("weapon-enhancement") || [],
+  };
+}
+
 
 function extractSkillProgressionFromText(value) {
   const s = sanitizeText(value, { maxLen: 4000, collapse: true });
@@ -135,15 +270,6 @@ function computeProgressionRankAtLevel(progression, level) {
   }
 
   return String(Math.max(0, Math.min(6, rank)));
-}
-
-function parseGrantedSkillEntry(rawName, rawProgression) {
-  const originalName = sanitizeText(rawName, { maxLen: 160, collapse: true });
-  const skillName = normalizeCombatSkillName(originalName);
-  if (!skillName) return { skillName: "", progression: "" };
-
-  const progression = normalizeSkillProgression(rawProgression) || extractSkillProgressionFromText(originalName);
-  return { skillName, progression };
 }
 
 function descriptionBundle(...parts) {
@@ -239,10 +365,12 @@ function resolveClassCombatSkillEntries(cls, primaryAttribute) {
  * Computes:
  * - knownCombatSkills: combat skills available to the character (used for filtering)
  * - grantedTechniqueNames: techniques automatically granted (do NOT consume slots)
+ * - techniqueChoiceGrants: extra technique picks constrained by grant fields
  */
 export function computeKnownCombatSkillsAndGrants(gameData, builder) {
   const data = (gameData && typeof gameData === "object") ? gameData : {};
   const b = (builder && typeof builder === "object") ? builder : {};
+  const grantCollection = createCharacterGrantCollection(data, b);
 
   const classKey = sanitizeText(b.classKey || "", { maxLen: 64, collapse: true });
   const primaryAttribute = sanitizeText(b.primaryAttribute || "", { maxLen: 32, collapse: true });
@@ -257,7 +385,7 @@ export function computeKnownCombatSkillsAndGrants(gameData, builder) {
   }
 
   // ---- Base skills from class ----
-  const classes = Array.isArray(data.classes) ? data.classes : [];
+  const classes = getGameXClasses(data);
   const cls = classes.find((c) => String(c?.classKey || "") === String(classKey)) || null;
 
   if (cls) {
@@ -271,78 +399,30 @@ export function computeKnownCombatSkillsAndGrants(gameData, builder) {
     }
   }
 
-  // ---- Grants from class features (including chosen options) ----
-  const selectedOptKeys = new Set(
-    sanitizeStringArray(b.selectedClassFeatureOptions, { maxItems: 500, maxLen: 200 })
-  );
-
-  const featuresByClass = (data.classFeatures && typeof data.classFeatures === "object") ? data.classFeatures : {};
-  const features = Array.isArray(featuresByClass[classKey]) ? featuresByClass[classKey] : [];
-
-  for (const f of features) {
-    const fLevel = Number.parseInt(String(f?.level ?? 0), 10);
-    const req = Number.isFinite(fLevel) ? fLevel : 0;
-    if (req > L) continue;
-
-    for (const s of (Array.isArray(f?.grantsSkills) ? f.grantsSkills : [])) {
-      const n = normalizeCombatSkillName(s);
-      if (n) knownCombatSkills.add(n);
-    }
-    for (const tName of (Array.isArray(f?.grantsTechniques) ? f.grantsTechniques : [])) {
-      const n = sanitizeText(tName, { maxLen: 200, collapse: true });
-      if (n) grantedTechniqueNames.add(n);
-    }
-
-    if (Array.isArray(f?.options) && f.options.length) {
-      for (const opt of f.options) {
-        const key = buildOptionKey(f, opt);
-        if (!selectedOptKeys.has(key)) continue;
-
-        for (const s of (Array.isArray(opt?.grantsSkills) ? opt.grantsSkills : [])) {
-          const n = normalizeCombatSkillName(s);
-          if (n) knownCombatSkills.add(n);
-        }
-        for (const tName of (Array.isArray(opt?.grantsTechniques) ? opt.grantsTechniques : [])) {
-          const n = sanitizeText(tName, { maxLen: 200, collapse: true });
-          if (n) grantedTechniqueNames.add(n);
-        }
-      }
-    }
+  // ---- Grants from the centralized character grant collection ----
+  for (const grant of grantCollection.skillGrants) {
+    const n = normalizeCombatSkillName(getGrantName(grant));
+    if (n) knownCombatSkills.add(n);
   }
-
-  // ---- Grants from feats (if present in builder) ----
-  const selectedFeatNames = new Set(
-    sanitizeStringArray(b.selectedFeats, { maxItems: 200, maxLen: 160 })
-  );
-
-  const feats = Array.isArray(data.feats) ? data.feats : [];
-  for (const feat of feats) {
-    const name = sanitizeText(feat?.name || "", { maxLen: 160, collapse: true });
-    if (!name || !selectedFeatNames.has(name)) continue;
-
-    const minLevel = Number.parseInt(String(feat?.minLevel ?? 0), 10);
-    const ml = Number.isFinite(minLevel) ? minLevel : 0;
-    if (ml > L) continue;
-
-    for (const s of (Array.isArray(feat?.grantsSkills) ? feat.grantsSkills : [])) {
-      const n = normalizeCombatSkillName(s);
-      if (n) knownCombatSkills.add(n);
-    }
-    for (const tName of (Array.isArray(feat?.grantsTechniques) ? feat.grantsTechniques : [])) {
-      const n = sanitizeText(tName, { maxLen: 200, collapse: true });
-      if (n) grantedTechniqueNames.add(n);
-    }
+  for (const grant of grantCollection.techniqueGrants) {
+    const n = getGrantName(grant);
+    if (n) grantedTechniqueNames.add(n);
   }
 
   knownCombatSkills.delete("");
 
-  return { knownCombatSkills, grantedTechniqueNames };
+  return {
+    knownCombatSkills,
+    grantedTechniqueNames,
+    techniqueChoiceGrants: grantCollection.techniqueChoiceGrants,
+  };
 }
 
 
 export function computeGrantedSkillsState(gameData, builder) {
   const data = (gameData && typeof gameData === "object") ? gameData : {};
   const b = (builder && typeof builder === "object") ? builder : {};
+  const grantCollection = createCharacterGrantCollection(data, b);
 
   const classKey = sanitizeText(b.classKey || "", { maxLen: 64, collapse: true });
   const primaryAttribute = sanitizeText(b.primaryAttribute || "", { maxLen: 32, collapse: true });
@@ -367,7 +447,7 @@ export function computeGrantedSkillsState(gameData, builder) {
     pushGrantedSkill(grantedCombatSkills, skill, "0", "Common");
   }
 
-  const classes = Array.isArray(data.classes) ? data.classes : [];
+  const classes = getGameXClasses(data);
   const cls = classes.find((c) => String(c?.classKey || "") === String(classKey)) || null;
 
   if (cls) {
@@ -393,61 +473,34 @@ export function computeGrantedSkillsState(gameData, builder) {
     }
   }
 
-  const selectedOptKeys = new Set(
-    sanitizeStringArray(b.selectedClassFeatureOptions, { maxItems: 500, maxLen: 200 })
-  );
+  function applySkillGrant(grant) {
+    const source = grant?.source || {};
+    const skillName = normalizeCombatSkillName(getGrantName(grant));
+    if (!skillName) return;
 
-  const featuresByClass = (data.classFeatures && typeof data.classFeatures === "object") ? data.classFeatures : {};
-  const features = Array.isArray(featuresByClass[classKey]) ? featuresByClass[classKey] : [];
+    const explicitRank = Number.parseInt(String(grant?.rank ?? ""), 10);
+    const progressionRank = Number.parseInt(
+      computeProgressionRankAtLevel(grant?.progression, L)
+        || computeProgressionRankAtLevel(extractSkillProgressionFromText(grantSourceText(source)), L)
+        || "",
+      10
+    );
+    const textRank = Number.parseInt(extractGrantedSkillRankFromText(grantSourceText(source)), 10);
+    const ranks = [explicitRank, progressionRank, textRank].filter(Number.isFinite);
+    const rank = ranks.length ? String(Math.max(0, Math.min(6, Math.max(...ranks)))) : "";
+    const sourceName = sanitizeText(source?.name || source?.featureName || "", { maxLen: 96, collapse: true }) || "Granted";
 
-  function applySkillGrants(skills, sourceText, sourceName) {
-    const rank = extractGrantedSkillRankFromText(sourceText) || computeProgressionRankAtLevel(extractSkillProgressionFromText(sourceText), L);
-    for (const rawSkill of (Array.isArray(skills) ? skills : [])) {
-      const skillName = normalizeCombatSkillName(rawSkill);
-      if (!skillName) continue;
-      grantedSkillNames.add(skillName);
-      if (defenseLabelToField.has(skillName)) {
-        const fieldKey = defenseLabelToField.get(skillName);
-        if (rank !== "") fixedRanks[fieldKey] = rank;
-      } else {
-        pushGrantedSkill(grantedCombatSkills, skillName, rank, sourceName);
-      }
+    grantedSkillNames.add(skillName);
+    if (defenseLabelToField.has(skillName)) {
+      const fieldKey = defenseLabelToField.get(skillName);
+      if (rank !== "") fixedRanks[fieldKey] = rank;
+    } else {
+      pushGrantedSkill(grantedCombatSkills, skillName, rank, sourceName);
     }
   }
 
-  for (const f of features) {
-    const fLevel = Number.parseInt(String(f?.level ?? 0), 10);
-    const req = Number.isFinite(fLevel) ? fLevel : 0;
-    if (req > L) continue;
-
-    const featureText = descriptionBundle(f?.description, f?.grantsNotes, f?.name);
-    applySkillGrants(f?.grantsSkills, featureText, sanitizeText(f?.name || "", { maxLen: 96, collapse: true }) || "Feature");
-
-    if (Array.isArray(f?.options) && f.options.length) {
-      for (const opt of f.options) {
-        const key = buildOptionKey(f, opt);
-        if (!selectedOptKeys.has(key)) continue;
-        const optionText = descriptionBundle(opt?.description, opt?.grantsNotes, f?.description, f?.grantsNotes, opt?.name, f?.name);
-        applySkillGrants(opt?.grantsSkills, optionText, sanitizeText(opt?.name || f?.name || "", { maxLen: 96, collapse: true }) || "Feature");
-      }
-    }
-  }
-
-  const selectedFeatNames = new Set(
-    sanitizeStringArray(b.selectedFeats, { maxItems: 200, maxLen: 160 })
-  );
-
-  const feats = Array.isArray(data.feats) ? data.feats : [];
-  for (const feat of feats) {
-    const name = sanitizeText(feat?.name || "", { maxLen: 160, collapse: true });
-    if (!name || !selectedFeatNames.has(name)) continue;
-
-    const minLevel = Number.parseInt(String(feat?.minLevel ?? 0), 10);
-    const ml = Number.isFinite(minLevel) ? minLevel : 0;
-    if (ml > L) continue;
-
-    const featText = descriptionBundle(feat?.description, feat?.grantsNotes, feat?.name);
-    applySkillGrants(feat?.grantsSkills, featText, name || "Feat");
+  for (const grant of grantCollection.skillGrants) {
+    applySkillGrant(grant);
   }
 
   return {

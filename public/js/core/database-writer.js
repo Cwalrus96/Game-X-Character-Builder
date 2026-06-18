@@ -154,9 +154,10 @@ export function sanitizeUpdatePatch(patch) {
   }
 
   const arrayFieldSanitizers = {
-    "builder.selectedClassFeatureOptions": { maxItems: 200, maxLen: 160 },
+    "builder.selectedClassFeatureOptions": { maxItems: 500, maxLen: 200 },
     "builder.selectedClassUtilitySkills": { maxItems: 50, maxLen: 96 },
     "builder.selectedFeats": { maxItems: 200, maxLen: 160 },
+    "builder.selectedFeatOptions": { maxItems: 500, maxLen: 200 },
     "builder.autoAbilityNames": { maxItems: 500, maxLen: 200 },
     "builder.grantedCoreSkillSnapshot": { maxItems: 50, maxLen: 64 },
     "builder.grantedSkillSnapshot": { maxItems: 200, maxLen: 96 },

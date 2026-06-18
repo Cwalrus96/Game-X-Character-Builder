@@ -37,6 +37,7 @@
       "chooseCount": 1,
       "options": [
         {
+          "type": "option",
           "classKey": "henshin-hero",
           "level": 1,
           "featureKey": "targeting",
@@ -50,10 +51,10 @@
               "progression": "medium"
             }
           ],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         },
         {
+          "type": "option",
           "classKey": "henshin-hero",
           "level": 1,
           "featureKey": "melee-weapons",
@@ -67,10 +68,10 @@
               "progression": "medium"
             }
           ],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         },
         {
+          "type": "option",
           "classKey": "henshin-hero",
           "level": 1,
           "featureKey": "martial-arts",
@@ -84,8 +85,7 @@
               "progression": "medium"
             }
           ],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         }
       ]
     },
@@ -102,6 +102,7 @@
       "chooseCount": 1,
       "options": [
         {
+          "type": "option",
           "classKey": "henshin-hero",
           "level": 1,
           "featureKey": "wild-animal",
@@ -114,10 +115,10 @@
               "name": "Mark Prey"
             }
           ],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         },
         {
+          "type": "option",
           "classKey": "henshin-hero",
           "level": 1,
           "featureKey": "prehistoric-beast",
@@ -125,10 +126,10 @@
           "description": "This emblem takes the form of an extinct prehistoric animal, such as a Dinosaur, Pteranodon, or Mammoth. Titanic Strength - You channel the massive strength and size of a prehistoric beast. Your scale is treated as +1 for the purposes of forced movement. Whenever you would forcibly push or pull another creature, increase the maximum distance by 1 square. When another creature would try to move you, you may choose to reduce that distance by 1 square. Allies in your inspiring aura gain a +1D Status Bonus to Athletics, as they channel the awe-inspiring strength of these ancient creatures.",
           "prereqs": null,
           "grants": [],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         },
         {
+          "type": "option",
           "classKey": "henshin-hero",
           "level": 1,
           "featureKey": "mythical-creature",
@@ -141,10 +142,10 @@
               "name": "Mythic Rebirth"
             }
           ],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         },
         {
+          "type": "option",
           "classKey": "henshin-hero",
           "level": 1,
           "featureKey": "insect",
@@ -152,10 +153,10 @@
           "description": "This emblem takes the form of an inconspicuous and adaptable insect, such as a Stag Beetle, Grasshopper, or Butterfly. You gain the following ability:\n\nBeetle Armor - You gain Armor 5 to Bleeding and Poison\nAllies in your inspiring aura gain a +1D status bonus to stealth, as your aura helps camouflage them into their surroundings.",
           "prereqs": null,
           "grants": [],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         },
         {
+          "type": "option",
           "classKey": "henshin-hero",
           "level": 1,
           "featureKey": "element",
@@ -169,10 +170,10 @@
               "progression": "slow"
             }
           ],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         },
         {
+          "type": "option",
           "classKey": "henshin-hero",
           "level": 1,
           "featureKey": "vehicle",
@@ -180,10 +181,10 @@
           "description": "This emblem takes the form of a mechanical vehicle, such as a race-car, fire-truck, or fighter jet. You gain a Rank 1 Vehicle (see the “Vehicles” section for details). While transformed into your Hero form, you can summon your vehicle to you using an action. If you do so, it appears in the nearest unoccupied location to you that is large enough to fit the vehicle. Channeling the speed of a motorized vehicle, allies that start their turns in your aura gain +2 movement speed that turn.",
           "prereqs": null,
           "grants": [],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         },
         {
+          "type": "option",
           "classKey": "henshin-hero",
           "level": 1,
           "featureKey": "ancient-warriors",
@@ -196,8 +197,7 @@
               "name": "Know your Enemy"
             }
           ],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         }
       ]
     }
@@ -216,28 +216,74 @@
       "chooseCount": 1,
       "options": [
         {
+          "type": "option",
           "classKey": "magical-guardian",
           "level": 1,
           "featureKey": "dazzling-wand",
           "name": "Dazzling Wand",
-          "description": "Your transformation item takes the form of a beautiful, ornate wand. You learn 1 additional Guardian Spell.",
+          "description": "Your transformation item takes the form of a beautiful, ornate wand. You learn 1 additional spellcasting technique.",
           "prereqs": null,
-          "grants": [],
-          "grantNotes": null,
-          "type": "option"
+          "grants": [
+            {
+              "type": "technique-choice",
+              "skill": "spellcasting",
+              "count": 1
+            }
+          ],
+          "grantNotes": null
         },
         {
+          "type": "optionGroup",
           "classKey": "magical-guardian",
           "level": 1,
           "featureKey": "shining-weapon",
           "name": "Shining Weapon",
-          "description": "Choose a Rank 1 weapon - your Transformation Item takes the form of a glowing, ethereal weapon of that type. If you choose a Melee Weapon, you gain Beginner training in the Melee Weapons skill for that weapon. If you choose a Ranged Weapon, you gain Beginner training in Targeting for that weapon. Whichever option you chose, you gain a “Slow” progression in that skill.",
+          "description": "Choose a one of the following skills - Melee Weapons or Targeting. You gain Rank 1 training in the chosen skill, with a slow progression.",
           "prereqs": null,
           "grants": [],
           "grantNotes": null,
-          "type": "option"
+          "chooseCount": 1,
+          "options": [
+            {
+              "type": "option",
+              "classKey": "magical-guardian",
+              "level": 1,
+              "featureKey": "shining-weapon-melee-weapons",
+              "name": "Shining Weapon Melee Weapons",
+              "description": null,
+              "prereqs": null,
+              "grants": [
+                {
+                  "type": "skill",
+                  "name": "Melee Weapons",
+                  "rank": 1,
+                  "progression": "slow"
+                }
+              ],
+              "grantNotes": null
+            },
+            {
+              "type": "option",
+              "classKey": "magical-guardian",
+              "level": 1,
+              "featureKey": "shining-weapon-targeting",
+              "name": "Shining Weapon Targeting",
+              "description": null,
+              "prereqs": null,
+              "grants": [
+                {
+                  "type": "skill",
+                  "name": "Targeting",
+                  "rank": 1,
+                  "progression": "slow"
+                }
+              ],
+              "grantNotes": null
+            }
+          ]
         },
         {
+          "type": "option",
           "classKey": "magical-guardian",
           "level": 1,
           "featureKey": "magnificent-gadget",
@@ -245,8 +291,7 @@
           "description": "Choose a skill you have at least Beginner training in. Your Transformation Object takes a form related to that skill. For example, if you choose the “Medicine” skill, it may transform into a Stethoscope. While holding the object, you have a +1D Item bonus to all rolls using that skill.",
           "prereqs": null,
           "grants": [],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         }
       ]
     },
@@ -331,6 +376,7 @@
       "chooseCount": 1,
       "options": [
         {
+          "type": "option",
           "classKey": "metamorph",
           "level": 1,
           "featureKey": "beast-form",
@@ -338,10 +384,10 @@
           "description": "You take on the properties of animals and beasts. When you transform into this form, choose 2 of the following adaptations: Gliding: You do not take damage from falling. For every square you fall, you may also move horizontally 1 square. Tough Hide: You gain 1 armor. Spikes: Your body is covered in dangerous spikes. Whenever an enemy deals Melee damage to you, they also take damage equal to 1 + your Metamorphosis Rank. Savage Claws: Your melee attacks deal additional damage equal to 1 + your Metamorphosis Rank. Enhanced Senses: You gain a +1D bonus to Perception, and you know the location of creatures within 10 squares of you (even if you cannot see them). Creatures you cannot see are Obscured but not Concealed. Amphibious: You can breathe both air and water, and gain a swim speed equal to your movement speed. Climber: You gain a climbing speed and can move freely on vertical surfaces. Burrower: You gain a burrowing speed equal to half your movement speed. Quadrupedal: You gain +2 Movement Speed Natural Camouflage: You gain a +1D Bonus to Stealth. You are Obscured to Ranged attacks.",
           "prereqs": null,
           "grants": [],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         },
         {
+          "type": "option",
           "classKey": "metamorph",
           "level": 1,
           "featureKey": "material-form",
@@ -349,10 +395,10 @@
           "description": "Your body takes on the properties of various materials. When you transform, choose 2 of the following adaptations: Elastic: Your melee attacks gain +1 reach. High Density: Whenever you would be pushed or pulled, reduce the distance by 2 squares. Magnetic: You can push and pull nearby metal objects. Metal weapons have a -1D penalty to attacks against you. If you hit a creature made of metal (or wearing metal armor) with an attack, you can push that creature a number of squares away from you equal to your Metamorphosis rank. Liquid: You can squeeze through small openings and cracks, and can share spaces with other creatures. Slippery: You cannot be immobilized. Sticky: When you succeed on a melee attack against a single target, you may choose to have that creature become grappled. Variable Hardness: When you take damage, gain 1 armor until the beginning of your next turn. If you take damage while you already have an armor bonus due to this ability, increase that bonus by 1.",
           "prereqs": null,
           "grants": [],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         },
         {
+          "type": "option",
           "classKey": "metamorph",
           "level": 1,
           "featureKey": "elemental-form",
@@ -360,8 +406,7 @@
           "description": "Your body takes on the properties of various elemental powers. Choose one of the following elements: Water, Fire, Earth, Air, Metal, Ice, Electricity. You gain the following traits for that element: Elemental Resistance: You gain Armor 5 against attacks with the chosen trait. Elemental Strikes: Your attacks gain the chosen trait, and have the “Attack Modifiers” of that element (see the Elemental Powers Subsystem).",
           "prereqs": null,
           "grants": [],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         }
       ]
     },
@@ -451,6 +496,7 @@
       "chooseCount": 1,
       "options": [
         {
+          "type": "option",
           "classKey": "monster-tamer",
           "level": 2,
           "featureKey": "monster-evolution",
@@ -458,10 +504,10 @@
           "description": "One of your Monster Companions gains a new evolution. Choose one of your Monster Companions.\nIf the rank of that companion is lower than your Monster Taming skill, increase its Rank by 1.\nOtherwise, if that creature does not have a Stage 2 evolution, it gains a Stage 2 evolution and one additional Familiar trait.\nStage 2 Evolution (1 Action + 3 Energy). Your Monster Companion transforms into a new, more powerful form. It is treated as 1 Rank higher, and gains 1 Familiar trait of its new Rank or lower. \nIf the creature already has a Stage 2 transformation, it gains a Stage 3 transformation and an additional Familiar trait.\nStage 3 Evolution (1 Action + 5 Energy). Your Monster Companion transforms into a new, more powerful form. It is treated as 2 Ranks higher than its base rank, and gains 1 Familiar trait of its new Rank or lower.",
           "prereqs": null,
           "grants": [],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         },
         {
+          "type": "option",
           "classKey": "monster-tamer",
           "level": 2,
           "featureKey": "monster-collection",
@@ -469,8 +515,7 @@
           "description": "You gain a new Monster Companion. Its rank is 1 less than your Monster Taming skill.",
           "prereqs": null,
           "grants": [],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         }
       ]
     }
@@ -489,6 +534,7 @@
       "chooseCount": 1,
       "options": [
         {
+          "type": "option",
           "classKey": "ninja",
           "level": 1,
           "featureKey": "targeting",
@@ -502,10 +548,10 @@
               "progression": "medium"
             }
           ],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         },
         {
+          "type": "option",
           "classKey": "ninja",
           "level": 1,
           "featureKey": "melee-weapons",
@@ -519,10 +565,10 @@
               "progression": "medium"
             }
           ],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         },
         {
+          "type": "option",
           "classKey": "ninja",
           "level": 1,
           "featureKey": "martial-arts",
@@ -536,8 +582,7 @@
               "progression": "medium"
             }
           ],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         }
       ]
     },
@@ -633,6 +678,7 @@
       "chooseCount": 2,
       "options": [
         {
+          "type": "option",
           "classKey": "spirit-warrior",
           "level": 1,
           "featureKey": "tortoise-stance",
@@ -640,10 +686,10 @@
           "description": "Emulate the steadfastness of the tortoise - slow but sturdy.\nPassive: Gain +1D Status Bonus to all defenses. If you would be pushed or pulled by an enemy ability, reduce the number of squares of movement by your Martial Arts rank. Drawback: Your Speed is halved, and you take a -1D status penalty to attacks.",
           "prereqs": null,
           "grants": [],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         },
         {
+          "type": "option",
           "classKey": "spirit-warrior",
           "level": 1,
           "featureKey": "tiger-stance",
@@ -651,10 +697,10 @@
           "description": "Strike with the single-minded ferocity of a hunting tiger. Passive: Add +2 damage to all unarmed strikes Drawback: When you enter this stance you gain the “off guard 1” condition, and this condition cannot be cleared as long as you are in this stance.",
           "prereqs": null,
           "grants": [],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         },
         {
+          "type": "option",
           "classKey": "spirit-warrior",
           "level": 1,
           "featureKey": "shark-stance",
@@ -662,10 +708,10 @@
           "description": "Channel the surging speed of a shark, endlessly chasing its prey. Passive: Increase your movement speed by 2. You gain a +1D circumstance bonus to dodge rolls. Drawback: You cannot use “grapple” techniques, and must use at least half of your movement each turn, if possible.",
           "prereqs": null,
           "grants": [],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         },
         {
+          "type": "option",
           "classKey": "spirit-warrior",
           "level": 1,
           "featureKey": "crane-stance",
@@ -673,10 +719,10 @@
           "description": "Soar and gently float, like a majestic but fragile crane. Passive: You may expend your movement to perform incredible leaps. You may leap to a maximum height equal to half your movement (rounded down). While in this stance, you do not take fall damage. Drawback: You have a -1D penalty to resist being pushed, pulled, or grappled. When you would be pushed or pulled, you are moved 1 additional square.",
           "prereqs": null,
           "grants": [],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         },
         {
+          "type": "option",
           "classKey": "spirit-warrior",
           "level": 1,
           "featureKey": "python-stance",
@@ -684,10 +730,10 @@
           "description": "Restrain and crush your enemies like a powerful constrictor snake. Passive: You gain a +1D status bonus to techniques with the “grapple” tag, you can grapple creatures up to 2 scales larger than you, and moving while grappling does not cost extra movement. Drawback: You cannot use techniques with the “aerial” or “mobile” tags.",
           "prereqs": null,
           "grants": [],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         },
         {
+          "type": "option",
           "classKey": "spirit-warrior",
           "level": 1,
           "featureKey": "gorilla-stance",
@@ -695,8 +741,7 @@
           "description": "Like a cornered silverback, you lash out against multiple enemies surrounding you. Passive: When you perform a technique with the “flurry” or “push” tags, you may perform 1 additional unarmed strike or shove on a different target. Your Martial Arts rank is treated as 1 lower for the purpose of this additional attack. Drawback: You cannot mark enemies, and all current marks end.",
           "prereqs": null,
           "grants": [],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         }
       ]
     }
@@ -737,6 +782,7 @@
       "chooseCount": 1,
       "options": [
         {
+          "type": "option",
           "classKey": "weapon-master",
           "level": 1,
           "featureKey": "sentinel-style",
@@ -744,21 +790,21 @@
           "description": "Prerequisite: Soulbound Weapon with 'Reach' tag. Sweet-spot : When you hit a creature that is not adjacent to you with a melee attack using a weapon with the 'Reach' tag, you deal an additional amount of damage equal to 2 times your Melee Weapons Skill Rank. Recommended Technique: Keep At Bay",
           "prereqs": null,
           "grants": [],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         },
         {
+          "type": "option",
           "classKey": "weapon-master",
           "level": 1,
           "featureKey": "paired-weapons-style",
           "name": "Paired Weapons Style",
-          "description": "Prerequisites: Soulbound weapon with the “One-handed” tag Two-point defense: You gain access to an additional Rank 1 weapon with the one-handed trait. While wielding a one-handed weapon in both hands, Treat the number of enemies adjacent to you as one fewer for the purposes of flanking. Techniques: Dual-Strike",
+          "description": "Prerequisites: Soulbound weapon with the “One-handed” tag Two-point defense: You gain access to an additional Rank 1 weapon with the one-handed trait. While wielding a one-handed weapon in both hands, Treat the number of enemies adjacent to you as one fewer for the purposes of flanking. Recommended Techniques: Dual-Strike",
           "prereqs": null,
           "grants": [],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         },
         {
+          "type": "option",
           "classKey": "weapon-master",
           "level": 1,
           "featureKey": "barrage-style",
@@ -766,10 +812,10 @@
           "description": "Prerequisites: Soulbound Weapon with the 'Thrown' tag. Passive Benefit: While wielding a thrown weapon, all thrown weapons you wield gain the 'Returning' tag for as long as you wield them and have this fighting style. Recommended Technique: Spread Volley",
           "prereqs": null,
           "grants": [],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         },
         {
+          "type": "option",
           "classKey": "weapon-master",
           "level": 1,
           "featureKey": "marksman-style",
@@ -777,10 +823,10 @@
           "description": "Prerequisites: Soulbound Weapon with the 'Ranged' tag. Sharpshooter’s aim: When you take the “Aim” action, also double the range of your ranged weapon attacks. Recommended Technique: Piercing Shot",
           "prereqs": null,
           "grants": [],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         },
         {
+          "type": "option",
           "classKey": "weapon-master",
           "level": 1,
           "featureKey": "skirmisher-style",
@@ -788,10 +834,10 @@
           "description": "Prerequisites: Soulbound Weapon with the 'Ranged' or ‘Thrown’ tag. Point-Blank Proficiency: You do not provoke reactions from creatures when making a ranged or thrown attack while adjacent to them. You also do not take a -1D penalty to these attacks while adjacent to a hostile creature. Recommended Technique: Slowing Shot",
           "prereqs": null,
           "grants": [],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         },
         {
+          "type": "option",
           "classKey": "weapon-master",
           "level": 1,
           "featureKey": "titan-style",
@@ -799,10 +845,10 @@
           "description": "Prerequisites: Soulbound Weapon with the “Heavy” or “Two-Handed” tag. Armor Breaker: When you deal a critical success to a creature with a melee attack using a weapon with the 'Heavy' tag, that creature suffers a -1D penalty to their Physical Defense until the end of their next turn. Recommended Technique: Devastating Blow",
           "prereqs": null,
           "grants": [],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         },
         {
+          "type": "option",
           "classKey": "weapon-master",
           "level": 1,
           "featureKey": "guardian-style",
@@ -810,10 +856,10 @@
           "description": "Prerequisite: Soulbound Weapon with the 'Defensive' tag Vigilant Defense: When you use the “Parry” reaction, you gain a +1D bonus to all other defense rolls until the end of your next turn. Recommended Technique: Protective Parry",
           "prereqs": null,
           "grants": [],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         },
         {
+          "type": "option",
           "classKey": "weapon-master",
           "level": 1,
           "featureKey": "smasher-style",
@@ -821,10 +867,10 @@
           "description": "Prerequisite: Soulbound Weapon with the 'Blunt' tag. Bash: Your blunt weapons gain the “Bash” Alternative Use: Alternative Use - Bash: You swing your weapon to knock away your enemies. On a failure, push the target back 1 square. On a success, push the target 1 additional square for every hit that exceeds their Defense. Recommended Technique: Armor Crusher",
           "prereqs": null,
           "grants": [],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         },
         {
+          "type": "option",
           "classKey": "weapon-master",
           "level": 1,
           "featureKey": "blademaster-style",
@@ -832,8 +878,7 @@
           "description": "Prerequisite: Soulbound weapon with the 'Sharp' tag. Exploit Vulnerability: Bleeding enemies have a -1D penalty to defenses against your attacks Recommended Technique: Vicious Rend",
           "prereqs": null,
           "grants": [],
-          "grantNotes": null,
-          "type": "option"
+          "grantNotes": null
         }
       ]
     },
@@ -843,7 +888,7 @@
       "level": 1,
       "featureKey": "heart-stealer",
       "name": "Heart Stealer",
-      "description": "Whenever you drop an enemy creature to 0 hit points, you regain a number of hit points equal to your Strength + Your Level.",
+      "description": "Whenever you drop an enemy creature to 0 hit points, you regain a number of hit points equal to your Primary Attribute + Your Level.",
       "prereqs": null,
       "grants": [],
       "grantNotes": null

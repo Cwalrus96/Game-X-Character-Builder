@@ -9,14 +9,14 @@
     "grantNotes": null,
     "features": [
       {
-        "featureKey": "bonded-relic",
+        "featureKey": null,
         "name": "Bonded Relic",
         "description": "The artifact is not just an object - it has a will of its own, and a unique relationship with its wielder. You gain a Rank 2 bond with the Artifact. This relationship is a two-way street - the Artifact grants you power, but also expects something of you in return. Determine what the Artifact’s goal is, and summarize it in a short statement - a sentence or two. Whenever you perform an action that helps the Artifact further its goal, increment your Power Die.",
         "grants": [],
         "grantNotes": null
       },
       {
-        "featureKey": "living-archive",
+        "featureKey": null,
         "name": "Living Archive",
         "description": "The Artifact grants its wielder more than just power - it can share a wealth of knowledge as well . This knowledge may be innate, or it may have been accumulated over time from the collective knowledge of its past wielders. Either way, the Artifact can allow its wielder to occasionally tap into this knowledge. The Artifact starts out knowing 3 Skills. When its wielder makes a skill check using one of those known skills, they can spend 2 energy to allow the Artifact to “Assist” them on the action.",
         "grants": [],
@@ -53,21 +53,21 @@
     "grantNotes": null,
     "features": [
       {
-        "featureKey": "powerful-inventions",
+        "featureKey": null,
         "name": "Powerful Inventions",
         "description": "Your character’s “Powers” come from their inventions. This means that they have a physical form, and take up physical space. Your character can only use their powers when they are “equipped”, and they take up space in their inventory. Your powers gain the “Technology” tag, and lose the “Magic” tag (if any).\n\nDesign Note: Need to implement an inventory / equipment system. Should be relatively simple and streamlined.",
         "grants": [],
         "grantNotes": null
       },
       {
-        "featureKey": "flexible-gadgets",
+        "featureKey": null,
         "name": "Flexible Gadgets",
         "description": "You have invented a number of additional utility gadgets equal to your Intellect. You can carry as many of these inventions with you as you wish, but each one takes up a spot in your inventory, and you may only activate one gadget at a time. While activated, each gadget grants a +1D equipment bonus to a single Utility Skill that you have at least Rank 1 training in. You may switch your activated gadget with another in your inventory as an action.",
         "grants": [],
         "grantNotes": null
       },
       {
-        "featureKey": "empowering-tech",
+        "featureKey": null,
         "name": "Empowering Tech",
         "description": "Once per round, when you make a Skill roll with an equipment bonus, you may increment your Power Die.",
         "grants": [],
@@ -109,14 +109,14 @@
     "grantNotes": null,
     "features": [
       {
-        "featureKey": "eyes-of-legend",
+        "featureKey": null,
         "name": "Eyes of Legend",
         "description": "One of your bloodline’s most foundational techniques is the ability to channel spiritual energy into their eyes. On your turn, you may spend 1 Energy to activate your eye technique, allowing you to see invisible creatures by sensing their spiritual energy. You can also see other traces of concentrated spiritual energy, such as infused objects or the remnants of recent spiritual activity.\nActivating this ability triggers an obvious physical change in your eyes’ appearance. They may begin to glow, change color, your pupil might change shape, or some other obvious physical transformation.",
         "grants": [],
         "grantNotes": null
       },
       {
-        "featureKey": "soul-reader",
+        "featureKey": null,
         "name": "Soul Reader",
         "description": "You may perform Investigation Actions using Attunement instead of Intellect. Once per round, when you act upon knowledge learned from an Investigation Action, you may increment your Power die.",
         "grants": [],
@@ -154,14 +154,14 @@
     "grantNotes": null,
     "features": [
       {
-        "featureKey": "font-of-power",
+        "featureKey": null,
         "name": "Font of Power",
         "description": "The entity’s spiritual energy is enormous, and can be drawn upon to enhance your own abilities. However, calling upon such power is not without cost. At any time, you may choose to take 1 Strain and gain a number of energy equal to your Willpower.\nOnce per round, when you take Strain, you may increment your Power Die.",
         "grants": [],
         "grantNotes": null
       },
       {
-        "featureKey": "lurking-threat",
+        "featureKey": null,
         "name": "Lurking Threat",
         "description": "The entity inside you doesn’t enjoy being restrained, and is always looking for an opportunity to break free. When you drop to 0 HP or become Overstrained, the entity seizes the opportunity and temporarily possesses you, gaining control of your body and activating an “unleashed” transformation. During this transformation your appearance changes to more closely resemble the Entity’s true form.\nWhen you enter this form you regain all of your HP. While transformed, you must attempt to deal as much total damage to other creatures as possible, and make no distinction between allies and enemies. Any time you would deal damage to a creature, deal additional damage equal to your Willpower. This form ends when you drop to 0 HP again or combat ends.",
         "grants": [],
@@ -200,35 +200,35 @@
     "grantNotes": null,
     "features": [
       {
-        "featureKey": "exploratory-adaptations",
+        "featureKey": null,
         "name": "Exploratory Adaptations",
         "description": "Your mutations can be triggered by environmental factors, granting you a number of beneficial adaptations. You can activate these adaptations by spending 1 action and 2 energy. You may only have one adaptation active at a time.",
         "grants": [],
         "grantNotes": null
       },
       {
-        "featureKey": "amphibious-form",
+        "featureKey": null,
         "name": "Amphibious Form",
         "description": "Your shape changes to be more suited to navigating the water - your hands and feet become webbed, you sprout gills, and you may gain other traits of aquatic / semi-aquatic creatures. While in this form you can breathe both air and water, and can swim at your normal movement speed.",
         "grants": [],
         "grantNotes": null
       },
       {
-        "featureKey": "wall-crawler",
+        "featureKey": null,
         "name": "Wall Crawler",
         "description": "You gain the ability to cling to vertical surfaces, allowing you to climb at full speed. You can climb even smooth surfaces and ceilings, as long as they are not wet or slippery.",
         "grants": [],
         "grantNotes": null
       },
       {
-        "featureKey": "camouflage",
+        "featureKey": null,
         "name": "Camouflage",
         "description": "Your skin adapts to blend in with your environment. You gain a +1 Status Bonus to Stealth checks.",
         "grants": [],
         "grantNotes": null
       },
       {
-        "featureKey": "defensive-evolution",
+        "featureKey": null,
         "name": "Defensive Evolution",
         "description": "Your mutation also helps protect you from external threats. When you take damage, you may spend 2 energy to adapt to that attack. If you do, choose 1 of that attack’s “tags” - you gain Armor (e.g. reduce damage) from attacks with the chosen tag equal to your Strength. For example, if you have Strength 3 and are hit with a fire-based attack, you can gain heat-resistant skin that grants Armor 3 to subsequent “fire” attacks. Lasts until the end of this combat.\nOnce per round when you reduce damage due to Armor, you may increment your Power Die.",
         "grants": [],
@@ -266,21 +266,21 @@
     "grantNotes": null,
     "features": [
       {
-        "featureKey": "hunter-s-instinct",
+        "featureKey": null,
         "name": "Hunter’s Instinct",
         "description": "A skilled hunter chooses their prey carefully. You may make an investigation action against a group of enemies, rather than an individual. Examples of questions include:\n* Which enemy has the highest (or lowest) HP?\n* Which enemy has the weakest physical (or mental, or spiritual) defense?\n* Which enemy is the highest Threat Level?\n* Which enemy is the most wounded?\n* Which enemy has the highest Strength (or Agility)?\nAs usual for Investigation Actions, you gain a +1D Circumstance bonus when acting upon this information",
         "grants": [],
         "grantNotes": null
       },
       {
-        "featureKey": "thrill-of-battle",
+        "featureKey": null,
         "name": "Thrill of Battle",
         "description": "Once per round, when you take damage from a melee attack, you may increment your Power Die.",
         "grants": [],
         "grantNotes": null
       },
       {
-        "featureKey": "keen-senses",
+        "featureKey": null,
         "name": "Keen Senses",
         "description": "Your senses of hearing and smell are particularly sensitive. Using these powerful senses, you can detect the presence of hidden non-spirit creatures within 60 feet of you. You know their location, and they are only considered to be “obscured”, rather than “concealed”. In addition, if you know the scent of a particular creature or object, you can detect if they were in a particular location within the last hour, and if they are within 1000 feet you can detect which direction they are in.",
         "grants": [],
@@ -311,21 +311,21 @@
     "grantNotes": null,
     "features": [
       {
-        "featureKey": "bond-of-patronage",
+        "featureKey": null,
         "name": "Bond of Patronage",
         "description": "You gain a level 1 Bond with your Patron. Your Patron has certain expectations of you. If you fail to live up to your side of the bargain, the bond can be “Broken”. If this happens, your Patron can choose to restrict access to your powers, or even temporarily prevent you from accessing them entirely.",
         "grants": [],
         "grantNotes": null
       },
       {
-        "featureKey": "irresistible-authority",
+        "featureKey": null,
         "name": "Irresistible Authority",
         "description": "Your patron’s influence is powerful and widespread. With the mere mention of their name, other creatures become more willing to help (or fear) you. When you perform an action with the “Emotion” trait, you can spend a number of energy up to your Bond Rank with your Patron. Add a status bonus to the roll equal to the amount of energy spent.\nYour Patron’s authority over you also helps shield you from other, lesser influences. You can also gain this Status Bonus when making a defense check against an effect with the “Emotion” trait.",
         "grants": [],
         "grantNotes": null
       },
       {
-        "featureKey": "friends-in-high-places",
+        "featureKey": null,
         "name": "Friends in High Places",
         "description": "When making a skill check for resources or connections, your Patron may “Assist” you with the roll.\n\nDesign Note: As of writing this, I have not written a system that requires making rolls for resources or connections. However, I plan to eventually implement a system for these types of checks. This system will cover things like “can I afford item X” (instead of tracking money), “Is Item Y available in this city”, “Can I find information on Z”, or “Do I know anyone who ____?”",
         "grants": [],
@@ -363,21 +363,21 @@
     "grantNotes": null,
     "features": [
       {
-        "featureKey": "slime-physiology",
+        "featureKey": null,
         "name": "Slime Physiology",
         "description": "While you have the ability to take on a humanoid shape, your natural form is an amorphous blob of translucent slime, bounded by a flexible surface. Because you are a spiritual being, and not a biological creature, you do not need to eat, sleep, or breathe.",
         "grants": [],
         "grantNotes": null
       },
       {
-        "featureKey": "slippery-ooze",
+        "featureKey": null,
         "name": "Slippery Ooze",
         "description": "While in your slime form, you can squeeze through small spaces of Scale -2. You also gain a +1D Status bonus to defense rolls against grapples or other restraints.",
         "grants": [],
         "grantNotes": null
       },
       {
-        "featureKey": "slimy-storage",
+        "featureKey": null,
         "name": "Slimy Storage",
         "description": "You have the uncanny ability to absorb and reform objects inside your body. As an action, you can absorb a scale -1 or smaller inorganic object or reassemble and eject that object. You can absorb up to 3 objects at a time.",
         "grants": [],

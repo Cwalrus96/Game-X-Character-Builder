@@ -23,6 +23,9 @@ import {
   loadGameXClasses,
   loadGameXData,
   loadGameXOrigins,
+  getGameXTechniques,
+  getGameXWeaponBases,
+  getGameXWeaponEnhancements,
   getOriginByKey,
   buildTechniqueIndexes,
   resolveTechniqueRef,
@@ -590,15 +593,14 @@ async function renderBuilderTechniquesReadOnly(builder) {
     const origin = new Map();
     for (const ref of Array.from(grants)) origin.set(String(ref), 'Granted');
     for (const ref of selectedRefs) if (!origin.has(String(ref))) origin.set(String(ref), 'Selected');
-    const rankZeroBasics = Array.isArray(gameData?.techniques)
-      ? gameData.techniques.filter((tech) => {
+    const rankZeroBasics = getGameXTechniques(gameData)
+      .filter((tech) => {
           const name = String(tech?.techniqueName || "").trim();
           const skill = String(tech?.skill || "").trim();
           const rank = Number.parseInt(String(tech?.rank ?? 0), 10);
           if (!name || !skill || rank !== 0) return false;
           return knownCombatSkills.has(skill);
-        })
-      : [];
+        });
     for (const tech of rankZeroBasics) {
       const name = String(tech?.techniqueName || "").trim();
       if (name && !origin.has(name)) origin.set(name, 'Basic');
@@ -670,8 +672,8 @@ async function renderBuilderWeaponsReadOnly(builder) {
     }
 
     const { gameData } = await ensureTechniqueData();
-    const weaponBases = Array.isArray(gameData?.weaponBases) ? gameData.weaponBases : [];
-    const weaponEnhancements = Array.isArray(gameData?.weaponEnhancements) ? gameData.weaponEnhancements : [];
+    const weaponBases = getGameXWeaponBases(gameData);
+    const weaponEnhancements = getGameXWeaponEnhancements(gameData);
 
     mount.innerHTML = weapons.map((weapon, index) => {
       const weaponDef = getWeaponDef(weaponBases, weapon.weaponKey);
@@ -942,7 +944,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
           }
         }
 
-        await uploadBytes(storageRef(storage, storagePath), pending.blob, { contentType: 'image/jpeg' });
+        await uploadBytes(storageRef(storage, storagePath), pending.blob, { contentType: pending.contentType || pending.blob.type || 'image/jpeg' });
         portraitPath = storagePath;
         if (portraitApi?.set) {
           const url = await resolvePortraitUrl(storagePath);
@@ -1058,6 +1060,8 @@ async function renderBuilderWeaponsReadOnly(builder) {
     let pendingUpload = null;
     /** @type {string} */
     let pendingDeletePath = '';
+    const maxPortraitBytes = 5 * 1024 * 1024;
+    const supportedPortraitTypes = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/gif']);
 
     function render() {
       const src = previewUrl || previewDataUrl || '';
@@ -1133,15 +1137,29 @@ async function renderBuilderWeaponsReadOnly(builder) {
 
     async function handleFile(file) {
       if (!file) return;
-      if (!file.type || !file.type.startsWith('image/')) {
-        alert('Please choose an image file.');
+      if (!supportedPortraitTypes.has(file.type)) {
+        alert('Please choose a PNG, JPG, WEBP, or GIF image.');
+        if (input) input.value = '';
+        return;
+      }
+      if (file.size >= maxPortraitBytes) {
+        alert('Portrait images must be smaller than 5 MB.');
         if (input) input.value = '';
         return;
       }
 
-      // Downscale + center-crop to 512x512 (small + predictable).
       const dataUrl = await fileToDataUrl(file);
 
+      if (file.type === 'image/gif') {
+        previewDataUrl = dataUrl;
+        previewUrl = '';
+        pendingUpload = { blob: file, contentType: file.type };
+        render();
+        scheduleSave();
+        return;
+      }
+
+      // Downscale + center-crop still images to 512x512 (small + predictable).
       const img = new Image();
       img.onload = async () => {
         const size = 512;
@@ -1151,7 +1169,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
         const ctx = canvas.getContext('2d');
         if (!ctx) {
           previewDataUrl = dataUrl;
-          pendingUpload = { blob: file };
+          pendingUpload = { blob: file, contentType: file.type };
           previewUrl = '';
           render();
           scheduleSave();
@@ -1178,7 +1196,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
 
         previewDataUrl = outPreview;
         previewUrl = '';
-        pendingUpload = { blob };
+        pendingUpload = { blob, contentType: blob.type || 'image/jpeg' };
         render();
         scheduleSave();
       };
@@ -1186,7 +1204,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
         // fallback
         previewDataUrl = dataUrl;
         previewUrl = '';
-        pendingUpload = { blob: file };
+        pendingUpload = { blob: file, contentType: file.type };
         render();
         scheduleSave();
       };

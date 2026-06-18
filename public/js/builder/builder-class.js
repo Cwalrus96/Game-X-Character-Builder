@@ -16,10 +16,18 @@ import {
 
 import { renderBuilderNavMounts } from "./builder-nav.js";
 
-import { loadGameXData } from "../core/game-data.js";
+import { loadGameXData, getGameXClasses, getGameXClassFeatures, getGameXFeats } from "../core/game-data.js";
 
 import { ATTR_KEYS, clampLevel, coerceAttrKey, labelForAttrKey } from "../core/character-rules.js";
 import { sanitizeText, buildGroupId, buildOptionKey } from "../core/data-sanitization.js";
+import {
+  collectOptionGroups,
+  collectSelectedEntries,
+  deleteSelectedDescendants,
+  isGroupComplete,
+  isOptionGroup,
+  selectedCountForGroup,
+} from "../core/option-groups.js";
 const CURRENT_STEP_ID = "class";
 
 ensureBuilderShellUi();
@@ -42,6 +50,8 @@ let selectedLevel = 1;
 let selectedFeatureOptionKeys = new Set();
 /** @type {Set<string>} */
 let selectedFeatNames = new Set();
+/** @type {Set<string>} */
+let selectedFeatOptionKeys = new Set();
 
 /** optionKey -> option object */
 /** @type {Map<string, any>} */
@@ -77,7 +87,7 @@ const saveAndOpenBtn = document.getElementById("saveAndOpenBtn");
 
 
 function getClassByKey(classKey) {
-  const arr = Array.isArray(gameData?.classes) ? gameData.classes : [];
+  const arr = getGameXClasses(gameData);
   return arr.find((c) => String(c.classKey) === String(classKey)) || null;
 }
 
@@ -90,7 +100,7 @@ function classSelectableInfo(classObj) {
     if (!classObj[k]) missing.push(k);
   }
 
-  const cf = gameData?.classFeatures?.[classObj.classKey];
+  const cf = getGameXClassFeatures(gameData, classObj.classKey);
   if (!Array.isArray(cf) || !cf.length) missing.push("classFeatures");
 
   if (!missing.length) return { ok: true, reason: "" };
@@ -115,13 +125,13 @@ function getFeatSlots(level) {
 }
 
 function computeVisibleClassFeatures(classKey, level) {
-  const all = Array.isArray(gameData?.classFeatures?.[classKey]) ? gameData.classFeatures[classKey] : [];
+  const all = getGameXClassFeatures(gameData, classKey);
   const L = clampLevel(level);
   return all.filter((f) => Number(f?.level || 0) <= L);
 }
 
 function computeVisibleFeats(classKey, level) {
-  const all = Array.isArray(gameData?.feats) ? gameData.feats : [];
+  const all = getGameXFeats(gameData);
   const L = clampLevel(level);
   return all
     .filter((f) => String(f?.classKey || "") === String(classKey))
@@ -140,22 +150,28 @@ function pruneSelectionsForLevel() {
       selectedFeatNames = new Set(Array.from(selectedFeatNames).slice(0, maxSlots));
     }
 
-    // Prune feature option keys that are not present at/below level
+    // Prune feature option keys that are not present at/below level.
     optionByKey.clear();
     const visible = computeVisibleClassFeatures(selectedClassKey, selectedLevel);
     const allowedOptKeys = new Set();
-    visible
-      .filter((f) => String(f?.type) === "optionGroup")
-      .forEach((g) => {
-        const opts = Array.isArray(g?.options) ? g.options : [];
-        for (const o of opts) {
-          const k = buildOptionKey(g, o);
-          allowedOptKeys.add(k);
-          optionByKey.set(k, o);
-        }
-      });
+    for (const group of collectOptionGroups(visible)) {
+      for (const option of Array.isArray(group?.options) ? group.options : []) {
+        const k = buildOptionKey(group, option);
+        allowedOptKeys.add(k);
+        optionByKey.set(k, option);
+      }
+    }
 
     selectedFeatureOptionKeys = new Set(Array.from(selectedFeatureOptionKeys).filter((k) => allowedOptKeys.has(k)));
+
+    const selectedFeats = visibleFeats.filter((feat) => selectedFeatNames.has(String(feat?.name || "").trim()));
+    const allowedFeatOptKeys = new Set();
+    for (const group of collectOptionGroups(selectedFeats)) {
+      for (const option of Array.isArray(group?.options) ? group.options : []) {
+        allowedFeatOptKeys.add(buildOptionKey(group, option));
+      }
+    }
+    selectedFeatOptionKeys = new Set(Array.from(selectedFeatOptionKeys).filter((key) => allowedFeatOptKeys.has(key)));
   }
 }
 
@@ -189,19 +205,26 @@ function getSaveIssues() {
       warnings.push("Choose a Primary Attribute.");
     }
 
-    // Option groups: warn if incomplete.
+    // Class option groups: top-level groups always apply; child groups apply
+    // only after their parent option is selected.
     const visible = computeVisibleClassFeatures(selectedClassKey, selectedLevel);
-    const groups = visible.filter((f) => String(f?.type) === "optionGroup");
-    for (const g of groups) {
-      const chooseCount = Number(g?.chooseCount || 0);
-      if (!chooseCount) continue;
-      const opts = Array.isArray(g?.options) ? g.options : [];
-      const keys = opts.map((o) => buildOptionKey(g, o));
-      const picked = keys.filter((k) => selectedFeatureOptionKeys.has(k)).length;
-      if (picked !== chooseCount) {
-        warnings.push(`Finish selecting options for: ${g.name} (choose ${chooseCount}).`);
+    const checkGroups = (entries, selectedKeys, prefix) => {
+      for (const group of Array.isArray(entries) ? entries : []) {
+        if (!isOptionGroup(group)) continue;
+        const chooseCount = Number(group?.chooseCount || 0);
+        if (chooseCount && !isGroupComplete(group, selectedKeys)) {
+          warnings.push(`Finish selecting options for: ${prefix}${group.name} (choose ${chooseCount}).`);
+        }
+        const selectedChildren = (Array.isArray(group?.options) ? group.options : [])
+          .filter((option) => selectedKeys.has(buildOptionKey(group, option)));
+        checkGroups(selectedChildren, selectedKeys, prefix);
       }
-    }
+    };
+    checkGroups(visible, selectedFeatureOptionKeys, "");
+
+    const visibleFeats = computeVisibleFeats(selectedClassKey, selectedLevel);
+    const selectedFeats = visibleFeats.filter((feat) => selectedFeatNames.has(String(feat?.name || "").trim()));
+    checkGroups(selectedFeats, selectedFeatOptionKeys, "feat ");
   }
 
   // Cascading invalidation: lowering level can prune selections.
@@ -233,18 +256,39 @@ function getSaveIssues() {
     if (storedOpts.length) {
       const visible = computeVisibleClassFeatures(selectedClassKey, nextLevel);
       const allowedOptKeys = new Set();
-      visible
-        .filter((f) => String(f?.type) === "optionGroup")
-        .forEach((g) => {
-          const opts = Array.isArray(g?.options) ? g.options : [];
-          for (const o of opts) allowedOptKeys.add(buildOptionKey(g, o));
-        });
+      for (const group of collectOptionGroups(visible)) {
+        for (const option of Array.isArray(group?.options) ? group.options : []) {
+          allowedOptKeys.add(buildOptionKey(group, option));
+        }
+      }
 
       const kept = storedOpts.filter((k) => allowedOptKeys.has(k));
       const droppedCount = Math.max(0, storedOpts.length - kept.length);
       if (droppedCount) {
         warnings.push(
           `Lowering level to ${nextLevel} will clear ${droppedCount} class option selection${droppedCount === 1 ? "" : "s"} from higher-level features.`
+        );
+      }
+    }
+
+    const storedFeatOpts = Array.isArray(currentDoc?.builder?.selectedFeatOptions)
+      ? currentDoc.builder.selectedFeatOptions.map((x) => String(x || "").trim()).filter(Boolean)
+      : [];
+    if (storedFeatOpts.length) {
+      const visibleFeats = computeVisibleFeats(selectedClassKey, nextLevel);
+      const allowedVisibleFeatNames = new Set(visibleFeats.map((feat) => String(feat?.name || "").trim()).filter(Boolean));
+      const selectedVisibleFeats = visibleFeats.filter((feat) => allowedVisibleFeatNames.has(String(feat?.name || "").trim()));
+      const allowedFeatOptKeys = new Set();
+      for (const group of collectOptionGroups(selectedVisibleFeats)) {
+        for (const option of Array.isArray(group?.options) ? group.options : []) {
+          allowedFeatOptKeys.add(buildOptionKey(group, option));
+        }
+      }
+      const kept = storedFeatOpts.filter((key) => allowedFeatOptKeys.has(key));
+      const droppedCount = Math.max(0, storedFeatOpts.length - kept.length);
+      if (droppedCount) {
+        warnings.push(
+          `Lowering level to ${nextLevel} will clear ${droppedCount} feat option selection${droppedCount === 1 ? "" : "s"} from higher-level feats.`
         );
       }
     }
@@ -286,34 +330,25 @@ function buildAutoAbilities() {
   const L = clampLevel(selectedLevel);
   const visible = computeVisibleClassFeatures(selectedClassKey, L);
 
-  // Fixed features
   for (const f of visible) {
     if (String(f?.type) !== "feature") continue;
     const n = String(f?.name || "").trim();
     if (!n) continue;
     out.push({
-      name: `Class Feature — ${n}`,
+      name: `Class Feature - ${n}`,
       text: String(f?.description || "").trim(),
     });
   }
 
-  // Selected options from option groups
-  for (const g of visible) {
-    if (String(g?.type) !== "optionGroup") continue;
-    const opts = Array.isArray(g?.options) ? g.options : [];
-    for (const o of opts) {
-      const k = buildOptionKey(g, o);
-      if (!selectedFeatureOptionKeys.has(k)) continue;
-      const n = String(o?.name || "").trim();
-      if (!n) continue;
-      out.push({
-        name: `Class Feature — ${n}`,
-        text: String(o?.description || "").trim(),
-      });
-    }
+  for (const option of collectSelectedEntries(visible, selectedFeatureOptionKeys)) {
+    const n = String(option?.name || "").trim();
+    if (!n) continue;
+    out.push({
+      name: `Class Feature - ${n}`,
+      text: String(option?.description || "").trim(),
+    });
   }
 
-  // Selected feats
   const visibleFeats = computeVisibleFeats(selectedClassKey, L);
   const featByName = new Map(visibleFeats.map((f) => [String(f?.name || "").trim(), f]));
 
@@ -321,14 +356,25 @@ function buildAutoAbilities() {
     const feat = featByName.get(name);
     if (!feat) continue;
     out.push({
-      name: `Feat — ${name}`,
+      name: `Feat - ${name}`,
       text: String(feat?.description || "").trim(),
+    });
+  }
+
+  const selectedFeats = Array.from(selectedFeatNames)
+    .map((name) => featByName.get(name))
+    .filter(Boolean);
+  for (const option of collectSelectedEntries(selectedFeats, selectedFeatOptionKeys)) {
+    const n = String(option?.name || "").trim();
+    if (!n) continue;
+    out.push({
+      name: `Feat Option - ${n}`,
+      text: String(option?.description || "").trim(),
     });
   }
 
   return out;
 }
-
 function mergeAbilities(existingAbilities, oldAutoNames, newAutoAbilities) {
   const oldSet = new Set(Array.isArray(oldAutoNames) ? oldAutoNames : []);
   const kept = (Array.isArray(existingAbilities) ? existingAbilities : [])
@@ -395,6 +441,106 @@ function setIncompleteBanner(isIncomplete, reasonText) {
   incompleteReasonEl.textContent = reasonText ? ` ${reasonText}` : "";
 }
 
+function createOptionGroupElement(group, selectedKeys, onChange, depth = 0) {
+  const chooseCount = Number(group?.chooseCount || 0);
+  const opts = Array.isArray(group?.options) ? group.options : [];
+  const gid = buildGroupId(group);
+  const isCollapsed = collapsedGroups.get(gid) ?? false;
+
+  for (const option of opts) {
+    optionByKey.set(buildOptionKey(group, option), option);
+  }
+
+  const container = document.createElement("div");
+  container.className = "optionGroup";
+  if (depth > 0) container.style.marginLeft = "18px";
+
+  const headerBtn = document.createElement("button");
+  headerBtn.type = "button";
+  headerBtn.className = "optionGroupHeader";
+  headerBtn.setAttribute("aria-expanded", String(!isCollapsed));
+
+  const selectedCount = selectedCountForGroup(group, selectedKeys);
+  headerBtn.innerHTML = `
+    <span>${sanitizeText(group.name || "Options", { maxLen: 200 })}</span>
+    <span class="muted">choose ${chooseCount} - ${selectedCount}/${chooseCount}</span>
+  `;
+
+  const body = document.createElement("div");
+  body.className = "optionGroupBody";
+  body.style.display = isCollapsed ? "none" : "block";
+
+  headerBtn.addEventListener("click", () => {
+    const nowCollapsed = !(body.style.display === "none");
+    body.style.display = nowCollapsed ? "none" : "block";
+    collapsedGroups.set(gid, nowCollapsed);
+    headerBtn.setAttribute("aria-expanded", String(!nowCollapsed));
+  });
+
+  if (group.description) {
+    const desc = document.createElement("div");
+    desc.className = "muted";
+    desc.style.margin = "6px 0 10px 0";
+    desc.textContent = String(group.description);
+    body.append(desc);
+  }
+
+  const list = document.createElement("div");
+  list.className = "optionList";
+
+  const picked = selectedCountForGroup(group, selectedKeys);
+  const limitReached = chooseCount > 0 && picked >= chooseCount;
+
+  for (const option of opts) {
+    const key = buildOptionKey(group, option);
+    const checked = selectedKeys.has(key);
+
+    const row = document.createElement("label");
+    row.className = "optionRow";
+
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.dataset.key = key;
+    cb.checked = checked;
+    cb.disabled = !checked && limitReached;
+
+    cb.addEventListener("change", () => {
+      if (cb.checked) {
+        if (chooseCount > 0 && selectedCountForGroup(group, selectedKeys) >= chooseCount) {
+          cb.checked = false;
+          return;
+        }
+        selectedKeys.add(key);
+      } else {
+        selectedKeys.delete(key);
+        deleteSelectedDescendants(option, selectedKeys);
+      }
+      onChange();
+    });
+
+    const title = document.createElement("div");
+    title.className = "optionTitle";
+    title.textContent = String(option.name || "Option");
+
+    const desc = document.createElement("div");
+    desc.className = "muted optionDesc";
+    desc.textContent = String(option.description || "");
+
+    const textWrap = document.createElement("div");
+    textWrap.append(title, desc);
+    row.append(cb, textWrap);
+    list.append(row);
+
+    if (checked && isOptionGroup(option)) {
+      list.append(createOptionGroupElement(option, selectedKeys, onChange, depth + 1));
+    }
+  }
+
+  body.append(list);
+  container.append(headerBtn, body);
+  return container;
+}
+
 function renderFeatures() {
   if (!featuresEl) return;
   featuresEl.innerHTML = "";
@@ -430,121 +576,8 @@ function renderFeatures() {
     }
 
     if (type === "optionGroup") {
-      const chooseCount = Number(f?.chooseCount || 0);
-      const opts = Array.isArray(f?.options) ? f.options : [];
-      const gid = buildGroupId(f);
-      // Expanded by default.
-      const isCollapsed = collapsedGroups.get(gid) ?? false;
-
-      // Map options for pruning and later ability generation
-      for (const o of opts) {
-        const ok = buildOptionKey(f, o);
-        optionByKey.set(ok, o);
-      }
-
-      const container = document.createElement("div");
-      container.className = "optionGroup";
-
-      const headerBtn = document.createElement("button");
-      headerBtn.type = "button";
-      headerBtn.className = "optionGroupHeader";
-      headerBtn.setAttribute("aria-expanded", String(!isCollapsed));
-
-      const selectedCount = opts
-        .map((o) => buildOptionKey(f, o))
-        .filter((k) => selectedFeatureOptionKeys.has(k)).length;
-
-      headerBtn.innerHTML = `
-        <span>${sanitizeText(f.name || "Options", { maxLen: 200 })}</span>
-        <span class="muted">choose ${chooseCount} • ${selectedCount}/${chooseCount}</span>
-      `;
-
-      const body = document.createElement("div");
-      body.className = "optionGroupBody";
-      body.style.display = isCollapsed ? "none" : "block";
-
-      headerBtn.addEventListener("click", () => {
-        const nowCollapsed = !(body.style.display === "none");
-        body.style.display = nowCollapsed ? "none" : "block";
-        collapsedGroups.set(gid, nowCollapsed);
-        headerBtn.setAttribute("aria-expanded", String(!nowCollapsed));
-      });
-
-      if (f.description) {
-        const desc = document.createElement("div");
-        desc.className = "muted";
-        desc.style.margin = "6px 0 10px 0";
-        desc.textContent = String(f.description);
-        body.append(desc);
-      }
-
-      const list = document.createElement("div");
-      list.className = "optionList";
-
-      const updateOptionDisables = () => {
-        const keys = opts.map((o) => buildOptionKey(f, o));
-        const picked = keys.filter((k) => selectedFeatureOptionKeys.has(k)).length;
-        const limitReached = chooseCount > 0 && picked >= chooseCount;
-        const boxes = list.querySelectorAll("input[type=checkbox]");
-        boxes.forEach((box) => {
-          const k = String(box.dataset.key || "");
-          if (!k) return;
-          if (box.checked) {
-            box.disabled = false;
-          } else {
-            box.disabled = limitReached;
-          }
-        });
-      };
-
-      for (const o of opts) {
-        const k = buildOptionKey(f, o);
-        const row = document.createElement("label");
-        row.className = "optionRow";
-
-        const cb = document.createElement("input");
-        cb.type = "checkbox";
-        cb.dataset.key = k;
-        cb.checked = selectedFeatureOptionKeys.has(k);
-
-        cb.addEventListener("change", () => {
-          if (cb.checked) {
-            // Enforce max
-            const keys = opts.map((x) => buildOptionKey(f, x));
-            const picked = keys.filter((kk) => selectedFeatureOptionKeys.has(kk)).length;
-            if (chooseCount > 0 && picked >= chooseCount) {
-              cb.checked = false;
-              return;
-            }
-            selectedFeatureOptionKeys.add(k);
-          } else {
-            selectedFeatureOptionKeys.delete(k);
-          }
-          // re-render header counts without losing collapse state
-          renderFeatures();
-        });
-
-        const title = document.createElement("div");
-        title.className = "optionTitle";
-        title.textContent = String(o.name || "Option");
-
-        const desc = document.createElement("div");
-        desc.className = "muted optionDesc";
-        desc.textContent = String(o.description || "");
-
-        const textWrap = document.createElement("div");
-        textWrap.append(title, desc);
-
-        row.append(cb, textWrap);
-        list.append(row);
-      }
-
-      body.append(list);
-      container.append(headerBtn, body);
-      featuresEl.append(container);
-
-      // After mounting, enforce disables
-      updateOptionDisables();
+      featuresEl.append(createOptionGroupElement(f, selectedFeatureOptionKeys, renderFeatures));
+      continue;
     }
   }
 }
@@ -606,6 +639,7 @@ function renderFeats() {
         selectedFeatNames.add(name);
       } else {
         selectedFeatNames.delete(name);
+        deleteSelectedDescendants(feat, selectedFeatOptionKeys);
       }
       renderFeats();
     });
@@ -623,6 +657,10 @@ function renderFeats() {
 
     row.append(cb, textWrap);
     list.append(row);
+
+    if (cb.checked && isOptionGroup(feat)) {
+      list.append(createOptionGroupElement(feat, selectedFeatOptionKeys, renderFeats, 1));
+    }
   }
 
   featsEl.append(list);
@@ -694,6 +732,7 @@ async function saveClassStep({ openSheetAfter = false, intent = "save" } = {}) {
       "builder.primaryAttribute": sanitizeText(selectedPrimary, { maxLen: 32 }),
       "builder.selectedClassFeatureOptions": Array.from(selectedFeatureOptionKeys),
       "builder.selectedFeats": Array.from(selectedFeatNames),
+      "builder.selectedFeatOptions": Array.from(selectedFeatOptionKeys),
       ...(classChanged ? { "builder.selectedTechniques": [] } : {}),
       "builder.autoAbilityNames": autoNames,
       "builder.sheet.repeatables.abilities": mergedAbilities,
@@ -715,6 +754,7 @@ async function saveClassStep({ openSheetAfter = false, intent = "save" } = {}) {
       primaryAttribute: selectedPrimary,
       selectedClassFeatureOptions: Array.from(selectedFeatureOptionKeys),
       selectedFeats: Array.from(selectedFeatNames),
+      selectedFeatOptions: Array.from(selectedFeatOptionKeys),
       ...(classChanged ? { selectedTechniques: [] } : {}),
       autoAbilityNames: autoNames,
       sheet: {
@@ -770,7 +810,7 @@ async function main() {
     gameData = await loadGameXData();
 
     // Populate dropdown
-    const classes = Array.isArray(gameData?.classes) ? gameData.classes.slice() : [];
+    const classes = getGameXClasses(gameData).slice();
     classes.sort((a, b) => String(a?.name || a?.classKey || "").localeCompare(String(b?.name || b?.classKey || "")));
 
     classSelectEl.innerHTML = `<option value="">— Choose —</option>` +
@@ -790,6 +830,7 @@ async function main() {
     selectedPrimary = String(currentDoc?.builder?.primaryAttribute || "");
     selectedFeatureOptionKeys = new Set(Array.isArray(currentDoc?.builder?.selectedClassFeatureOptions) ? currentDoc.builder.selectedClassFeatureOptions : []);
     selectedFeatNames = new Set(Array.isArray(currentDoc?.builder?.selectedFeats) ? currentDoc.builder.selectedFeats : []);
+    selectedFeatOptionKeys = new Set(Array.isArray(currentDoc?.builder?.selectedFeatOptions) ? currentDoc.builder.selectedFeatOptions : []);
 
     if (selectedClassKey) classSelectEl.value = selectedClassKey;
 
@@ -800,6 +841,7 @@ async function main() {
       selectedPrimary = "";
       selectedFeatureOptionKeys = new Set();
       selectedFeatNames = new Set();
+      selectedFeatOptionKeys = new Set();
       updateUiForSelection();
       renderNav();
     });

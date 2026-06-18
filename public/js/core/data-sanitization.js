@@ -218,7 +218,9 @@ export function buildCharacterKeystoneEntries(builder) {
 }
 export function buildGroupId(group) {
   const cls = sanitizeText(group?.classKey || "", { maxLen: 64, collapse: true });
-  const lvl = Number.isFinite(group?.level) ? group.level : 0;
+  const rawLevel = group?.level ?? group?.minLevel;
+  const parsedLevel = Number.parseInt(String(rawLevel ?? ""), 10);
+  const lvl = Number.isFinite(parsedLevel) ? parsedLevel : 0;
   const name = sanitizeText(group?.name || "", { maxLen: 96, collapse: true });
   return `${cls}|L${lvl}|${name}`;
 }
