@@ -5,6 +5,7 @@
     "description": "A sturdy improvised club suited to straightforward heavy swings.",
     "minRank": 0,
     "tags": [
+      "Melee",
       "Blunt",
       "Two-Handed"
     ],
@@ -101,6 +102,7 @@
     "description": "A small improvised blade that is easy to carry and dangerous up close.",
     "minRank": 0,
     "tags": [
+      "Melee",
       "Sharp",
       "One-Handed"
     ],
@@ -294,6 +296,7 @@
     "description": "A long improvised staff that can keep foes a little farther away.",
     "minRank": 0,
     "tags": [
+      "Melee",
       "Reach +1",
       "Blunt",
       "Two-Handed",
@@ -392,6 +395,7 @@
     "description": "A standard all-purpose sword that balances control, damage, and flexible grip.",
     "minRank": 1,
     "tags": [
+      "Melee",
       "Sharp",
       "Versatile"
     ],
@@ -488,6 +492,7 @@
     "description": "A two-handed sword built around precision cuts and quick-draw strikes.",
     "minRank": 1,
     "tags": [
+      "Melee",
       "Sharp",
       "Two-Handed"
     ],
@@ -947,6 +952,7 @@
     "description": "A massive two-handed blade built for heavy cleaving strikes.",
     "minRank": 1,
     "tags": [
+      "Melee",
       "Sharp",
       "Two-Handed",
       "Heavy"
@@ -1044,6 +1050,7 @@
     "description": "A defensive weapon used to block attacks and bash enemies backward.",
     "minRank": 1,
     "tags": [
+      "Melee",
       "Defensive",
       "One-Handed",
       "Blunt"
@@ -1189,6 +1196,7 @@
     "description": "A chopping weapon that hits hard and tears through armor.",
     "minRank": 1,
     "tags": [
+      "Melee",
       "Versatile",
       "Sharp",
       "Armor-Piercing 1"
@@ -1286,6 +1294,7 @@
     "description": "A heavy blunt weapon built to crush tough targets and leave them reeling.",
     "minRank": 1,
     "tags": [
+      "Melee",
       "Blunt",
       "Two-Handed",
       "Heavy"
@@ -1383,6 +1392,7 @@
     "description": "A versatile polearm that combines extended melee reach with thrown utility.",
     "minRank": 1,
     "tags": [
+      "Melee",
       "Sharp",
       "Reach +1",
       "Versatile",
@@ -1449,6 +1459,7 @@
     "description": "A balanced blunt weapon suited to defense, control, and sweeping strikes.",
     "minRank": 1,
     "tags": [
+      "Melee",
       "Defensive",
       "Versatile",
       "Double-Ended",

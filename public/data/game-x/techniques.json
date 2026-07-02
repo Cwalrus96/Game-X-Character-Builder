@@ -174,7 +174,12 @@
     "damageByRank": null,
     "pumpDamageByRank": null,
     "rankNotes": null,
-    "prerequisites": "Blunt Weapon",
+    "prerequisites": [
+      {
+        "type": "text",
+        "text": "Blunt Weapon"
+      }
+    ],
     "sourceNote": null
   },
   {
@@ -345,7 +350,12 @@
     "damageByRank": null,
     "pumpDamageByRank": null,
     "rankNotes": null,
-    "prerequisites": "Sharp Melee weapon",
+    "prerequisites": [
+      {
+        "type": "text",
+        "text": "Sharp Melee weapon"
+      }
+    ],
     "sourceNote": null
   },
   {
@@ -514,7 +524,12 @@
     "damageByRank": null,
     "pumpDamageByRank": null,
     "rankNotes": null,
-    "prerequisites": "Heavy or Two-Handed Weapon",
+    "prerequisites": [
+      {
+        "type": "text",
+        "text": "Heavy or Two-Handed Weapon"
+      }
+    ],
     "sourceNote": null
   },
   {
@@ -671,7 +686,12 @@
     "damageByRank": null,
     "pumpDamageByRank": null,
     "rankNotes": null,
-    "prerequisites": "Wielding 2 Melee Weapons - one in each hand.",
+    "prerequisites": [
+      {
+        "type": "text",
+        "text": "Wielding 2 Melee Weapons - one in each hand."
+      }
+    ],
     "sourceNote": null
   },
   {
@@ -1202,7 +1222,12 @@
     "damageByRank": null,
     "pumpDamageByRank": null,
     "rankNotes": null,
-    "prerequisites": "Melee weapon without the \"Defensive\" tag",
+    "prerequisites": [
+      {
+        "type": "text",
+        "text": "Melee weapon without the \"Defensive\" tag"
+      }
+    ],
     "sourceNote": null
   },
   {
@@ -1267,7 +1292,12 @@
     "damageByRank": null,
     "pumpDamageByRank": null,
     "rankNotes": null,
-    "prerequisites": "Melee weapon with reach +1 or higher",
+    "prerequisites": [
+      {
+        "type": "text",
+        "text": "Melee weapon with reach +1 or higher"
+      }
+    ],
     "sourceNote": null
   },
   {
@@ -1329,7 +1359,12 @@
     "damageByRank": null,
     "pumpDamageByRank": null,
     "rankNotes": null,
-    "prerequisites": "Melee Weapon",
+    "prerequisites": [
+      {
+        "type": "text",
+        "text": "Melee Weapon"
+      }
+    ],
     "sourceNote": null
   },
   {
@@ -1391,7 +1426,12 @@
     "damageByRank": null,
     "pumpDamageByRank": null,
     "rankNotes": null,
-    "prerequisites": "Melee Weapon",
+    "prerequisites": [
+      {
+        "type": "text",
+        "text": "Melee Weapon"
+      }
+    ],
     "sourceNote": null
   },
   {
@@ -1549,7 +1589,12 @@
     "damageByRank": null,
     "pumpDamageByRank": null,
     "rankNotes": null,
-    "prerequisites": "Ranged Weapon",
+    "prerequisites": [
+      {
+        "type": "text",
+        "text": "Ranged Weapon"
+      }
+    ],
     "sourceNote": null
   },
   {
@@ -1580,7 +1625,12 @@
     "damageByRank": null,
     "pumpDamageByRank": null,
     "rankNotes": null,
-    "prerequisites": "Sharp weapon that is Ranged or Thrown",
+    "prerequisites": [
+      {
+        "type": "text",
+        "text": "Sharp weapon that is Ranged or Thrown"
+      }
+    ],
     "sourceNote": null
   },
   {
@@ -1642,7 +1692,12 @@
     "damageByRank": null,
     "pumpDamageByRank": null,
     "rankNotes": null,
-    "prerequisites": "Defensive Weapon",
+    "prerequisites": [
+      {
+        "type": "text",
+        "text": "Defensive Weapon"
+      }
+    ],
     "sourceNote": null
   },
   {
@@ -1735,7 +1790,12 @@
     "damageByRank": null,
     "pumpDamageByRank": null,
     "rankNotes": null,
-    "prerequisites": "Thrown Weapon",
+    "prerequisites": [
+      {
+        "type": "text",
+        "text": "Thrown Weapon"
+      }
+    ],
     "sourceNote": null
   },
   {
@@ -2035,7 +2095,12 @@
     "damageByRank": null,
     "pumpDamageByRank": null,
     "rankNotes": null,
-    "prerequisites": "Ranged or Thrown Weapon",
+    "prerequisites": [
+      {
+        "type": "text",
+        "text": "Ranged or Thrown Weapon"
+      }
+    ],
     "sourceNote": null
   },
   {
@@ -2066,7 +2131,12 @@
     "damageByRank": null,
     "pumpDamageByRank": null,
     "rankNotes": null,
-    "prerequisites": "Heavy Weapon",
+    "prerequisites": [
+      {
+        "type": "text",
+        "text": "Heavy Weapon"
+      }
+    ],
     "sourceNote": null
   },
   {
@@ -2346,7 +2416,12 @@
     "damageByRank": null,
     "pumpDamageByRank": null,
     "rankNotes": null,
-    "prerequisites": "Thrown Weapon",
+    "prerequisites": [
+      {
+        "type": "text",
+        "text": "Thrown Weapon"
+      }
+    ],
     "sourceNote": null
   },
   {
@@ -2728,7 +2803,12 @@
     "damageByRank": null,
     "pumpDamageByRank": null,
     "rankNotes": null,
-    "prerequisites": "Sharp Weapon",
+    "prerequisites": [
+      {
+        "type": "text",
+        "text": "Sharp Weapon"
+      }
+    ],
     "sourceNote": null
   },
   {

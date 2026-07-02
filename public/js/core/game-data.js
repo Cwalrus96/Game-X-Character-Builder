@@ -232,6 +232,7 @@ export function createCharacterGrantCollection(gameData, builder) {
     techniqueChoiceGrants: byType.get("technique-choice") || [],
     weaponGrants: byType.get("weapon") || [],
     weaponEnhancementGrants: byType.get("weapon-enhancement") || [],
+    specializationGrants: byType.get("specialization") || [],
   };
 }
 

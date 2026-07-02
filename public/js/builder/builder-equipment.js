@@ -14,6 +14,7 @@ import { renderBuilderNavMounts } from "./builder-nav.js";
 import { buildWeaponsUpdatePatch } from "../core/database-writer.js";
 import { escapeHtml, sanitizeNamedSkillList, sanitizeText } from "../core/data-sanitization.js";
 import { loadGameXData, computeGrantedSkillsState, createCharacterGrantCollection, getGameXWeaponBases, getGameXWeaponEnhancements } from "../core/game-data.js";
+import { formatPrerequisites } from "../core/prerequisites.js";
 import {
   computeTotalWeaponSlots,
   computeWeaponSlotCost,
@@ -88,7 +89,10 @@ function compareByName(a, b) {
 
 function countEnhancements(weapons) {
   const list = Array.isArray(weapons) ? weapons : [];
-  return list.reduce((sum, weapon) => sum + (Array.isArray(weapon?.enhancements) ? weapon.enhancements.length : 0), 0);
+  return list.reduce((sum, weapon) => {
+    const enhancements = Array.isArray(weapon?.enhancements) ? weapon.enhancements : [];
+    return sum + enhancements.filter((enhancement) => !enhancement?.granted).length;
+  }, 0);
 }
 
 function getGrantedEnhancementSlots() {
@@ -147,6 +151,17 @@ function getWeaponSkillRankCap(weaponDef, skillRanks) {
   return relevantSkills.reduce((maxRank, skillName) => Math.max(maxRank, Number(skillRanks?.[skillName] || 0)), 0);
 }
 
+function getPrerequisiteContext() {
+  return {
+    gameData,
+    builder: {
+      ...(currentDoc?.builder || {}),
+      weapons: currentWeapons,
+    },
+    grantedSkillState,
+  };
+}
+
 function formatSkillRankLabel(weaponDef, skillRanks) {
   const relevantSkills = getWeaponSkillNames(weaponDef);
   if (!relevantSkills.length) return "No attack skill found.";
@@ -166,7 +181,7 @@ function getVisibleEnhancements(weapon) {
   return weaponEnhancements.filter((enhancement) => {
     if (!enhancement) return false;
     if (!showOutOfRank && Number(enhancement.minRank || 0) > Number(weapon?.rank || 0)) return false;
-    return isEnhancementCompatible(enhancement, weapon, weaponBases);
+    return isEnhancementCompatible(enhancement, weapon, weaponBases, getPrerequisiteContext());
   });
 }
 
@@ -269,7 +284,7 @@ function collectWeaponWarnings(weapon, skillRanks) {
     const minEnhancementRank = Number(enhancementDef?.minRank || 0);
     if (enhancementRank < minEnhancementRank) warnings.push(`${enhancementDef.name} is below its minimum rank (${minEnhancementRank}).`);
     if (enhancementRank > selectedRank) warnings.push(`${enhancementDef.name} exceeds this weapon's rank.`);
-    if (!isEnhancementCompatible(enhancementDef, weapon, weaponBases)) warnings.push(`${enhancementDef.name} does not meet this weapon's prerequisites.`);
+    if (!isEnhancementCompatible(enhancementDef, weapon, weaponBases, getPrerequisiteContext())) warnings.push(`${enhancementDef.name} does not meet this weapon's prerequisites.`);
 
     for (const spec of getEnhancementSelectionSpecs(enhancement?.enhancementKey)) {
       const value = sanitizeText(enhancement?.selections?.[spec.key], { maxLen: 96, collapse: true });
@@ -284,6 +299,9 @@ function normalizeWeaponForUi(rawWeapon) {
   const weapon = (rawWeapon && typeof rawWeapon === "object") ? rawWeapon : {};
   return {
     id: sanitizeText(weapon.id || makeLocalId("w"), { maxLen: 64, collapse: true }),
+    choiceId: sanitizeText(weapon.choiceId || "", { maxLen: 96, collapse: true }),
+    sourceChoiceId: sanitizeText(weapon.sourceChoiceId || "", { maxLen: 96, collapse: true }),
+    generated: weapon.generated === true || weapon.generated === "true" || weapon.generated === 1 || weapon.generated === "1",
     weaponKey: sanitizeText(weapon.weaponKey || "", { maxLen: 64, collapse: true }),
     rank: Number.parseInt(String(weapon.rank ?? 0), 10) || 0,
     customName: sanitizeText(weapon.customName || "", { maxLen: 120, collapse: true }),
@@ -293,6 +311,7 @@ function normalizeWeaponForUi(rawWeapon) {
           enhancementKey: sanitizeText(enhancement?.enhancementKey || "", { maxLen: 64, collapse: true }),
           rank: Number.parseInt(String(enhancement?.rank ?? 0), 10) || 0,
           selections: (enhancement?.selections && typeof enhancement.selections === "object" && !Array.isArray(enhancement.selections)) ? { ...enhancement.selections } : {},
+          ...(enhancement?.granted ? { granted: true } : {}),
         }))
       : [],
   };
@@ -338,6 +357,7 @@ function renderWeapons() {
     const warningsHtml = weaponWarnings.length ? `<ul class="warningList">${weaponWarnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join("")}</ul>` : "";
 
     const enhancements = Array.isArray(weapon.enhancements) ? weapon.enhancements : [];
+    const usedEnhancementSlots = enhancements.filter((enhancement) => !enhancement?.granted).length;
     const enhancementCapacity = getWeaponEnhancementCapacity(weapon);
     const grantedEnhancementSlots = getGrantedEnhancementSlots();
     const enhancementRowsHtml = enhancements.length ? enhancements.map((enhancement, enhancementIndex) => {
@@ -348,7 +368,7 @@ function renderWeapons() {
       const enhancementRankOptions = buildRankOptions(minEnhancementRank, Math.max(minEnhancementRank, Number(weapon.rank || 0)), enhancementRank);
       const selectionFields = buildEnhancementSelectionFields(enhancement, weaponIndex, enhancementIndex);
       const detailHtml = renderEnhancementDetailHtml(enhancementDef, enhancement, { collapsible: false });
-      const prereq = sanitizeText(enhancementDef?.prerequisites || "", { maxLen: 200, collapse: true });
+      const prereq = sanitizeText(formatPrerequisites(enhancementDef?.prerequisites), { maxLen: 300, collapse: true });
       return `
         <div class="optionRow equipmentEnhancementRow" data-enhancement-index="${enhancementIndex}">
           <div class="equipmentEnhancementMain">
@@ -412,7 +432,7 @@ function renderWeapons() {
             <h3>Enhancements</h3>
             <button class="btn" type="button" data-add-enhancement="${weaponIndex}">Add Enhancement</button>
           </div>
-          <div class="help">${enhancements.length} / ${enhancementCapacity} slot${enhancementCapacity === 1 ? "" : "s"} used${grantedEnhancementSlots ? ` (${grantedEnhancementSlots} granted)` : ""}.</div>
+          <div class="help">${usedEnhancementSlots} / ${enhancementCapacity} slot${enhancementCapacity === 1 ? "" : "s"} used${grantedEnhancementSlots ? ` (${grantedEnhancementSlots} granted)` : ""}.</div>
           <div class="optionList">${enhancementRowsHtml}</div>
         </div>
       </section>`;

@@ -115,7 +115,7 @@
         "classKey": "magical-guardian",
         "minLevel": 2,
         "featKey": "celestial-knight-melee-weapons",
-        "name": "Celestial Knight Melee Weapons",
+        "name": "Melee Weapons",
         "prerequisites": null,
         "description": null,
         "grants": [
@@ -135,7 +135,7 @@
         "classKey": "magical-guardian",
         "minLevel": 2,
         "featKey": "celestial-knight-targeting",
-        "name": "Celestial Knight Targeting",
+        "name": "Targeting",
         "prerequisites": null,
         "description": null,
         "grants": [
@@ -272,7 +272,12 @@
     "minLevel": null,
     "featKey": "monster-fusion",
     "name": "Monster Fusion",
-    "prerequisites": "Multiple Simultaneous Summons",
+    "prerequisites": [
+      {
+        "type": "text",
+        "text": "Multiple Simultaneous Summons"
+      }
+    ],
     "description": "Choose two of your Monster Companions. If both creatures are summoned you may spend 1 action and X energy to fuse them into a single creature.",
     "grants": [],
     "grantNotes": "Exact minLevel unspecified in handbook.",
@@ -285,7 +290,12 @@
     "minLevel": null,
     "featKey": "multiple-simultaneous-summons",
     "name": "Multiple Simultaneous Summons",
-    "prerequisites": "Multiple Monster Companions",
+    "prerequisites": [
+      {
+        "type": "text",
+        "text": "Multiple Monster Companions"
+      }
+    ],
     "description": "Higher level feat. Allows summoning two Monster Companions at once.",
     "grants": [],
     "grantNotes": "Exact minLevel unspecified in handbook.",
@@ -506,7 +516,12 @@
     "minLevel": 2,
     "featKey": "soulbound-pair",
     "name": "Soulbound Pair",
-    "prerequisites": "One-handed soulbound weapon",
+    "prerequisites": [
+      {
+        "type": "text",
+        "text": "One-handed soulbound weapon"
+      }
+    ],
     "description": "You gain a second one-handed soulbound weapon. Both weapons are treated as a single weapon - they can both be summoned as part of the same action, and any weapon enhancements on your soulbound weapon apply to both (as long as they meet the prerequisites).",
     "grants": [],
     "grantNotes": null,

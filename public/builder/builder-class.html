@@ -55,16 +55,30 @@
       <section class="card">
         <div class="cardHeaderRow">
           <h2>Class Features</h2>
-          <span class="muted" id="featureHint"></span>
+          <div class="builderToolbar">
+            <label class="toggleRow">
+              <input id="showUnavailableFeatures" type="checkbox" checked />
+              <span>Show unavailable</span>
+            </label>
+            <span class="muted" id="featureHint"></span>
+          </div>
         </div>
+        <div id="featurePrereqNotice" class="warn prerequisiteNotice" style="display:none"></div>
         <div id="features"></div>
       </section>
 
       <section class="card">
         <div class="cardHeaderRow">
           <h2>Feats</h2>
-          <span class="muted" id="featHint"></span>
+          <div class="builderToolbar">
+            <label class="toggleRow">
+              <input id="showUnavailableFeats" type="checkbox" checked />
+              <span>Show unavailable</span>
+            </label>
+            <span class="muted" id="featHint"></span>
+          </div>
         </div>
+        <div id="featPrereqNotice" class="warn prerequisiteNotice" style="display:none"></div>
         <div id="feats"></div>
       </section>
 

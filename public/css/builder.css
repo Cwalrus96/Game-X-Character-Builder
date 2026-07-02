@@ -536,8 +536,61 @@ textarea {
   background: rgba(255, 255, 255, 0.68);
 }
 
+.optionRow.isUnavailable {
+  background: rgba(240, 240, 240, 0.58);
+  border-color: rgba(23, 25, 32, 0.12);
+  color: rgba(23, 25, 32, 0.58);
+}
+
+.optionRow.isUnavailable .optionTitle,
+.optionRow.isUnavailable .optionDesc {
+  color: rgba(23, 25, 32, 0.58);
+}
+
+.optionRow.isUnavailable input[type="checkbox"] {
+  cursor: not-allowed;
+}
+
 .optionRow input[type="checkbox"] {
   margin-top: 3px;
+}
+
+.builderToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.toggleRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--builder-card-muted);
+  font-size: 0.92rem;
+}
+
+.toggleRow input[type="checkbox"] {
+  margin: 0;
+}
+
+.prerequisiteNotice {
+  margin: 0 0 10px 0;
+}
+
+.grantChoiceWidgets {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 10px;
+  border: 2px solid rgba(23, 25, 32, 0.12);
+  background: rgba(255, 250, 242, 0.72);
+}
+
+.grantChoiceWidget {
+  display: grid;
+  gap: 6px;
 }
 
 .builderItem {

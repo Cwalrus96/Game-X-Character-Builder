@@ -35,6 +35,7 @@ import {
 } from "../core/game-data.js";
 
 import { sanitizeNamedSkillList, sanitizeText } from "../core/data-sanitization.js";
+import { meetsPrerequisites } from "../core/prerequisites.js";
 import { renderTechniqueProfileHtml } from "../core/technique-utils.js";
 
 const CURRENT_STEP_ID = "techniques";
@@ -125,12 +126,22 @@ function passesSearch(t) {
 function passesKnownSkillFilter(t) {
   const name = String(t?.techniqueName || "").trim();
   if (name && grantedTechniqueNames.has(name)) return true;
+  if (!passesTechniquePrerequisites(t)) return false;
   if (!filterKnownSkills) return true;
   const skill = String(t?.skill || "").trim();
   if (!skill) return false;
   if (techniqueChoiceGrants.some((grant) => grantMatchesTechniqueChoice(grant, t))) return true;
   if (!knownCombatSkills.has(skill)) return false;
   return getTechniqueSkillRank(t) >= Number.parseInt(String(t?.rank ?? 0), 10);
+}
+
+function passesTechniquePrerequisites(technique) {
+  return meetsPrerequisites(technique?.prerequisites, {
+    gameData,
+    builder: currentDoc?.builder || {},
+    grantedSkillState,
+    deferUnresolvedChoices: true,
+  });
 }
 
 function deriveSkillsAndGrants() {

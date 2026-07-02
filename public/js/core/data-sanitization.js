@@ -154,8 +154,9 @@ export function sanitizeWeaponEnhancementList(value, { maxItems = 20 } = {}) {
     const enhancementKey = normalizeEnumToken(row.enhancementKey, { maxLen: 64 });
     const rank = toInt(row.rank, { min: 0, max: 8 });
     const selections = sanitizeWeaponEnhancementSelections(row.selections);
+    const granted = row.granted === true || row.granted === "true" || row.granted === 1 || row.granted === "1";
     if (!id && !enhancementKey) continue;
-    out.push({ id, enhancementKey, rank, selections });
+    out.push({ id, enhancementKey, rank, selections, ...(granted ? { granted: true } : {}) });
     if (out.length >= maxItems) break;
   }
   return out;
@@ -167,13 +168,47 @@ export function sanitizeWeaponList(value, { maxItems = 20 } = {}) {
   for (const item of arr) {
     const row = (item && typeof item === "object") ? item : {};
     const id = sanitizeText(row.id, { maxLen: 64, collapse: true });
+    const choiceId = sanitizeText(row.choiceId, { maxLen: 96, collapse: true });
+    const sourceChoiceId = sanitizeText(row.sourceChoiceId, { maxLen: 96, collapse: true });
     const weaponKey = normalizeEnumToken(row.weaponKey, { maxLen: 64 });
     const rank = toInt(row.rank, { min: 0, max: 8 });
     const customName = sanitizeText(row.customName, { maxLen: 120, collapse: true });
     const enhancements = sanitizeWeaponEnhancementList(row.enhancements, { maxItems: 20 });
+    const generated = row.generated === true || row.generated === "true" || row.generated === 1 || row.generated === "1";
     if (!id && !weaponKey && !customName && !enhancements.length) continue;
-    out.push({ id, weaponKey, rank, customName, enhancements });
+    out.push({
+      id,
+      ...(choiceId ? { choiceId } : {}),
+      ...(sourceChoiceId ? { sourceChoiceId } : {}),
+      ...(generated ? { generated: true } : {}),
+      weaponKey,
+      rank,
+      customName,
+      enhancements,
+    });
     if (out.length >= maxItems) break;
+  }
+  return out;
+}
+
+export function sanitizeGrantChoices(value, { maxItems = 100 } = {}) {
+  const src = (value && typeof value === "object" && !Array.isArray(value)) ? value : {};
+  const out = {};
+  for (const [rawChoiceId, rawChoice] of Object.entries(src)) {
+    const choiceId = sanitizeText(rawChoiceId, { maxLen: 96, collapse: true });
+    const choice = (rawChoice && typeof rawChoice === "object" && !Array.isArray(rawChoice)) ? rawChoice : {};
+    if (!choiceId) continue;
+
+    const type = normalizeEnumToken(choice.type, { maxLen: 64 });
+    const weaponKey = normalizeEnumToken(choice.weaponKey, { maxLen: 64 });
+    const rank = toInt(choice.rank, { min: 0, max: 8 });
+    const customName = sanitizeText(choice.customName, { maxLen: 120, collapse: true });
+    const enhancements = sanitizeWeaponEnhancementList(choice.enhancements, { maxItems: 20 });
+    const tags = sanitizeStringArray(choice.tags, { maxItems: 50, maxLen: 96 });
+
+    if (!type && !weaponKey && !customName && !enhancements.length && !tags.length) continue;
+    out[choiceId] = { choiceId, type, weaponKey, rank, customName, enhancements, tags };
+    if (Object.keys(out).length >= maxItems) break;
   }
   return out;
 }

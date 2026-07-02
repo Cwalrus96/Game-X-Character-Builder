@@ -1,4 +1,5 @@
 import { sanitizeText, safeHtmlText } from "./data-sanitization.js";
+import { getEntryPrerequisites, meetsPrerequisites } from "./prerequisites.js";
 import { renderTagChipsHtml, renderTechniqueProfileHtml } from "./technique-utils.js";
 
 export function getWeaponDef(weaponBases, weaponKey) {
@@ -86,10 +87,10 @@ export function computeTotalWeaponSlots(weapons, weaponBases) {
   return (Array.isArray(weapons) ? weapons : []).reduce((sum, weapon) => sum + computeWeaponSlotCost(weapon, weaponBases), 0);
 }
 
-export function isEnhancementCompatible(enhancementDef, weapon, weaponBases) {
+export function isEnhancementCompatible(enhancementDef, weapon, weaponBases, prerequisiteContext = {}) {
   if (!enhancementDef || !weapon) return false;
-  const prereq = String(enhancementDef?.prerequisites || "None").trim();
-  if (!prereq || /^none$/i.test(prereq)) return true;
+  const prerequisites = getEntryPrerequisites(enhancementDef);
+  if (!prerequisites.length) return true;
 
   const weaponDef = getWeaponDef(weaponBases, weapon.weaponKey);
   const tags = getEffectiveTags(weapon, weaponBases);
@@ -97,10 +98,17 @@ export function isEnhancementCompatible(enhancementDef, weapon, weaponBases) {
   const hasMeleeProfile = basicProfiles.some((profile) => String(profile?.skill || "") === "Melee Weapons");
   const hasRangedProfile = basicProfiles.some((profile) => String(profile?.skill || "") === "Targeting");
 
-  if (/requires\s+"thrown"\s+tag/i.test(prereq)) return hasTag(tags, "thrown");
-  if (/melee weapon only/i.test(prereq)) return hasMeleeProfile;
-  if (/ranged weapon only/i.test(prereq)) return hasRangedProfile;
-  if (/heavy weapon concept/i.test(prereq)) return hasTag(tags, "heavy");
+  for (const prereq of prerequisites) {
+    if (prereq.type !== "text" && !meetsPrerequisites([prereq], { ...prerequisiteContext, tags })) return false;
+    if (prereq.type !== "text") continue;
+
+    const text = String(prereq.text || "").trim();
+    if (!text || /^none$/i.test(text)) continue;
+    if (/requires\s+"thrown"\s+tag/i.test(text) && !hasTag(tags, "thrown")) return false;
+    if (/melee weapon only/i.test(text) && !hasMeleeProfile) return false;
+    if (/ranged weapon only/i.test(text) && !hasRangedProfile) return false;
+    if (/heavy weapon concept/i.test(text) && !hasTag(tags, "heavy")) return false;
+  }
 
   return true;
 }

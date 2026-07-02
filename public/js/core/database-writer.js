@@ -17,6 +17,7 @@ import {
   sanitizeRepeatableAbilities,
   sanitizeBondList,
   sanitizeWeaponList,
+  sanitizeGrantChoices,
   toInt,
 } from "./data-sanitization.js";
 
@@ -178,6 +179,10 @@ export function sanitizeUpdatePatch(patch) {
 
   if (Object.prototype.hasOwnProperty.call(out, "builder.weapons")) {
     out["builder.weapons"] = sanitizeWeaponList(out["builder.weapons"], { maxItems: 20 });
+  }
+
+  if (Object.prototype.hasOwnProperty.call(out, "builder.grantChoices")) {
+    out["builder.grantChoices"] = sanitizeGrantChoices(out["builder.grantChoices"], { maxItems: 100 });
   }
 
   // Repeatables we currently understand

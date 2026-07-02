@@ -12,6 +12,7 @@ import {
   sanitizeBondList,
   sanitizeKeystoneList,
   sanitizeWeaponList,
+  sanitizeGrantChoices,
   toInt,
 } from "./data-sanitization.js";
 
@@ -59,6 +60,7 @@ export function createDefaultCharacterDoc({ ownerUid } = {}) {
       bonds: [],
       backgroundKeystones: [],
       weapons: [],
+      grantChoices: {},
 
       visitedSteps: [],
       lastVisitedAt: null,
@@ -133,6 +135,7 @@ export function normalizeCharacterDoc(raw) {
       bonds: sanitizeBondList(b.bonds, { maxItems: 50 }),
       backgroundKeystones: sanitizeKeystoneList(b.backgroundKeystones, { maxItems: 2, maxLen: 400 }),
       weapons: sanitizeWeaponList(b.weapons, { maxItems: 20 }),
+      grantChoices: sanitizeGrantChoices(b.grantChoices, { maxItems: 100 }),
 
       visitedSteps: sanitizeStringArray(b.visitedSteps, { maxItems: 50, maxLen: 64 }),
       lastVisitedAt: b.lastVisitedAt ?? null,

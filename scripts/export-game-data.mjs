@@ -33,8 +33,10 @@ const OPTIONAL_ORIGIN_SHEETS = ["Origins", "OriginFeatures"];
 const OPTIONAL_WEAPON_SHEETS = ["WeaponBases", "WeaponProfiles", "WeaponEnhancements"];
 const VALID_ORIGIN_STATUSES = new Set(["playable", "draft", "incomplete"]);
 const LEGACY_GRANT_COLUMNS = ["grantsSkills", "grantsTechniques", "grantsNotes"];
-const VALID_GRANT_TYPES = new Set(["skill", "technique", "technique-choice", "feat", "weapon", "weapon-enhancement", "equipment"]);
-const VALID_GRANT_FIELDS = new Set(["name", "key", "skill", "progression", "rank", "count", "note"]);
+const VALID_GRANT_TYPES = new Set(["skill", "technique", "technique-choice", "feat", "weapon", "weapon-enhancement", "equipment", "specialization"]);
+const VALID_GRANT_FIELDS = new Set(["name", "key", "skill", "progression", "rank", "count", "note", "enhancement", "choiceId", "choiceRef"]);
+const VALID_PREREQUISITE_TYPES = new Set(["class", "feat", "origin", "attribute", "skill", "tag", "choice"]);
+const VALID_PREREQUISITE_FIELDS = new Set(["name", "key", "level", "rank", "minRank", "value", "minValue", "choiceRef", "tag", "enhancement"]);
 
 function die(msg) {
   console.error(`\nERROR: ${msg}\n`);
@@ -136,8 +138,8 @@ function parseGrantLine(line, context) {
       grant[key] = n;
     } else if (key === "progression") {
       const progression = value.toLowerCase();
-      if (!["fast", "medium", "slow"].includes(progression)) {
-        die(`${context}: progression must be fast, medium, or slow, got "${value}".`);
+      if (!["fast", "medium", "slow", "weapon skill"].includes(progression)) {
+        die(`${context}: progression must be fast, medium, slow, or weapon skill, got "${value}".`);
       }
       grant[key] = progression;
     } else {
@@ -165,6 +167,77 @@ function parseGrants(v, context) {
   return splitGrantLines(v).map((line, index) => parseGrantLine(line, `${context} grant ${index + 1}`)).filter(Boolean);
 }
 
+function parsePrerequisiteType(value, context) {
+  const type = toStr(value);
+  if (!/^[a-z][a-z-]*$/.test(type)) {
+    die(`${context}: prerequisite type "${value}" must be lowercase letters/hyphens only.`);
+  }
+  if (!VALID_PREREQUISITE_TYPES.has(type)) {
+    die(`${context}: unknown prerequisite type "${type}". Add it to VALID_PREREQUISITE_TYPES if this is a new supported prerequisite type.`);
+  }
+  return type;
+}
+
+function parseMaybeOrValue(value) {
+  const parts = String(value ?? "")
+    .split(/\s+OR\s+/i)
+    .map((part) => part.trim())
+    .filter(Boolean);
+  return parts.length > 1 ? parts : value;
+}
+
+function parsePrerequisiteLine(line, context) {
+  const raw = toStr(line);
+  if (!raw) return null;
+
+  const parts = raw
+    .split("|")
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  if (parts.length < 2) {
+    return { type: "text", text: raw };
+  }
+
+  const prereq = { type: parsePrerequisiteType(parts.shift(), context) };
+  for (const part of parts) {
+    const idx = part.indexOf("=");
+    if (idx === -1) {
+      die(`${context}: prerequisite field "${part}" must use key=value syntax.`);
+    }
+    const key = part.slice(0, idx).trim();
+    const value = part.slice(idx + 1).trim();
+    if (!key || !value) die(`${context}: prerequisite field "${part}" must include both key and value.`);
+    if (!/^[a-z][a-zA-Z]*$/.test(key)) {
+      die(`${context}: prerequisite field key "${key}" must be lower camelCase.`);
+    }
+    if (!VALID_PREREQUISITE_FIELDS.has(key)) {
+      die(`${context}: unknown prerequisite field "${key}". Add it to VALID_PREREQUISITE_FIELDS if this is intentional.`);
+    }
+    if (Object.hasOwn(prereq, key)) {
+      die(`${context}: duplicate prerequisite field "${key}".`);
+    }
+
+    if (key === "level" || key === "rank" || key === "minRank" || key === "value" || key === "minValue") {
+      const n = Number.parseInt(value, 10);
+      if (!Number.isFinite(n) || String(n) !== value) die(`${context}: ${key} must be an integer, got "${value}".`);
+      prereq[key] = n;
+    } else {
+      prereq[key] = parseMaybeOrValue(value);
+    }
+  }
+
+  if (prereq.type === "choice" && !prereq.choiceRef) {
+    die(`${context}: choice prerequisites must include choiceRef=choice-id.`);
+  }
+
+  return prereq;
+}
+
+function parsePrerequisites(v, context) {
+  return splitGrantLines(v).map((line, index) => parsePrerequisiteLine(line, `${context} prerequisite ${index + 1}`)).filter(Boolean);
+}
+
 function describeRow(r) {
   return toStr(r.featureKey) || toStr(r.featKey) || toStr(r.originKey) || toStr(r.name) || toStr(r.featureName) || "(unnamed)";
 }
@@ -178,6 +251,12 @@ function getRowGrantNotes(r, sheetName) {
     die(`${sheetName} "${describeRow(r)}": use grantNotes, not grantsNotes.`);
   }
   return toStr(r.grantNotes) || null;
+}
+
+function getRowPrerequisites(r, sheetName) {
+  const value = toStr(r.prerequisites) || toStr(r.prereqs);
+  if (!value) return null;
+  return parsePrerequisites(value, `${sheetName} "${describeRow(r)}"`);
 }
 
 function normalizeLookupKey(value) {
@@ -424,7 +503,7 @@ function main() {
       pumpDamageByRank: parseRankMap(r.pumpDamageByRank),
       rankNotes: parseRankMap(r.rankNotes),
 
-      prerequisites: toStr(r.prerequisites) || null,
+      prerequisites: getRowPrerequisites(r, "Feats"),
       sourceNote: toStr(r.sourceNote) || null,
     };
   });
@@ -466,7 +545,7 @@ function main() {
       featKey: toStr(r.featKey) || null,
       name: toStr(r.name),
       parentKey: toStr(r.parentKey) || null,
-      prerequisites: toStr(r.prerequisites) || null,
+      prerequisites: getRowPrerequisites(r, "Techniques"),
       description: toStr(r.description) || null,
       grants: getRowGrants(r, "Feats"),
       grantNotes: getRowGrantNotes(r, "Feats"),
@@ -530,7 +609,7 @@ function main() {
       name: toStr(r.name) || null,
       parentKey: toStr(r.parentKey) || null,
       description: toStr(r.description) || null,
-      prereqs: toStr(r.prereqs) || null,
+      prerequisites: getRowPrerequisites(r, "ClassFeatures"),
       grants: getRowGrants(r, "ClassFeatures"),
       grantNotes: getRowGrantNotes(r, "ClassFeatures"),
       _scopeKey: classKey,
@@ -751,7 +830,7 @@ function main() {
         pumpDamageByRank: parseRankMap(r.pumpDamageByRank),
         rankNotes: parseRankMap(r.rankNotes),
 
-        prerequisites: toStr(r.prerequisites) || null,
+        prerequisites: getRowPrerequisites(r, "WeaponProfiles"),
         sourceNote: toStr(r.sourceNote) || null,
       };
 
@@ -788,7 +867,7 @@ function main() {
         name: toStr(r.name),
         description: toStr(r.description) || null,
         minRank: toIntOrNull(r.minRank),
-        prerequisites: toStr(r.prerequisites) || null,
+        prerequisites: getRowPrerequisites(r, "WeaponEnhancements"),
         notes: toStr(r.notes) || null,
         sourceNote: toStr(r.sourceNote) || null,
       };
