@@ -11,8 +11,9 @@ import {
   ensureBuilderShellUi,
 } from "./builder-common.js";
 import { renderBuilderNavMounts } from "./builder-nav.js";
-import { loadGameXOrigins, getOriginByKey } from "../core/game-data.js";
+import { loadGameXData, loadGameXOrigins, getOriginByKey } from "../core/game-data.js";
 import { buildOriginUpdatePatch } from "../core/database-writer.js";
+import { buildBuilderWithPatch, buildDependencyRefreshPatch } from "../core/builder-dependencies.js";
 import { escapeHtml, sanitizeText } from "../core/data-sanitization.js";
 
 const CURRENT_STEP_ID = "origin";
@@ -157,18 +158,22 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
   }
 
   try {
-    const patch = buildOriginUpdatePatch({
+    const basePatch = buildOriginUpdatePatch({
       originKey: originSelectEl.value,
       originKeystone: originKeystoneEl.value,
     });
+    const gameData = await loadGameXData();
+    const dependencyBuilder = buildBuilderWithPatch(currentDoc?.builder || {}, basePatch);
+    const patch = {
+      ...basePatch,
+      ...buildDependencyRefreshPatch(gameData, dependencyBuilder, {
+        previousBuilder: currentDoc?.builder || {},
+      }),
+    };
 
     await saveCharacterPatch(charRef, patch);
     currentDoc = currentDoc || {};
-    currentDoc.builder = {
-      ...(currentDoc.builder || {}),
-      originKey: patch["builder.originKey"],
-      originKeystone: patch["builder.originKeystone"],
-    };
+    currentDoc.builder = buildBuilderWithPatch(currentDoc.builder || {}, patch);
 
     setStatus(statusEl, "Saved.");
 

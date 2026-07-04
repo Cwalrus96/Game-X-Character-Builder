@@ -20,6 +20,7 @@ import {
   getSkillPointCostForRank,
   buildConstrainedSkillRankOptionsHtml,
 } from "../core/character-rules.js";
+import { buildBuilderWithPatch, buildDependencyRefreshPatch } from "../core/builder-dependencies.js";
 import {
   sanitizeSkillFields,
   sanitizeNamedSkillList,
@@ -647,7 +648,7 @@ function collectSkillPatch() {
     ? { ...currentDoc.builder.sheet.repeatables }
     : {};
 
-  return {
+  const basePatch = {
     "builder.sheet.fields": {
       ...existingFields,
       ...getLiveFixedValues(),
@@ -660,6 +661,13 @@ function collectSkillPatch() {
     "builder.selectedClassUtilitySkills": selectedClassUtilitySkillSnapshot(),
     "builder.grantedCoreSkillSnapshot": Array.from(getGrantedCoreSkillRanks().keys()),
     "builder.grantedSkillSnapshot": Array.from(grantedSkillState.grantedSkillNames || []),
+  };
+  const builderAfterPatch = buildBuilderWithPatch(currentDoc?.builder || {}, basePatch);
+  return {
+    ...basePatch,
+    ...buildDependencyRefreshPatch(gameData, builderAfterPatch, {
+      previousBuilder: currentDoc?.builder || {},
+    }),
   };
 }
 

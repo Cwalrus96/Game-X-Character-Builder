@@ -1,6 +1,5 @@
 // public/builder-techniques.js
-// Techniques selection step: choose combat techniques by reference (techniqueName) and
-// enforce slot/rank gating while keeping granted techniques locked in the main list.
+// Techniques selection step. Technique-specific behavior lives in TechniquesWidget.
 
 import {
   initBuilderAuth,
@@ -16,39 +15,25 @@ import {
 } from "./builder-common.js";
 
 import { renderBuilderNavMounts } from "./builder-nav.js";
+import { BuilderPage } from "./builder-page.js";
+import { TechniquesWidget } from "./widgets/techniques-widget.js";
 
-import {
-  coerceAttrKey,
-  labelForAttrKey,
-  computeTechniqueSlots,
-} from "../core/character-rules.js";
-
-import { buildTechniquesUpdatePatch } from "../core/database-writer.js";
-
+import { buildBuilderWithPatch, reconcileBuilderChange } from "../core/builder-dependencies.js";
 import {
   loadGameXData,
   getGameXTechniques,
   buildTechniqueIndexes,
-  resolveTechniqueRef,
-  computeKnownCombatSkillsAndGrants,
-  computeGrantedSkillsState,
 } from "../core/game-data.js";
-
-import { sanitizeNamedSkillList, sanitizeText } from "../core/data-sanitization.js";
-import { meetsPrerequisites } from "../core/prerequisites.js";
-import { renderTechniqueProfileHtml } from "../core/technique-utils.js";
 
 const CURRENT_STEP_ID = "techniques";
 
 ensureBuilderShellUi();
 
-// ---- Common shell UI ----
 const signOutBtn = document.getElementById("signOutBtn");
 const gmHintEl = document.getElementById("gmHint");
 const statusEl = document.getElementById("status");
 const errorEl = document.getElementById("error");
 
-// ---- Step UI ----
 const slotHintEl = document.getElementById("slotHint");
 const slotPillsEl = document.getElementById("slotPills");
 const techSearchEl = document.getElementById("techSearch");
@@ -60,7 +45,6 @@ const techniqueGroupsEl = document.getElementById("techniqueGroups");
 const saveBtn = document.getElementById("saveBtn");
 const saveAndOpenBtn = document.getElementById("saveAndOpenBtn");
 
-// ---- State ----
 /** @type {any} */
 let ctx = null;
 /** @type {any} */
@@ -69,530 +53,57 @@ let charRef = null;
 let currentDoc = null;
 /** @type {any} */
 let gameData = null;
-
 /** @type {{ byName: Map<string, any>, byNorm: Map<string, any[]> } | null} */
 let techIndexes = null;
-
 /** @type {Set<string>} */
 let selectedTechniques = new Set();
+/** @type {TechniquesWidget | null} */
+let techniquesWidget = null;
 
-let filterText = "";
-let filterKnownSkills = true;
+class TechniquesBuilderPage extends BuilderPage {}
 
-// Derived
-let primaryAttrKey = "";
-let slots = 0;
-/** @type {Set<string>} */
-let knownCombatSkills = new Set();
-/** @type {Set<string>} */
-let grantedTechniqueNames = new Set();
-/** @type {any[]} */
-let techniqueChoiceGrants = [];
-let grantedSkillState = null;
+const techniquesPage = new TechniquesBuilderPage({
+  stepId: CURRENT_STEP_ID,
+  getGameData: () => gameData,
+  getBuilder: () => currentDoc?.builder || {},
+  applyReconciledBuilder: (builder) => {
+    if (Array.isArray(builder?.selectedTechniques)) {
+      selectedTechniques = new Set(builder.selectedTechniques);
+    }
+  },
+});
 
-// If we auto-adjust stored selections due to class/level/skill/slot changes,
-// we surface a one-time warning so the user understands what happened.
-let didAutoAdjustOnLoad = false;
-/** @type {string[]} */
-let autoAdjustWarnings = [];
-
-// ---- Helpers ----
-
-function resolveRef(ref) {
-  const res = resolveTechniqueRef(ref, techIndexes);
-  return res?.ok ? res.technique : null;
+function applyLocalBuilderPatch(patch) {
+  currentDoc = currentDoc || {};
+  const previousBuilder = currentDoc.builder || {};
+  currentDoc.builder = buildBuilderWithPatch(previousBuilder, patch);
+  selectedTechniques = new Set(Array.isArray(currentDoc.builder.selectedTechniques) ? currentDoc.builder.selectedTechniques : []);
 }
 
-function getSelectedCounts() {
-  let resolvedCount = 0;
-  let missing = 0;
-  for (const ref of selectedTechniques) {
-    const t = resolveRef(ref);
-    if (t) resolvedCount += 1;
-    else missing += 1;
-  }
-  return { total: selectedTechniques.size, resolvedCount, missing };
-}
-
-function passesSearch(t) {
-  if (!filterText) return true;
-  const q = filterText.toLowerCase();
-  const name = String(t?.techniqueName || "").toLowerCase();
-  const skill = String(t?.skill || "").toLowerCase();
-  const tags = Array.isArray(t?.tags) ? t.tags.join(" ").toLowerCase() : "";
-  return name.includes(q) || skill.includes(q) || tags.includes(q);
-}
-
-function passesKnownSkillFilter(t) {
-  const name = String(t?.techniqueName || "").trim();
-  if (name && grantedTechniqueNames.has(name)) return true;
-  if (!passesTechniquePrerequisites(t)) return false;
-  if (!filterKnownSkills) return true;
-  const skill = String(t?.skill || "").trim();
-  if (!skill) return false;
-  if (techniqueChoiceGrants.some((grant) => grantMatchesTechniqueChoice(grant, t))) return true;
-  if (!knownCombatSkills.has(skill)) return false;
-  return getTechniqueSkillRank(t) >= Number.parseInt(String(t?.rank ?? 0), 10);
-}
-
-function passesTechniquePrerequisites(technique) {
-  return meetsPrerequisites(technique?.prerequisites, {
-    gameData,
-    builder: currentDoc?.builder || {},
-    grantedSkillState,
-    deferUnresolvedChoices: true,
+function renderNav() {
+  renderBuilderNavMounts({
+    currentStepId: CURRENT_STEP_ID,
+    characterDoc: currentDoc,
+    ctx: { charId: ctx.charId, requestedUid: ctx.requestedUid },
+    onBeforeNavigate: async () => await saveBuilder({ openSheetAfter: false, intent: "navigate" }),
   });
 }
 
-function deriveSkillsAndGrants() {
-  const b = (currentDoc?.builder && typeof currentDoc.builder === "object") ? currentDoc.builder : {};
-  const out = computeKnownCombatSkillsAndGrants(gameData, b);
-  knownCombatSkills = out.knownCombatSkills;
-  grantedTechniqueNames = out.grantedTechniqueNames;
-  techniqueChoiceGrants = Array.isArray(out.techniqueChoiceGrants) ? out.techniqueChoiceGrants : [];
-  grantedSkillState = computeGrantedSkillsState(gameData, b);
-
-  // If something is now granted, drop it from manual selection.
-  for (const g of grantedTechniqueNames) {
-    if (selectedTechniques.has(g)) selectedTechniques.delete(g);
-  }
-}
-
-function getTechniqueChoiceGrantCount() {
-  return techniqueChoiceGrants.reduce((total, grant) => {
-    const count = Number.parseInt(String(grant?.count ?? 1), 10);
-    return total + (Number.isFinite(count) ? Math.max(0, count) : 1);
-  }, 0);
-}
-
-function getTechniqueSkillRank(technique) {
-  const skillName = sanitizeText(technique?.skill, { maxLen: 96, collapse: true });
-  if (!skillName) return Number(technique?.rank || 0);
-
-  let rank = 0;
-  const grantedCombat = Array.isArray(grantedSkillState?.grantedCombatSkills) ? grantedSkillState.grantedCombatSkills : [];
-  for (const row of grantedCombat) {
-    const skill = sanitizeText(row?.skill, { maxLen: 96, collapse: true });
-    if (skill !== skillName) continue;
-    const value = Number.parseInt(String(row?.rank || "0"), 10);
-    if (Number.isFinite(value)) rank = Math.max(rank, value);
-  }
-
-  const repeatables = currentDoc?.builder?.sheet?.repeatables;
-  const extraCombatSkills = sanitizeNamedSkillList(repeatables?.combatSkillsExtra, { maxItems: 50 });
-  for (const row of extraCombatSkills) {
-    const skill = sanitizeText(row?.skill, { maxLen: 96, collapse: true });
-    if (skill !== skillName) continue;
-    const value = Number.parseInt(String(row?.rank || "0"), 10);
-    if (Number.isFinite(value)) rank = Math.max(rank, value);
-  }
-
-  return rank;
-}
-
-function grantMatchesTechniqueChoice(grant, technique) {
-  const grantSkill = sanitizeText(grant?.skill || grant?.name || grant?.key, { maxLen: 96, collapse: true }).toLowerCase();
-  if (!grantSkill) return false;
-  const techniqueSkill = sanitizeText(technique?.skill, { maxLen: 96, collapse: true }).toLowerCase();
-  if (grantSkill !== techniqueSkill) return false;
-
-  const requiredRank = Number.parseInt(String(technique?.rank ?? 0), 10);
-  if (getTechniqueSkillRank(technique) < requiredRank) return false;
-  return true;
-}
-
-function countExtraTechniqueAssignments(refs) {
-  const selected = Array.from(refs || [])
-    .map((ref) => resolveRef(ref))
-    .filter(Boolean);
-  const remainingBySkill = new Map();
-
-  for (const grant of techniqueChoiceGrants) {
-    const skill = sanitizeText(grant?.skill || grant?.name || grant?.key, { maxLen: 96, collapse: true }).toLowerCase();
-    if (!skill) continue;
-    const count = Number.parseInt(String(grant?.count ?? 1), 10);
-    remainingBySkill.set(skill, (remainingBySkill.get(skill) || 0) + (Number.isFinite(count) ? Math.max(0, count) : 1));
-  }
-
-  let assigned = 0;
-  for (const technique of selected) {
-    const skill = sanitizeText(technique?.skill, { maxLen: 96, collapse: true }).toLowerCase();
-    const remaining = remainingBySkill.get(skill) || 0;
-    if (remaining <= 0) continue;
-    if (!techniqueChoiceGrants.some((grant) => grantMatchesTechniqueChoice(grant, technique))) continue;
-    remainingBySkill.set(skill, remaining - 1);
-    assigned += 1;
-  }
-
-  return assigned;
-}
-
-function selectedTechniquesFitSlots(refs) {
-  const selected = refs instanceof Set ? refs : new Set(refs || []);
-  const total = selected.size;
-  if (total <= slots) return true;
-  const extraNeeded = total - Math.max(0, slots);
-  return countExtraTechniqueAssignments(selected) >= extraNeeded;
-}
-
-function canAddTechnique(name) {
-  if (selectedTechniques.has(name)) return true;
-  const next = new Set(selectedTechniques);
-  next.add(name);
-  return selectedTechniquesFitSlots(next);
-}
-
-function getKnownCombatSkillRows() {
-  return Array.from(knownCombatSkills)
-    .sort((a, b) => a.localeCompare(b))
-    .map((skill) => ({ skill, rank: getTechniqueSkillRank({ skill }) }));
-}
-
-function pruneSelectionsToCurrentContext() {
-  const warnings = [];
-
-  // 1) Remove anything that cannot be resolved anymore.
-  const missing = Array.from(selectedTechniques).filter((ref) => !resolveRef(ref));
-  if (missing.length) {
-    for (const ref of missing) selectedTechniques.delete(ref);
-    warnings.push(`Removed ${missing.length} technique reference(s) that no longer exist in the JSON.`);
-  }
-
-  // 2) Remove anything that is now granted (manual picks should not include these).
-  const grantedHits = Array.from(selectedTechniques).filter((ref) => grantedTechniqueNames.has(ref));
-  if (grantedHits.length) {
-    for (const ref of grantedHits) selectedTechniques.delete(ref);
-    warnings.push(`Removed ${grantedHits.length} technique(s) that are now granted automatically.`);
-  }
-
-  // 3) Remove picks whose skill is no longer known (class/feature/feat changes).
-  // This keeps selection consistent with the Techniques page's skill-gated list.
-  const invalidBySkill = [];
-  const invalidByRank = [];
-  for (const ref of selectedTechniques) {
-    const t = resolveRef(ref);
-    const skill = String(t?.skill || "").trim();
-    if (!skill) continue;
-    if (!knownCombatSkills.has(skill)) {
-      invalidBySkill.push(ref);
-      continue;
-    }
-    const requiredRank = Number.parseInt(String(t?.rank ?? 0), 10);
-    if (getTechniqueSkillRank(t) < requiredRank) invalidByRank.push(ref);
-  }
-  if (invalidBySkill.length) {
-    for (const ref of invalidBySkill) selectedTechniques.delete(ref);
-    warnings.push(
-      `Removed ${invalidBySkill.length} technique(s) whose combat skill is no longer known for your current class/features.`
-    );
-  }
-  if (invalidByRank.length) {
-    for (const ref of invalidByRank) selectedTechniques.delete(ref);
-    warnings.push(
-      `Removed ${invalidByRank.length} technique(s) whose required combat skill rank is no longer met.`
-    );
-  }
-
-  // 4) Enforce slot cap.
-  if (slots <= 0) {
-    const count = selectedTechniques.size;
-    if (count) {
-      selectedTechniques.clear();
-      warnings.push("Cleared technique selections because you currently have 0 technique slots.");
-    }
-    return warnings;
-  }
-
-  const { total } = getSelectedCounts();
-  if (!selectedTechniquesFitSlots(selectedTechniques)) {
-    // Keep the first N by our stable sort order (rank/name), drop the rest.
-    const sorted = buildSortedSelectedArray();
-    const keep = new Set();
-    for (const ref of sorted) {
-      const next = new Set(keep);
-      next.add(ref);
-      if (selectedTechniquesFitSlots(next)) keep.add(ref);
-    }
-    const dropped = [];
-    for (const ref of selectedTechniques) {
-      if (!keep.has(ref)) dropped.push(ref);
-    }
-    for (const ref of dropped) selectedTechniques.delete(ref);
-    warnings.push(
-      `Removed ${dropped.length} technique(s) because your selected techniques exceeded your available technique picks.`
-    );
-  }
-
-  return warnings;
-}
-
-// ---- Rendering ----
-
-function renderSlotSummary() {
-  if (slotHintEl) {
-    const label = primaryAttrKey ? (labelForAttrKey(primaryAttrKey) || primaryAttrKey) : "n/a";
-    slotHintEl.textContent = primaryAttrKey
-      ? `Slots = ${label} (${slots})`
-      : "Primary Attribute not set.";
-  }
-
-  if (!slotPillsEl) return;
-  slotPillsEl.innerHTML = "";
-
-  const { total } = getSelectedCounts();
-  const extraSlots = getTechniqueChoiceGrantCount();
-  const maxTotal = slots + extraSlots;
-
-  const pillSlots = document.createElement("span");
-  pillSlots.className = "pill";
-  pillSlots.textContent = `Slots: ${slots}`;
-  slotPillsEl.append(pillSlots);
-
-  if (extraSlots > 0) {
-    const pillExtra = document.createElement("span");
-    pillExtra.className = "pill";
-    pillExtra.textContent = `Granted picks: ${extraSlots}`;
-    slotPillsEl.append(pillExtra);
-  }
-
-  const pillSel = document.createElement("span");
-  pillSel.className = "pill";
-  pillSel.textContent = `Selected: ${total} / ${maxTotal}`;
-  if (!selectedTechniquesFitSlots(selectedTechniques)) pillSel.classList.add("danger");
-  else if (maxTotal > 0 && total === maxTotal) pillSel.classList.add("ok");
-
-  slotPillsEl.append(pillSel);
-}
-
-function renderKnownSkills() {
-  if (!knownSkillsHelpEl) return;
-  const techniqueSkillNames = new Set(
-    getGameXTechniques(gameData)
-      .map((tech) => sanitizeText(tech?.skill, { maxLen: 96, collapse: true }))
-      .filter(Boolean)
-  );
-  const rows = getKnownCombatSkillRows().filter(({ skill }) => techniqueSkillNames.has(skill));
-
-  if (!rows.length) {
-    knownSkillsHelpEl.textContent = "No combat skills detected (derived from class + feature/feat grants).";
-    return;
-  }
-
-  const label = document.createElement("div");
-  label.className = "muted";
-  label.style.marginBottom = "6px";
-  label.textContent = "Combat skills used for technique availability:";
-
-  const pills = document.createElement("div");
-  pills.className = "pillRow";
-  for (const { skill, rank } of rows) {
-    const pill = document.createElement("span");
-    pill.className = "pill";
-    pill.textContent = `${skill} — Rank ${rank}`;
-    pills.append(pill);
-  }
-
-  knownSkillsHelpEl.innerHTML = "";
-  knownSkillsHelpEl.append(label, pills);
-}
-
-function renderMissingRefs() {
-  if (!missingListEl) return;
-  missingListEl.innerHTML = "";
-  missingListEl.style.display = "none";
-}
-
-function renderTechniqueGroups() {
-  if (!techniqueGroupsEl) return;
-
-  const list = getGameXTechniques(gameData);
-
-  // Filter out granted techniques (shown elsewhere)
-  const visible = list
-    .filter((t) => {
-      const name = String(t?.techniqueName || "").trim();
-      if (!name) return false;
-      return !!name;
-    })
-    .filter(passesSearch)
-    .filter(passesKnownSkillFilter);
-
-  // Group by rank
-  const byRank = new Map();
-  for (const t of visible) {
-    const r = Number.parseInt(String(t?.rank ?? 0), 10);
-    const rank = Number.isFinite(r) ? r : 0;
-    const arr = byRank.get(rank) || [];
-    arr.push(t);
-    byRank.set(rank, arr);
-  }
-
-  const ranks = Array.from(byRank.keys()).sort((a, b) => a - b);
-  techniqueGroupsEl.innerHTML = "";
-
-  if (!ranks.length) {
-    const msg = document.createElement("div");
-    msg.className = "muted";
-    msg.textContent = filterKnownSkills
-      ? "No techniques match your combat skills + filters. Try unchecking the skill filter."
-      : "No techniques match your current filters.";
-    techniqueGroupsEl.append(msg);
-    return;
-  }
-
-  for (const rank of ranks) {
-    const items = (byRank.get(rank) || []).slice().sort((a, b) => {
-      return String(a.techniqueName || "").localeCompare(String(b.techniqueName || ""));
-    });
-
-    if (rank === 0) {
-      const details = document.createElement("details");
-      details.open = false;
-
-      const summary = document.createElement("summary");
-      summary.textContent = `Rank 0 Basics - ${items.length}`;
-      summary.style.cursor = "pointer";
-      summary.style.fontWeight = "700";
-      summary.style.marginBottom = "8px";
-
-      const listEl = document.createElement("div");
-      listEl.className = "optionList";
-
-      for (const t of items) {
-        const row = document.createElement("div");
-        row.className = "optionRow";
-        row.innerHTML = renderTechniqueProfileHtml(t, {
-          rankValue: getTechniqueSkillRank(t),
-          heading: String(t?.techniqueName || "Technique"),
-          headingTag: "div",
-          headingClass: "optionTitle",
-          showRank: true,
-        });
-        listEl.append(row);
-      }
-
-      details.append(summary, listEl);
-      techniqueGroupsEl.append(details);
-      continue;
-    }
-
-    const header = document.createElement("h3");
-    header.className = "h3";
-    header.textContent = `Rank ${rank}`;
-    header.style.marginTop = "14px";
-
-    const listEl = document.createElement("div");
-    listEl.className = "optionList";
-
-    for (const t of items) {
-      const name = String(t?.techniqueName || "").trim();
-      if (!name) continue;
-
-      const row = document.createElement("div");
-      row.className = "optionRow";
-
-      const cb = document.createElement("input");
-      cb.type = "checkbox";
-      const isGranted = grantedTechniqueNames.has(name);
-      const rankRequirement = Number.parseInt(String(t?.rank ?? 0), 10);
-      const skillRank = getTechniqueSkillRank(t);
-      cb.checked = isGranted || selectedTechniques.has(name);
-
-      const atCap = !canAddTechnique(name);
-      if (isGranted) cb.disabled = true;
-      else if (skillRank < rankRequirement) cb.disabled = true;
-      else if (slots + getTechniqueChoiceGrantCount() <= 0) cb.disabled = true;
-      else if (atCap && !cb.checked) cb.disabled = true;
-
-      cb.addEventListener("change", () => {
-        clearError(errorEl);
-        if (cb.checked) {
-          const { total } = getSelectedCounts();
-          if (!canAddTechnique(name)) {
-            cb.checked = false;
-            setStatus(statusEl, "No technique slots remaining.");
-            return;
-          }
-          selectedTechniques.add(name);
-        } else {
-          selectedTechniques.delete(name);
-        }
-        renderAll();
-      });
-
-      const body = document.createElement("div");
-      body.style.flex = "1";
-      body.innerHTML = renderTechniqueProfileHtml(t, {
-        rankValue: getTechniqueSkillRank(t),
-        heading: name,
-        headingTag: "div",
-        headingClass: "optionTitle",
-        showRank: true,
-      });
-
-      row.append(cb, body);
-      listEl.append(row);
-    }
-
-    techniqueGroupsEl.append(header, listEl);
-  }
-}
-
-function renderAll() {
-  deriveSkillsAndGrants();
-  renderSlotSummary();
-  renderKnownSkills();
-  renderMissingRefs();
-  renderTechniqueGroups();
-}
-
-// ---- Save logic ----
-
-function buildSortedSelectedArray() {
-  const arr = Array.from(selectedTechniques).map((ref) => {
-    const t = resolveRef(ref);
-    return {
-      ref,
-      rank: t ? Number.parseInt(String(t.rank ?? 0), 10) : 9999,
-      name: t ? String(t.techniqueName || ref) : ref,
-    };
-  });
-
-  arr.sort((a, b) => {
-    if (a.rank !== b.rank) return a.rank - b.rank;
-    return String(a.name).localeCompare(String(b.name));
-  });
-
-  return arr.map((x) => x.ref);
-}
-
-function getSaveIssues() {
-  const errors = [];
-  const warnings = [];
-
-  const { total, missing } = getSelectedCounts();
-
-  if (!primaryAttrKey) warnings.push("Primary Attribute not set (go back to Class step). Technique slots will be 0.");
-
-  const extraSlots = getTechniqueChoiceGrantCount();
-  const maxTotal = slots + extraSlots;
-  if (!selectedTechniquesFitSlots(selectedTechniques)) {
-    errors.push(`You selected ${total} techniques, but those choices do not fit your available technique picks.`);
-  }
-  if (maxTotal > 0 && total < maxTotal) warnings.push(`You have ${maxTotal} technique pick(s), but only selected ${total}.`);
-  if (missing) warnings.push(`${missing} selected technique reference(s) no longer exist in the JSON.`);
-
-  return { errors, warnings };
+function getSaveIssues(reconciliation) {
+  const errors = Array.isArray(reconciliation?.errors) ? reconciliation.errors : [];
+  const warnings = Array.isArray(reconciliation?.warnings) ? reconciliation.warnings : [];
+  return { errors, warnings: Array.from(new Set(warnings)) };
 }
 
 async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
   clearError(errorEl);
   setStatus(statusEl, "Saving...");
 
-  // Keep stored selections consistent before validating/saving.
-  const pruneWarnings = pruneSelectionsToCurrentContext();
-
-  const { errors, warnings } = getSaveIssues();
+  const widgetPatch = techniquesPage.getWidgetSavePatch({ currentDoc });
+  const reconciliation = reconcileBuilderChange(gameData, currentDoc?.builder || {}, widgetPatch, {
+    participants: techniquesPage.getDependencyParticipants(),
+  });
+  const { errors, warnings } = getSaveIssues(reconciliation);
 
   if (errors.length) {
     showError(errorEl, errors.join(" "));
@@ -600,12 +111,10 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
     return false;
   }
 
-  const combinedWarnings = warnings.concat(pruneWarnings);
-
-  if (combinedWarnings.length) {
+  if (warnings.length) {
     const ok = await confirmSaveWarnings({
       title: "Some information is incomplete",
-      warnings: combinedWarnings,
+      warnings,
       okText: intent === "navigate" ? "Save and Continue" : "Save",
       cancelText: "Cancel",
     });
@@ -615,22 +124,11 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
     }
   }
 
-  // Remove anything that is now granted.
-  for (const g of grantedTechniqueNames) {
-    if (selectedTechniques.has(g)) selectedTechniques.delete(g);
-  }
-
-  const selectedArr = buildSortedSelectedArray();
-  const patch = buildTechniquesUpdatePatch({ selectedTechniques: selectedArr });
-
   try {
-    await saveCharacterPatch(charRef, patch);
+    await saveCharacterPatch(charRef, reconciliation.patch);
+    applyLocalBuilderPatch(reconciliation.patch);
+    techniquesWidget?.render();
     setStatus(statusEl, "Saved.");
-
-    // Update local cache
-    currentDoc = currentDoc || {};
-    currentDoc.builder = { ...(currentDoc.builder || {}), selectedTechniques: selectedArr };
-
     if (openSheetAfter) openCharacterSheet(ctx);
     return true;
   } catch (e) {
@@ -641,7 +139,12 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
   }
 }
 
-// ---- Init ----
+function previewStoredTechniques() {
+  const widgetPatch = techniquesPage.getWidgetSavePatch({ currentDoc });
+  return techniquesPage.previewChoiceChange(widgetPatch, {
+    participants: techniquesPage.getDependencyParticipants(),
+  });
+}
 
 async function main() {
   try {
@@ -660,66 +163,49 @@ async function main() {
     const loaded = await loadCharacterDoc(ctx.editingUid, ctx.charId);
     charRef = loaded.charRef;
     currentDoc = loaded.characterDoc;
-
     await markStepVisited(charRef, CURRENT_STEP_ID);
 
-    // Pull builder state
-    const b = (currentDoc?.builder && typeof currentDoc.builder === "object") ? currentDoc.builder : {};
+    const stored = Array.isArray(currentDoc?.builder?.selectedTechniques) ? currentDoc.builder.selectedTechniques : [];
+    selectedTechniques = new Set(stored.map((value) => String(value || "").trim()).filter(Boolean));
 
-    ({ primaryAttrKey, slots } = computeTechniqueSlots(b?.primaryAttribute, b?.attributes));
-
-    const stored = Array.isArray(b.selectedTechniques) ? b.selectedTechniques : [];
-    selectedTechniques = new Set(stored.map((x) => String(x || "").trim()).filter(Boolean));
-
-    // If the class/level/skills changed since the last time Techniques was saved,
-    // the stored selections may be invalid. Auto-adjust to keep the page consistent.
-    // (We also warn so the user understands why their count changed.)
-    deriveSkillsAndGrants();
-    autoAdjustWarnings = pruneSelectionsToCurrentContext();
-    didAutoAdjustOnLoad = autoAdjustWarnings.length > 0;
-
-    // Wire controls
-    if (techSearchEl) {
-      techSearchEl.addEventListener("input", () => {
-        filterText = String(techSearchEl.value || "").trim();
-        renderTechniqueGroups();
-      });
-    }
-
-    if (filterKnownSkillsEl) {
-      filterKnownSkillsEl.addEventListener("change", () => {
-        filterKnownSkills = !!filterKnownSkillsEl.checked;
-        renderAll();
-      });
-      filterKnownSkills = !!filterKnownSkillsEl.checked;
-    }
-
-    if (saveBtn) saveBtn.addEventListener("click", () => saveBuilder({ openSheetAfter: false, intent: "save" }));
-    if (saveAndOpenBtn) saveAndOpenBtn.addEventListener("click", () => saveBuilder({ openSheetAfter: true, intent: "save" }));
-
-    // Nav
-    renderBuilderNavMounts({
-      currentStepId: CURRENT_STEP_ID,
-      characterDoc: currentDoc,
-      ctx: { charId: ctx.charId, requestedUid: ctx.requestedUid },
-      onBeforeNavigate: async () => await saveBuilder({ openSheetAfter: false, intent: "navigate" }),
+    techniquesWidget = new TechniquesWidget(techniquesPage, {
+      slotHintEl,
+      slotPillsEl,
+      searchEl: techSearchEl,
+      filterKnownSkillsEl,
+      knownSkillsHelpEl,
+      missingListEl,
+      techniqueGroupsEl,
+      getGameData: () => gameData,
+      getBuilder: () => currentDoc?.builder || {},
+      getTechniqueIndexes: () => techIndexes,
+      getSelectedTechniques: () => selectedTechniques,
+      setSelectedTechniques: (next) => {
+        selectedTechniques = next instanceof Set ? next : new Set(next || []);
+      },
+      setStatus: (message) => setStatus(statusEl, message),
+      clearError: () => clearError(errorEl),
     });
 
-    // Initial render
-    setStatus(statusEl, "Ready.");
-    renderAll();
-
-    if (didAutoAdjustOnLoad) {
+    const initialPreview = previewStoredTechniques();
+    if (initialPreview.changes.some((change) => change?.type === "remove")) {
+      selectedTechniques = new Set(Array.isArray(initialPreview.reconciledBuilder?.selectedTechniques)
+        ? initialPreview.reconciledBuilder.selectedTechniques
+        : []);
       showError(
         errorEl,
-        `Some stored technique selections were adjusted to match your current class/level. Please review and save. ${autoAdjustWarnings.join(" ")}`
+        `Some stored technique selections were adjusted to match your current character. Please review and save. ${initialPreview.warnings.join(" ")}`
       );
       setStatus(statusEl, "Review needed.");
+    } else {
+      setStatus(statusEl, "Ready.");
     }
 
-    if (!primaryAttrKey) {
-      showError(errorEl, "Primary Attribute not set. Go back to the Class step.");
-    }
+    saveBtn?.addEventListener("click", () => saveBuilder({ openSheetAfter: false, intent: "save" }));
+    saveAndOpenBtn?.addEventListener("click", () => saveBuilder({ openSheetAfter: true, intent: "save" }));
+
+    techniquesWidget.render();
+    renderNav();
   } catch (e) {
     console.error(e);
     showError(errorEl, "Could not load this step.");

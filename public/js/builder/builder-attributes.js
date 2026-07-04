@@ -14,6 +14,8 @@ import { renderBuilderNavMounts } from "./builder-nav.js";
 
 import { ATTR_KEYS, ATTR_LABELS, clampLevel } from "../core/character-rules.js";
 import { buildAttributesUpdatePatch } from "../core/database-writer.js";
+import { buildBuilderWithPatch, buildDependencyRefreshPatch } from "../core/builder-dependencies.js";
+import { loadGameXData } from "../core/game-data.js";
 
 import {
   getAttributePointsToSpend,
@@ -253,17 +255,25 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
   }
 
   try {
-    const patch = buildAttributesUpdatePatch({
+    const basePatch = buildAttributesUpdatePatch({
       level,
       attributes: pruned.eff,
       primaryAttribute: primaryAttr,
     });
+    const gameData = await loadGameXData();
+    const dependencyBuilder = buildBuilderWithPatch(currentDoc?.builder || {}, basePatch);
+    const patch = {
+      ...basePatch,
+      ...buildDependencyRefreshPatch(gameData, dependencyBuilder, {
+        previousBuilder: currentDoc?.builder || {},
+      }),
+    };
 
     await saveCharacterPatch(charRef, patch);
 
     // Update local cache
     currentDoc = currentDoc || {};
-    currentDoc.builder = { ...(currentDoc.builder || {}), attributes: pruned.eff };
+    currentDoc.builder = buildBuilderWithPatch(currentDoc.builder || {}, patch);
 
     setStatus(statusEl, "Saved.");
 

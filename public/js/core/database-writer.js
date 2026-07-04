@@ -14,6 +14,8 @@ import {
   sanitizeCharName,
   sanitizeStoragePath,
   sanitizeStringArray,
+  sanitizeSkillFields,
+  sanitizeNamedSkillList,
   sanitizeRepeatableAbilities,
   sanitizeBondList,
   sanitizeWeaponList,
@@ -183,6 +185,24 @@ export function sanitizeUpdatePatch(patch) {
 
   if (Object.prototype.hasOwnProperty.call(out, "builder.grantChoices")) {
     out["builder.grantChoices"] = sanitizeGrantChoices(out["builder.grantChoices"], { maxItems: 100 });
+  }
+
+  if (Object.prototype.hasOwnProperty.call(out, "builder.sheet.fields")) {
+    out["builder.sheet.fields"] = sanitizeSkillFields(out["builder.sheet.fields"]);
+  }
+
+  if (Object.prototype.hasOwnProperty.call(out, "builder.sheet.repeatables")) {
+    const repeatables = (out["builder.sheet.repeatables"] && typeof out["builder.sheet.repeatables"] === "object")
+      ? out["builder.sheet.repeatables"]
+      : {};
+    out["builder.sheet.repeatables"] = {
+      ...repeatables,
+      combatSkillsExtra: sanitizeNamedSkillList(repeatables.combatSkillsExtra, { maxItems: 50 }),
+      settingSkills: sanitizeNamedSkillList(repeatables.settingSkills, { maxItems: 50 }),
+    };
+    if (Object.prototype.hasOwnProperty.call(repeatables, "abilities")) {
+      out["builder.sheet.repeatables"].abilities = sanitizeRepeatableAbilities(repeatables.abilities);
+    }
   }
 
   // Repeatables we currently understand
