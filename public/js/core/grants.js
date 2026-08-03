@@ -1,15 +1,7 @@
 import { sanitizeText, sanitizeWeaponList } from "./data-sanitization.js";
+import { SUPPORTED_GRANT_TYPES } from "./game-data-contract.js";
 
-export const VALID_GRANT_TYPES = new Set([
-  "skill",
-  "technique",
-  "technique-choice",
-  "feat",
-  "weapon",
-  "weapon-enhancement",
-  "equipment",
-  "specialization",
-]);
+export const VALID_GRANT_TYPES = new Set(SUPPORTED_GRANT_TYPES);
 
 export function getGrantNotes(entry) {
   return sanitizeText(entry?.grantNotes ?? "", { maxLen: 4000, collapse: true });

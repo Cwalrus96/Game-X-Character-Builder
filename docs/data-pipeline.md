@@ -1,64 +1,66 @@
-# Data pipeline (Google Sheets / XLSX ➜ JSON)
+# Game-data pipeline: Google Sheets → validated JSON
 
-Game rules content (classes, features, feats, techniques) is edited in **Google Sheets**, exported as `.xlsx`, and then converted into JSON files that the web app can fetch at runtime.
+Game rules content is edited in one canonical Google Sheet and released as versioned JSON consumed by the static website.
 
-Origins currently live in versioned JSON (`public/data/game-x/origins.json`) because the builder now depends on them, but they do not yet have a dedicated workbook tab/export path.
+## Canonical source
 
-## Why this exists
-- Editing rules content in a spreadsheet is faster than editing JSON by hand.
-- The UI can be data-driven without forcing a database migration.
-- Generated JSON can be versioned alongside code.
+The canonical editable workbook is the native Google Sheet [game-x-class-data](https://docs.google.com/spreadsheets/d/1TEdxuufglP8lFRNk8QD4N_351-0ihAUFLG2743ESjoI/edit).
 
-## Source workbook
-You maintain a single spreadsheet workbook with multiple tabs. The exact columns can evolve, but the intent is:
+Its domain tabs are:
 
-- **Classes**: per-class metadata (display name, description, etc.)
-- **Class Features**: features gained by level, including option groups and “choose N” blocks
-- **Feats**: class feats (and future global/origin feats), with prerequisites
-- **Techniques**: structured technique definitions (actions, costs, roll info, success text, scaling)
+- Classes
+- ClassFeatures
+- Techniques
+- Feats
+- Origins
+- OriginFeatures
+- WeaponBases
+- WeaponProfiles
+- WeaponEnhancements
 
-Notes:
-- Technique names are expected to be globally unique.
-- If duplicates appear, the exporter should fail loudly.
+The complete field mapping and validation rules are documented in [game-data-contract.md](./game-data-contract.md).
 
-## Export script
+## Current release state
 
-Location:
-- `scripts/export-game-data.mjs`
+Production export is deliberately frozen during Work Package B. `npm run export:data` refuses to write into `public/data/game-x` until the repaired validator and artifact-diff gate are complete.
 
-Inputs:
-- XLSX file path (exported from Google Sheets)
+The checked-in release is baselined in `contracts/game-data-release-baseline.json`. Verify it with:
 
-Outputs:
-- `public/data/game-x/…` (JSON files)
-
-Typical usage:
-```bash
-npm run export:data
+```powershell
+npm run baseline:data
 ```
 
-A recommended approach:
-- keep the exported XLSX in a `data/` folder that is gitignored
-- commit the generated JSON under `public/data/game-x/`
+This command checks exact filenames, byte lengths, SHA-256 hashes, schema metadata, and structural counts. A failure means the production data changed without updating the reviewed baseline.
 
-## Output files (typical)
+## Intended release flow
 
-- `public/data/game-x/game-x-data.json` – combined payload (convenience)
-- `public/data/game-x/classes.json`
-- `public/data/game-x/class-features.json`
-- `public/data/game-x/feats.json`
-- `public/data/game-x/techniques.json`
-- `public/data/game-x/origins.json` – origin definitions used by the builder
-- `public/data/game-x/export-report.json` – warnings and counts
+1. Record the exact Drive file ID and source revision/modified time.
+2. Export or download the native Sheet to a staging input file.
+3. Adapt live sheet columns into a canonical in-memory source model.
+4. Normalize values with shared grant/prerequisite definitions.
+5. Validate headers, stable IDs, enums, owner/parent relationships, and cross-references.
+6. Write JSON only to a staging directory.
+7. Produce an export report containing source provenance, schema/exporter versions, content hashes, warnings/errors, and a diff from the checked-in release.
+8. Review the artifact diff.
+9. Publish to `public/data/game-x` only after validation succeeds and the production lock is intentionally removed.
 
-The UI may choose either:
-- one combined fetch (`game-x-data.json`)
-- or multiple smaller fetches
+Source adaptation, normalization, validation, and artifact writing must remain separable. Validation must be runnable without writing release files.
 
-## Keeping duplication low
-Suggested workflow:
-1. Edit narrative rules in the handbook (Docs)
-2. Keep structured, UI-facing content in Sheets
-3. For parts of the handbook that are essentially tables, embed linked tables from Sheets (so the handbook can “pull” from the sheet)
+## Runtime artifacts
 
-That reduces “write it twice” pain while still keeping the UI reliable.
+The website currently loads the combined `public/data/game-x/game-x-data.json` file. Domain files are also emitted for review and tooling:
+
+- `classes.json`
+- `class-features.json`
+- `feats.json`
+- `techniques.json`
+- `origins.json`
+- `weapon-bases.json`
+- `weapon-enhancements.json`
+- `export-report.json`
+
+Generated JSON is committed so releases are reviewable and Firebase Hosting can serve static data without a runtime spreadsheet dependency.
+
+## Source ownership
+
+The Sheet owns structured, UI-facing rules data. Handbook prose may remain authoritative for broader editorial text, but every runtime field must name its source column and adaptation rule. Content should not be copied between the handbook and Sheet without documenting which one owns future edits.

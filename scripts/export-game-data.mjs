@@ -28,16 +28,22 @@ import path from "node:path";
 import process from "node:process";
 import * as XLSX from "xlsx/xlsx.mjs"; // SheetJS ESM build (use XLSX.read with a Buffer)
 import { assertGameDataExportTargetAllowed } from "./game-data-export-policy.mjs";
+import {
+  SUPPORTED_GRANT_FIELDS,
+  SUPPORTED_GRANT_TYPES,
+  SUPPORTED_PREREQUISITE_FIELDS,
+  SUPPORTED_STRUCTURED_PREREQUISITE_TYPES,
+} from "../public/js/core/game-data-contract.js";
 
 const REQUIRED_SHEETS = ["Classes", "ClassFeatures", "Feats", "Techniques"];
 const OPTIONAL_ORIGIN_SHEETS = ["Origins", "OriginFeatures"];
 const OPTIONAL_WEAPON_SHEETS = ["WeaponBases", "WeaponProfiles", "WeaponEnhancements"];
 const VALID_ORIGIN_STATUSES = new Set(["playable", "draft", "incomplete"]);
 const LEGACY_GRANT_COLUMNS = ["grantsSkills", "grantsTechniques", "grantsNotes"];
-const VALID_GRANT_TYPES = new Set(["skill", "technique", "technique-choice", "feat", "weapon", "weapon-enhancement", "equipment", "specialization"]);
-const VALID_GRANT_FIELDS = new Set(["name", "key", "skill", "progression", "rank", "count", "note", "enhancement", "choiceId", "choiceRef"]);
-const VALID_PREREQUISITE_TYPES = new Set(["class", "feat", "origin", "attribute", "skill", "tag", "choice"]);
-const VALID_PREREQUISITE_FIELDS = new Set(["name", "key", "level", "rank", "minRank", "value", "minValue", "choiceRef", "tag", "enhancement"]);
+const VALID_GRANT_TYPES = new Set(SUPPORTED_GRANT_TYPES);
+const VALID_GRANT_FIELDS = new Set(SUPPORTED_GRANT_FIELDS);
+const VALID_PREREQUISITE_TYPES = new Set(SUPPORTED_STRUCTURED_PREREQUISITE_TYPES);
+const VALID_PREREQUISITE_FIELDS = new Set(SUPPORTED_PREREQUISITE_FIELDS);
 
 function die(msg) {
   console.error(`\nERROR: ${msg}\n`);

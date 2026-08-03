@@ -19,10 +19,11 @@
     "deploy:hosting": "firebase deploy --only hosting",
     "deploy:rules": "firebase deploy --only firestore:rules,storage",
     "export:data": "node scripts/export-game-data.mjs data/game-x-class-data.xlsx public/data/game-x",
+    "baseline:data": "node scripts/game-data-release-baseline.mjs",
     "validate:assets": "node scripts/validate-public-assets.mjs",
-    "test:rules": "firebase emulators:exec --config firebase.rules-test.json --project game-x-character-builder-rules --only firestore,storage \"node --test tests/*.rules.test.mjs\"",
-    "test:rules:firestore": "firebase emulators:exec --config firebase.rules-test.json --project game-x-character-builder-rules --only firestore \"node --test tests/firestore.rules.test.mjs\"",
-    "test:rules:storage": "firebase emulators:exec --config firebase.rules-test.json --project game-x-character-builder-rules --only storage \"node --test tests/storage.rules.test.mjs\""
+    "test:rules": "firebase emulators:exec --config firebase.rules-test.json --project game-x-character-builder-rules --only firestore,storage \"node --test --test-concurrency=1 tests/*.rules.test.mjs\"",
+    "test:rules:firestore": "firebase emulators:exec --config firebase.rules-test.json --project game-x-character-builder-rules --only firestore,storage \"node --test tests/firestore.rules.test.mjs\"",
+    "test:rules:storage": "firebase emulators:exec --config firebase.rules-test.json --project game-x-character-builder-rules --only firestore,storage \"node --test tests/storage.rules.test.mjs\""
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^5.0.0",

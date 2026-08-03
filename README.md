@@ -109,18 +109,11 @@ This keeps content editing approachable while still letting the UI be data-drive
 
 ---
 
-## Data export workflow (XLSX ➜ JSON)
+## Data release workflow
 
-1. Edit your Google Sheet
-2. Export it as `.xlsx`
-3. Save it locally (commonly into `data/` which is gitignored)
-4. Run the exporter (example)
+The canonical Google Sheet is converted to versioned JSON under `public/data/game-x`. Production export is currently frozen while Work Package B repairs the live field mapping and validation contract; `npm run export:data` intentionally refuses to overwrite those files.
 
-```bash
-npm run export:data
-```
-
-See `docs/data-pipeline.md` for details.
+Use `npm run baseline:data` to verify the frozen release. See `docs/data-pipeline.md` for the release workflow and `docs/game-data-contract.md` for the live workbook field mapping and validation contract.
 
 ---
 

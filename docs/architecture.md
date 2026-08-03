@@ -78,13 +78,15 @@ Builder pages and the character sheet should reference these modules rather than
 
 ## Generated game data
 
-Classes/feats/techniques are treated as **data**, not hardcoded UI.
-The source of truth is a Google Sheet (exported to XLSX), converted by a script into:
-- `public/data/game-x/*.json` (including `origins.json`)
+Classes, features, feats, techniques, origins, and weapons are treated as **data**, not hardcoded UI.
+The source of truth is one native Google Sheet, converted through a validation-gated exporter into:
+- `public/data/game-x/*.json`
 
-This keeps the UI and the rules content loosely coupled.
+Production export is frozen during Work Package B. The checked-in artifacts are protected by `contracts/game-data-release-baseline.json` until the live workbook validates and its staged artifact diff is reviewed.
 
-See `docs/data-pipeline.md`.
+This keeps the UI and rules content loosely coupled without making the live website depend on Google Sheets.
+
+See `docs/data-pipeline.md` and `docs/game-data-contract.md`.
 
 
 Keystone handling is source-owned in storage (origin, background, bond), but UI rendering should derive from a unified normalized keystone view rather than duplicating display logic in each page. Bonds stay separate from that generic keystone view because a bond record contains more than its keystone text.

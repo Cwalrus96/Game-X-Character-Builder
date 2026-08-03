@@ -1,16 +1,8 @@
 import { ATTR_KEYS, CORE_SKILL_FIELDS, DEFENSE_SKILL_FIELDS, normalizeAttributes } from "./character-rules.js";
 import { sanitizeText, sanitizeStringArray } from "./data-sanitization.js";
+import { RUNTIME_PREREQUISITE_TYPES } from "./game-data-contract.js";
 
-export const VALID_PREREQUISITE_TYPES = new Set([
-  "class",
-  "feat",
-  "origin",
-  "attribute",
-  "skill",
-  "tag",
-  "choice",
-  "text",
-]);
+export const VALID_PREREQUISITE_TYPES = new Set(RUNTIME_PREREQUISITE_TYPES);
 
 function sanitizeStringOrArray(value, { maxLen = 160 } = {}) {
   if (Array.isArray(value)) {
