@@ -20,18 +20,6 @@ export class BuilderWidget {
     return [];
   }
 
-  getDependencyNodes() {
-    return [];
-  }
-
-  validateDependencyState() {
-    return [];
-  }
-
-  reconcileDependencyState() {
-    return {};
-  }
-
   applyReconciledState() {}
 
   enable() {

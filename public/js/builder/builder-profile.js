@@ -11,6 +11,7 @@ import {
   confirmModal,
   confirmSaveWarnings,
   ensureBuilderShellUi,
+  markBuilderNavigationClean,
 } from "./builder-common.js";
 import { renderBuilderNavMounts } from "./builder-nav.js";
 import { getPortraitStoragePath } from "../core/database-writer.js";
@@ -20,7 +21,7 @@ import {
   uploadBytes,
   getDownloadURL,
   deleteObject,
-} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-storage.js";
+} from "/vendor/firebase/firebase-storage.js";
 
 
 // ---- Page identity ----
@@ -149,7 +150,7 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
         console.warn("portrait upload failed:", e);
         const ok = await confirmModal({
           title: "Portrait upload failed",
-          messageHtml: "Save without portrait?",
+          message: "Save without portrait?",
           okText: "Save without portrait",
           cancelText: "Cancel",
         });
@@ -168,6 +169,7 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
     await saveCharacterPatch(charRef, patch);
 
     setStatus(statusEl, "Saved.");
+    markBuilderNavigationClean();
 
     // Update local cache (only what Profile touches)
     currentDoc = currentDoc || {};

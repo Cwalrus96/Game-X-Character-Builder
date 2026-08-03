@@ -4,12 +4,19 @@ import { onAuth, signOutNow, initAuthRedirectHandling, getClaims } from "../core
 
 import {
   doc,
-  getDoc,  deleteField,
-} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+  getDoc,
+} from "/vendor/firebase/firebase-firestore.js";
 
 import { normalizeCharacterDoc } from "../core/database-reader.js";
-import { escapeHtml } from "../core/data-sanitization.js";
 import { ensureAppTopNav } from "../core/app-nav.js";
+import {
+  createDialogLifecycle,
+  restoreDialogFocus,
+} from "../core/dialog-lifecycle.js";
+import {
+  createNavigationGuard,
+  installNavigationGuard,
+} from "../core/navigation-guard.js";
 import {
   saveCharacterPatch as _saveCharacterPatch,
   markStepVisited as _markStepVisited,
@@ -94,6 +101,35 @@ export function openCharacterSheet(ctx) {
   url.searchParams.set("charId", ctx.charId);
   if (ctx.claims?.gm && ctx.requestedUid) url.searchParams.set("uid", ctx.requestedUid);
   window.location.href = url.toString();
+}
+
+let activeBuilderNavigationGuard = null;
+let activeBuilderNavigationGuardBinding = null;
+
+export function installBuilderNavigationGuard({ flush } = {}) {
+  if (typeof flush !== "function") return null;
+
+  activeBuilderNavigationGuardBinding?.dispose?.();
+  activeBuilderNavigationGuard = createNavigationGuard({
+    flush,
+    navigate: (href) => window.location.assign(href),
+  });
+  activeBuilderNavigationGuardBinding = installNavigationGuard({
+    guard: activeBuilderNavigationGuard,
+    dirtyRoot: document.querySelector("[data-builder-step]"),
+    trackDirty: true,
+  });
+  activeBuilderNavigationGuard.markClean();
+  return activeBuilderNavigationGuard;
+}
+
+export async function flushBuilderNavigationGuard() {
+  if (!activeBuilderNavigationGuard) return true;
+  return await activeBuilderNavigationGuard.flush();
+}
+
+export function markBuilderNavigationClean() {
+  activeBuilderNavigationGuard?.markClean();
 }
 
 /**
@@ -191,6 +227,8 @@ export async function initBuilderAuth(ui = {}) {
   if (activeSignOutBtn) {
     activeSignOutBtn.style.display = "inline-flex";
     activeSignOutBtn.onclick = async () => {
+      const canLeave = await flushBuilderNavigationGuard();
+      if (!canLeave) return;
       await signOutNow();
       window.location.href = "/login.html";
     };
@@ -246,12 +284,15 @@ export async function saveCharacterPatch(charRef, patch) {
   return await _saveCharacterPatch(charRef, patch);
 }
 
+let confirmDialogElements = null;
+let confirmDialogLifecycle = null;
+
 /**
- * Ensure a reusable confirm modal exists on the page.
- * If the page doesn't provide one, this will create it dynamically.
+ * Ensure the one shared Builder confirmation dialog exists.
+ * All control lookup is scoped to the dialog root.
  *
  * @returns {{
- *   overlay: HTMLElement,
+ *   dialog: HTMLDialogElement,
  *   titleEl: HTMLElement,
  *   msgEl: HTMLElement,
  *   okBtn: HTMLButtonElement,
@@ -259,105 +300,145 @@ export async function saveCharacterPatch(charRef, patch) {
  * }}
  */
 export function ensureConfirmModal() {
-  let overlay = document.getElementById("confirmModal");
-  let titleEl = document.getElementById("confirmTitle");
-  let msgEl = document.getElementById("confirmMsg");
-  let okBtn = document.getElementById("confirmOkBtn");
-  let cancelBtn = document.getElementById("confirmCancelBtn");
+  if (confirmDialogElements?.dialog?.isConnected) return confirmDialogElements;
 
-  if (overlay && titleEl && msgEl && okBtn && cancelBtn) {
-    return { overlay, titleEl, msgEl, okBtn, cancelBtn };
-  }
+  document.getElementById("builderConfirmDialog")?.remove();
+  document.getElementById("confirmOverlay")?.remove();
+  document.getElementById("confirmModal")?.remove();
 
-  overlay = document.createElement("div");
-  overlay.id = "confirmModal";
-  overlay.className = "modalOverlay";
-  overlay.style.display = "none";
+  const dialog = document.createElement("dialog");
+  dialog.id = "builderConfirmDialog";
+  dialog.className = "modalDialog";
+  dialog.setAttribute("aria-modal", "true");
+  dialog.setAttribute("aria-labelledby", "builderConfirmDialogTitle");
+  dialog.setAttribute("aria-describedby", "builderConfirmDialogMessage");
 
   const card = document.createElement("div");
   card.className = "modalCard";
-  card.setAttribute("role", "dialog");
-  card.setAttribute("aria-modal", "true");
 
-  titleEl = document.createElement("h3");
-  titleEl.id = "confirmTitle";
+  const titleEl = document.createElement("h3");
+  titleEl.id = "builderConfirmDialogTitle";
+  titleEl.dataset.dialogTitle = "true";
   titleEl.textContent = "Continue?";
 
-  msgEl = document.createElement("p");
-  msgEl.id = "confirmMsg";
+  const msgEl = document.createElement("div");
+  msgEl.id = "builderConfirmDialogMessage";
   msgEl.className = "muted";
+  msgEl.dataset.dialogMessage = "true";
 
   const actions = document.createElement("div");
   actions.className = "modalActions";
 
-  cancelBtn = document.createElement("button");
-  cancelBtn.id = "confirmCancelBtn";
+  const cancelBtn = document.createElement("button");
   cancelBtn.className = "btn secondary";
   cancelBtn.type = "button";
   cancelBtn.textContent = "Cancel";
+  cancelBtn.dataset.dialogCancel = "true";
 
-  okBtn = document.createElement("button");
-  okBtn.id = "confirmOkBtn";
+  const okBtn = document.createElement("button");
   okBtn.className = "btn";
   okBtn.type = "button";
   okBtn.textContent = "OK";
+  okBtn.dataset.dialogAccept = "true";
+
+  cancelBtn.addEventListener("click", () => {
+    confirmDialogLifecycle?.settle(false, { reason: "cancel" });
+  });
+  okBtn.addEventListener("click", () => {
+    confirmDialogLifecycle?.settle(true, { reason: "accept" });
+  });
+  dialog.addEventListener("cancel", (event) => {
+    event.preventDefault();
+    confirmDialogLifecycle?.settle(false, { reason: "escape" });
+  });
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) {
+      confirmDialogLifecycle?.settle(false, { reason: "backdrop" });
+    }
+  });
 
   actions.append(cancelBtn, okBtn);
   card.append(titleEl, msgEl, actions);
-  overlay.append(card);
-  document.body.append(overlay);
+  dialog.append(card);
+  document.body.append(dialog);
 
-  return { overlay, titleEl, msgEl, okBtn, cancelBtn };
+  confirmDialogElements = { dialog, titleEl, msgEl, okBtn, cancelBtn };
+  return confirmDialogElements;
+}
+
+function renderConfirmDialogMessage(msgEl, { message = "", messages = [] } = {}) {
+  msgEl.replaceChildren();
+
+  const text = String(message || "").trim();
+  if (text) {
+    const paragraph = document.createElement("p");
+    paragraph.textContent = text;
+    msgEl.append(paragraph);
+  }
+
+  const items = Array.isArray(messages)
+    ? messages.map((item) => String(item || "").trim()).filter(Boolean)
+    : [];
+  if (items.length) {
+    const list = document.createElement("ul");
+    for (const item of items) {
+      const listItem = document.createElement("li");
+      listItem.textContent = item;
+      list.append(listItem);
+    }
+    msgEl.append(list);
+  }
+
+  msgEl.hidden = !text && !items.length;
+}
+
+function getConfirmDialogLifecycle() {
+  if (confirmDialogLifecycle) return confirmDialogLifecycle;
+
+  confirmDialogLifecycle = createDialogLifecycle({
+    onOpen: (context) => {
+      const { dialog, titleEl, msgEl, okBtn, cancelBtn } = ensureConfirmModal();
+      const options = context?.options || {};
+      titleEl.textContent = options.title || "Continue?";
+      renderConfirmDialogMessage(msgEl, options);
+      okBtn.textContent = options.okText || "OK";
+      cancelBtn.textContent = options.cancelText || "Cancel";
+
+      if (typeof dialog.showModal === "function") dialog.showModal();
+      else dialog.setAttribute("open", "");
+      queueMicrotask(() => cancelBtn.focus());
+    },
+    onClose: (context, { reason } = {}) => {
+      const { dialog } = ensureConfirmModal();
+      if (dialog.open && typeof dialog.close === "function") dialog.close();
+      else dialog.removeAttribute("open");
+
+      restoreDialogFocus(context?.opener, { reason });
+    },
+  });
+  return confirmDialogLifecycle;
 }
 
 /**
- * Show a confirm modal and resolve true/false.
+ * Show the shared confirmation dialog and resolve true/false.
+ * A newer request cancels any active request before it opens.
  *
  * @param {{
- *   title: string,
- *   messageHtml: string,
+ *   title?: string,
+ *   message?: string,
+ *   messages?: string[],
  *   okText?: string,
  *   cancelText?: string,
  * }} opts
  * @returns {Promise<boolean>}
  */
-export function confirmModal(opts) {
-  const { overlay, titleEl, msgEl, okBtn, cancelBtn } = ensureConfirmModal();
-
-  titleEl.textContent = opts.title || "Continue?";
-  msgEl.innerHTML = opts.messageHtml || "";
-  okBtn.textContent = opts.okText || "OK";
-  cancelBtn.textContent = opts.cancelText || "Cancel";
-
-  overlay.style.display = "flex";
-  okBtn.focus();
-
-  return new Promise((resolve) => {
-    const cleanup = () => {
-      overlay.style.display = "none";
-      okBtn.onclick = null;
-      cancelBtn.onclick = null;
-      window.removeEventListener("keydown", onKeyDown);
-    };
-
-    const onKeyDown = (e) => {
-      if (e.key === "Escape") {
-        cleanup();
-        resolve(false);
-      }
-    };
-
-    okBtn.onclick = () => {
-      cleanup();
-      resolve(true);
-    };
-
-    cancelBtn.onclick = () => {
-      cleanup();
-      resolve(false);
-    };
-
-    window.addEventListener("keydown", onKeyDown);
+export function confirmModal(opts = {}) {
+  const opener = document.activeElement && document.activeElement !== document.body
+    ? document.activeElement
+    : null;
+  return getConfirmDialogLifecycle().request({
+    opener,
+    options: opts,
   });
 }
 
@@ -379,10 +460,9 @@ export async function confirmSaveWarnings(args) {
   const warnings = Array.isArray(args.warnings) ? args.warnings.filter(Boolean) : [];
   if (!warnings.length) return true;
 
-  const messageHtml = `<ul>${warnings.map((w) => `<li>${escapeHtml(String(w))}</li>`).join("")}</ul>`;
   return await confirmModal({
     title,
-    messageHtml,
+    messages: warnings.map((warning) => String(warning)),
     okText: args.okText || "Save and Continue",
     cancelText: args.cancelText || "Cancel",
   });

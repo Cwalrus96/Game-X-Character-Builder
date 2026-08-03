@@ -37,13 +37,13 @@
       <section class="card">
         <div class="cardHeaderRow">
           <h2>Add Weapon</h2>
-          <label class="equipmentToggle muted"><input id="showOutOfRank" type="checkbox" /> Show out-of-rank options</label>
+          <label class="equipmentToggle muted"><input id="showOutOfRank" type="checkbox" data-dirty-ignore /> Show out-of-rank options</label>
         </div>
 
         <div class="equipmentToolbar">
           <div class="equipmentToolbarField">
             <label class="label" for="weaponBaseSelect">Weapon Base</label>
-            <select id="weaponBaseSelect" class="input"></select>
+            <select id="weaponBaseSelect" class="input" data-dirty-ignore></select>
           </div>
           <button id="addWeaponBtn" class="btn" type="button">Add Weapon</button>
         </div>

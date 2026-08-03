@@ -1,7 +1,5 @@
-import { reconcileSelectedOptionKeys, removeSelection, selectedSet } from "../../core/choice-reconciliation.js";
-import { sanitizeStringArray, sanitizeText } from "../../core/data-sanitization.js";
-import { checkPrerequisites } from "../../core/prerequisites.js";
-import { deleteSelectedDescendants } from "../../core/option-groups.js";
+import { getChoiceCountState } from "../../core/choice-capacity.js";
+import { sanitizeText } from "../../core/data-sanitization.js";
 import { BuilderWidget } from "./builder-widget.js";
 import { FeatWidget } from "./feat-widget.js";
 
@@ -73,126 +71,6 @@ export class FeatsWidget extends BuilderWidget {
     };
   }
 
-  getDependencyNodes(context = {}) {
-    const builder = context.builder || {};
-    return this.getAvailableFeats({ gameData: context.gameData, builder })
-      .map((feat) => {
-        const name = sanitizeText(feat?.name || "", { maxLen: 160, collapse: true });
-        if (!name) return null;
-        return {
-          id: `feat:${name}`,
-          kind: "choice",
-          storagePath: "builder.selectedFeats",
-          label: name,
-          prerequisites: feat?.prerequisites || [],
-          grants: feat?.grants || [],
-        };
-      })
-      .filter(Boolean);
-  }
-
-  validateDependencyState(context = {}) {
-    const builder = context.reconciledBuilder || context.proposedBuilder || context.builder || {};
-    const selected = sanitizeStringArray(builder.selectedFeats, { maxItems: 200, maxLen: 160 });
-    const maxSlots = this.getFeatSlots(builder.level);
-    if (selected.length >= maxSlots) return [];
-    return [{
-      type: "incomplete",
-      severity: "warning",
-      nodeId: this.id,
-      storagePath: "builder.selectedFeats",
-      label: "Feats",
-      reason: `You can select ${maxSlots} feats, but only selected ${selected.length}.`,
-      previousValue: selected.length,
-      nextValue: maxSlots,
-    }];
-  }
-
-  reconcileDependencyState(context = {}) {
-    const gameData = context.gameData;
-    const builder = context.proposedBuilder || context.builder || {};
-    const changes = [];
-    const b = { ...builder };
-    const selectedFeatNames = selectedSet(b.selectedFeats, { maxItems: 200, maxLen: 160 });
-    const selectedFeatOptions = selectedSet(b.selectedFeatOptions, { maxItems: 500, maxLen: 200 });
-    const visibleFeats = this.getAvailableFeats({ gameData, builder: b });
-    const visibleFeatByName = new Map(
-      visibleFeats
-        .map((feat) => [sanitizeText(feat?.name || "", { maxLen: 160, collapse: true }), feat])
-        .filter(([name]) => !!name),
-    );
-    const prereqContext = { gameData, builder: b, deferUnresolvedChoices: true };
-
-    for (const name of Array.from(selectedFeatNames)) {
-      const feat = visibleFeatByName.get(name);
-      if (!feat) {
-        removeSelection(selectedFeatNames, name, changes, {
-          type: "remove",
-          severity: "warning",
-          storagePath: "builder.selectedFeats",
-          nodeId: `choice:feat:${name}`,
-          label: name,
-          reason: "This feat is no longer available for the current class and level.",
-        });
-        continue;
-      }
-
-      const check = checkPrerequisites(feat?.prerequisites, prereqContext);
-      if (!check.ok) {
-        removeSelection(selectedFeatNames, name, changes, {
-          type: "remove",
-          severity: "warning",
-          storagePath: "builder.selectedFeats",
-          nodeId: `choice:feat:${name}`,
-          label: name,
-          reason: check.failureReasons.join(" ") || "Prerequisites are no longer met.",
-        });
-        deleteSelectedDescendants(feat, selectedFeatOptions);
-      }
-    }
-
-    const maxSlots = this.getFeatSlots(b.level);
-    if (selectedFeatNames.size > maxSlots) {
-      for (const name of Array.from(selectedFeatNames).slice(maxSlots)) {
-        const feat = visibleFeatByName.get(name);
-        removeSelection(selectedFeatNames, name, changes, {
-          type: "remove",
-          severity: "warning",
-          storagePath: "builder.selectedFeats",
-          nodeId: `choice:feat:${name}`,
-          label: name,
-          reason: `Only ${maxSlots} feat slot${maxSlots === 1 ? "" : "s"} available at level ${b.level}.`,
-        });
-        if (feat) deleteSelectedDescendants(feat, selectedFeatOptions);
-      }
-    }
-
-    const selectedFeatEntries = Array.from(selectedFeatNames)
-      .map((name) => visibleFeatByName.get(name))
-      .filter(Boolean);
-    reconcileSelectedOptionKeys({
-      entries: selectedFeatEntries,
-      selectedKeys: selectedFeatOptions,
-      changes,
-      storagePath: "builder.selectedFeatOptions",
-      nodePrefix: "choice:featOption",
-      unavailableReason: "This option is no longer available from the current selected feats.",
-      getPrerequisiteContext: () => ({
-        gameData,
-        builder: { ...b, selectedFeats: Array.from(selectedFeatNames) },
-        deferUnresolvedChoices: true,
-      }),
-    });
-
-    return {
-      patch: {
-        "builder.selectedFeats": Array.from(selectedFeatNames),
-        "builder.selectedFeatOptions": Array.from(selectedFeatOptions),
-      },
-      changes,
-    };
-  }
-
   render() {
     if (!this.containerEl) return null;
     this.page?.clearWidgets?.({ scope: "feat" });
@@ -214,7 +92,12 @@ export class FeatsWidget extends BuilderWidget {
     }
 
     const visible = this.getAvailableFeats({ builder: { classKey, level } });
-    if (this.hintEl) this.hintEl.textContent = `Slots: ${selectedFeatNames.size}/${maxSlots}`;
+    const countState = getChoiceCountState({
+      selectedCount: selectedFeatNames.size,
+      expectedCount: maxSlots,
+      noun: "feat",
+    });
+    if (this.hintEl) this.hintEl.textContent = `Slots: ${countState.selectedCount}/${countState.expectedCount}`;
 
     if (maxSlots <= 0) {
       this.containerEl.innerHTML = `<p class="muted">No feat slots at level ${level}. (First slot at level 2.)</p>`;

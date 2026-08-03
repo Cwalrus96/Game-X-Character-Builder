@@ -1,3 +1,4 @@
+import { getChoiceCountState } from "../../core/choice-capacity.js";
 import { formatPrerequisites } from "../../core/prerequisites.js";
 import {
   deleteSelectedDescendants,
@@ -37,23 +38,16 @@ export class FeatWidget extends BuilderWidget {
     this.element = this.render();
   }
 
-  getDependencyNodes() {
-    if (!this.name) return [];
-    return [{
-      id: this.id,
-      kind: "choice",
-      storagePath: "builder.selectedFeats",
-      label: this.name,
-      prerequisites: this.feat?.prerequisites || [],
-      grants: this.feat?.grants || [],
-    }];
-  }
-
   render() {
     if (!this.name) return null;
 
     const checked = this.selectedFeatNames.has(this.name);
-    const limitReached = this.maxSlots > 0 && this.selectedFeatNames.size >= this.maxSlots;
+    const countState = getChoiceCountState({
+      selectedCount: this.selectedFeatNames.size,
+      expectedCount: this.maxSlots,
+      noun: "feat",
+    });
+    const limitReached = countState.isAtCapacity;
     const prereqCheck = this.checkEntryPrerequisites(this.feat);
     const prereqText = formatPrerequisites(this.feat?.prerequisites);
     const isUnavailable = !prereqCheck.ok;
@@ -80,7 +74,10 @@ export class FeatWidget extends BuilderWidget {
       cb.title = row.title;
     }
 
-    cb.addEventListener("change", () => {
+    cb.addEventListener("change", async () => {
+      const previousChecked = !cb.checked;
+      const nextFeatNames = new Set(this.selectedFeatNames);
+      const nextFeatOptionKeys = new Set(this.selectedFeatOptionKeys);
       if (cb.checked) {
         const currentPrereqCheck = this.checkEntryPrerequisites(this.feat);
         if (!currentPrereqCheck.ok) {
@@ -92,12 +89,41 @@ export class FeatWidget extends BuilderWidget {
           cb.checked = false;
           return;
         }
-        this.selectedFeatNames.add(this.name);
+        nextFeatNames.add(this.name);
       } else {
-        this.selectedFeatNames.delete(this.name);
-        deleteSelectedDescendants(this.feat, this.selectedFeatOptionKeys);
+        nextFeatNames.delete(this.name);
+        deleteSelectedDescendants(this.feat, nextFeatOptionKeys);
       }
-      this.onChange?.();
+      const result = await this.page?.requestChoiceChange?.(this, {
+        "builder.selectedFeats": Array.from(nextFeatNames),
+        "builder.selectedFeatOptions": Array.from(nextFeatOptionKeys),
+      }, {
+        applyWidgetChange: (preview) => {
+          const reconciled = preview?.reconciledBuilder || {};
+          const selectedFeats = Array.isArray(reconciled.selectedFeats)
+            ? reconciled.selectedFeats
+            : Array.from(nextFeatNames);
+          const selectedFeatOptions = Array.isArray(reconciled.selectedFeatOptions)
+            ? reconciled.selectedFeatOptions
+            : Array.from(nextFeatOptionKeys);
+          this.selectedFeatNames.clear();
+          for (const name of selectedFeats) this.selectedFeatNames.add(name);
+          this.selectedFeatOptionKeys.clear();
+          for (const key of selectedFeatOptions) this.selectedFeatOptionKeys.add(key);
+          this.onChange?.();
+        },
+      });
+      if (result && !result.ok) {
+        cb.checked = previousChecked;
+        return;
+      }
+      if (!result) {
+        this.selectedFeatNames.clear();
+        for (const name of nextFeatNames) this.selectedFeatNames.add(name);
+        this.selectedFeatOptionKeys.clear();
+        for (const key of nextFeatOptionKeys) this.selectedFeatOptionKeys.add(key);
+        this.onChange?.();
+      }
     });
 
     const title = document.createElement("div");

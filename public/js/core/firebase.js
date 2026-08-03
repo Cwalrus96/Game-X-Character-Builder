@@ -1,7 +1,17 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import { getAuth, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-import { getStorage } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-storage.js";
+import { initializeApp } from "/vendor/firebase/firebase-app.js";
+import {
+  connectAuthEmulator,
+  getAuth,
+  GoogleAuthProvider,
+} from "/vendor/firebase/firebase-auth.js";
+import {
+  connectFirestoreEmulator,
+  getFirestore,
+} from "/vendor/firebase/firebase-firestore.js";
+import {
+  connectStorageEmulator,
+  getStorage,
+} from "/vendor/firebase/firebase-storage.js";
 
 // NOTE: Client-side Firebase config is required by the SDK and is not a secret.
 const firebaseConfig = {
@@ -22,6 +32,16 @@ export const auth = getAuth(firebaseApp);
 export const db = getFirestore(firebaseApp);
 export const storage = getStorage(firebaseApp);
 export const googleProvider = new GoogleAuthProvider();
+
+const localHostnames = new Set(["localhost", "127.0.0.1", "::1", "[::1]"]);
+export const usingFirebaseEmulators = localHostnames.has(window.location.hostname);
+
+if (usingFirebaseEmulators) {
+  connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true });
+  connectFirestoreEmulator(db, "127.0.0.1", 8080);
+  connectStorageEmulator(storage, "127.0.0.1", 9199);
+  console.info("Using local Firebase emulators for Auth, Firestore, and Storage.");
+}
 
 export function isMobileLike() {
   if (navigator.userAgentData && typeof navigator.userAgentData.mobile === "boolean") {

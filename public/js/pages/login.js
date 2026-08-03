@@ -1,10 +1,15 @@
 import { onAuth } from "../core/auth-ui.js";
 import { initAuthRedirectHandling, signInInteractive } from "../core/auth-ui.js";
+import { usingFirebaseEmulators } from "../core/firebase.js";
 
 const signInBtn = document.getElementById("signInBtn");
 const continueLink = document.getElementById("continueLink");
 const statusEl = document.getElementById("status");
 const errorEl = document.getElementById("error");
+
+if (usingFirebaseEmulators && signInBtn) {
+  signInBtn.textContent = "Sign in locally";
+}
 
 function getSafeNextHref() {
   const next = new URLSearchParams(window.location.search).get("next");
@@ -45,7 +50,7 @@ onAuth((user) => {
     if (continueLink) continueLink.style.display = "none";
     return;
   }
-  statusEl.textContent = `Signed in as ${user.email || user.displayName || "(unknown)"}`;
+  statusEl.textContent = `Signed in as ${user.email || user.displayName || user.uid || "(unknown)"}`;
   const nextHref = getSafeNextHref();
   if (continueLink) {
     continueLink.href = nextHref || "/characters.html";

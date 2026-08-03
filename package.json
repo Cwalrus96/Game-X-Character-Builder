@@ -1,11 +1,28 @@
 {
   "name": "game-x-character-builder",
   "private": true,
+  "type": "module",
   "scripts": {
+    "test": "npm run test:unit",
+    "test:unit": "node scripts/run-unit-tests.mjs",
+    "test:all": "npm run test:unit && npm run test:rules && npm run validate:assets",
+    "local:start": "node scripts/firebase-local.mjs start",
+    "local:stop": "node scripts/firebase-local.mjs stop",
+    "local:restart": "node scripts/firebase-local.mjs restart",
+    "local:status": "node scripts/firebase-local.mjs status",
+    "local:logs": "node scripts/firebase-local.mjs logs",
+    "admin:set-gm": "node scripts/admin/set-gm.mjs",
+    "local:deploy": "node scripts/firebase-local.mjs start",
+    "dev": "npm run local:start",
+    "deploy": "firebase deploy",
+    "deploy:remote": "firebase deploy",
+    "deploy:hosting": "firebase deploy --only hosting",
+    "deploy:rules": "firebase deploy --only firestore:rules,storage",
     "export:data": "node scripts/export-game-data.mjs data/game-x-class-data.xlsx public/data/game-x",
-    "test:rules": "firebase emulators:exec --only firestore,storage \"node --test tests/*.rules.test.mjs\"",
-    "test:rules:firestore": "firebase emulators:exec --only firestore \"node --test tests/firestore.rules.test.mjs\"",
-    "test:rules:storage": "firebase emulators:exec --only storage \"node --test tests/storage.rules.test.mjs\""
+    "validate:assets": "node scripts/validate-public-assets.mjs",
+    "test:rules": "firebase emulators:exec --config firebase.rules-test.json --project game-x-character-builder-rules --only firestore,storage \"node --test tests/*.rules.test.mjs\"",
+    "test:rules:firestore": "firebase emulators:exec --config firebase.rules-test.json --project game-x-character-builder-rules --only firestore \"node --test tests/firestore.rules.test.mjs\"",
+    "test:rules:storage": "firebase emulators:exec --config firebase.rules-test.json --project game-x-character-builder-rules --only storage \"node --test tests/storage.rules.test.mjs\""
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^5.0.0",

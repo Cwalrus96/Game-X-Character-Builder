@@ -1,5 +1,7 @@
 import { sanitizeText } from "../../core/data-sanitization.js";
+import { resolveGrantChoiceIds } from "../../core/choice-identity.js";
 import { getEffectiveTags } from "../../core/weapon-utils.js";
+import { TechniqueChoiceWidget } from "./technique-choice-widget.js";
 import { WeaponChoiceWidget } from "./weapon-choice-widget.js";
 import { WeaponEnhancementChoiceWidget } from "./weapon-enhancement-choice-widget.js";
 
@@ -66,15 +68,39 @@ export function createGrantWidgets({
   grantContextEntries = [],
   getSelectedEntries = null,
   prerequisiteContext = {},
+  gameData = null,
+  getBuilder = null,
   getGrantChoices = null,
   getExistingWeapons = null,
   onChange = null,
+  sourceId = "",
   scope = "dynamic",
 } = {}) {
   const grants = Array.isArray(entry?.grants) ? entry.grants : [];
   const widgets = [];
 
-  for (const grant of grants) {
+  for (const [index, grant] of grants.entries()) {
+    if (grant?.type === "technique-choice") {
+      for (const [choiceIndex, choiceId] of resolveGrantChoiceIds(grant, { sourceId, index }).entries()) {
+        widgets.push(new TechniqueChoiceWidget(page, {
+          grant: { ...grant, count: 1, choiceNumber: choiceIndex + 1 },
+          choice: grantChoiceState?.getChoice(choiceId),
+          choiceId,
+          gameData,
+          getBuilder,
+          getGrantChoices,
+          sourceId,
+          sourceLabel: entry?.name || entry?.featureName || entry?.featKey || "",
+          scope,
+          onChange: (patch) => {
+            grantChoiceState?.updateChoice(choiceId, patch);
+            onChange?.();
+          },
+        }));
+      }
+      continue;
+    }
+
     if (grant?.type === "weapon" && grant.choiceId) {
       const choiceId = sanitizeText(grant.choiceId, { maxLen: 96, collapse: true });
       const forcedEnhancements = getForcedEnhancementsForChoice(choiceId, grantContextEntries, getSelectedEntries);

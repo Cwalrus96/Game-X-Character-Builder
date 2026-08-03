@@ -5,7 +5,7 @@ import { ensureAppTopNav } from "../core/app-nav.js";
 import {
   collection,
   getDocs,
-} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+} from "/vendor/firebase/firebase-firestore.js";
 
 const statusEl = document.getElementById("status");
 const errorEl = document.getElementById("error");

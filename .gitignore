@@ -68,7 +68,4 @@ node_modules/
 # dataconnect generated files
 .dataconnect
 
-# Ignore Admin Scripts Folder
-adminScripts/
-
 *.xlsx

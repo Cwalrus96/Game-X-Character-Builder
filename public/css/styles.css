@@ -151,6 +151,47 @@
     box-shadow: 0 0 10px rgba(0,0,0,0.25);
   }
 
+  .sheet-save-bar {
+    width: min(100%, 1020px);
+    min-height: 32px;
+    margin: 0 auto 8px;
+    padding: 0 4px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    color: var(--panel-text-color);
+    font-family: var(--body-font);
+    font-size: 0.85rem;
+  }
+
+  .sheet-save-status[data-state="dirty"],
+  .sheet-save-status[data-state="saving"] {
+    color: var(--accent-color);
+  }
+
+  .sheet-save-status[data-state="error"] {
+    color: #ff8a8a;
+    font-weight: 700;
+  }
+
+  .sheet-save-retry {
+    min-height: 30px;
+    border: 1px solid var(--accent-color);
+    border-radius: 4px;
+    padding: 4px 10px;
+    background: transparent;
+    color: var(--panel-text-color);
+    cursor: pointer;
+    font: inherit;
+  }
+
+  .sheet-save-retry:hover,
+  .sheet-save-retry:focus-visible {
+    background: var(--accent-color);
+    color: var(--panel-bg-color);
+  }
+
   /* Decorative corner flourishes */
   #sheet::before, #sheet::after {
     content: "✦";
@@ -1187,6 +1228,10 @@
   }
 
   @media print {
+    .sheet-save-bar {
+      display: none !important;
+    }
+
     .gx-tooltip { display: none !important; }
   }
 

@@ -4,17 +4,25 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Game X Character Builder</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="/css/login.css" />
 </head>
-<body data-theme="na">
-  <main style="max-width:760px;margin:48px auto;padding:24px;">
-    <h1>Game X Character Builder</h1>
-    <p id="status">Checking sign-in…</p>
-    <p>If you are not redirected: <a href="characters.html">Characters</a> | <a href="login.html">Login</a></p>
+<body data-theme="na" class="login-page">
+  <main class="page">
+    <section class="card">
+      <p class="section-kicker">Loading</p>
+      <h1>Game X Character Builder</h1>
+      <p id="status" class="muted status-text">Checking sign-in…</p>
+      <nav class="row actions-row" aria-label="Fallback navigation">
+        <a class="btn" href="/characters.html">Characters</a>
+        <a class="btn secondary" href="/login.html">Login</a>
+      </nav>
+    </section>
   </main>
 
   <script type="module">
-    import { onAuth, initAuthRedirectHandling } from "./auth-ui.js";
+    import { onAuth, initAuthRedirectHandling } from "/js/core/auth-ui.js";
 
     const statusEl = document.getElementById("status");
 
@@ -23,7 +31,7 @@
 
     onAuth((user) => {
       if (statusEl) statusEl.textContent = user ? "Signed in — redirecting…" : "Signed out — redirecting…";
-      window.location.replace(user ? "characters.html" : "login.html");
+      window.location.replace(user ? "/characters.html" : "/login.html");
     });
   </script>
 </body>

@@ -9,6 +9,7 @@ import {
   markStepVisited,
   confirmSaveWarnings,
   ensureBuilderShellUi,
+  markBuilderNavigationClean,
 } from "./builder-common.js";
 import { renderBuilderNavMounts } from "./builder-nav.js";
 import {
@@ -717,6 +718,7 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
     currentDoc.builder.grantedSkillSnapshot = patch["builder.grantedSkillSnapshot"];
 
     setStatus(statusEl, "Saved.");
+    markBuilderNavigationClean();
 
     if (openSheetAfter) openCharacterSheet(ctx);
 

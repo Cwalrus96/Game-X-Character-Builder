@@ -494,6 +494,14 @@ textarea {
   font-weight: 900;
 }
 
+.classDetailLine {
+  margin-top: 6px;
+}
+
+.classDetailLine--primary {
+  margin-top: 10px;
+}
+
 .optionGroup {
   overflow: hidden;
   margin: 10px 0;
@@ -603,6 +611,34 @@ textarea {
   font-weight: 900;
 }
 
+.techniqueSourcePill {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+  padding: 3px 7px;
+  border: 2px solid #171920;
+  border-radius: 999px;
+  background: #fffaf2;
+  color: #171920;
+  font-size: 0.78rem;
+  font-weight: 900;
+  line-height: 1.1;
+  vertical-align: middle;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.16);
+}
+
+.techniqueSourcePill.sourceOwned {
+  background: #ebfff5;
+  border-color: #17603d;
+  color: #17603d;
+}
+
+.techniqueSourcePill.granted {
+  background: #fff0d6;
+  border-color: #8d4d00;
+  color: #5f3400;
+}
+
 .builderItemBody,
 .optionDesc {
   margin-top: 6px;
@@ -656,15 +692,29 @@ textarea {
   opacity: 1;
 }
 
-.modalOverlay {
-  position: fixed;
-  inset: 0;
+.modalDialog {
+  width: min(520px, calc(100% - 36px));
+  max-width: 520px;
+  max-height: calc(100vh - 36px);
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--builder-text);
+  overflow: visible;
+}
+
+.modalDialog::backdrop {
   background: rgba(6, 7, 11, 0.72);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 18px;
-  z-index: 100;
+}
+
+.modalDialog:not([open]) {
+  display: none;
+}
+
+.modalDialog .modalCard {
+  width: 100%;
+  max-height: calc(100vh - 36px);
+  overflow: auto;
 }
 
 .modalCard {

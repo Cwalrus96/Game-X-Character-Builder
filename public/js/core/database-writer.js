@@ -7,7 +7,7 @@ import {
   updateDoc,
   serverTimestamp,
   arrayUnion,
-} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+} from "/vendor/firebase/firebase-firestore.js";
 
 import {
   sanitizeText,

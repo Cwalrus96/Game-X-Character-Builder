@@ -5,12 +5,22 @@ function compareClassNames(a, b) {
   return String(a?.name || a?.classKey || "").localeCompare(String(b?.name || b?.classKey || ""));
 }
 
+export function buildClassChangePatch(nextClassKey) {
+  return {
+    "builder.classKey": sanitizeText(nextClassKey, { maxLen: 64, collapse: true }),
+    // Primary attributes are not graph-backed yet. Reset this direct
+    // class-owned value without pre-clearing graph-owned dependent choices.
+    "builder.primaryAttribute": "",
+  };
+}
+
 export class ClassChoiceWidget extends BuilderWidget {
   constructor(page, {
     selectEl,
     classes = [],
     getValue = null,
     setValue = null,
+    getChangePatch = null,
     getClassInfo = null,
     onChange = null,
     scope = "page",
@@ -20,6 +30,7 @@ export class ClassChoiceWidget extends BuilderWidget {
     this.classes = Array.isArray(classes) ? classes.slice().sort(compareClassNames) : [];
     this.getValue = typeof getValue === "function" ? getValue : () => "";
     this.setValue = typeof setValue === "function" ? setValue : () => {};
+    this.getChangePatch = typeof getChangePatch === "function" ? getChangePatch : buildClassChangePatch;
     this.getClassInfo = typeof getClassInfo === "function" ? getClassInfo : () => ({ ok: true });
     this.onChange = typeof onChange === "function" ? onChange : null;
     this.element = this.selectEl;
@@ -48,9 +59,21 @@ export class ClassChoiceWidget extends BuilderWidget {
       })
       .join("");
     if (selectedValue) this.selectEl.value = selectedValue;
-    this.selectEl.addEventListener("change", () => {
-      this.setValue(this.value());
-      this.onChange?.(this.value());
+    this.selectEl.addEventListener("change", async () => {
+      const previousValue = sanitizeText(this.getValue(), { maxLen: 64, collapse: true });
+      const nextValue = this.value();
+      const result = await this.page?.requestChoiceChange?.(this, this.getChangePatch(nextValue), {
+        applyWidgetChange: (preview) => {
+          this.setValue(nextValue);
+          if (this.selectEl) this.selectEl.value = nextValue;
+          this.onChange?.(nextValue, preview);
+        },
+      });
+      if (result && !result.ok && this.selectEl) this.selectEl.value = previousValue;
+      if (!result) {
+        this.setValue(nextValue);
+        this.onChange?.(nextValue);
+      }
     });
     return this.selectEl;
   }

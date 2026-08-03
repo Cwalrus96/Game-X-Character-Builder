@@ -9,12 +9,14 @@ import {
   clearError,
   confirmSaveWarnings,
   ensureBuilderShellUi,
+  markBuilderNavigationClean,
 } from "./builder-common.js";
 import { renderBuilderNavMounts } from "./builder-nav.js";
 import { buildWeaponsUpdatePatch } from "../core/database-writer.js";
 import { escapeHtml, sanitizeNamedSkillList, sanitizeText } from "../core/data-sanitization.js";
 import { loadGameXData, computeGrantedSkillsState, createCharacterGrantCollection, getGameXWeaponBases, getGameXWeaponEnhancements } from "../core/game-data.js";
 import { formatPrerequisites } from "../core/prerequisites.js";
+import { isSourceOwnedWeapon } from "../core/grants.js";
 import {
   computeTotalWeaponSlots,
   computeWeaponSlotCost,
@@ -234,7 +236,7 @@ function buildEnhancementOptions(weapon, selectedKey) {
   return out.join("");
 }
 
-function buildEnhancementSelectionFields(enhancement, weaponIndex, enhancementIndex) {
+function buildEnhancementSelectionFields(enhancement, weaponIndex, enhancementIndex, { disabled = false } = {}) {
   const specs = getEnhancementSelectionSpecs(enhancement?.enhancementKey);
   if (!specs.length) return "";
   return specs.map((spec) => {
@@ -246,13 +248,13 @@ function buildEnhancementSelectionFields(enhancement, weaponIndex, enhancementIn
       return `
         <div class="equipmentField">
           <label class="label" for="weapon-${weaponIndex}-enhancement-${enhancementIndex}-${spec.key}">${escapeHtml(spec.label)}</label>
-          <select id="weapon-${weaponIndex}-enhancement-${enhancementIndex}-${spec.key}" class="input" data-enhancement-selection data-weapon-index="${weaponIndex}" data-enhancement-index="${enhancementIndex}" data-selection-key="${escapeHtml(spec.key)}">${options}</select>
+          <select id="weapon-${weaponIndex}-enhancement-${enhancementIndex}-${spec.key}" class="input" data-enhancement-selection data-weapon-index="${weaponIndex}" data-enhancement-index="${enhancementIndex}" data-selection-key="${escapeHtml(spec.key)}"${disabled ? " disabled" : ""}>${options}</select>
         </div>`;
     }
     return `
       <div class="equipmentField">
         <label class="label" for="weapon-${weaponIndex}-enhancement-${enhancementIndex}-${spec.key}">${escapeHtml(spec.label)}</label>
-        <input id="weapon-${weaponIndex}-enhancement-${enhancementIndex}-${spec.key}" class="input" type="text" value="${escapeHtml(value)}" placeholder="${escapeHtml(spec.placeholder || "")}" data-enhancement-selection data-weapon-index="${weaponIndex}" data-enhancement-index="${enhancementIndex}" data-selection-key="${escapeHtml(spec.key)}" />
+        <input id="weapon-${weaponIndex}-enhancement-${enhancementIndex}-${spec.key}" class="input" type="text" value="${escapeHtml(value)}" placeholder="${escapeHtml(spec.placeholder || "")}" data-enhancement-selection data-weapon-index="${weaponIndex}" data-enhancement-index="${enhancementIndex}" data-selection-key="${escapeHtml(spec.key)}"${disabled ? " disabled" : ""} />
       </div>`;
   }).join("");
 }
@@ -342,6 +344,8 @@ function renderWeapons() {
   }
 
   weaponListEl.innerHTML = weapons.map((weapon, weaponIndex) => {
+    const sourceOwned = isSourceOwnedWeapon(weapon);
+    const disabledAttribute = sourceOwned ? " disabled" : "";
     const weaponDef = getWeaponDef(weaponBases, weapon.weaponKey);
     const displayName = sanitizeText(weapon.customName || weaponDef?.name || weapon.weaponKey || `Weapon ${weaponIndex + 1}`, { maxLen: 160, collapse: true });
     const effectiveTags = getEffectiveTags(weapon, weaponBases);
@@ -366,7 +370,7 @@ function renderWeapons() {
       const enhancementRank = Number(enhancement?.rank || minEnhancementRank);
       const enhancementOptions = buildEnhancementOptions(weapon, enhancement.enhancementKey);
       const enhancementRankOptions = buildRankOptions(minEnhancementRank, Math.max(minEnhancementRank, Number(weapon.rank || 0)), enhancementRank);
-      const selectionFields = buildEnhancementSelectionFields(enhancement, weaponIndex, enhancementIndex);
+      const selectionFields = buildEnhancementSelectionFields(enhancement, weaponIndex, enhancementIndex, { disabled: sourceOwned });
       const detailHtml = renderEnhancementDetailHtml(enhancementDef, enhancement, { collapsible: false });
       const prereq = sanitizeText(formatPrerequisites(enhancementDef?.prerequisites), { maxLen: 300, collapse: true });
       return `
@@ -375,11 +379,11 @@ function renderWeapons() {
             <div class="equipmentGrid equipmentGrid--enhancement">
               <div class="equipmentField">
                 <label class="label" for="weapon-${weaponIndex}-enhancement-${enhancementIndex}-key">Enhancement</label>
-                <select id="weapon-${weaponIndex}-enhancement-${enhancementIndex}-key" class="input" data-enhancement-key data-weapon-index="${weaponIndex}" data-enhancement-index="${enhancementIndex}">${enhancementOptions}</select>
+                <select id="weapon-${weaponIndex}-enhancement-${enhancementIndex}-key" class="input" data-enhancement-key data-weapon-index="${weaponIndex}" data-enhancement-index="${enhancementIndex}"${disabledAttribute}>${enhancementOptions}</select>
               </div>
               <div class="equipmentField equipmentField--compact">
                 <label class="label" for="weapon-${weaponIndex}-enhancement-${enhancementIndex}-rank">Rank</label>
-                <select id="weapon-${weaponIndex}-enhancement-${enhancementIndex}-rank" class="input" data-enhancement-rank data-weapon-index="${weaponIndex}" data-enhancement-index="${enhancementIndex}">${enhancementRankOptions}</select>
+                <select id="weapon-${weaponIndex}-enhancement-${enhancementIndex}-rank" class="input" data-enhancement-rank data-weapon-index="${weaponIndex}" data-enhancement-index="${enhancementIndex}"${disabledAttribute}>${enhancementRankOptions}</select>
               </div>
             </div>
             ${selectionFields ? `<div class="equipmentGrid equipmentGrid--enhancementSelections">${selectionFields}</div>` : ""}
@@ -387,7 +391,7 @@ function renderWeapons() {
             ${prereq && !/^none$/i.test(prereq) ? `<div class="help">Prerequisite: ${escapeHtml(prereq)}</div>` : ""}
           </div>
           <div class="equipmentRowActions">
-            <button class="btn secondary" type="button" data-remove-enhancement data-weapon-index="${weaponIndex}" data-enhancement-index="${enhancementIndex}">Remove</button>
+            <button class="btn secondary" type="button" data-remove-enhancement data-weapon-index="${weaponIndex}" data-enhancement-index="${enhancementIndex}"${disabledAttribute}>Remove</button>
           </div>
         </div>`;
     }).join("") : '<div class="emptyState emptyState--nested">No enhancements.</div>';
@@ -399,24 +403,24 @@ function renderWeapons() {
             <div class="builderItemTitle">${escapeHtml(displayName)}</div>
             <div class="builderItemMeta">${weaponDef ? escapeHtml(weaponDef.name) : escapeHtml(weapon.weaponKey || "Unknown weapon")} - Slots ${slotCost} - ${escapeHtml(skillLabel)}</div>
           </div>
-          <button class="btn secondary" type="button" data-remove-weapon="${weaponIndex}">Remove Weapon</button>
+          <button class="btn secondary" type="button" data-remove-weapon="${weaponIndex}"${disabledAttribute}>Remove Weapon</button>
         </div>
 
         <div class="equipmentGrid">
           <div class="equipmentField">
             <label class="label" for="weapon-${weaponIndex}-base">Weapon Base</label>
-            <select id="weapon-${weaponIndex}-base" class="input" data-weapon-key="${weaponIndex}">${weaponOptions}</select>
+            <select id="weapon-${weaponIndex}-base" class="input" data-weapon-key="${weaponIndex}"${disabledAttribute}>${weaponOptions}</select>
           </div>
           <div class="equipmentField equipmentField--compact">
             <label class="label" for="weapon-${weaponIndex}-rank">Rank</label>
-            <select id="weapon-${weaponIndex}-rank" class="input" data-weapon-rank="${weaponIndex}">${weaponRankOptions}</select>
+            <select id="weapon-${weaponIndex}-rank" class="input" data-weapon-rank="${weaponIndex}"${disabledAttribute}>${weaponRankOptions}</select>
           </div>
         </div>
 
         <div class="equipmentGrid">
           <div class="equipmentField">
             <label class="label" for="weapon-${weaponIndex}-custom-name">Custom Name</label>
-            <input id="weapon-${weaponIndex}-custom-name" class="input" type="text" value="${escapeHtml(weapon.customName || "")}" data-weapon-custom-name="${weaponIndex}" />
+            <input id="weapon-${weaponIndex}-custom-name" class="input" type="text" value="${escapeHtml(weapon.customName || "")}" data-weapon-custom-name="${weaponIndex}"${disabledAttribute} />
           </div>
           <div class="equipmentField">
             <label class="label">Tags</label>
@@ -424,13 +428,14 @@ function renderWeapons() {
           </div>
         </div>
 
+        ${sourceOwned ? '<div class="help sourceOwnedNotice">Granted by another character choice. Edit the granting choice to change or remove this weapon.</div>' : ""}
         <div class="builderItemBody">${profilesHtml}</div>
         ${warningsHtml}
 
         <div class="equipmentSubsection">
           <div class="cardHeaderRow">
             <h3>Enhancements</h3>
-            <button class="btn" type="button" data-add-enhancement="${weaponIndex}">Add Enhancement</button>
+            <button class="btn" type="button" data-add-enhancement="${weaponIndex}"${disabledAttribute}>Add Enhancement</button>
           </div>
           <div class="help">${usedEnhancementSlots} / ${enhancementCapacity} slot${enhancementCapacity === 1 ? "" : "s"} used${grantedEnhancementSlots ? ` (${grantedEnhancementSlots} granted)` : ""}.</div>
           <div class="optionList">${enhancementRowsHtml}</div>
@@ -449,13 +454,14 @@ function addWeapon() {
 }
 
 function removeWeapon(index) {
+  if (isSourceOwnedWeapon(currentWeapons[index])) return;
   currentWeapons.splice(index, 1);
   renderWeapons();
 }
 
 function addEnhancement(weaponIndex) {
   const weapon = currentWeapons[weaponIndex];
-  if (!weapon) return;
+  if (!weapon || isSourceOwnedWeapon(weapon)) return;
   const compatible = getVisibleEnhancements(weapon);
   const first = compatible[0] || null;
   weapon.enhancements = Array.isArray(weapon.enhancements) ? weapon.enhancements : [];
@@ -465,14 +471,14 @@ function addEnhancement(weaponIndex) {
 
 function removeEnhancement(weaponIndex, enhancementIndex) {
   const weapon = currentWeapons[weaponIndex];
-  if (!weapon || !Array.isArray(weapon.enhancements)) return;
+  if (!weapon || isSourceOwnedWeapon(weapon) || !Array.isArray(weapon.enhancements)) return;
   weapon.enhancements.splice(enhancementIndex, 1);
   renderWeapons();
 }
 
 function updateWeaponKey(weaponIndex, weaponKey) {
   const weapon = currentWeapons[weaponIndex];
-  if (!weapon) return;
+  if (!weapon || isSourceOwnedWeapon(weapon)) return;
   const weaponDef = getWeaponDef(weaponBases, weaponKey);
   weapon.weaponKey = weaponKey;
   const minRank = Number(weaponDef?.minRank || 0);
@@ -482,7 +488,7 @@ function updateWeaponKey(weaponIndex, weaponKey) {
 
 function updateWeaponRank(weaponIndex, rankValue) {
   const weapon = currentWeapons[weaponIndex];
-  if (!weapon) return;
+  if (!weapon || isSourceOwnedWeapon(weapon)) return;
   const rank = Number.parseInt(String(rankValue), 10);
   weapon.rank = Number.isFinite(rank) ? Math.max(0, rank) : 0;
   for (const enhancement of Array.isArray(weapon.enhancements) ? weapon.enhancements : []) {
@@ -493,12 +499,13 @@ function updateWeaponRank(weaponIndex, rankValue) {
 
 function updateWeaponCustomName(weaponIndex, value) {
   const weapon = currentWeapons[weaponIndex];
-  if (!weapon) return;
+  if (!weapon || isSourceOwnedWeapon(weapon)) return;
   weapon.customName = sanitizeText(value, { maxLen: 120, collapse: true });
 }
 
 function updateEnhancementKey(weaponIndex, enhancementIndex, enhancementKey) {
   const weapon = currentWeapons[weaponIndex];
+  if (isSourceOwnedWeapon(weapon)) return;
   const enhancement = weapon?.enhancements?.[enhancementIndex];
   if (!enhancement) return;
   const enhancementDef = getEnhancementDef(weaponEnhancements, enhancementKey);
@@ -510,6 +517,7 @@ function updateEnhancementKey(weaponIndex, enhancementIndex, enhancementKey) {
 
 function updateEnhancementRank(weaponIndex, enhancementIndex, rankValue) {
   const weapon = currentWeapons[weaponIndex];
+  if (isSourceOwnedWeapon(weapon)) return;
   const enhancement = weapon?.enhancements?.[enhancementIndex];
   if (!enhancement) return;
   const rank = Number.parseInt(String(rankValue), 10);
@@ -519,6 +527,7 @@ function updateEnhancementRank(weaponIndex, enhancementIndex, rankValue) {
 
 function updateEnhancementSelection(weaponIndex, enhancementIndex, selectionKey, value) {
   const weapon = currentWeapons[weaponIndex];
+  if (isSourceOwnedWeapon(weapon)) return;
   const enhancement = weapon?.enhancements?.[enhancementIndex];
   if (!enhancement) return;
   enhancement.selections = (enhancement.selections && typeof enhancement.selections === "object" && !Array.isArray(enhancement.selections)) ? enhancement.selections : {};
@@ -566,6 +575,7 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
     currentDoc.builder = { ...(currentDoc.builder || {}), weapons: Array.isArray(patch["builder.weapons"]) ? patch["builder.weapons"] : [] };
     renderWeapons();
     setStatus(statusEl, "Saved.");
+    markBuilderNavigationClean();
     if (openSheetAfter) openCharacterSheet(ctx);
     return true;
   } catch (e) {

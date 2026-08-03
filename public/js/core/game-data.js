@@ -17,7 +17,7 @@ let _gameXDataPromise = null;
 
 export { getEntryGrants, getGrantName, getGrantNotes } from "./grants.js";
 
-export async function loadGameXData({ cache = "no-store" } = {}) {
+export async function loadGameXData({ cache = "default" } = {}) {
   if (_gameXDataPromise) return _gameXDataPromise;
 
   _gameXDataPromise = (async () => {
@@ -35,17 +35,17 @@ export async function loadGameXData({ cache = "no-store" } = {}) {
   }
 }
 
-export async function loadGameXClasses({ cache = "no-store" } = {}) {
+export async function loadGameXClasses({ cache = "default" } = {}) {
   const data = await loadGameXData({ cache });
   return getGameXClasses(data);
 }
 
-export async function loadGameXTechniques({ cache = "no-store" } = {}) {
+export async function loadGameXTechniques({ cache = "default" } = {}) {
   const data = await loadGameXData({ cache });
   return getGameXTechniques(data);
 }
 
-export async function loadGameXOrigins({ cache = "no-store" } = {}) {
+export async function loadGameXOrigins({ cache = "default" } = {}) {
   const data = await loadGameXData({ cache });
   return getGameXOrigins(data);
 }

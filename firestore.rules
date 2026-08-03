@@ -8,7 +8,9 @@ service cloud.firestore {
 
     // Custom claim (set via Admin SDK / Cloud Functions / CLI)
     function isGM() {
-      return signedIn() && request.auth.token.gm == true;
+      return signedIn()
+        && 'gm' in request.auth.token
+        && request.auth.token.gm == true;
     }
 
     function isSelf(uid) {

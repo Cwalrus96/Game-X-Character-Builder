@@ -78,9 +78,13 @@ export function getGrantName(grant) {
   return sanitizeText(grant?.name || grant?.key || "", { maxLen: 200, collapse: true });
 }
 
+export function isSourceOwnedWeapon(weapon) {
+  return !!weapon && (weapon.generated === true || !!sanitizeText(weapon.sourceChoiceId, { maxLen: 96, collapse: true }));
+}
+
 export function buildGeneratedWeaponsFromGrantChoices(grantChoices = {}, existingWeapons = []) {
   const sanitizedExisting = sanitizeWeaponList(existingWeapons, { maxItems: 20 });
-  const kept = sanitizedExisting.filter((weapon) => !(weapon?.generated || weapon?.sourceChoiceId));
+  const kept = sanitizedExisting.filter((weapon) => !isSourceOwnedWeapon(weapon));
   const generated = [];
 
   for (const [rawChoiceId, choice] of Object.entries(grantChoices || {})) {

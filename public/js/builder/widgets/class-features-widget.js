@@ -1,4 +1,3 @@
-import { reconcileSelectedOptionKeys, selectedSet } from "../../core/choice-reconciliation.js";
 import { buildGroupId, sanitizeText } from "../../core/data-sanitization.js";
 import { collectOptionGroups } from "../../core/option-groups.js";
 import { BuilderWidget } from "./builder-widget.js";
@@ -63,59 +62,10 @@ export class ClassFeaturesWidget extends BuilderWidget {
     };
   }
 
-  getDependencyNodes(context = {}) {
-    const builder = context.builder || {};
-    return this.getAvailableFeatures({ gameData: context.gameData, builder })
-      .map((entry) => {
-        const name = sanitizeText(entry?.name || "", { maxLen: 160, collapse: true });
-        if (!name) return null;
-        return {
-          id: `class-feature:${name}`,
-          kind: "choice",
-          storagePath: "builder.selectedClassFeatureOptions",
-          label: name,
-          prerequisites: entry?.prerequisites || [],
-          grants: entry?.grants || [],
-        };
-      })
-      .filter(Boolean);
-  }
-
-  reconcileDependencyState(context = {}) {
-    const gameData = context.gameData;
-    const builder = context.proposedBuilder || context.builder || {};
-    const changes = [];
-    const b = { ...builder };
-    const selectedFeatureOptions = selectedSet(b.selectedClassFeatureOptions, { maxItems: 1000, maxLen: 200 });
-    const visibleFeatures = this.getAvailableFeatures({ gameData, builder: b });
-    const previousFeatures = this.getAvailableFeatures({ gameData, builder: context.previousBuilder || b });
-    reconcileSelectedOptionKeys({
-      entries: visibleFeatures,
-      previousEntries: previousFeatures,
-      selectedKeys: selectedFeatureOptions,
-      changes,
-      storagePath: "builder.selectedClassFeatureOptions",
-      nodePrefix: "choice:classFeatureOption",
-      unavailableReason: "This option is no longer available for the current class and level.",
-      getPrerequisiteContext: (selectedKeys) => ({
-        gameData,
-        builder: { ...b, selectedClassFeatureOptions: Array.from(selectedKeys) },
-        deferUnresolvedChoices: true,
-      }),
-    });
-
-    return {
-      patch: {
-        "builder.selectedClassFeatureOptions": Array.from(selectedFeatureOptions),
-      },
-      changes,
-    };
-  }
-
   render() {
     if (!this.containerEl) return null;
     this.page?.clearWidgets?.({ scope: "feature" });
-    this.containerEl.innerHTML = "";
+    this.containerEl.replaceChildren();
 
     let hiddenUnavailableCount = 0;
     let unavailableCount = 0;
@@ -124,7 +74,10 @@ export class ClassFeaturesWidget extends BuilderWidget {
     const selectedFeatureOptionKeys = this.selectedFeatureOptionKeys();
 
     if (!classKey) {
-      this.containerEl.innerHTML = `<p class="muted">Choose a class to view features.</p>`;
+      const message = document.createElement("p");
+      message.className = "muted";
+      message.textContent = "Choose a class to view features.";
+      this.containerEl.append(message);
       if (this.hintEl) this.hintEl.textContent = "";
       setPrerequisiteNotice(this.prereqNoticeEl, 0, 0);
       return this.containerEl;
@@ -134,7 +87,10 @@ export class ClassFeaturesWidget extends BuilderWidget {
     if (this.hintEl) this.hintEl.textContent = `Showing features up to level ${level}.`;
 
     if (!visible.length) {
-      this.containerEl.innerHTML = `<p class="muted">No features available.</p>`;
+      const message = document.createElement("p");
+      message.className = "muted";
+      message.textContent = "No features available.";
+      this.containerEl.append(message);
       setPrerequisiteNotice(this.prereqNoticeEl, 0, 0);
       return this.containerEl;
     }
@@ -145,11 +101,16 @@ export class ClassFeaturesWidget extends BuilderWidget {
       if (type === "feature") {
         const card = document.createElement("div");
         card.className = "builderItem";
-        card.innerHTML = `
-          <div class="builderItemTitle">${sanitizeText(feature.name || "Feature", { maxLen: 200 })}</div>
-          <div class="muted builderItemMeta">Level ${Number(feature.level || 1)}</div>
-          <div class="builderItemBody">${sanitizeText(feature.description || "", { maxLen: 2000 })}</div>
-        `;
+        const title = document.createElement("div");
+        title.className = "builderItemTitle";
+        title.textContent = sanitizeText(feature.name || "Feature", { maxLen: 200 });
+        const meta = document.createElement("div");
+        meta.className = "muted builderItemMeta";
+        meta.textContent = `Level ${Number(feature.level || 1)}`;
+        const body = document.createElement("div");
+        body.className = "builderItemBody";
+        body.textContent = sanitizeText(feature.description || "", { maxLen: 2000 });
+        card.append(title, meta, body);
         const grantWidgets = this.renderGrantWidgets?.(feature, { scope: "feature" });
         if (grantWidgets) card.append(grantWidgets);
         this.containerEl.append(card);

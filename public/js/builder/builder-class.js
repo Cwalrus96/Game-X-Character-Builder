@@ -12,6 +12,7 @@ import {
   clearError,
   confirmSaveWarnings,
   ensureBuilderShellUi,
+  markBuilderNavigationClean,
 } from "./builder-common.js";
 
 import { renderBuilderNavMounts } from "./builder-nav.js";
@@ -29,7 +30,7 @@ import { PrimaryAttributeWidget } from "./widgets/primary-attribute-widget.js";
 import { loadGameXData, getGameXClasses, getGameXClassFeatures, getGameXFeats, getGameXWeaponBases, getGameXWeaponEnhancements } from "../core/game-data.js";
 
 import { ATTR_KEYS, clampLevel, coerceAttrKey, labelForAttrKey } from "../core/character-rules.js";
-import { buildBuilderWithPatch, reconcileBuilderChange } from "../core/builder-dependencies.js";
+import { buildBuilderWithPatch, reconcileBuilderChange, summarizeDependencyChanges, summarizeDependencyRemovals } from "../core/builder-dependencies.js";
 import { sanitizeText } from "../core/data-sanitization.js";
 import { checkPrerequisites } from "../core/prerequisites.js";
 import {
@@ -108,6 +109,11 @@ const classPage = new ClassBuilderPage({
   }),
   getGameData: () => gameData,
   getBuilder: () => currentDoc?.builder || {},
+  onWorkingBuilderChange: (builder) => {
+    currentDoc = currentDoc || {};
+    currentDoc.builder = builder;
+    applyReconciledChoiceState(builder);
+  },
   filterImmediateWarnings: (preview) => getImmediateDependencyWarnings(preview),
   confirmDependencyPreview: async ({ warnings }) => {
     if (!warnings.length) return true;
@@ -200,7 +206,7 @@ function computeVisibleFeats(classKey, level) {
 
 function getClassStepBuilderState() {
   return {
-    ...(currentDoc?.builder || {}),
+    ...classPage.getWorkingBuilder(),
     level: clampLevel(selectedLevel),
     classKey: selectedClassKey,
     primaryAttribute: selectedPrimary,
@@ -212,6 +218,16 @@ function getClassStepBuilderState() {
 }
 
 function applyReconciledChoiceState(builder = {}) {
+  if (typeof builder.classKey !== "undefined") {
+    selectedClassKey = String(builder.classKey || "");
+  }
+  if (typeof builder.primaryAttribute !== "undefined") {
+    selectedPrimary = String(builder.primaryAttribute || "");
+  }
+  if (typeof builder.level !== "undefined") {
+    selectedLevel = clampLevel(builder.level || 1);
+    if (levelEl) levelEl.value = String(selectedLevel);
+  }
   if (Array.isArray(builder.selectedClassFeatureOptions)) {
     selectedFeatureOptionKeys = new Set(builder.selectedClassFeatureOptions);
   }
@@ -280,10 +296,11 @@ function getSaveIssues() {
 
   const previewPatch = classPage.getWidgetSavePatch({ currentDoc, grantChoices });
   const preview = classPage.previewChoiceChange(previewPatch);
-  warnings.push(...preview.warnings);
+  const dependencyWarnings = getPageDependencyWarnings(preview, previewPatch);
+  warnings.push(...dependencyWarnings);
   errors.push(...preview.errors);
 
-  if (classChanged && levelDecreased && !preview.warnings.length) {
+  if (classChanged && levelDecreased && !dependencyWarnings.length) {
     warnings.push(`Changing class and reducing level may require reviewing later builder choices.`);
   }
 
@@ -291,11 +308,16 @@ function getSaveIssues() {
 }
 
 function getImmediateDependencyWarnings(preview) {
-  const warnings = Array.isArray(preview?.warnings) ? preview.warnings : [];
-  const hasRemoval = Array.isArray(preview?.changes)
-    && preview.changes.some((change) => change?.type === "remove");
-  if (!hasRemoval) return [];
-  return warnings.filter((warning) => /^This change will remove\b/.test(String(warning || "")));
+  return summarizeDependencyRemovals(preview?.changes);
+}
+
+function getPageDependencyWarnings(preview, pagePatch = {}) {
+  const pagePaths = new Set(Object.keys(pagePatch || {}));
+  const changes = Array.isArray(preview?.changes) ? preview.changes : [];
+  return summarizeDependencyChanges(changes.filter((change) => {
+    if (change?.type !== "incomplete") return true;
+    return pagePaths.has(change.storagePath);
+  }));
 }
 
 function buildAutoAbilities(builderState = null) {
@@ -382,9 +404,13 @@ function renderPrimaryOptions() {
   const cls = getClassByKey(selectedClassKey);
   const allowed = getAllowedPrimaryAttributes(cls);
 
-  primaryEl.innerHTML = allowed
-    .map((k) => `<option value="${k}">${labelForAttrKey(k) || (k[0].toUpperCase() + k.slice(1))}</option>`)
-    .join("");
+  primaryEl.replaceChildren();
+  for (const key of allowed) {
+    const option = document.createElement("option");
+    option.value = key;
+    option.textContent = labelForAttrKey(key) || (key[0].toUpperCase() + key.slice(1));
+    primaryEl.append(option);
+  }
   if (selectedPrimary && allowed.includes(/** @type {any} */ (selectedPrimary))) {
     primaryEl.value = selectedPrimary;
   } else {
@@ -395,26 +421,42 @@ function renderPrimaryOptions() {
 
 function renderClassDetails() {
   if (!classDetailsEl) return;
+  classDetailsEl.replaceChildren();
   const cls = getClassByKey(selectedClassKey);
   if (!cls) {
     classDetailsEl.textContent = "Select a class to view details.";
     return;
   }
 
-  const lines = [];
-  lines.push(`<div><strong>${sanitizeText(cls.name || cls.classKey || "Class", { maxLen: 200 })}</strong></div>`);
-  if (cls.pitch) lines.push(`<div class="muted" style="margin-top:6px">${sanitizeText(cls.pitch, { maxLen: 1200 })}</div>`);
-  if (cls.examples) lines.push(`<div class="muted" style="margin-top:6px"><span class="muted">Examples:</span> ${sanitizeText(cls.examples, { maxLen: 500 })}</div>`);
-  if (cls.notes) lines.push(`<div class="muted" style="margin-top:6px"><span class="muted">Notes:</span> ${sanitizeText(cls.notes, { maxLen: 800 })}</div>`);
+  const title = document.createElement("div");
+  const titleText = document.createElement("strong");
+  titleText.textContent = sanitizeText(cls.name || cls.classKey || "Class", { maxLen: 200 });
+  title.append(titleText);
+  classDetailsEl.append(title);
+
+  const appendDetail = (value, { label = "", primary = false } = {}) => {
+    const line = document.createElement("div");
+    line.className = `muted classDetailLine${primary ? " classDetailLine--primary" : ""}`;
+    if (label) {
+      const labelEl = document.createElement("span");
+      labelEl.className = "muted";
+      labelEl.textContent = `${label}: `;
+      line.append(labelEl);
+    }
+    line.append(document.createTextNode(value));
+    classDetailsEl.append(line);
+  };
+
+  if (cls.pitch) appendDetail(sanitizeText(cls.pitch, { maxLen: 1200 }));
+  if (cls.examples) appendDetail(sanitizeText(cls.examples, { maxLen: 500 }), { label: "Examples" });
+  if (cls.notes) appendDetail(sanitizeText(cls.notes, { maxLen: 800 }), { label: "Notes" });
 
 
   const allowed = getAllowedPrimaryAttributes(cls);
   if (allowed.length) {
     const labels = allowed.map((k) => labelForAttrKey(k) || k);
-    lines.push(`<div style="margin-top:10px"><span class="muted">Primary Attributes:</span> ${labels.join(" / ")}</div>`);
+    appendDetail(labels.join(" / "), { label: "Primary Attributes", primary: true });
   }
-
-  classDetailsEl.innerHTML = lines.join("");
 }
 
 function setIncompleteBanner(isIncomplete, reasonText) {
@@ -428,7 +470,27 @@ function setIncompleteBanner(isIncomplete, reasonText) {
   incompleteReasonEl.textContent = reasonText ? ` ${reasonText}` : "";
 }
 
-function createGrantChoiceWidgets(entry, { scope = "features" } = {}) {
+function inferGrantWidgetSourceId(entry, {
+  scope = "feature",
+  sourceId = "",
+  storagePath = "",
+  optionKey = "",
+} = {}) {
+  const provided = sanitizeText(sourceId, { maxLen: 260, collapse: true });
+  if (provided) return provided;
+  const key = sanitizeText(optionKey, { maxLen: 240, collapse: true });
+  if (storagePath && key) return `choice:${storagePath}:${key}`;
+  if (scope === "feat") {
+    const featName = sanitizeText(entry?.name || "", { maxLen: 160, collapse: true });
+    return featName ? `feat:${featName}` : "";
+  }
+  const featureKey = sanitizeText(entry?.featureKey || entry?.name || "", { maxLen: 240, collapse: true });
+  return featureKey ? `classFeature:${featureKey}` : "";
+}
+
+function createGrantChoiceWidgets(entry, options = {}) {
+  const sourceId = inferGrantWidgetSourceId(entry, options);
+  const optionKeys = options.scope === "feat" ? selectedFeatOptionKeys : selectedFeatureOptionKeys;
   const widgets = createGrantWidgets({
     page: classPage,
     entry,
@@ -436,11 +498,14 @@ function createGrantChoiceWidgets(entry, { scope = "features" } = {}) {
     weaponBases,
     weaponEnhancements,
     grantContextEntries: computeVisibleClassFeatures(selectedClassKey, selectedLevel),
-    getSelectedEntries: (entry) => collectSelectedEntries([entry], selectedFeatureOptionKeys),
+    getSelectedEntries: (entry) => collectSelectedEntries([entry], optionKeys),
     prerequisiteContext: { gameData, builder: getClassStepBuilderState() },
+    gameData,
+    getBuilder: getClassStepBuilderState,
     getGrantChoices: () => grantChoices,
     getExistingWeapons: () => currentDoc?.builder?.weapons || [],
-    scope,
+    sourceId,
+    scope: options.scope || "features",
     onChange: () => {
       updateUiForSelection();
       renderNav();
@@ -538,9 +603,7 @@ async function saveClassStep({ openSheetAfter = false, intent = "save" } = {}) {
 
   try {
     const widgetPatch = classPage.getWidgetSavePatch({ currentDoc, grantChoices });
-    const reconciliation = reconcileBuilderChange(gameData, currentDoc?.builder || {}, widgetPatch, {
-      participants: classPage.getDependencyParticipants(),
-    });
+    const reconciliation = reconcileBuilderChange(gameData, classPage.getWorkingBuilder(), widgetPatch);
     const autoAbilities = buildAutoAbilities(reconciliation.reconciledBuilder);
     const autoNames = autoAbilities.map((a) => a.name);
     const oldAutoNames = currentDoc?.builder?.autoAbilityNames || [];
@@ -565,14 +628,15 @@ async function saveClassStep({ openSheetAfter = false, intent = "save" } = {}) {
     await markStepVisited(charRef, CURRENT_STEP_ID);
 
     // Update local cache
-    const prevBuilder = currentDoc.builder || {};
-    currentDoc.builder = buildBuilderWithPatch(prevBuilder, patch);
+    const prevBuilder = classPage.getWorkingBuilder();
+    classPage.setWorkingBuilder(buildBuilderWithPatch(prevBuilder, patch));
     selectedFeatureOptionKeys = new Set(Array.isArray(currentDoc.builder.selectedClassFeatureOptions) ? currentDoc.builder.selectedClassFeatureOptions : []);
     selectedFeatNames = new Set(Array.isArray(currentDoc.builder.selectedFeats) ? currentDoc.builder.selectedFeats : []);
     selectedFeatOptionKeys = new Set(Array.isArray(currentDoc.builder.selectedFeatOptions) ? currentDoc.builder.selectedFeatOptions : []);
     grantChoices = (currentDoc.builder.grantChoices && typeof currentDoc.builder.grantChoices === "object") ? { ...currentDoc.builder.grantChoices } : {};
 
     setStatus(statusEl, "Saved.");
+    markBuilderNavigationClean();
 
     if (openSheetAfter) openCharacterSheet(ctx);
 
@@ -616,6 +680,7 @@ async function main() {
     gameData = await loadGameXData();
     weaponBases = getGameXWeaponBases(gameData).slice().sort(compareByName);
     weaponEnhancements = getGameXWeaponEnhancements(gameData).slice().sort(compareByName);
+    classPage.hydrateBuilder(currentDoc?.builder || {});
 
     // Hydrate state from doc
     selectedLevel = clampLevel(currentDoc?.builder?.level || 1);
@@ -637,12 +702,6 @@ async function main() {
       },
       getClassInfo: classSelectableInfo,
       onChange: () => {
-        // Reset selections when switching classes (but keep level)
-        selectedPrimary = "";
-        selectedFeatureOptionKeys = new Set();
-        selectedFeatNames = new Set();
-        selectedFeatOptionKeys = new Set();
-        grantChoices = {};
         updateUiForSelection();
         renderNav();
       },

@@ -16,13 +16,13 @@ import {
   onSnapshot,
   serverTimestamp,
   addDoc,
-} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+} from "/vendor/firebase/firebase-firestore.js";
 
 import {
   ref as storageRef,
   getDownloadURL,
   deleteObject,
-} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-storage.js";
+} from "/vendor/firebase/firebase-storage.js";
 
 const topbarEl = document.querySelector(".topbar");
 let appNav = ensureAppTopNav({

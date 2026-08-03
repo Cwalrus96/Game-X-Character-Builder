@@ -1,3 +1,4 @@
+import { getChoiceCountState } from "../../core/choice-capacity.js";
 import { buildGroupId, buildOptionKey, sanitizeText } from "../../core/data-sanitization.js";
 import { formatPrerequisites } from "../../core/prerequisites.js";
 import {
@@ -67,35 +68,9 @@ export class OptionGroupWidget extends BuilderWidget {
     return Array.isArray(cursor) ? new Set(cursor) : this.selectedKeys;
   }
 
-  getDependencyNodes() {
-    if (!this.group?.options) return [];
-    return [{
-      id: this.id,
-      kind: "choice",
-      storagePath: this.storagePath,
-      label: String(this.group?.name || "Option group"),
-      prerequisites: this.group?.prerequisites || [],
-      grants: this.group?.grants || [],
-    }];
-  }
-
-  validateDependencyState(context = {}) {
-    if (this.isActive && !this.isActive(context)) return [];
-    if (!this.group?.options || !this.storagePath) return [];
-    const chooseCount = Number(this.group?.chooseCount || 0);
-    if (!chooseCount) return [];
-    const selectedCount = selectedCountForGroup(this.group, this.getSelectedKeysForContext(context));
-    if (selectedCount === chooseCount) return [];
-    return [{
-      type: "incomplete",
-      severity: "warning",
-      nodeId: this.id,
-      storagePath: this.storagePath,
-      label: String(this.group?.name || "Option group"),
-      reason: `Expected ${chooseCount} choice${chooseCount === 1 ? "" : "s"}, but ${selectedCount} selected.`,
-      previousValue: selectedCount,
-      nextValue: chooseCount,
-    }];
+  replaceSelectedKeys(nextKeys) {
+    this.selectedKeys.clear();
+    for (const key of nextKeys || []) this.selectedKeys.add(key);
   }
 
   renderChildGroup(option) {
@@ -135,11 +110,16 @@ export class OptionGroupWidget extends BuilderWidget {
     headerBtn.className = "optionGroupHeader";
     headerBtn.setAttribute("aria-expanded", String(!isCollapsed));
 
-    const selectedCount = selectedCountForGroup(group, this.selectedKeys);
-    headerBtn.innerHTML = `
-      <span>${sanitizeText(group.name || "Options", { maxLen: 200 })}</span>
-      <span class="muted">choose ${chooseCount} - ${selectedCount}/${chooseCount}</span>
-    `;
+    const countState = getChoiceCountState({
+      selectedCount: selectedCountForGroup(group, this.selectedKeys),
+      expectedCount: chooseCount,
+    });
+    const groupName = document.createElement("span");
+    groupName.textContent = sanitizeText(group.name || "Options", { maxLen: 200 });
+    const choiceCount = document.createElement("span");
+    choiceCount.className = "muted";
+    choiceCount.textContent = `choose ${chooseCount} - ${countState.selectedCount}/${countState.expectedCount}`;
+    headerBtn.append(groupName, choiceCount);
 
     const body = document.createElement("div");
     body.className = "optionGroupBody";
@@ -163,8 +143,7 @@ export class OptionGroupWidget extends BuilderWidget {
     const list = document.createElement("div");
     list.className = "optionList";
 
-    const picked = selectedCountForGroup(group, this.selectedKeys);
-    const limitReached = chooseCount > 1 && picked >= chooseCount;
+    const limitReached = chooseCount > 1 && countState.isAtCapacity;
 
     for (const option of opts) {
       const key = buildOptionKey(group, option);
@@ -192,7 +171,9 @@ export class OptionGroupWidget extends BuilderWidget {
       cb.disabled = !checked && (limitReached || isUnavailable);
       cb.title = isUnavailable ? (prereqCheck.failureReasons[0] || "Prerequisites not met.") : "";
 
-      cb.addEventListener("change", () => {
+      cb.addEventListener("change", async () => {
+        const previousChecked = !cb.checked;
+        const nextKeys = new Set(this.selectedKeys);
         if (cb.checked) {
           const currentPrereqCheck = this.checkEntryPrerequisites(option);
           if (!currentPrereqCheck.ok) {
@@ -202,19 +183,35 @@ export class OptionGroupWidget extends BuilderWidget {
           }
           if (chooseCount === 1) {
             for (const sibling of opts) {
-              this.selectedKeys.delete(buildOptionKey(group, sibling));
-              deleteSelectedDescendants(sibling, this.selectedKeys);
+              nextKeys.delete(buildOptionKey(group, sibling));
+              deleteSelectedDescendants(sibling, nextKeys);
             }
-          } else if (chooseCount > 1 && selectedCountForGroup(group, this.selectedKeys) >= chooseCount) {
+          } else if (chooseCount > 1 && getChoiceCountState({
+            selectedCount: selectedCountForGroup(group, nextKeys),
+            expectedCount: chooseCount,
+          }).isAtCapacity) {
             cb.checked = false;
             return;
           }
-          this.selectedKeys.add(key);
+          nextKeys.add(key);
         } else {
-          this.selectedKeys.delete(key);
-          deleteSelectedDescendants(option, this.selectedKeys);
+          nextKeys.delete(key);
+          deleteSelectedDescendants(option, nextKeys);
         }
-        this.onChange?.();
+        const patch = this.storagePath ? { [this.storagePath]: Array.from(nextKeys) } : {};
+        const result = await this.page?.requestChoiceChange?.(this, patch, {
+          applyWidgetChange: () => {
+            this.onChange?.();
+          },
+        });
+        if (result && !result.ok) {
+          cb.checked = previousChecked;
+          return;
+        }
+        if (!result) {
+          this.replaceSelectedKeys(nextKeys);
+          this.onChange?.();
+        }
       });
 
       const title = document.createElement("div");
@@ -228,7 +225,16 @@ export class OptionGroupWidget extends BuilderWidget {
       const textWrap = document.createElement("div");
       textWrap.append(title, desc);
 
-      const grantWidgets = this.createGrantWidgets?.(option, { scope: this.context });
+      const grantWidgets = checked
+        ? this.createGrantWidgets?.(option, {
+            scope: this.context,
+            group,
+            option,
+            optionKey: key,
+            storagePath: this.storagePath,
+            sourceId: this.storagePath ? `choice:${this.storagePath}:${key}` : "",
+          })
+        : null;
       if (grantWidgets) textWrap.append(grantWidgets);
       if (prereqText) {
         const prereqEl = document.createElement("div");

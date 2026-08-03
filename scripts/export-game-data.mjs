@@ -27,6 +27,7 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import * as XLSX from "xlsx/xlsx.mjs"; // SheetJS ESM build (use XLSX.read with a Buffer)
+import { assertGameDataExportTargetAllowed } from "./game-data-export-policy.mjs";
 
 const REQUIRED_SHEETS = ["Classes", "ClassFeatures", "Feats", "Techniques"];
 const OPTIONAL_ORIGIN_SHEETS = ["Origins", "OriginFeatures"];
@@ -392,6 +393,11 @@ function main() {
   const [,, inputXlsx, outDir] = process.argv;
   if (!inputXlsx || !outDir) {
     die("Usage: node scripts/export-game-data.mjs path/to/seed.xlsx path/to/outputDir");
+  }
+  try {
+    assertGameDataExportTargetAllowed(outDir);
+  } catch (error) {
+    die(error?.message || "This export target is not allowed.");
   }
   if (!fs.existsSync(inputXlsx)) die(`Input XLSX not found: ${inputXlsx}`);
 

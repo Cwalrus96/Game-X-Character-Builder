@@ -3,12 +3,12 @@ import {
   getDoc,
   setDoc,
   serverTimestamp
-} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+} from "/vendor/firebase/firebase-firestore.js";
 
 import { db, storage } from "../core/firebase.js";
 import { onAuth, getClaims, signOutNow } from "../core/auth-ui.js";
 
-import { CHARACTER_SCHEMA_VERSION, getPortraitStoragePath } from "../core/database-writer.js";
+import { CHARACTER_SCHEMA_VERSION, saveCharacterPatch } from "../core/database-writer.js";
 import {
   ATTR_KEYS,
   labelForAttrKey,
@@ -56,6 +56,18 @@ import {
   sanitizeWeaponList,
   buildCharacterKeystoneEntries,
 } from "../core/data-sanitization.js";
+import {
+  buildTemporarySheetUpdatePatch,
+  isTemporarySheetFieldName,
+  pickTemporarySheetFields,
+  pickTemporarySheetRepeatables,
+} from "../core/sheet-state.js";
+import { createSaveCoordinator } from "../core/save-coordinator.js";
+import { getSaveStatusPresentation } from "../core/save-status.js";
+import {
+  createNavigationGuard,
+  installNavigationGuard,
+} from "../core/navigation-guard.js";
 
 import {
   getAttributeEffectiveCap,
@@ -69,10 +81,8 @@ import {
 
 import {
   ref as storageRef,
-  uploadBytes,
   getDownloadURL,
-  deleteObject,
-} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-storage.js";
+} from "/vendor/firebase/firebase-storage.js";
 
 (() => {
   'use strict';
@@ -95,8 +105,8 @@ import {
   let currentUser = null;
   let cloudDocRef = null;          // users/<uid>/characters/<charId>
   let cloudReady = false;
-  let cloudSaveTimer = null;
   let currentDoc = null;
+  let sheetSaveCoordinator = null;
   const CLOUD_SAVE_DEBOUNCE_MS = 1200;
 
   function cloudEnabled() {
@@ -104,12 +114,8 @@ import {
   }
 
   async function flushPendingSheetSave() {
-    if (cloudSaveTimer) {
-      clearTimeout(cloudSaveTimer);
-      cloudSaveTimer = null;
-      await saveCloudNow();
-    }
-    return true;
+    if (!sheetSaveCoordinator) return true;
+    return await sheetSaveCoordinator.flush();
   }
 
   function renderSheetBuilderNav(characterDoc) {
@@ -119,6 +125,8 @@ import {
       requestedUid: requestedUidParam,
       isGM: isGMUser,
       onSignOut: async () => {
+        const canLeave = await flushPendingSheetSave();
+        if (!canLeave) return;
         await signOutNow();
         window.location.href = '/login.html';
       },
@@ -214,17 +222,6 @@ import {
     'mentdef',
     'spiritdef',
   ]);
-  const TEMPORARY_SHEET_FIELD_NAMES = new Set([
-    'hpcur',
-    'strain',
-    'overstrained',
-    'notes',
-  ]);
-  const TEMPORARY_SHEET_REPEATABLE_KEYS = new Set([
-    'conditions',
-  ]);
-
-
   const READ_ONLY_SKILL_FIELD_KEYS = [...DEFENSE_SKILL_FIELDS, ...CORE_SKILL_FIELDS].map(({ key }) => key);
   const READ_ONLY_CORE_FIELD_BY_LABEL = new Map(CORE_SKILL_FIELDS.map(({ key, label }) => [String(label), String(key)]));
   const READ_ONLY_SKILL_LABELS = new Map(SKILL_RANK_OPTIONS.map(({ value, label }) => [String(value), String(label)]));
@@ -409,45 +406,6 @@ import {
       out[k] = v;
     }
     return out;
-  }
-
-  function pickTemporarySheetFields(allFields) {
-    const out = {};
-    const src = (allFields && typeof allFields === 'object') ? allFields : {};
-    for (const [k, v] of Object.entries(src)) {
-      if (!TEMPORARY_SHEET_FIELD_NAMES.has(k)) continue;
-      out[k] = v;
-    }
-    return out;
-  }
-
-  function pickTemporarySheetRepeatables(repeatables) {
-    const out = {};
-    const src = (repeatables && typeof repeatables === 'object') ? repeatables : {};
-    for (const key of TEMPORARY_SHEET_REPEATABLE_KEYS) {
-      if (key in src) out[key] = src[key];
-    }
-    return out;
-  }
-
-  function buildMergedSheetStateForSave({ allFields = {}, repeatables = {} } = {}) {
-    const existingSheet = (currentDoc?.builder?.sheet && typeof currentDoc.builder.sheet === 'object') ? currentDoc.builder.sheet : {};
-    const existingFields = (existingSheet.fields && typeof existingSheet.fields === 'object') ? existingSheet.fields : {};
-    const existingRepeatables = (existingSheet.repeatables && typeof existingSheet.repeatables === 'object') ? existingSheet.repeatables : {};
-
-    return {
-      fields: {
-        ...existingFields,
-        ...pickTemporarySheetFields(allFields),
-        ...readOnlySkillFields,
-      },
-      repeatables: {
-        ...existingRepeatables,
-        ...pickTemporarySheetRepeatables(repeatables),
-        combatSkillsExtra: readOnlySkillRepeatables.combatSkillsExtra,
-        settingSkills: readOnlySkillRepeatables.settingSkills,
-      },
-    };
   }
 
   // ---- Derived display (from character-schema.js) ----
@@ -865,15 +823,15 @@ async function renderBuilderWeaponsReadOnly(builder) {
         }
 
         cloudReady = true;
+        sheetSaveCoordinator?.markClean();
         return;
       }
 
       // No cloud doc yet → initialize from current sheet (local/default state)
       lockedAbilityNames = new Set();
       const allFields = collectFields();
-      const canon = buildCanonicalFromForm(allFields);
-      const state = collectState();
-      const mergedSheetState = buildMergedSheetStateForSave({ allFields, repeatables: state?.repeatables || {} });
+      const temporaryFields = pickTemporarySheetFields(allFields);
+      const temporaryRepeatables = pickTemporarySheetRepeatables(collectRepeatables());
 
       renderOriginReadOnly({ originKey: '', originKeystone: '' });
       renderBondsReadOnly([]);
@@ -884,17 +842,10 @@ async function renderBuilderWeaponsReadOnly(builder) {
         schemaVersion: CHARACTER_SCHEMA_VERSION,
         ownerUid: editingUid,
         builder: {
-          name: sanitizeCharName(canon?.name || 'Character'),
-          portraitPath: sanitizeStoragePath(state?.portrait?.path || ''),
-          level: clampLevel(canon?.level ?? 1),
-          attributes: normalizeAttributes(canon?.attributes || {}),
-          classKey: sanitizeText(canon?.classKey || '', { maxLen: 64 }),
-          primaryAttribute: coerceAttrKey(canon?.primaryAttribute),
-          weapons: sanitizeWeaponList(currentDoc?.builder?.weapons, { maxItems: 20 }),
           // Temporary character-sheet state lives under builder.sheet.*
           sheet: {
-            fields: mergedSheetState.fields,
-            repeatables: mergedSheetState.repeatables,
+            fields: temporaryFields,
+            repeatables: temporaryRepeatables,
           },
         },
         createdAt: serverTimestamp(),
@@ -909,86 +860,46 @@ async function renderBuilderWeaponsReadOnly(builder) {
       renderSheetBuilderNav(baseline);
 
       cloudReady = true;
+      sheetSaveCoordinator?.markClean();
     } catch (e) {
       console.error('loadCloudOrInit error:', e);
       cloudReady = false;
+      renderSheetSaveState({
+        status: 'error',
+        dirty: false,
+        saving: false,
+        error: e,
+      });
     }
   }
 
   async function saveCloudNow() {
-    if (!cloudEnabled()) return;
+    if (!cloudEnabled()) throw new Error('Cloud save is not ready.');
 
-    try {
+    const allFields = collectFields();
+    const repeatables = collectRepeatables();
+    const patch = buildTemporarySheetUpdatePatch({ allFields, repeatables });
+    await saveCharacterPatch(cloudDocRef, patch);
 
-      const allFields = collectFields();
-      const canon = buildCanonicalFromForm(allFields);
-      const state = collectState();
-      const mergedSheetState = buildMergedSheetStateForSave({ allFields, repeatables: state?.repeatables || {} });
-      const existingBuilder = (currentDoc?.builder && typeof currentDoc.builder === 'object') ? currentDoc.builder : {};
-
-      // Portrait upload (Cloud Storage).
-      let portraitPath = sanitizeStoragePath(existingBuilder?.portraitPath || state?.portrait?.path || '');
-      const pendingDelete = portraitApi?.consumePendingDelete ? portraitApi.consumePendingDelete() : '';
-      const pending = portraitApi?.consumePendingUpload ? portraitApi.consumePendingUpload() : null;
-      if (pending && pending.blob) {
-        // Use a stable path so edits overwrite instead of creating junk.
-        const storagePath = getPortraitStoragePath({ uid: editingUid, charId: editingCharId });
-        if (!storagePath) throw new Error('Invalid portrait storage path');
-
-        // If there was an older portrait at a different path, delete it to avoid junk.
-        if (pendingDelete && pendingDelete !== storagePath) {
-          try {
-            await deleteObject(storageRef(storage, pendingDelete));
-          } catch (e) {
-            // ignore (missing object, perms, etc.)
-          }
-        }
-
-        await uploadBytes(storageRef(storage, storagePath), pending.blob, { contentType: pending.contentType || pending.blob.type || 'image/jpeg' });
-        portraitPath = storagePath;
-        if (portraitApi?.set) {
-          const url = await resolvePortraitUrl(storagePath);
-          portraitApi.set({ path: storagePath, previewUrl: url });
-        }
-      } else if (pendingDelete) {
-        // Portrait cleared: delete the old object (best effort).
-        try {
-          await deleteObject(storageRef(storage, pendingDelete));
-        } catch (e) {
-          // ignore
-        }
-      }
-
-      const cloudDoc = {
-        schemaVersion: CHARACTER_SCHEMA_VERSION,
-        ownerUid: editingUid,
-        builder: {
-          name: sanitizeCharName(existingBuilder?.name || canon?.name || 'Character'),
-          portraitPath: portraitPath,
-          level: clampLevel(existingBuilder?.level ?? canon?.level ?? 1),
-          attributes: normalizeAttributes(existingBuilder?.attributes || canon?.attributes || {}),
-          classKey: sanitizeText(existingBuilder?.classKey || canon?.classKey || '', { maxLen: 64 }),
-          primaryAttribute: coerceAttrKey(existingBuilder?.primaryAttribute ?? canon?.primaryAttribute),
-          weapons: sanitizeWeaponList(existingBuilder?.weapons, { maxItems: 20 }),
-          sheet: {
-            fields: mergedSheetState.fields,
-            repeatables: mergedSheetState.repeatables,
-          },
+    const temporaryFields = pickTemporarySheetFields(allFields);
+    const temporaryRepeatables = pickTemporarySheetRepeatables(repeatables);
+    const existingBuilder = (currentDoc?.builder && typeof currentDoc.builder === 'object') ? currentDoc.builder : {};
+    const existingSheet = (existingBuilder?.sheet && typeof existingBuilder.sheet === 'object') ? existingBuilder.sheet : {};
+    currentDoc = currentDoc || {};
+    currentDoc.builder = {
+      ...existingBuilder,
+      sheet: {
+        ...existingSheet,
+        fields: {
+          ...((existingSheet.fields && typeof existingSheet.fields === 'object') ? existingSheet.fields : {}),
+          ...temporaryFields,
         },
-        updatedAt: serverTimestamp(),
-      };
-
-      await setDoc(cloudDocRef, cloudDoc, { merge: true });
-
-      currentDoc = currentDoc || {};
-      currentDoc.builder = {
-        ...(currentDoc.builder || {}),
-        ...(cloudDoc.builder || {}),
-      };
-
-    } catch (e) {
-      console.error('saveCloudNow error:', e);
-    }
+        repeatables: {
+          ...((existingSheet.repeatables && typeof existingSheet.repeatables === 'object') ? existingSheet.repeatables : {}),
+          ...temporaryRepeatables,
+        },
+      },
+    };
   }
 
   async function initAuth() {
@@ -1021,6 +932,8 @@ async function renderBuilderWeaponsReadOnly(builder) {
         requestedUid: requestedUidParam,
         isGM: isGMUser,
         onSignOut: async () => {
+          const canLeave = await flushPendingSheetSave();
+          if (!canLeave) return;
           await signOutNow();
           window.location.href = '/login.html';
         },
@@ -1033,6 +946,47 @@ async function renderBuilderWeaponsReadOnly(builder) {
 
   const sheetEl = document.getElementById('sheet');
   const classSelect = document.getElementById('classSelect');
+  const sheetSaveStatusEl = document.getElementById('sheetSaveStatus');
+  const sheetSaveRetryEl = document.getElementById('sheetSaveRetry');
+
+  function renderSheetSaveState(state = {}) {
+    const presentation = getSaveStatusPresentation(state);
+
+    if (sheetSaveStatusEl) {
+      sheetSaveStatusEl.textContent = presentation.message;
+      sheetSaveStatusEl.dataset.state = presentation.status;
+      sheetSaveStatusEl.setAttribute('aria-busy', presentation.busy ? 'true' : 'false');
+      sheetSaveStatusEl.title = presentation.title;
+    }
+    if (sheetSaveRetryEl) {
+      sheetSaveRetryEl.hidden = !presentation.retryVisible;
+      sheetSaveRetryEl.disabled = presentation.retryDisabled;
+    }
+  }
+
+  sheetSaveCoordinator = createSaveCoordinator({
+    debounceMs: CLOUD_SAVE_DEBOUNCE_MS,
+    save: async () => {
+      try {
+        await saveCloudNow();
+      } catch (error) {
+        console.error('saveCloudNow error:', error);
+        throw error;
+      }
+    },
+    onStateChange: renderSheetSaveState,
+  });
+
+  const sheetNavigationGuard = createNavigationGuard({
+    flush: flushPendingSheetSave,
+    getState: () => sheetSaveCoordinator?.getState() || {},
+    navigate: (href) => window.location.assign(href),
+  });
+  installNavigationGuard({ guard: sheetNavigationGuard });
+
+  sheetSaveRetryEl?.addEventListener('click', () => {
+    void sheetSaveCoordinator?.retry();
+  });
 
   // Placeholder; initialized after scheduleSave is defined
   let portraitApi = { get: () => '', set: () => {} };
@@ -1387,25 +1341,9 @@ async function renderBuilderWeaponsReadOnly(builder) {
     updateDerivedDisplay(mergedFields);
   }
 
-
-  function saveNow() {
-    if (!cloudEnabled()) {
-      return;
-    }
-    clearTimeout(cloudSaveTimer);
-    cloudSaveTimer = null;
-    saveCloudNow();
-  }
-
   function scheduleSave() {
-    if (!cloudEnabled()) {
-      return;
-    }
-    clearTimeout(cloudSaveTimer);
-    cloudSaveTimer = setTimeout(() => {
-      cloudSaveTimer = null;
-      saveCloudNow();
-    }, CLOUD_SAVE_DEBOUNCE_MS);
+    if (!cloudEnabled()) return;
+    sheetSaveCoordinator?.markDirty();
   }
 
   // ---------- Repeatable list utility (for Pass 2+) ----------
@@ -1432,7 +1370,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
       if (el.type === 'file') return;
       const key = String(el.name || '');
       if (!key) return;
-      const editable = TEMPORARY_SHEET_FIELD_NAMES.has(key);
+      const editable = isTemporarySheetFieldName(key);
       const displayOnly = !editable || DERIVED_FIELD_NAMES.has(key);
       if (displayOnly) {
         el.dataset.readonlyBacked = 'true';

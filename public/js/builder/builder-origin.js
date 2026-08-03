@@ -9,6 +9,7 @@ import {
   clearError,
   confirmSaveWarnings,
   ensureBuilderShellUi,
+  markBuilderNavigationClean,
 } from "./builder-common.js";
 import { renderBuilderNavMounts } from "./builder-nav.js";
 import { loadGameXData, loadGameXOrigins, getOriginByKey } from "../core/game-data.js";
@@ -176,6 +177,7 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
     currentDoc.builder = buildBuilderWithPatch(currentDoc.builder || {}, patch);
 
     setStatus(statusEl, "Saved.");
+    markBuilderNavigationClean();
 
     if (openSheetAfter) openCharacterSheet(ctx);
 

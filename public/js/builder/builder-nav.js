@@ -1,6 +1,9 @@
 // public/builder-nav.js
 import { getEnabledSteps, getPrevNext } from "./builder-flow.js";
-import { buildBuilderUrl } from "./builder-common.js";
+import {
+  buildBuilderUrl,
+  installBuilderNavigationGuard,
+} from "./builder-common.js";
 
 /**
  * Render a step list (orientation) and prev/next controls.
@@ -99,6 +102,7 @@ export function renderBuilderNav(args) {
       const a = document.createElement("a");
       a.href = buildBuilderUrl(step.path, ctx);
       a.textContent = labelText;
+      a.dataset.navigationManaged = "true";
 
       a.addEventListener("click", (e) => {
         // Allow normal navigation if no hook is provided.
@@ -138,6 +142,7 @@ export function renderBuilderNav(args) {
       link.className = "btn secondary";
       link.href = leadingLink.href;
       link.textContent = leadingLink.label;
+      link.dataset.navigationManaged = "true";
 
       link.addEventListener("click", (e) => {
         if (typeof onBeforeNavigate !== "function") return;
@@ -153,6 +158,7 @@ export function renderBuilderNav(args) {
       prevLink.className = "btn secondary";
       prevLink.href = buildBuilderUrl(prev.path, ctx);
       prevLink.textContent = "Previous";
+      prevLink.dataset.navigationManaged = "true";
 
       prevLink.addEventListener("click", (e) => {
         if (typeof onBeforeNavigate !== "function") return;
@@ -219,5 +225,10 @@ export function ensureBuilderNavMounts() {
 export function renderBuilderNavMounts(args) {
   const { topEl } = ensureBuilderNavMounts();
   if (topEl) renderBuilderNav({ ...args, mountEl: topEl });
+  if (typeof args.onBeforeNavigate === "function") {
+    installBuilderNavigationGuard({
+      flush: () => args.onBeforeNavigate({ id: "external", path: "" }),
+    });
+  }
   return { topEl, bottomEl: null };
 }

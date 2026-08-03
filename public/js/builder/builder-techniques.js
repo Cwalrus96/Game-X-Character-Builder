@@ -12,13 +12,14 @@ import {
   clearError,
   confirmSaveWarnings,
   ensureBuilderShellUi,
+  markBuilderNavigationClean,
 } from "./builder-common.js";
 
 import { renderBuilderNavMounts } from "./builder-nav.js";
 import { BuilderPage } from "./builder-page.js";
 import { TechniquesWidget } from "./widgets/techniques-widget.js";
 
-import { buildBuilderWithPatch, reconcileBuilderChange } from "../core/builder-dependencies.js";
+import { reconcileBuilderChange } from "../core/builder-dependencies.js";
 import {
   loadGameXData,
   getGameXTechniques,
@@ -66,6 +67,11 @@ const techniquesPage = new TechniquesBuilderPage({
   stepId: CURRENT_STEP_ID,
   getGameData: () => gameData,
   getBuilder: () => currentDoc?.builder || {},
+  onWorkingBuilderChange: (builder) => {
+    currentDoc = currentDoc || {};
+    currentDoc.builder = builder;
+    selectedTechniques = new Set(Array.isArray(builder?.selectedTechniques) ? builder.selectedTechniques : []);
+  },
   applyReconciledBuilder: (builder) => {
     if (Array.isArray(builder?.selectedTechniques)) {
       selectedTechniques = new Set(builder.selectedTechniques);
@@ -74,10 +80,7 @@ const techniquesPage = new TechniquesBuilderPage({
 });
 
 function applyLocalBuilderPatch(patch) {
-  currentDoc = currentDoc || {};
-  const previousBuilder = currentDoc.builder || {};
-  currentDoc.builder = buildBuilderWithPatch(previousBuilder, patch);
-  selectedTechniques = new Set(Array.isArray(currentDoc.builder.selectedTechniques) ? currentDoc.builder.selectedTechniques : []);
+  techniquesPage.applyPatchToWorkingBuilder(patch);
 }
 
 function renderNav() {
@@ -100,9 +103,7 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
   setStatus(statusEl, "Saving...");
 
   const widgetPatch = techniquesPage.getWidgetSavePatch({ currentDoc });
-  const reconciliation = reconcileBuilderChange(gameData, currentDoc?.builder || {}, widgetPatch, {
-    participants: techniquesPage.getDependencyParticipants(),
-  });
+  const reconciliation = reconcileBuilderChange(gameData, techniquesPage.getWorkingBuilder(), widgetPatch);
   const { errors, warnings } = getSaveIssues(reconciliation);
 
   if (errors.length) {
@@ -129,6 +130,7 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
     applyLocalBuilderPatch(reconciliation.patch);
     techniquesWidget?.render();
     setStatus(statusEl, "Saved.");
+    markBuilderNavigationClean();
     if (openSheetAfter) openCharacterSheet(ctx);
     return true;
   } catch (e) {
@@ -141,9 +143,7 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
 
 function previewStoredTechniques() {
   const widgetPatch = techniquesPage.getWidgetSavePatch({ currentDoc });
-  return techniquesPage.previewChoiceChange(widgetPatch, {
-    participants: techniquesPage.getDependencyParticipants(),
-  });
+  return techniquesPage.previewChoiceChange(widgetPatch);
 }
 
 async function main() {
@@ -163,6 +163,7 @@ async function main() {
     const loaded = await loadCharacterDoc(ctx.editingUid, ctx.charId);
     charRef = loaded.charRef;
     currentDoc = loaded.characterDoc;
+    techniquesPage.hydrateBuilder(currentDoc?.builder || {});
     await markStepVisited(charRef, CURRENT_STEP_ID);
 
     const stored = Array.isArray(currentDoc?.builder?.selectedTechniques) ? currentDoc.builder.selectedTechniques : [];

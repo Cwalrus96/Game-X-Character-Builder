@@ -48,8 +48,19 @@ export class PrimaryAttributeWidget extends BuilderWidget {
       this.setValue(this.value());
     }
     if (!this.changeHandlerBound) {
-      this.selectEl.addEventListener("change", () => {
-        this.setValue(this.value());
+      this.selectEl.addEventListener("change", async () => {
+        const previousValue = sanitizeText(this.getValue(), { maxLen: 32, collapse: true });
+        const nextValue = this.value();
+        const result = await this.page?.requestChoiceChange?.(this, {
+          "builder.primaryAttribute": nextValue,
+        }, {
+          applyWidgetChange: () => {
+            this.setValue(nextValue);
+            if (this.selectEl) this.selectEl.value = nextValue;
+          },
+        });
+        if (result && !result.ok && this.selectEl) this.selectEl.value = previousValue;
+        if (!result) this.setValue(nextValue);
       });
       this.changeHandlerBound = true;
     }

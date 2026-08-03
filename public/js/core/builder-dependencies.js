@@ -1,4 +1,5 @@
 import { CORE_SKILL_FIELDS, DEFENSE_SKILL_FIELDS } from "./character-rules.js";
+import { buildCharacterDependencyGraph } from "./character-dependency-graph.js";
 import { sanitizeNamedSkillList, sanitizeSkillFields, sanitizeStringArray, sanitizeText } from "./data-sanitization.js";
 import { computeGrantedSkillsState, getGameXClasses } from "./game-data.js";
 
@@ -48,106 +49,11 @@ export function buildBuilderWithPatch(builder = {}, patch = {}) {
   return out;
 }
 
-function makeChange({
-  type,
-  severity = "warning",
-  storagePath,
-  nodeId = "",
-  label = "",
-  reason = "",
-  previousValue = undefined,
-  nextValue = undefined,
-} = {}) {
-  return {
-    type,
-    severity,
-    storagePath,
-    nodeId,
-    label: sanitizeText(label, { maxLen: 240, collapse: true }),
-    reason: sanitizeText(reason, { maxLen: 500, collapse: true }),
-    previousValue,
-    nextValue,
-  };
+export function buildDependencyGraph(gameData, builder = {}) {
+  return buildCharacterDependencyGraph(gameData, builder);
 }
 
-function normalizeParticipantIssue(issue, { participantId = "" } = {}) {
-  if (!issue || typeof issue !== "object") return null;
-  const type = sanitizeText(issue.type || "invalid", { maxLen: 64, collapse: true }) || "invalid";
-  return makeChange({
-    type,
-    severity: sanitizeText(issue.severity || "warning", { maxLen: 32, collapse: true }) || "warning",
-    storagePath: sanitizeText(issue.storagePath || "", { maxLen: 160, collapse: true }),
-    nodeId: sanitizeText(issue.nodeId || participantId || "", { maxLen: 240, collapse: true }),
-    label: issue.label || participantId || "Builder choice",
-    reason: issue.reason || "",
-    previousValue: issue.previousValue,
-    nextValue: issue.nextValue,
-  });
-}
-
-function collectParticipantIssues(participants, context) {
-  const issues = [];
-  for (const participant of Array.isArray(participants) ? participants : []) {
-    if (!participant || participant.enabled === false) continue;
-    const validate = participant.validateDependencyState;
-    if (typeof validate !== "function") continue;
-    const result = validate.call(participant, context);
-    const list = Array.isArray(result) ? result : (result ? [result] : []);
-    for (const issue of list) {
-      const normalized = normalizeParticipantIssue(issue, { participantId: participant.id || "" });
-      if (normalized) issues.push(normalized);
-    }
-  }
-  return issues;
-}
-
-function collectParticipantReconciliations(participants, context) {
-  let builder = clonePlainObject(context?.proposedBuilder || {});
-  const changes = [];
-
-  for (const participant of Array.isArray(participants) ? participants : []) {
-    if (!participant || participant.enabled === false) continue;
-    const reconcile = participant.reconcileDependencyState;
-    if (typeof reconcile !== "function") continue;
-    const result = reconcile.call(participant, {
-      ...context,
-      proposedBuilder: builder,
-      builder,
-    }) || {};
-    const patch = isPlainObject(result.patch) ? result.patch : {};
-    if (Object.keys(patch).length) builder = buildBuilderWithPatch(builder, patch);
-    const resultChanges = Array.isArray(result.changes) ? result.changes : [];
-    for (const change of resultChanges) {
-      const normalized = normalizeParticipantIssue(change, { participantId: participant.id || "" });
-      if (normalized) changes.push(normalized);
-    }
-  }
-
-  return { builder, changes };
-}
-
-export function buildDependencyGraph(gameData, builder = {}, participants = []) {
-  const b = isPlainObject(builder) ? builder : {};
-  const nodes = new Map();
-  const edges = new Map();
-  const reverseEdges = new Map();
-
-  const addNode = (node) => {
-    const id = sanitizeText(node?.id || "", { maxLen: 240, collapse: true });
-    if (!id) return;
-    nodes.set(id, { ...node, id });
-  };
-
-  for (const participant of Array.isArray(participants) ? participants : []) {
-    if (!participant || participant.enabled === false || typeof participant.getDependencyNodes !== "function") continue;
-    const result = participant.getDependencyNodes({ gameData, builder: b });
-    for (const node of Array.isArray(result) ? result : (result ? [result] : [])) addNode(node);
-  }
-
-  return { nodes, edges, reverseEdges };
-}
-
-function summarizeDependencyChanges(changes) {
+export function summarizeDependencyChanges(changes) {
   const warnings = [];
   const removalsByPath = new Map();
   const incomplete = [];
@@ -165,9 +71,18 @@ function summarizeDependencyChanges(changes) {
     "builder.selectedClassFeatureOptions": "class option selection",
     "builder.selectedFeatOptions": "feat option selection",
     "builder.selectedTechniques": "selected technique",
+    "builder.grantChoices": "source-owned choice",
+    "builder.weapons": "source-owned weapon",
   };
 
   for (const [path, items] of removalsByPath.entries()) {
+    if (path === "builder.grantChoices") {
+      for (const item of items) {
+        const label = item.label || "A granted choice";
+        warnings.push(item.reason || `This change will remove ${label}.`);
+      }
+      continue;
+    }
     const label = removalLabels[path] || "selection";
     warnings.push(`This change will remove ${items.length} ${label}${items.length === 1 ? "" : "s"}.`);
   }
@@ -186,6 +101,11 @@ function summarizeDependencyChanges(changes) {
   return warnings;
 }
 
+export function summarizeDependencyRemovals(changes) {
+  return summarizeDependencyChanges((Array.isArray(changes) ? changes : [])
+    .filter((change) => change?.type === "remove"));
+}
+
 function makePatchForReconciledFields(proposedBuilder, reconciledBuilder) {
   const patch = {};
   const paths = [
@@ -193,6 +113,8 @@ function makePatchForReconciledFields(proposedBuilder, reconciledBuilder) {
     "selectedFeats",
     "selectedFeatOptions",
     "selectedTechniques",
+    "grantChoices",
+    "weapons",
   ];
 
   for (const path of paths) {
@@ -206,24 +128,12 @@ function makePatchForReconciledFields(proposedBuilder, reconciledBuilder) {
   return patch;
 }
 
-export function analyzeBuilderChange(gameData, previousBuilder = {}, proposedPatch = {}, { mode = "preview", participants = [] } = {}) {
+export function analyzeBuilderChange(gameData, previousBuilder = {}, proposedPatch = {}, { mode = "preview" } = {}) {
   const previous = clonePlainObject(isPlainObject(previousBuilder) ? previousBuilder : {});
   const proposedBuilder = buildBuilderWithPatch(previous, proposedPatch);
-  const participantReconciled = collectParticipantReconciliations(participants, {
-    gameData,
-    previousBuilder: previous,
-    proposedBuilder,
-  });
-  const reconciledBuilder = participantReconciled.builder;
-  const graph = buildDependencyGraph(gameData, reconciledBuilder, participants);
-  const participantIssues = collectParticipantIssues(participants, {
-    gameData,
-    previousBuilder: previous,
-    proposedBuilder,
-    reconciledBuilder,
-    graph,
-  });
-  const changes = participantReconciled.changes.concat(participantIssues);
+  const graph = buildDependencyGraph(gameData, proposedBuilder);
+  const reconciledBuilder = graph.builder;
+  const changes = Array.isArray(graph.changes) ? graph.changes : [];
   const reconciliationPatch = makePatchForReconciledFields(proposedBuilder, reconciledBuilder);
   const dependencyPatch = buildDependencyRefreshPatch(gameData, reconciledBuilder, { previousBuilder: previous });
   const patch = {
@@ -258,8 +168,8 @@ export function reconcileBuilderChange(gameData, previousBuilder = {}, proposedP
   return analyzeBuilderChange(gameData, previousBuilder, proposedPatch, { ...options, mode: "commit" });
 }
 
-export function validateBuilderState(gameData, builder = {}, participants = []) {
-  return analyzeBuilderChange(gameData, builder, {}, { mode: "preview", participants });
+export function validateBuilderState(gameData, builder = {}) {
+  return analyzeBuilderChange(gameData, builder, {}, { mode: "preview" });
 }
 
 function normalizeSkillName(value) {

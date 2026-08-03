@@ -9,6 +9,7 @@ import {
   markStepVisited,
   confirmSaveWarnings,
   ensureBuilderShellUi,
+  markBuilderNavigationClean,
 } from "./builder-common.js";
 import { renderBuilderNavMounts } from "./builder-nav.js";
 import { buildBondsKeystonesUpdatePatch } from "../core/database-writer.js";
@@ -228,6 +229,7 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
     renderBonds();
 
     setStatus(statusEl, "Saved.");
+    markBuilderNavigationClean();
 
     if (openSheetAfter) openCharacterSheet(ctx);
 

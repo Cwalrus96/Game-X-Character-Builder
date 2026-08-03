@@ -2,11 +2,13 @@ import {
   computeTechniqueSlots,
   labelForAttrKey,
 } from "../../core/character-rules.js";
-import { removeSelection, selectedSet } from "../../core/choice-reconciliation.js";
+import { getChoiceCountState } from "../../core/choice-capacity.js";
 import { sanitizeNamedSkillList, sanitizeText } from "../../core/data-sanitization.js";
 import {
+  createCharacterGrantCollection,
   computeGrantedSkillsState,
   computeKnownCombatSkillsAndGrants,
+  getGrantName,
   getGameXTechniques,
   resolveTechniqueRef,
 } from "../../core/game-data.js";
@@ -25,6 +27,85 @@ function techniqueRank(technique) {
 
 function techniqueSkill(technique) {
   return sanitizeText(technique?.skill, { maxLen: 96, collapse: true });
+}
+
+function countForGrant(grant) {
+  const count = Number.parseInt(String(grant?.count ?? 1), 10);
+  return Number.isFinite(count) ? Math.max(0, count) : 1;
+}
+
+function getSourceOwnedTechniqueAnswerCounts(builder = {}) {
+  const choices = (builder?.grantChoices && typeof builder.grantChoices === "object" && !Array.isArray(builder.grantChoices))
+    ? builder.grantChoices
+    : {};
+  const counts = new Map();
+
+  for (const choice of Object.values(choices)) {
+    if (choice?.type !== "technique") continue;
+    const technique = sanitizeText(choice?.techniqueName || choice?.value, { maxLen: 200, collapse: true });
+    const skill = sanitizeText(choice?.skill, { maxLen: 96, collapse: true }).toLowerCase();
+    if (!technique || !skill) continue;
+    counts.set(skill, (counts.get(skill) || 0) + 1);
+  }
+
+  return counts;
+}
+
+function getSourceOwnedTechniqueDetails(builder = {}) {
+  const choices = (builder?.grantChoices && typeof builder.grantChoices === "object" && !Array.isArray(builder.grantChoices))
+    ? builder.grantChoices
+    : {};
+  const details = new Map();
+
+  for (const choice of Object.values(choices)) {
+    if (choice?.type !== "technique") continue;
+    const technique = sanitizeText(choice?.techniqueName || choice?.value, { maxLen: 200, collapse: true });
+    if (!technique) continue;
+    const sourceLabel = sanitizeText(choice?.sourceLabel, { maxLen: 200, collapse: true });
+    details.set(technique, {
+      kind: "sourceOwned",
+      label: sourceLabel ? `Chosen from ${sourceLabel}` : "Chosen from feature",
+    });
+  }
+
+  return details;
+}
+
+function getGrantedTechniqueDetails(gameData, builder = {}) {
+  const details = new Map();
+  const collection = createCharacterGrantCollection(gameData, builder);
+  for (const grant of collection.techniqueGrants || []) {
+    const technique = getGrantName(grant);
+    if (!technique) continue;
+    const sourceLabel = sanitizeText(grant?.source?.name || grant?.source?.featureName || grant?.source?.featKey, {
+      maxLen: 200,
+      collapse: true,
+    });
+    details.set(technique, {
+      kind: "granted",
+      label: sourceLabel ? `Granted by ${sourceLabel}` : "Granted",
+    });
+  }
+  return details;
+}
+
+function getRemainingTechniqueChoiceGrants(grants, sourceOwnedAnswerCounts = new Map()) {
+  const answeredBySkill = new Map(sourceOwnedAnswerCounts || []);
+  const out = [];
+
+  for (const grant of Array.isArray(grants) ? grants : []) {
+    const skill = sanitizeText(grant?.skill || grant?.name || grant?.key, { maxLen: 96, collapse: true }).toLowerCase();
+    const total = countForGrant(grant);
+    if (!skill || total <= 0) continue;
+
+    const answered = Math.max(0, answeredBySkill.get(skill) || 0);
+    const consumed = Math.min(total, answered);
+    const remaining = total - consumed;
+    answeredBySkill.set(skill, answered - consumed);
+    if (remaining > 0) out.push({ ...grant, count: remaining });
+  }
+
+  return out;
 }
 
 export class TechniquesWidget extends BuilderWidget {
@@ -62,6 +143,7 @@ export class TechniquesWidget extends BuilderWidget {
     this.clearError = typeof clearError === "function" ? clearError : null;
     this.filterText = "";
     this.filterKnownSkills = this.filterKnownSkillsEl ? !!this.filterKnownSkillsEl.checked : true;
+    this.collapsedGroups = new Map();
     this.wireControls();
   }
 
@@ -81,40 +163,38 @@ export class TechniquesWidget extends BuilderWidget {
   }
 
   getSavePatch() {
+    const context = this.getTechniqueContext();
+    const selected = this.getNormalSelectedTechniques(this.selectedTechniques(), context);
     return {
-      "builder.selectedTechniques": this.buildSortedSelectedArray(this.selectedTechniques()),
+      "builder.selectedTechniques": this.buildSortedSelectedArray(selected),
     };
   }
 
-  getDependencyNodes(context = {}) {
-    const gameData = context.gameData || this.getGameData();
-    return getGameXTechniques(gameData)
-      .map((technique) => {
-        const name = techniqueName(technique);
-        if (!name) return null;
-        return {
-          id: `technique:${name}`,
-          kind: "choice",
-          storagePath: "builder.selectedTechniques",
-          label: name,
-          prerequisites: technique?.prerequisites || [],
-          grants: technique?.grants || [],
-        };
-      })
-      .filter(Boolean);
+  applyReconciledState(builder = {}) {
+    if (Array.isArray(builder.selectedTechniques)) {
+      this.setSelectedTechniques(new Set(builder.selectedTechniques));
+    }
   }
 
   getTechniqueContext(builder = this.getBuilder(), gameData = this.getGameData()) {
     const b = builder && typeof builder === "object" ? builder : {};
     const { primaryAttrKey, slots } = computeTechniqueSlots(b.primaryAttribute, b.attributes);
     const knownAndGrants = computeKnownCombatSkillsAndGrants(gameData, b);
+    const sourceOwnedTechniqueDetails = getSourceOwnedTechniqueDetails(b);
+    const grantedTechniqueDetails = getGrantedTechniqueDetails(gameData, b);
     return {
       builder: b,
       primaryAttrKey,
       slots,
       knownCombatSkills: knownAndGrants.knownCombatSkills || new Set(),
       grantedTechniqueNames: knownAndGrants.grantedTechniqueNames || new Set(),
-      techniqueChoiceGrants: Array.isArray(knownAndGrants.techniqueChoiceGrants) ? knownAndGrants.techniqueChoiceGrants : [],
+      grantedTechniqueDetails,
+      sourceOwnedTechniqueNames: new Set(sourceOwnedTechniqueDetails.keys()),
+      sourceOwnedTechniqueDetails,
+      techniqueChoiceGrants: getRemainingTechniqueChoiceGrants(
+        Array.isArray(knownAndGrants.techniqueChoiceGrants) ? knownAndGrants.techniqueChoiceGrants : [],
+        getSourceOwnedTechniqueAnswerCounts(b),
+      ),
       grantedSkillState: computeGrantedSkillsState(gameData, b),
     };
   }
@@ -205,7 +285,7 @@ export class TechniquesWidget extends BuilderWidget {
   }
 
   selectedTechniquesFitSlots(refs, context, gameData = this.getGameData()) {
-    const selected = refs instanceof Set ? refs : new Set(refs || []);
+    const selected = this.getNormalSelectedTechniques(refs instanceof Set ? refs : new Set(refs || []), context);
     const total = selected.size;
     if (total <= context.slots) return true;
     const extraNeeded = total - Math.max(0, context.slots);
@@ -214,20 +294,37 @@ export class TechniquesWidget extends BuilderWidget {
 
   canAddTechnique(name, context) {
     if (this.selectedTechniques().has(name)) return true;
-    const next = new Set(this.selectedTechniques());
+    const next = this.getNormalSelectedTechniques(this.selectedTechniques(), context);
     next.add(name);
     return this.selectedTechniquesFitSlots(next, context);
   }
 
-  getSelectedCounts(selected = this.selectedTechniques(), gameData = this.getGameData()) {
+  isFreeTechniqueName(name, context) {
+    return !!name && (
+      context.grantedTechniqueNames?.has(name)
+      || context.sourceOwnedTechniqueNames?.has(name)
+    );
+  }
+
+  getNormalSelectedTechniques(selected = this.selectedTechniques(), context = this.getTechniqueContext()) {
+    const out = new Set();
+    for (const ref of selected || []) {
+      if (this.isFreeTechniqueName(ref, context)) continue;
+      out.add(ref);
+    }
+    return out;
+  }
+
+  getSelectedCounts(selected = this.selectedTechniques(), gameData = this.getGameData(), context = null) {
+    const countable = context ? this.getNormalSelectedTechniques(selected, context) : selected;
     let resolvedCount = 0;
     let missing = 0;
-    for (const ref of selected) {
+    for (const ref of countable) {
       const technique = this.resolveRef(ref, gameData);
       if (technique) resolvedCount += 1;
       else missing += 1;
     }
-    return { total: selected.size, resolvedCount, missing };
+    return { total: countable.size, resolvedCount, missing };
   }
 
   buildSortedSelectedArray(selected = this.selectedTechniques(), gameData = this.getGameData()) {
@@ -246,154 +343,13 @@ export class TechniquesWidget extends BuilderWidget {
     return arr.map((entry) => entry.ref);
   }
 
-  reconcileSelectedTechniques({
-    selectedTechniques,
-    builder,
-    gameData,
-  } = {}) {
-    const changes = [];
-    const selected = selectedTechniques instanceof Set
-      ? new Set(selectedTechniques)
-      : selectedSet(selectedTechniques, { maxItems: 500, maxLen: 200 });
-    const context = this.getTechniqueContext(builder, gameData);
-
-    for (const ref of Array.from(selected)) {
-      const technique = this.resolveRef(ref, gameData);
-      if (!technique) {
-        removeSelection(selected, ref, changes, {
-          storagePath: "builder.selectedTechniques",
-          nodeId: `choice:technique:${ref}`,
-          label: ref,
-          reason: "This technique no longer exists in the JSON.",
-        });
-        continue;
-      }
-      if (context.grantedTechniqueNames.has(ref)) {
-        removeSelection(selected, ref, changes, {
-          storagePath: "builder.selectedTechniques",
-          nodeId: `choice:technique:${ref}`,
-          label: ref,
-          reason: "This technique is now granted automatically.",
-        });
-        continue;
-      }
-      const skill = techniqueSkill(technique);
-      if (skill && !context.knownCombatSkills.has(skill)) {
-        removeSelection(selected, ref, changes, {
-          storagePath: "builder.selectedTechniques",
-          nodeId: `choice:technique:${ref}`,
-          label: ref,
-          reason: "This technique's combat skill is no longer known for the current class/features.",
-        });
-        continue;
-      }
-      if (this.getTechniqueSkillRank(technique, context) < techniqueRank(technique)) {
-        removeSelection(selected, ref, changes, {
-          storagePath: "builder.selectedTechniques",
-          nodeId: `choice:technique:${ref}`,
-          label: ref,
-          reason: "This technique's required combat skill rank is no longer met.",
-        });
-        continue;
-      }
-      if (!this.passesTechniquePrerequisites(technique, context, gameData)) {
-        removeSelection(selected, ref, changes, {
-          storagePath: "builder.selectedTechniques",
-          nodeId: `choice:technique:${ref}`,
-          label: ref,
-          reason: "Prerequisites are no longer met.",
-        });
-      }
-    }
-
-    if (context.slots <= 0) {
-      for (const ref of Array.from(selected)) {
-        removeSelection(selected, ref, changes, {
-          storagePath: "builder.selectedTechniques",
-          nodeId: `choice:technique:${ref}`,
-          label: ref,
-          reason: "There are currently 0 technique slots.",
-        });
-      }
-      return { selectedTechniques: selected, changes };
-    }
-
-    if (!this.selectedTechniquesFitSlots(selected, context, gameData)) {
-      const keep = new Set();
-      for (const ref of this.buildSortedSelectedArray(selected, gameData)) {
-        const next = new Set(keep);
-        next.add(ref);
-        if (this.selectedTechniquesFitSlots(next, context, gameData)) keep.add(ref);
-      }
-      for (const ref of Array.from(selected)) {
-        if (keep.has(ref)) continue;
-        removeSelection(selected, ref, changes, {
-          storagePath: "builder.selectedTechniques",
-          nodeId: `choice:technique:${ref}`,
-          label: ref,
-          reason: "Selected techniques exceed available technique picks.",
-        });
-      }
-    }
-
-    return { selectedTechniques: selected, changes };
-  }
-
-  reconcileDependencyState(context = {}) {
-    const gameData = context.gameData || this.getGameData();
-    const builder = context.proposedBuilder || context.builder || {};
-    const result = this.reconcileSelectedTechniques({
-      selectedTechniques: builder.selectedTechniques,
-      builder,
-      gameData,
-    });
-    return {
-      patch: {
-        "builder.selectedTechniques": this.buildSortedSelectedArray(result.selectedTechniques, gameData),
-      },
-      changes: result.changes,
-    };
-  }
-
-  validateDependencyState(context = {}) {
-    const gameData = context.gameData || this.getGameData();
-    const builder = context.reconciledBuilder || context.proposedBuilder || context.builder || this.getBuilder();
-    const techniqueContext = this.getTechniqueContext(builder, gameData);
-    const selected = selectedSet(builder.selectedTechniques, { maxItems: 500, maxLen: 200 });
-    const extraSlots = this.getTechniqueChoiceGrantCount(techniqueContext);
-    const maxTotal = techniqueContext.slots + extraSlots;
-    if (!techniqueContext.primaryAttrKey) {
-      return [{
-        type: "incomplete",
-        severity: "warning",
-        nodeId: this.id,
-        storagePath: "builder.selectedTechniques",
-        label: "Techniques",
-        reason: "Primary Attribute is not set, so technique slots are 0.",
-        previousValue: selected.size,
-        nextValue: 0,
-      }];
-    }
-    if (maxTotal <= 0 || selected.size >= maxTotal) return [];
-    return [{
-      type: "incomplete",
-      severity: "warning",
-      nodeId: this.id,
-      storagePath: "builder.selectedTechniques",
-      label: "Techniques",
-      reason: `You have ${maxTotal} technique pick${maxTotal === 1 ? "" : "s"}, but only selected ${selected.size}.`,
-      previousValue: selected.size,
-      nextValue: maxTotal,
-    }];
-  }
-
   getSaveIssues() {
+    const context = this.getTechniqueContext(this.getBuilder());
     const builder = {
       ...this.getBuilder(),
-      selectedTechniques: this.buildSortedSelectedArray(this.selectedTechniques()),
+      selectedTechniques: this.buildSortedSelectedArray(this.getNormalSelectedTechniques(this.selectedTechniques(), context)),
     };
-    const context = this.getTechniqueContext(builder);
-    const selected = this.selectedTechniques();
+    const selected = this.getNormalSelectedTechniques(this.selectedTechniques(), context);
     const { total, missing } = this.getSelectedCounts(selected);
     const warnings = [];
     const errors = [];
@@ -429,9 +385,15 @@ export class TechniquesWidget extends BuilderWidget {
     if (!this.slotPillsEl) return;
     this.slotPillsEl.innerHTML = "";
 
-    const { total } = this.getSelectedCounts();
+    const normalSelected = this.getNormalSelectedTechniques(this.selectedTechniques(), context);
+    const { total } = this.getSelectedCounts(normalSelected);
     const extraSlots = this.getTechniqueChoiceGrantCount(context);
     const maxTotal = context.slots + extraSlots;
+    const countState = getChoiceCountState({
+      selectedCount: total,
+      expectedCount: maxTotal,
+      noun: "technique",
+    });
 
     const pillSlots = document.createElement("span");
     pillSlots.className = "pill";
@@ -447,9 +409,9 @@ export class TechniquesWidget extends BuilderWidget {
 
     const pillSelected = document.createElement("span");
     pillSelected.className = "pill";
-    pillSelected.textContent = `Selected: ${total} / ${maxTotal}`;
-    if (!this.selectedTechniquesFitSlots(this.selectedTechniques(), context)) pillSelected.classList.add("danger");
-    else if (maxTotal > 0 && total === maxTotal) pillSelected.classList.add("ok");
+    pillSelected.textContent = `Selected: ${countState.selectedCount} / ${countState.expectedCount}`;
+    if (!this.selectedTechniquesFitSlots(normalSelected, context)) pillSelected.classList.add("danger");
+    else if (countState.expectedCount > 0 && countState.isComplete) pillSelected.classList.add("ok");
     this.slotPillsEl.append(pillSelected);
   }
 
@@ -497,6 +459,7 @@ export class TechniquesWidget extends BuilderWidget {
   passesKnownSkillFilter(technique, context, gameData = this.getGameData()) {
     const name = techniqueName(technique);
     if (name && context.grantedTechniqueNames.has(name)) return true;
+    if (name && context.sourceOwnedTechniqueNames?.has(name)) return true;
     if (!this.passesTechniquePrerequisites(technique, context, gameData)) return false;
     if (!this.filterKnownSkills) return true;
     const skill = techniqueSkill(technique);
@@ -542,90 +505,157 @@ export class TechniquesWidget extends BuilderWidget {
   }
 
   renderRankGroup(rank, items, context) {
-    if (rank === 0) {
-      const details = document.createElement("details");
-      details.open = false;
-      const summary = document.createElement("summary");
-      summary.textContent = `Rank 0 Basics - ${items.length}`;
-      summary.style.cursor = "pointer";
-      summary.style.fontWeight = "700";
-      summary.style.marginBottom = "8px";
-      const listEl = document.createElement("div");
-      listEl.className = "optionList";
-      for (const technique of items) {
-        const row = document.createElement("div");
-        row.className = "optionRow";
-        row.innerHTML = renderTechniqueProfileHtml(technique, {
-          rankValue: this.getTechniqueSkillRank(technique, context),
-          heading: techniqueName(technique) || "Technique",
-          headingTag: "div",
-          headingClass: "optionTitle",
-          showRank: true,
-        });
-        listEl.append(row);
-      }
-      details.append(summary, listEl);
-      this.techniqueGroupsEl.append(details);
-      return;
+    const rankKey = `rank:${rank}`;
+    const rankDetails = document.createElement("details");
+    rankDetails.open = this.collapsedGroups.has(rankKey) ? !this.collapsedGroups.get(rankKey) : rank !== 0;
+    rankDetails.style.marginTop = "14px";
+
+    const rankSummary = document.createElement("summary");
+    rankSummary.textContent = rank === 0 ? `Rank 0 Basics - ${items.length}` : `Rank ${rank} - ${items.length}`;
+    rankSummary.style.cursor = "pointer";
+    rankSummary.style.fontWeight = "700";
+    rankSummary.style.marginBottom = "8px";
+    rankDetails.append(rankSummary);
+    rankDetails.addEventListener("toggle", () => {
+      this.collapsedGroups.set(rankKey, !rankDetails.open);
+    });
+
+    const bySkill = new Map();
+    for (const technique of items) {
+      const skill = techniqueSkill(technique) || "Other";
+      const skillItems = bySkill.get(skill) || [];
+      skillItems.push(technique);
+      bySkill.set(skill, skillItems);
     }
 
-    const header = document.createElement("h3");
-    header.className = "h3";
-    header.textContent = `Rank ${rank}`;
-    header.style.marginTop = "14px";
+    const skills = Array.from(bySkill.keys()).sort((a, b) => a.localeCompare(b));
+    for (const skill of skills) {
+      rankDetails.append(this.renderSkillGroup(rank, skill, bySkill.get(skill) || [], context));
+    }
+
+    this.techniqueGroupsEl.append(rankDetails);
+  }
+
+  renderSkillGroup(rank, skill, items, context) {
+    const skillKey = `rank:${rank}:skill:${skill}`;
+    const details = document.createElement("details");
+    details.open = this.collapsedGroups.has(skillKey) ? !this.collapsedGroups.get(skillKey) : true;
+    details.style.margin = "8px 0 0 12px";
+
+    const summary = document.createElement("summary");
+    summary.textContent = `${skill} - ${items.length}`;
+    summary.style.cursor = "pointer";
+    summary.style.fontWeight = "600";
+    details.append(summary);
+    details.addEventListener("toggle", () => {
+      this.collapsedGroups.set(skillKey, !details.open);
+    });
 
     const listEl = document.createElement("div");
     listEl.className = "optionList";
+    listEl.style.marginTop = "8px";
 
     for (const technique of items) {
-      const name = techniqueName(technique);
-      if (!name) continue;
-      const row = document.createElement("div");
-      row.className = "optionRow";
-
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      const isGranted = context.grantedTechniqueNames.has(name);
-      const skillRank = this.getTechniqueSkillRank(technique, context);
-      checkbox.checked = isGranted || this.selectedTechniques().has(name);
-      const atCap = !this.canAddTechnique(name, context);
-      if (isGranted) checkbox.disabled = true;
-      else if (skillRank < techniqueRank(technique)) checkbox.disabled = true;
-      else if (context.slots + this.getTechniqueChoiceGrantCount(context) <= 0) checkbox.disabled = true;
-      else if (atCap && !checkbox.checked) checkbox.disabled = true;
-
-      checkbox.addEventListener("change", () => {
-        this.clearError?.();
-        const selected = new Set(this.selectedTechniques());
-        if (checkbox.checked) {
-          if (!this.canAddTechnique(name, context)) {
-            checkbox.checked = false;
-            this.setStatus?.("No technique slots remaining.");
-            return;
-          }
-          selected.add(name);
-        } else {
-          selected.delete(name);
-        }
-        this.setSelectedTechniques(selected);
-        this.render();
-      });
-
-      const body = document.createElement("div");
-      body.style.flex = "1";
-      body.innerHTML = renderTechniqueProfileHtml(technique, {
-        rankValue: skillRank,
-        heading: name,
-        headingTag: "div",
-        headingClass: "optionTitle",
-        showRank: true,
-      });
-
-      row.append(checkbox, body);
-      listEl.append(row);
+      const row = rank === 0
+        ? this.renderReadOnlyTechniqueRow(technique, context)
+        : this.renderSelectableTechniqueRow(technique, context);
+      if (row) listEl.append(row);
     }
 
-    this.techniqueGroupsEl.append(header, listEl);
+    details.append(listEl);
+    return details;
+  }
+
+  renderReadOnlyTechniqueRow(technique, context) {
+    const row = document.createElement("div");
+    row.className = "optionRow";
+    row.innerHTML = renderTechniqueProfileHtml(technique, {
+      rankValue: this.getTechniqueSkillRank(technique, context),
+      heading: techniqueName(technique) || "Technique",
+      headingTag: "div",
+      headingClass: "optionTitle",
+      showRank: true,
+    });
+    return row;
+  }
+
+  renderSelectableTechniqueRow(technique, context) {
+    const name = techniqueName(technique);
+    if (!name) return null;
+
+    const row = document.createElement("div");
+    row.className = "optionRow";
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    const isGranted = context.grantedTechniqueNames.has(name);
+    const isSourceOwned = context.sourceOwnedTechniqueNames?.has(name);
+    const freeDetail = context.sourceOwnedTechniqueDetails?.get(name) || context.grantedTechniqueDetails?.get(name) || null;
+    const skillRank = this.getTechniqueSkillRank(technique, context);
+    checkbox.checked = isGranted || isSourceOwned || this.selectedTechniques().has(name);
+    const atCap = !this.canAddTechnique(name, context);
+    const normalSelected = this.getNormalSelectedTechniques(this.selectedTechniques(), context);
+    const countState = getChoiceCountState({
+      selectedCount: normalSelected.size,
+      expectedCount: context.slots + this.getTechniqueChoiceGrantCount(context),
+      noun: "technique",
+    });
+    if (isGranted || isSourceOwned) checkbox.disabled = true;
+    else if (skillRank < techniqueRank(technique)) checkbox.disabled = true;
+    else if (countState.expectedCount <= 0) checkbox.disabled = true;
+    else if (atCap && !checkbox.checked) checkbox.disabled = true;
+
+    checkbox.addEventListener("change", async () => {
+      this.clearError?.();
+      const previousChecked = !checkbox.checked;
+      const selected = new Set(this.selectedTechniques());
+      if (checkbox.checked) {
+        if (!this.canAddTechnique(name, context)) {
+          checkbox.checked = false;
+          this.setStatus?.("No technique slots remaining.");
+          return;
+        }
+        selected.add(name);
+      } else {
+        selected.delete(name);
+      }
+      const result = await this.page?.requestChoiceChange?.(this, {
+        "builder.selectedTechniques": this.buildSortedSelectedArray(this.getNormalSelectedTechniques(selected, context)),
+      }, {
+        applyWidgetChange: () => {
+          this.render();
+        },
+      });
+      if (result && !result.ok) {
+        checkbox.checked = previousChecked;
+        return;
+      }
+      if (!result) {
+        this.setSelectedTechniques(selected);
+        this.render();
+      }
+    });
+
+    const body = document.createElement("div");
+    body.style.flex = "1";
+    body.innerHTML = renderTechniqueProfileHtml(technique, {
+      rankValue: skillRank,
+      heading: name,
+      headingTag: "div",
+      headingClass: "optionTitle",
+      showRank: true,
+    });
+    if (freeDetail) {
+      const badge = document.createElement("span");
+      badge.className = `techniqueSourcePill ${freeDetail.kind === "sourceOwned" ? "sourceOwned" : "granted"}`;
+      badge.textContent = freeDetail.label;
+      const titleEl = body.querySelector(".optionTitle");
+      if (titleEl) titleEl.append(" ", badge);
+      else body.prepend(badge);
+    }
+
+    row.append(checkbox, body);
+    return row;
   }
 
   render() {

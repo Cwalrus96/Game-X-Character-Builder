@@ -200,14 +200,32 @@ export function sanitizeGrantChoices(value, { maxItems = 100 } = {}) {
     if (!choiceId) continue;
 
     const type = normalizeEnumToken(choice.type, { maxLen: 64 });
+    const sourceId = sanitizeText(choice.sourceId, { maxLen: 160, collapse: true });
+    const sourceLabel = sanitizeText(choice.sourceLabel, { maxLen: 200, collapse: true });
+    const value = sanitizeText(choice.value, { maxLen: 200, collapse: true });
+    const techniqueName = sanitizeText(choice.techniqueName, { maxLen: 200, collapse: true });
+    const skill = sanitizeText(choice.skill, { maxLen: 96, collapse: true });
     const weaponKey = normalizeEnumToken(choice.weaponKey, { maxLen: 64 });
     const rank = toInt(choice.rank, { min: 0, max: 8 });
     const customName = sanitizeText(choice.customName, { maxLen: 120, collapse: true });
     const enhancements = sanitizeWeaponEnhancementList(choice.enhancements, { maxItems: 20 });
     const tags = sanitizeStringArray(choice.tags, { maxItems: 50, maxLen: 96 });
 
-    if (!type && !weaponKey && !customName && !enhancements.length && !tags.length) continue;
-    out[choiceId] = { choiceId, type, weaponKey, rank, customName, enhancements, tags };
+    if (!type && !sourceId && !sourceLabel && !value && !techniqueName && !skill && !weaponKey && !customName && !enhancements.length && !tags.length) continue;
+    out[choiceId] = {
+      choiceId,
+      type,
+      ...(sourceId ? { sourceId } : {}),
+      ...(sourceLabel ? { sourceLabel } : {}),
+      ...(value ? { value } : {}),
+      ...(techniqueName ? { techniqueName } : {}),
+      ...(skill ? { skill } : {}),
+      weaponKey,
+      rank,
+      customName,
+      enhancements,
+      tags,
+    };
     if (Object.keys(out).length >= maxItems) break;
   }
   return out;

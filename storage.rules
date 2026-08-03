@@ -6,7 +6,9 @@ service firebase.storage {
     }
 
     function isGM() {
-      return request.auth.token.gm == true;
+      return isSignedIn()
+        && 'gm' in request.auth.token
+        && request.auth.token.gm == true;
     }
 
     function isSelf(uid) {
