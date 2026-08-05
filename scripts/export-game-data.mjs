@@ -29,21 +29,16 @@ import process from "node:process";
 import * as XLSX from "xlsx/xlsx.mjs"; // SheetJS ESM build (use XLSX.read with a Buffer)
 import { assertGameDataExportTargetAllowed } from "./game-data-export-policy.mjs";
 import {
-  SUPPORTED_GRANT_FIELDS,
-  SUPPORTED_GRANT_TYPES,
-  SUPPORTED_PREREQUISITE_FIELDS,
-  SUPPORTED_STRUCTURED_PREREQUISITE_TYPES,
-} from "../public/js/core/game-data-contract.js";
+  formatExpressionDiagnostic,
+  parseGrantExpressions,
+  parsePrerequisiteExpressions,
+} from "../public/js/core/game-data-expressions.js";
 
 const REQUIRED_SHEETS = ["Classes", "ClassFeatures", "Feats", "Techniques"];
 const OPTIONAL_ORIGIN_SHEETS = ["Origins", "OriginFeatures"];
 const OPTIONAL_WEAPON_SHEETS = ["WeaponBases", "WeaponProfiles", "WeaponEnhancements"];
 const VALID_ORIGIN_STATUSES = new Set(["playable", "draft", "incomplete"]);
 const LEGACY_GRANT_COLUMNS = ["grantsSkills", "grantsTechniques", "grantsNotes"];
-const VALID_GRANT_TYPES = new Set(SUPPORTED_GRANT_TYPES);
-const VALID_GRANT_FIELDS = new Set(SUPPORTED_GRANT_FIELDS);
-const VALID_PREREQUISITE_TYPES = new Set(SUPPORTED_STRUCTURED_PREREQUISITE_TYPES);
-const VALID_PREREQUISITE_FIELDS = new Set(SUPPORTED_PREREQUISITE_FIELDS);
 
 function die(msg) {
   console.error(`\nERROR: ${msg}\n`);
@@ -84,15 +79,6 @@ function splitList(v) {
     .filter(Boolean);
 }
 
-function splitGrantLines(v) {
-  const s = toStr(v).replace(/\r\n/g, "\n");
-  if (!s) return [];
-  return s
-    .split(/\n+/g)
-    .map((x) => x.trim())
-    .filter(Boolean);
-}
-
 function assertNoLegacyGrantColumns(rows, sheetName) {
   const headers = new Set(rows.flatMap((row) => Object.keys(row)));
   const legacy = LEGACY_GRANT_COLUMNS.filter((column) => headers.has(column));
@@ -101,156 +87,17 @@ function assertNoLegacyGrantColumns(rows, sheetName) {
   }
 }
 
-function parseGrantType(value, context) {
-  const type = toStr(value);
-  if (!/^[a-z][a-z-]*$/.test(type)) {
-    die(`${context}: grant type "${value}" must be lowercase letters/hyphens only.`);
-  }
-  if (!VALID_GRANT_TYPES.has(type)) {
-    die(`${context}: unknown grant type "${type}". Add it to VALID_GRANT_TYPES if this is a new supported grant type.`);
-  }
-  return type;
-}
-
-function parseGrantLine(line, context) {
-  const parts = String(line ?? "")
-    .split("|")
-    .map((part) => part.trim())
-    .filter(Boolean);
-  if (!parts.length) return null;
-
-  let type = parseGrantType(parts.shift(), context);
-
-  const grant = { type };
-  for (const part of parts) {
-    const idx = part.indexOf("=");
-    if (idx === -1) {
-      die(`${context}: grant field "${part}" must use key=value syntax.`);
-    }
-    const key = part.slice(0, idx).trim();
-    const value = part.slice(idx + 1).trim();
-    if (!key || !value) die(`${context}: grant field "${part}" must include both key and value.`);
-    if (!/^[a-z][a-zA-Z]*$/.test(key)) {
-      die(`${context}: grant field key "${key}" must be lower camelCase.`);
-    }
-    if (!VALID_GRANT_FIELDS.has(key)) {
-      die(`${context}: unknown grant field "${key}". Add it to VALID_GRANT_FIELDS if this is intentional.`);
-    }
-    if (Object.hasOwn(grant, key)) {
-      die(`${context}: duplicate grant field "${key}".`);
-    }
-    if (key === "rank" || key === "count") {
-      const n = Number.parseInt(value, 10);
-      if (!Number.isFinite(n) || String(n) !== value) die(`${context}: ${key} must be an integer, got "${value}".`);
-      grant[key] = n;
-    } else if (key === "progression") {
-      const progression = value.toLowerCase();
-      if (!["fast", "medium", "slow", "weapon skill"].includes(progression)) {
-        die(`${context}: progression must be fast, medium, slow, or weapon skill, got "${value}".`);
-      }
-      grant[key] = progression;
-    } else {
-      grant[key] = value;
-    }
-  }
-
-  if (type === "technique" && grant.skill && !grant.name && !grant.key) {
-    type = "technique-choice";
-    grant.type = type;
-    if (!Object.hasOwn(grant, "count")) grant.count = 1;
-  }
-  if (type === "technique-choice") {
-    if (!grant.skill) die(`${context}: technique-choice grants must include skill=Skill Name.`);
-    if (!Object.hasOwn(grant, "count")) grant.count = 1;
-  }
-  if (type === "technique" && !grant.name && !grant.key) {
-    die(`${context}: technique grants must include name=Technique Name or key=technique-key.`);
-  }
-
-  return grant;
-}
-
-function parseGrants(v, context) {
-  return splitGrantLines(v).map((line, index) => parseGrantLine(line, `${context} grant ${index + 1}`)).filter(Boolean);
-}
-
-function parsePrerequisiteType(value, context) {
-  const type = toStr(value);
-  if (!/^[a-z][a-z-]*$/.test(type)) {
-    die(`${context}: prerequisite type "${value}" must be lowercase letters/hyphens only.`);
-  }
-  if (!VALID_PREREQUISITE_TYPES.has(type)) {
-    die(`${context}: unknown prerequisite type "${type}". Add it to VALID_PREREQUISITE_TYPES if this is a new supported prerequisite type.`);
-  }
-  return type;
-}
-
-function parseMaybeOrValue(value) {
-  const parts = String(value ?? "")
-    .split(/\s+OR\s+/i)
-    .map((part) => part.trim())
-    .filter(Boolean);
-  return parts.length > 1 ? parts : value;
-}
-
-function parsePrerequisiteLine(line, context) {
-  const raw = toStr(line);
-  if (!raw) return null;
-
-  const parts = raw
-    .split("|")
-    .map((part) => part.trim())
-    .filter(Boolean);
-
-  if (parts.length < 2) {
-    return { type: "text", text: raw };
-  }
-
-  const prereq = { type: parsePrerequisiteType(parts.shift(), context) };
-  for (const part of parts) {
-    const idx = part.indexOf("=");
-    if (idx === -1) {
-      die(`${context}: prerequisite field "${part}" must use key=value syntax.`);
-    }
-    const key = part.slice(0, idx).trim();
-    const value = part.slice(idx + 1).trim();
-    if (!key || !value) die(`${context}: prerequisite field "${part}" must include both key and value.`);
-    if (!/^[a-z][a-zA-Z]*$/.test(key)) {
-      die(`${context}: prerequisite field key "${key}" must be lower camelCase.`);
-    }
-    if (!VALID_PREREQUISITE_FIELDS.has(key)) {
-      die(`${context}: unknown prerequisite field "${key}". Add it to VALID_PREREQUISITE_FIELDS if this is intentional.`);
-    }
-    if (Object.hasOwn(prereq, key)) {
-      die(`${context}: duplicate prerequisite field "${key}".`);
-    }
-
-    if (key === "level" || key === "rank" || key === "minRank" || key === "value" || key === "minValue") {
-      const n = Number.parseInt(value, 10);
-      if (!Number.isFinite(n) || String(n) !== value) die(`${context}: ${key} must be an integer, got "${value}".`);
-      prereq[key] = n;
-    } else {
-      prereq[key] = parseMaybeOrValue(value);
-    }
-  }
-
-  if (prereq.type === "choice" && !prereq.choiceRef) {
-    die(`${context}: choice prerequisites must include choiceRef=choice-id.`);
-  }
-
-  return prereq;
-}
-
-function parsePrerequisites(v, context) {
-  return splitGrantLines(v).map((line, index) => parsePrerequisiteLine(line, `${context} prerequisite ${index + 1}`)).filter(Boolean);
-}
-
 function describeRow(r) {
   return toStr(r.featureKey) || toStr(r.featKey) || toStr(r.originKey) || toStr(r.name) || toStr(r.featureName) || "(unnamed)";
 }
 
 function getRowGrants(r, sheetName) {
-  return parseGrants(r.grants, `${sheetName} "${describeRow(r)}"`);
+  const row = Number.isInteger(r?.__rowNum__) ? r.__rowNum__ + 1 : null;
+  const result = parseGrantExpressions(r.grants, {
+    context: { sheet: sheetName, row, column: "grants", record: describeRow(r) },
+  });
+  if (!result.ok) die(formatExpressionDiagnostic(result.diagnostics.find((item) => item.severity === "error")));
+  return result.values;
 }
 
 function getRowGrantNotes(r, sheetName) {
@@ -263,7 +110,12 @@ function getRowGrantNotes(r, sheetName) {
 function getRowPrerequisites(r, sheetName) {
   const value = toStr(r.prerequisites) || toStr(r.prereqs);
   if (!value) return null;
-  return parsePrerequisites(value, `${sheetName} "${describeRow(r)}"`);
+  const row = Number.isInteger(r?.__rowNum__) ? r.__rowNum__ + 1 : null;
+  const result = parsePrerequisiteExpressions(value, {
+    context: { sheet: sheetName, row, column: "prerequisites", record: describeRow(r) },
+  });
+  if (!result.ok) die(formatExpressionDiagnostic(result.diagnostics.find((item) => item.severity === "error")));
+  return result.values;
 }
 
 function normalizeLookupKey(value) {

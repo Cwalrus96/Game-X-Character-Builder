@@ -135,6 +135,10 @@ export function createStagingRunPaths({
     runDirectory,
     artifactDirectory: path.join(runDirectory, "artifacts"),
     provenancePath: path.join(runDirectory, "source-provenance.json"),
+    validationReportPath: path.join(runDirectory, "validation-report.json"),
+    exportReportPath: path.join(runDirectory, "export-report.json"),
+    diffJsonPath: path.join(runDirectory, "artifact-diff.json"),
+    diffMarkdownPath: path.join(runDirectory, "artifact-diff.md"),
   });
 }
 

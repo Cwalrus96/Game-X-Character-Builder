@@ -770,3 +770,50 @@ test("dependency graph preview removes selected techniques that no longer fit av
     && change.label === "Bolstering Aegis"
   )));
 });
+
+test("dependency graph removes draft techniques from normal and source-owned selections", () => {
+  const withDraftTechniques = {
+    ...gameData,
+    techniques: gameData.techniques.map((technique) => (
+      technique.techniqueName === "Healing Light" || technique.techniqueName === "Bolstering Aegis"
+        ? { ...technique, selectionMode: "draft", selectable: false }
+        : technique
+    )),
+  };
+  const { option, key } = magicalGuardianAccessoryOption("Dazzling Wand");
+  const sourceId = `choice:builder.selectedClassFeatureOptions:${key}`;
+  const choiceId = resolveGrantChoiceId(option.grants[0], { sourceId, index: 0 });
+
+  const preview = previewBuilderChange(withDraftTechniques, {
+    classKey: "magical-guardian",
+    level: 5,
+    primaryAttribute: "attunement",
+    attributes: { attunement: 4 },
+    selectedClassFeatureOptions: [key],
+    selectedFeats: [],
+    selectedFeatOptions: [],
+    selectedTechniques: ["Healing Light"],
+    grantChoices: {
+      [choiceId]: {
+        choiceId,
+        type: "technique",
+        techniqueName: "Bolstering Aegis",
+        value: "Bolstering Aegis",
+        skill: "spellcasting",
+        sourceId,
+        sourceLabel: "Dazzling Wand",
+      },
+    },
+  }, {});
+
+  assert.deepEqual(preview.reconciledBuilder.selectedTechniques, []);
+  assert.equal(preview.reconciledBuilder.grantChoices[choiceId], undefined);
+  assert(preview.changes.some((change) => (
+    change.label === "Healing Light"
+    && change.reason === "This technique is not available for normal selection."
+  )));
+  assert(preview.changes.some((change) => (
+    change.label === "Bolstering Aegis"
+    && change.reason === "This selected technique is not available from grants."
+  )));
+});

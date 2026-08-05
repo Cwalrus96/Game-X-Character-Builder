@@ -420,7 +420,7 @@ test("fetch CLI rejects production and overlapping outputs before authentication
   );
 });
 
-test("stage CLI invokes fetch before a uniquely isolated exporter target", async () => {
+test("stage CLI invokes fetch before the canonical-model staging boundary", async () => {
   const temporaryRoot = await fs.mkdtemp(path.join(os.tmpdir(), "game-x-stage-cli-test-"));
   const sourcePaths = {
     workbookPath: path.join(temporaryRoot, "source.xlsx"),
@@ -432,6 +432,7 @@ test("stage CLI invokes fetch before a uniquely isolated exporter target", async
     processId: 42,
   });
   const calls = [];
+  const stagingCalls = [];
   try {
     await fs.writeFile(sourcePaths.workbookPath, xlsxBytes);
     await fs.writeFile(sourcePaths.provenancePath, "{\"fixture\":true}\n", "utf8");
@@ -443,18 +444,17 @@ test("stage CLI invokes fetch before a uniquely isolated exporter target", async
         calls.push(args);
         return 0;
       },
+      runStaging: async (options) => {
+        stagingCalls.push(options);
+        return { ok: true, artifactSet: { files: [{ name: "fixture.json" }] } };
+      },
     });
     assert.equal(exitCode, 0);
     assert.deepEqual(calls[0], [path.join("scripts", "fetch-game-data-source.mjs")]);
-    assert.deepEqual(calls[1], [
-      path.join("scripts", "export-game-data.mjs"),
-      sourcePaths.workbookPath,
-      stagingRun.artifactDirectory,
-    ]);
-    assert.equal(
-      await fs.readFile(stagingRun.provenancePath, "utf8"),
-      "{\"fixture\":true}\n",
-    );
+    assert.equal(calls.length, 1);
+    assert.equal(stagingCalls[0].workbookPath, sourcePaths.workbookPath);
+    assert.equal(stagingCalls[0].provenancePath, sourcePaths.provenancePath);
+    assert.equal(stagingCalls[0].run, stagingRun);
 
     let childCalled = false;
     await assert.rejects(stageMain({
@@ -469,6 +469,9 @@ test("stage CLI invokes fetch before a uniquely isolated exporter target", async
       runChild: async () => {
         childCalled = true;
         return 0;
+      },
+      runStaging: async () => {
+        throw new Error("must not stage");
       },
     }), /only under \.staging or outside/);
     assert.equal(childCalled, false);

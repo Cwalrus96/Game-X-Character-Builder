@@ -3,6 +3,7 @@ import { escapeHtml, sanitizeNamedSkillList, sanitizeText } from "../../core/dat
 import {
   computeGrantedSkillsState,
   getGameXTechniques,
+  isGameDataRecordSelectable,
 } from "../../core/game-data.js";
 import { meetsPrerequisites } from "../../core/prerequisites.js";
 import { renderTechniqueProfileHtml } from "../../core/technique-utils.js";
@@ -105,6 +106,7 @@ export class TechniqueChoiceWidget extends BuilderWidget {
 
     return getGameXTechniques(this.gameData)
       .filter((technique) => techniqueName(technique))
+      .filter((technique) => isGameDataRecordSelectable(technique, { allowGrantedOnly: true }))
       .filter((technique) => normalizeSkill(techniqueSkill(technique)) === grantSkill)
       .filter((technique) => this.getTechniqueSkillRank(technique, context) >= techniqueRank(technique))
       .filter((technique) => meetsPrerequisites(technique?.prerequisites, {

@@ -39,7 +39,7 @@ test("agent handoff entry point and living documents have no broken local links"
   }
 });
 
-test("status next-step ID resolves to a ready stable roadmap step", () => {
+test("status next-step ID resolves to a ready or active stable roadmap step", () => {
   const status = read("docs/status.md");
   const roadmap = read("docs/roadmap.md");
   const match = status.match(/Next implementation step: `([^`]+)`/);
@@ -50,7 +50,7 @@ test("status next-step ID resolves to a ready stable roadmap step", () => {
   assert.notEqual(start, -1, `${stepId} must exist in docs/roadmap.md`);
   const next = roadmap.indexOf("\n### `", start + heading.length);
   const section = roadmap.slice(start, next === -1 ? undefined : next);
-  assert.match(section, /Status: `ready`/);
+  assert.match(section, /Status: `(?:ready|active)`/);
   assert.match(section, /Acceptance:/);
 });
 
@@ -81,6 +81,15 @@ test("handoff guide and roadmap state unambiguous ownership and preflight", () =
   assert.doesNotMatch(agents, /GraphCompiler[^\n]*CharacterRepository/);
   assert.match(roadmap, /Standard preflight for every implementation step:/);
   assert.match(roadmap, /WPB-EXPRESSIONS[\s\S]*Step-specific preflight:/);
+});
+
+test("handoff guide requires fresh review deployments and safe feature commits", () => {
+  const agents = read("AGENTS.md");
+  assert.match(agents, /Always redeploy ready website changes/);
+  assert.match(agents, /restart\/redeploy the local Firebase review environment/);
+  assert.match(agents, /Create a new commit for each new feature/);
+  assert.match(agents, /current top commit, amend that top commit/);
+  assert.match(agents, /never rewrite a non-top commit/);
 });
 
 test("package scripts expose acquisition, staging, and frozen-release verification", () => {

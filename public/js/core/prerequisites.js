@@ -1,33 +1,19 @@
 import { ATTR_KEYS, CORE_SKILL_FIELDS, DEFENSE_SKILL_FIELDS, normalizeAttributes } from "./character-rules.js";
 import { sanitizeText, sanitizeStringArray } from "./data-sanitization.js";
 import { RUNTIME_PREREQUISITE_TYPES } from "./game-data-contract.js";
+import {
+  formatExpressionDiagnostic,
+  normalizeExpressionObject,
+  parsePrerequisiteExpressions,
+} from "./game-data-expressions.js";
 
 export const VALID_PREREQUISITE_TYPES = new Set(RUNTIME_PREREQUISITE_TYPES);
 
-function sanitizeStringOrArray(value, { maxLen = 160 } = {}) {
-  if (Array.isArray(value)) {
-    return value
-      .map((item) => sanitizeText(item, { maxLen, collapse: true }))
-      .filter(Boolean);
-  }
-  return sanitizeText(value, { maxLen, collapse: true });
-}
-
 export function normalizePrerequisite(prereq) {
   if (!prereq || typeof prereq !== "object") return null;
-  const type = sanitizeText(prereq.type, { maxLen: 64, collapse: true });
-  if (!type || !VALID_PREREQUISITE_TYPES.has(type)) return null;
-
-  const out = { type };
-  for (const key of ["name", "key", "choiceRef", "tag", "enhancement", "text"]) {
-    const value = sanitizeStringOrArray(prereq[key]);
-    if (Array.isArray(value) ? value.length : value) out[key] = value;
-  }
-  for (const key of ["level", "rank", "minRank", "value", "minValue"]) {
-    const n = Number.parseInt(String(prereq[key] ?? ""), 10);
-    if (Number.isFinite(n)) out[key] = n;
-  }
-  return out;
+  const result = normalizeExpressionObject("prerequisite", prereq, { context: "runtime prerequisite" });
+  if (!result.ok) throw new Error(formatExpressionDiagnostic(result.diagnostics[0]));
+  return result.value;
 }
 
 export function normalizePrerequisites(value) {
@@ -38,8 +24,11 @@ export function normalizePrerequisites(value) {
 export function getEntryPrerequisites(entry) {
   if (Array.isArray(entry?.prerequisites)) return entry.prerequisites.map(normalizePrerequisite).filter(Boolean);
 
-  const text = sanitizeText(entry?.prerequisites || entry?.prereqs || "", { maxLen: 1000, collapse: true });
-  return text ? [{ type: "text", text }] : [];
+  const text = sanitizeText(entry?.prerequisites || entry?.prereqs || "", { maxLen: 1000, collapse: false });
+  if (!text) return [];
+  const result = parsePrerequisiteExpressions(text, { context: "runtime prerequisite" });
+  if (!result.ok) throw new Error(formatExpressionDiagnostic(result.diagnostics[0]));
+  return result.values;
 }
 
 function joinValue(value, joiner = " or ") {
@@ -65,6 +54,12 @@ export function formatPrerequisite(prereq) {
     if (p.minRank !== undefined) checks.push(`rank ${p.minRank}+`);
     return `Choice ${p.choiceRef}: ${checks.join(", ") || "selected"}`;
   }
+  if (p.type === "familiar") return `Familiar${p.minCount !== undefined ? ` count ${p.minCount}+` : ""}${p.minRank !== undefined ? ` rank ${p.minRank}+` : ""}`;
+  if (p.type === "weapon" || p.type === "weapon-set") {
+    const count = p.type === "weapon-set" && p.count !== undefined ? ` (${p.count}+)` : "";
+    return `${p.type === "weapon-set" ? "Weapon set" : "Weapon"}${count}: ${joinValue(p.tag || p.tagAll || p.tagAny || p.name || p.key)}`;
+  }
+  if (p.type === "resource") return `Resource: ${joinValue(p.resourceKey)}${p.minCount !== undefined ? ` ${p.minCount}+` : ""}`;
   return "";
 }
 
@@ -209,6 +204,35 @@ function collectChoices({ builder, choices, choiceValues, gameData } = {}) {
   return out;
 }
 
+function collectResources(builder, resources) {
+  const out = new Map();
+  const add = (key, resource) => {
+    const resourceKey = sanitizeText(key || resource?.resourceKey || resource?.key || "", { maxLen: 96, collapse: true });
+    if (!resourceKey) return;
+    const amount = toRank(resource?.capacity ?? resource?.count ?? resource?.current ?? resource);
+    out.set(normalizeKey(resourceKey), Math.max(out.get(normalizeKey(resourceKey)) || 0, amount));
+  };
+  for (const source of [resources, builder?.resources]) {
+    if (source instanceof Map) {
+      for (const [key, resource] of source.entries()) add(key, resource);
+    } else if (Array.isArray(source)) {
+      for (const resource of source) add("", resource);
+    } else if (source && typeof source === "object") {
+      for (const [key, resource] of Object.entries(source)) add(key, resource);
+    }
+  }
+  return out;
+}
+
+function collectWeapons(builder, gameData) {
+  return (Array.isArray(builder?.weapons) ? builder.weapons : []).map((weapon) => ({
+    ...weapon,
+    tags: valuesFor(weapon?.effectiveTags || weapon?.tags).length
+      ? valuesFor(weapon?.effectiveTags || weapon?.tags)
+      : weaponBaseTags(gameData, weapon?.weaponKey),
+  }));
+}
+
 function classNamesForContext(data, classKey) {
   const found = (Array.isArray(data?.classes) ? data.classes : []).find((entry) => String(entry?.classKey || "") === classKey);
   return [classKey, found?.name].filter(Boolean);
@@ -264,6 +288,8 @@ export function createPrerequisiteContext(input = {}) {
       choiceValues: source.choiceValues,
       gameData,
     }),
+    resources: collectResources(builder, source.resources),
+    weapons: collectWeapons(builder, gameData),
     resolveChoice: typeof source.resolveChoice === "function" ? source.resolveChoice : null,
     deferUnresolvedChoices: !!source.deferUnresolvedChoices,
   };
@@ -305,6 +331,16 @@ function matchesTag(tags, expectedTag, minValue = null) {
       return Number.isFinite(value) && value >= minValue;
     });
   });
+}
+
+function weaponReach(weapon) {
+  const direct = Number(weapon?.reach);
+  if (Number.isFinite(direct)) return direct;
+  for (const tag of valuesFor(weapon?.tags)) {
+    const match = String(tag).trim().match(/^reach(?:\s*[=+]\s*|\s+)(\d+)$/i);
+    if (match) return Number(match[1]);
+  }
+  return 0;
 }
 
 function choiceTags(choice) {
@@ -392,6 +428,34 @@ export function evaluatePrerequisite(prerequisite, context = {}) {
       label,
       reason: `Requires ${formatPrerequisite(prereq)}.`,
     };
+  }
+
+  if (prereq.type === "resource") {
+    const available = ctx.resources.get(normalizeKey(prereq.resourceKey)) || 0;
+    const required = getRequiredNumber(prereq, ["minCount"]) ?? 1;
+    const ok = available >= required;
+    return { ok, prerequisite: prereq, label, reason: `Requires ${prereq.resourceKey} capacity ${required}.` };
+  }
+  if (prereq.type === "weapon" || prereq.type === "weapon-set") {
+    const matches = ctx.weapons.filter((weapon) => {
+      const identityOk = matchesAnyValue(
+        [weapon?.weaponKey, weapon?.name, weapon?.customName],
+        prereq.key || prereq.name,
+      );
+      const tagOk = prereq.tag ? matchesTag(weapon?.tags, prereq.tag) : true;
+      const tagAllOk = prereq.tagAll ? valuesFor(prereq.tagAll).every((tag) => matchesTag(weapon?.tags, tag)) : true;
+      const tagAnyOk = prereq.tagAny ? matchesTag(weapon?.tags, prereq.tagAny) : true;
+      const tagNotOk = prereq.tagNot ? !matchesTag(weapon?.tags, prereq.tagNot) : true;
+      const requiredReach = getRequiredNumber(prereq, ["minReach"]);
+      const reachOk = requiredReach === null || weaponReach(weapon) >= requiredReach;
+      const requiredRank = getRequiredNumber(prereq, ["rank", "minRank"]);
+      const rankOk = requiredRank === null || toRank(weapon?.rank) >= requiredRank;
+      const wieldedOk = prereq.wielded !== true || weapon?.wielded !== false;
+      return identityOk && tagOk && tagAllOk && tagAnyOk && tagNotOk && reachOk && rankOk && wieldedOk;
+    });
+    const required = prereq.type === "weapon-set" ? (getRequiredNumber(prereq, ["count"]) ?? 2) : 1;
+    const ok = matches.length >= required;
+    return { ok, prerequisite: prereq, label, reason: `Requires ${required} matching weapon${required === 1 ? "" : "s"}.` };
   }
 
   return { ok: true, manual: true, prerequisite: prereq, label, reason: "" };

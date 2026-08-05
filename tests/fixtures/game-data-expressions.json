@@ -1,0 +1,41 @@
+{
+  "validGrants": [
+    { "type": "technique", "expression": "technique | techniqueKey=dazzling-transformation" },
+    { "type": "skill", "expression": "skill | skillKey=targeting | progression=medium | rank=1" },
+    { "type": "feat", "expression": "feat | type=class OR archetype | maxLevel=5 | choiceId=feat-pick" },
+    { "type": "resource", "expression": "resource | resourceKey=charms | name=Charms | count=primary attribute" },
+    { "type": "familiar", "expression": "familiar | count=1" },
+    { "type": "weapon", "expression": "weapon | tagKeys=melee OR ranged | choiceId=soulbound-weapon | rank=2" },
+    { "type": "weapon-enhancement", "expression": "weapon-enhancement | enhancementKey=soulbound | choiceRef=soulbound-weapon" },
+    { "type": "option", "expression": "option | choiceRef=guardian-emblem | count=1" },
+    { "type": "choice", "expression": "choice | type=color | choiceId=emblem-color" },
+    { "type": "bond", "expression": "bond | choiceId=new-bond" },
+    { "type": "specialization", "expression": "specialization | skillKey=spellcasting | tag=fire" },
+    { "type": "vehicle", "expression": "vehicle | vehicleKey=hero-machine | choiceId=hero-vehicle" },
+    { "type": "gadget", "expression": "gadget | skillKey=technology OR crafting | choiceId=guardian-gadget" },
+    { "type": "rank", "expression": "rank | choiceRef=monster-evolution-companion | operation=increase | value=1" },
+    { "type": "choice-rebind", "expression": "choice-rebind | choiceRef=soulbound-weapon | rank=2" }
+  ],
+  "validPrerequisites": [
+    { "type": "class", "expression": "class | classKey=weapon-master OR spirit-warrior | level=2" },
+    { "type": "feat", "expression": "feat | featKey=paired-weapons-style" },
+    { "type": "familiar", "expression": "familiar | minCount=1 | minRank=2" },
+    { "type": "choice", "expression": "choice | choiceRef=soulbound-weapon | tagKeys=reach OR defensive" },
+    { "type": "weapon", "expression": "weapon | tagAll=melee,sharp | tagNot=defensive | minReach=1" },
+    { "type": "weapon-set", "expression": "weapon-set | tag=one-handed | count=2 | wielded=true" }
+  ],
+  "invalid": [
+    { "kind": "grant", "expression": "mystery | name=x", "code": "unknown-type" },
+    { "kind": "prerequisite", "expression": "class | mystery=x", "code": "unknown-field" },
+    { "kind": "grant", "expression": "Weapon | name=x", "code": "invalid-type" },
+    { "kind": "grant", "expression": "weapon | tag", "code": "invalid-field-syntax" },
+    { "kind": "grant", "expression": "weapon | tag=", "code": "blank-field" },
+    { "kind": "grant", "expression": "technique | key=one | techniqueKey=two", "code": "duplicate-field" },
+    { "kind": "grant", "expression": "skill | name=Targeting | rank=01", "code": "invalid-scalar" },
+    { "kind": "prerequisite", "expression": "choice | tag=reach", "code": "missing-field" },
+    { "kind": "grant", "expression": "skill | name=Targeting | progression=rapid", "code": "invalid-scalar" },
+    { "kind": "grant", "expression": "resource | resourceKey=charms | count=a whole bunch", "code": "invalid-scalar" },
+    { "kind": "grant", "expression": "rank | choiceRef=companion | operation=decrease | value=1", "code": "invalid-scalar" },
+    { "kind": "grant", "expression": "choice-rebind | rank=2", "code": "missing-field" }
+  ]
+}

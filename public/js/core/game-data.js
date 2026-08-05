@@ -68,6 +68,22 @@ export function getGameXTechniques(gameData) {
   return Array.isArray(gameData?.techniques) ? gameData.techniques : [];
 }
 
+/**
+ * Selection policy for schema-v4 records while preserving compatibility with
+ * reviewed legacy JSON that predates selectionMode/selectable.
+ *
+ * Draft records are always unavailable. Granted-only records may be used only
+ * by a source-owned grant choice, never by the normal picker.
+ */
+export function isGameDataRecordSelectable(record, { allowGrantedOnly = false } = {}) {
+  const mode = String(record?.selectionMode || "").trim().toLowerCase();
+  if (mode === "draft") return false;
+  if (mode === "granted-only") return !!allowGrantedOnly;
+  if (mode === "selectable") return true;
+  if (mode) return false;
+  return record?.selectable !== false;
+}
+
 export function getGameXOrigins(gameData) {
   return Array.isArray(gameData?.origins) ? gameData.origins : [];
 }

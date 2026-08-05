@@ -1,6 +1,6 @@
 # Game-data pipeline: Google Sheet to reviewed JSON
 
-Status: living operational design. Automated read-only acquisition is implemented; schema-v4 validation/export/diff remains Work Package B work.
+Status: living operational design. Read-only acquisition and the schema-v4 read/validate/stage/diff pipeline are implemented; authenticated live acceptance, source resolution, review, and publishing remain Work Package B work.
 
 Last updated: 2026-08-04.
 
@@ -115,23 +115,27 @@ npm run fetch:data -- --out C:\temporary\game-x.xlsx --provenance C:\temporary\g
 
 Explicit targets are accepted only beneath this repository's real, non-redirected `.staging` directory or completely outside the repository. Symlinks/junctions that redirect either location back into repository content are rejected. The workbook and provenance targets must also be distinct, non-nested file paths. This prevents the acquisition command itself from overwriting source code, contracts, or frozen production JSON.
 
-### Fetch and invoke a staging export
+### Fetch, validate, and stage
 
 ```powershell
 npm run stage:data
 ```
 
-This fetches the canonical Sheet, creates a unique run, copies the source provenance into it, and invokes the current exporter with output under:
+This fetches the canonical Sheet, reads and validates schema v4, constructs deterministic runtime artifacts in memory, verifies them through current runtime loader APIs, and installs a complete unique run under:
 
 ```text
 .staging/game-data/runs/<timestamp>-<process-id>/
   source-provenance.json
+  validation-report.json
   artifacts/
+  export-report.json
+  artifact-diff.json
+  artifact-diff.md
 ```
 
 Unique run directories prevent a failed attempt from being confused with stale artifacts from an earlier attempt.
 
-At the current `WPB-EXPRESSIONS` boundary, the command is expected to stop when the legacy exporter encounters schema-v4 constructs it cannot faithfully represent. Do not weaken validation, skip rows, or add coercions just to make this command green. `WPB-EXPRESSIONS`, `WPB-ADAPTERS`, and `WPB-REFERENCES` repair those contracts first.
+The reader, adapters, validator, schema-v2 artifact builder, runtime-load acceptance, atomic staging writer, and structural/semantic diff are fixture-verified. Authenticated acceptance still awaits `WPB-SOURCE-ACCESS`; until that succeeds, a fixture run is implementation evidence rather than a releasable current-source candidate. Do not weaken validation, skip rows, or add coercions just to make a live command green.
 
 ### Verify frozen production
 
@@ -143,9 +147,9 @@ This verifies exact filenames, byte lengths, SHA-256 hashes, release metadata, a
 
 `npm run export:data` still targets `public/data/game-x` and intentionally fails before reading/writing while the production freeze is active. It is retained as a negative safety boundary until `WPB-PUBLISH` replaces it with explicit promotion.
 
-## Target staging run
+## Staging run
 
-After `WPB-STAGING`, one command will create an immutable ignored run:
+One command creates an immutable ignored run:
 
 ```text
 .staging/game-data/runs/<run-id>/
@@ -157,7 +161,7 @@ After `WPB-STAGING`, one command will create an immutable ignored run:
   artifact-diff.md
 ```
 
-Target phase boundaries:
+Implemented phase boundaries:
 
 ```text
 Drive acquisition
@@ -170,9 +174,11 @@ Drive acquisition
   -> byte and semantic diff
 ```
 
-No runtime artifact is written if validation has errors. A validation report may still be staged. The report records source schema, runtime artifact schema, exporter version, Drive version/time, source/model/artifact hashes, counts, warnings/errors, and diff summary.
+`scripts/game-data/workbook-reader.mjs` owns only XLSX decoding, raw headers/values, and physical row numbers. `scripts/game-data/source-adapters.mjs` owns schema-v4 tab/header meaning and returns `{ ok, model, diagnostics }` without file I/O. `scripts/game-data/model-validator.mjs` merges adapter findings with duplicate, ownership, reference, choice, status, readiness, and domain findings in deterministic workbook order. Populated invalid rows remain represented when possible; any meaning that cannot be adapted or validated produces a source-located diagnostic. None of these phases writes artifacts. `artifact-builder.mjs` accepts only that validated model, and `staging-run.mjs` owns the later file-I/O boundary.
 
-The semantic diff uses stable identities and reports added, removed, changed entities and changed field paths. Byte hashes alone are not sufficient. Weapon profiles require an explicit stable composite identity until a `profileKey` decision is made.
+No runtime artifact is written if validation or runtime-load acceptance has errors. A validation report and provenance may still be staged. The reports record source schema, runtime artifact schema, exporter version, Drive version/time, fetch/export timestamps, source/model/artifact hashes, counts, warnings/errors, runtime acceptance, and diff summary. Runtime artifact bytes omit the volatile export timestamp, so the same validated source revision produces identical hashes in different runs.
+
+The semantic diff uses stable identities and reports added, removed, changed entities and every changed field path. Byte hashes alone are not sufficient. Because the frozen release predates `techniqueKey`, the diff explicitly bridges an old technique name to the matching new stable key; this is compatibility analysis, not permission to restore display-name identity. Weapon profiles use the explicit `weaponKey/profileType/profileName/rank` composite until a `profileKey` decision is made.
 
 ## Publishing boundary
 
@@ -187,9 +193,13 @@ Publishing is deliberately not implemented yet. `WPB-PUBLISH` will add a separat
 
 Fetch, stage, and publish must never be aliases for the same side-effecting operation.
 
+## Canonical-Sheet edit approval
+
+Source resolution is not automatic cleanup. Read-only inspection, validation, or permission to proceed with a roadmap step does not authorize Sheet writes. Before any connector, API, script, or browser automation changes the canonical Sheet, present the exact tabs/ranges, proposed values or contract changes, and reasons, then obtain explicit user approval for that edit batch. Repository validator/exporter corrections and source editorial changes remain separately reviewable.
+
 ## Runtime artifacts
 
-The website currently loads `public/data/game-x/game-x-data.json`; domain files remain checked in for review/tooling. The frozen release contains:
+The website currently loads `public/data/game-x/game-x-data.json`; domain files remain checked in for review/tooling. The frozen schema-v1 production release contains:
 
 - `classes.json`
 - `class-features.json`
@@ -201,7 +211,7 @@ The website currently loads `public/data/game-x/game-x-data.json`; domain files 
 - `game-x-data.json`
 - `export-report.json`
 
-The normalized source has additional concepts such as `ClassSkills`, stable technique keys, status/selectability, structured costs, resources, and stubbed subsystems. Artifact topology/version changes are decided and diffed during Work Package B; source rows must not be dropped merely to preserve the old file list.
+Schema-v2 staging produces the eight corresponding runtime domain/combined files plus `class-skills.json`. `export-report.json` is run metadata beside `artifacts/`, not a runtime artifact. The v2 bytes preserve `ClassSkills`, stable technique keys, status/selectability, structured costs and expressions, source revision identity, and explicit stubbed subsystems. Source rows are not dropped merely to preserve the old file list.
 
 ## Failure policy
 

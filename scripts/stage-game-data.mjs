@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import { spawn } from "node:child_process";
-import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
@@ -14,6 +13,7 @@ import {
   readGameDataSourceConfig,
 } from "./game-data/config.mjs";
 import { assertGameDataExportTargetAllowed } from "./game-data-export-policy.mjs";
+import { stageWorkbookSnapshot } from "./game-data/staging-run.mjs";
 
 function runNode(args) {
   return new Promise((resolve, reject) => {
@@ -34,12 +34,16 @@ export async function main({
   sourcePaths,
   stagingRun,
   runChild = runNode,
-  fileSystem = fs,
+  runStaging = stageWorkbookSnapshot,
 } = {}) {
   const { workbookPath, provenancePath } = sourcePaths || getDefaultSourcePaths(config);
   const run = stagingRun || createStagingRunPaths();
   assertSourceOutputPathAllowed(run.artifactDirectory);
   assertSourceOutputPathAllowed(run.provenancePath);
+  assertSourceOutputPathAllowed(run.validationReportPath);
+  assertSourceOutputPathAllowed(run.exportReportPath);
+  assertSourceOutputPathAllowed(run.diffJsonPath);
+  assertSourceOutputPathAllowed(run.diffMarkdownPath);
   assertGameDataExportTargetAllowed(run.artifactDirectory);
 
   const fetchCode = await runChild([path.join("scripts", "fetch-game-data-source.mjs")]);
@@ -47,17 +51,21 @@ export async function main({
     return fetchCode;
   }
 
-  await fileSystem.mkdir(run.runDirectory, { recursive: true });
-  await fileSystem.copyFile(provenancePath, run.provenancePath);
-
-  console.log("Running the current exporter against ignored staging output.");
+  console.log("Validating the canonical model and constructing deterministic ignored staging output.");
   console.log(`Staging run: ${path.relative(REPOSITORY_ROOT, run.runDirectory)}`);
-  console.log("Until WPB-EXPRESSIONS/ADAPTERS are complete, schema-v4 validation failures are expected and must not be bypassed.");
-  return runChild([
-    path.join("scripts", "export-game-data.mjs"),
+  const result = await runStaging({
     workbookPath,
-    run.artifactDirectory,
-  ]);
+    provenancePath,
+    run,
+    productionDirectory: path.join(REPOSITORY_ROOT, "public", "data", "game-x"),
+  });
+  if (!result.ok) {
+    console.error(`Staging stopped after validation; see ${path.relative(REPOSITORY_ROOT, run.validationReportPath)}.`);
+    return 1;
+  }
+  console.log(`Staged ${result.artifactSet.files.length} artifacts; production remains untouched.`);
+  console.log(`Diff: ${path.relative(REPOSITORY_ROOT, run.diffMarkdownPath)}`);
+  return 0;
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {

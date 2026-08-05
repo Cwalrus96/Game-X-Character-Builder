@@ -1,6 +1,6 @@
 # Game-data source contract
 
-Status: living source-schema contract. Work Package B has not yet certified or published a schema-v4 runtime export.
+Status: living source-schema contract. Shared schema-v4 expressions, canonical source adapters, pure whole-model validation, and deterministic schema-v2 staging are implemented against fixtures; live acceptance and publishing remain open.
 
 Last updated: 2026-08-04.
 
@@ -15,7 +15,8 @@ The canonical editable source is the native Google Sheet [game-x-class-data](htt
 | Source schema | `4` |
 | Grant syntax | `2` |
 | Prerequisite syntax | `2` |
-| Runtime release schema | `1` (frozen June 29 artifacts) |
+| Production runtime release schema | `1` (frozen June 29 artifacts) |
+| Staged runtime artifact schema | `2` (fixture-verified; not yet published) |
 | Production export status | Frozen |
 
 `contracts/game-data-source.json` is the machine-readable locator and MIME/schema expectation. It contains no credentials. `contracts/game-data-release-baseline.json` protects the exact checked-in production artifacts. These contracts describe different things and must not be conflated.
@@ -57,6 +58,14 @@ The Google Sheet is editable source. Any XLSX file is only a point-in-time trans
 
 The `Schema` tab is the exhaustive field list. This document records cross-field meaning and runtime adaptation rather than duplicating all 152 field rows.
 
+### Canonical adapter model
+
+The XLSX reader is domain-neutral: it preserves sheet order, exact headers, raw cell values, and physical row numbers. The schema-v4 adapter then produces flat collections for all ten runtime-source tabs plus normalized `metadata`, `schema`, and `enums` contracts. Every adapted record retains `{ sheet, row }` source location.
+
+Headers must exactly match the ordered schema-v4 contract. `Schema` declarations must cover those same 152 fields without unknowns, duplicates, omissions, or reordered declarations. Scalar parsing is strict for integers, numbers, booleans, rank maps, tag/key lists, and energy-cost alternatives. An invalid populated row is retained when structurally possible and accompanied by a diagnostic; it is never silently dropped or repaired from display text.
+
+Nested class/feat/origin feature rows remain flat during adaptation. Their stable owner key and `parentKey` are copied only from the row itself. Building and validating owner/parent relationships belongs to whole-model validation, never spreadsheet row order.
+
 ## Global source rules
 
 ### Stable identity
@@ -65,8 +74,11 @@ The `Schema` tab is the exhaustive field list. This document records cross-field
 - Existing weapon/enhancement snake_case keys remain frozen until saved-state aliases and migrations exist.
 - Display names are never persistence or cross-reference identity.
 - `OPTION` rows require a stable `parentKey` resolving to an `OPTION_GROUP` in the same owner scope.
+- An `OPTION_GROUP` may itself have a stable `parentKey` resolving to another `OPTION_GROUP`; recursive nesting is preserved in runtime artifacts.
 - `OPTION_GROUP` rows require a positive explicit `chooseCount`; parser fallback `1` is compatibility only, not an authoring rule.
-- Every answer-producing grant has a stable `choiceId`, a stable `choiceRef`, or an unambiguous typed source-owned choice definition.
+- Every answer-producing grant has a stable explicit `choiceId` or an unambiguous typed source-owned identity derived from its stable owning feature. Explicit IDs are required when another expression must address that exact answer through `choiceRef`; they are not duplicate copies of every owning `featureKey`.
+
+Descriptions are optional presentation content on every runtime-source tab. A blank description never makes an otherwise complete record invalid or unselectable. Mechanical readiness is determined only from typed mechanical fields, status, and selection mode.
 
 ### Status and selection
 
@@ -82,6 +94,7 @@ All 19 classes export; the seven currently playable classes are Ninja, Magical G
 
 - `selectable`: may appear in a normal picker when other Rules pass;
 - `granted-only`: may exist only through a grant and must never be offered directly.
+- `draft`: exported for review but unavailable through normal selection or grants; incomplete mechanics are reported as warnings.
 
 `Dazzling Transformation` and the `soulbound` weapon enhancement are examples of granted-only source records. “Granted” is acquisition mode, not a fake prerequisite.
 
@@ -170,25 +183,29 @@ One grant per line:
 type | field=value | field=value
 ```
 
-Fields are type-specific. A global “any known field on any grant” allowlist is invalid. `WPB-EXPRESSIONS` will encode required/optional fields and scalar types in one shared registry.
+Fields are type-specific. A global “any known field on any grant” allowlist is invalid. `GRANT_EXPRESSION_REGISTRY` encodes each type's required/optional fields, scalar types, aliases, defaults, and runtime status. Exporter validation and runtime loading both use the pure parser/normalizer in `public/js/core/game-data-expressions.js`.
+
+The normalized runtime shape retains the established compact keys (`key`, `name`, `skill`, `tag`, and `level`) while accepting descriptive schema aliases such as `techniqueKey`, `skillKeys`, `tagKeys`, `featKey`, `maxLevel`, `weaponKey`, and `enhancementKey`. Aliases are type-specific. Supplying an alias and its normalized field together is a duplicate-field error rather than an overwrite.
 
 Canonical source grant types:
 
 | Type | Source meaning | Runtime implementation boundary |
 |---|---|---|
-| `technique` | Specific `techniqueKey`, or a source-owned filtered technique choice when only skill/filter fields are present. | Partial; shared normalization pending. |
-| `skill` | Specific skill or source-owned skill choice. | Partial. |
-| `feat` | Source-owned feat choice filtered by type/category/maximum level. | Registry/factory completion pending. |
-| `resource` | Limited named resource; `resourceKey` is identity and `count` is a capacity expression. | New implementation required. |
-| `familiar` | Familiar/companion grant. | Source semantics accepted; runtime subsystem stubbed. |
+| `technique` | Specific `techniqueKey`, or a source-owned filtered technique choice when only skill/filter fields are present. | Typed and normalized; existing graph/widget handling remains partial. |
+| `skill` | Specific skill or source-owned skill choice. | Typed and normalized; existing runtime handling retained. |
+| `feat` | Source-owned feat choice filtered by type/category/maximum level. | Typed and normalized; factory work remains. |
+| `resource` | Limited named resource; `resourceKey` is identity and `count` is a capacity expression. | Typed capacity, initialization, clamping, and prerequisite semantics implemented. |
+| `familiar` | Familiar/companion grant. | Typed and preserved; runtime subsystem explicitly `stubbed`. |
 | `weapon` | Specific or tag-filtered source-owned weapon choice. | Partial. |
 | `weapon-enhancement` | Enhancement, optionally connected through `choiceRef`. | Partial. |
-| `option` | Additional answer from an existing option group. | New registry handling required. |
-| `choice` | Generic source-owned answer when no dedicated subsystem exists. | New registry handling required. |
+| `option` | Additional answer from an existing option group. | Typed and normalized; factory work remains. |
+| `choice` | Generic source-owned answer when no dedicated subsystem exists. | Typed and normalized; factory work remains. |
 | `bond` | Bond creation/choice. | Adapter/factory work pending. |
 | `specialization` | Skill/tag specialization. | Partial. |
-| `vehicle` | Vehicle grant. | Source semantics accepted; runtime subsystem stubbed. |
-| `gadget` | Gadget or skill selection. | Source semantics accepted; runtime subsystem stubbed. |
+| `vehicle` | Vehicle grant. | Typed and preserved; runtime subsystem explicitly `stubbed`. |
+| `gadget` | Gadget or skill selection. | Typed and preserved; runtime subsystem explicitly `stubbed`. |
+| `rank` | Applies `operation=set` or `operation=increase` with a nonnegative `value` to the answer addressed by `choiceRef`. | Typed and preserved; source-owned modifier execution is explicitly `stubbed`. |
+| `choice-rebind` | Reopens the answer addressed by `choiceRef`, optionally narrowing the replacement by `answerType`, `rank`, or `maxRank`. | Typed and preserved; overlay storage/UI/reconciliation is explicitly `stubbed`. |
 
 Runtime-only compatibility types such as `technique-choice` and `equipment` must be represented as deliberate normalized outputs/aliases in the same registry, not exporter-only magic.
 
@@ -196,11 +213,17 @@ Runtime-only compatibility types such as `technique-choice` and `equipment` must
 
 A `resource` grant creates a stable named limited resource. Its count expression defines capacity. The character sheet initializes current amount to capacity and lets the player edit it from zero through that capacity. Resources may satisfy prerequisites. `Charms` is the first concrete resource.
 
-Symbolic counts such as “primary attribute” must be parsed into a typed capacity expression, not coerced to an integer or retained as runtime prose.
+Symbolic counts such as “primary attribute”, `heart`, or another stable lowercase hyphen key parse as `{ kind: "symbol", symbol: "..." }`; numeric counts parse as `{ kind: "constant", value: N }`. Resolution uses the explicitly supplied rule context and never guesses a value from prose. Resource state initializes `current` to resolved capacity and clamps edits to the inclusive range zero through capacity. Resources are keyed by `resourceKey` and can satisfy typed `resource` prerequisites by capacity.
 
 ### Familiar semantics
 
 Familiar grants and count/rank prerequisites are valid source data. The builder subsystem may remain stubbed until its roadmap slice, but the exporter must preserve the typed meaning and report unsupported runtime behavior explicitly rather than discard the grant.
+
+### Rank and choice-rebind semantics
+
+`rank` is generic and source-relative. It never embeds a familiar or weapon subsystem name. `operation=set` supplies the source-owned rank while active; `operation=increase` adds its value to the referenced answer's preceding effective rank. Removing the source removes that modifier rather than permanently mutating the answer.
+
+`choice-rebind` is also generic. The original answer remains stored and validatable against the original grant. A player's replacement is stored as an overlay owned by the feature that supplied the rebind and is validated against that rebind's constraints. Active overlays compose in stable feature-progression order; removing a later feature reveals the preceding overlay or base answer. `answerType` may identify a nested answer class such as `weapon-enhancement` without changing the generic rebind operation itself.
 
 ## Prerequisite expression contract v2
 
@@ -212,10 +235,12 @@ Canonical structured source types currently include:
 - `feat`: stable `featKey`;
 - `familiar`: count/rank requirements such as `minCount`;
 - `choice`: properties of the source-owned answer referenced by `choiceRef`;
-- `weapon`: one weapon satisfying tag/reach predicates;
-- `weapon-set`: multiple wielded weapons satisfying the predicate.
+- `weapon`: one weapon satisfying `tag`, `tagAll`, `tagAny`, `tagNot`, and/or `minReach` predicates;
+- `weapon-set`: an explicit `count` of wielded weapons satisfying the same tag/reach predicates.
 
-The shared registry may also preserve existing runtime types such as origin, attribute, skill, tag, and explicit legacy text, but it must distinguish structured executable rules from unresolved prose. `selectionMode=granted-only` must never be encoded as prerequisite prose.
+`PREREQUISITE_EXPRESSION_REGISTRY` also preserves existing runtime types such as origin, attribute, skill, tag, resource, and explicit legacy text. Weapon and weapon-set tag/reach predicates are executable against normalized character weapons. Familiar prerequisites remain typed but explicitly stubbed. Unstructured legacy text is preserved as a manual rule with a diagnostic; it is never mistaken for executable structured data. `selectionMode=granted-only` must never be encoded as prerequisite prose.
+
+Separate nonblank lines are ordered AND conditions. Within registry fields marked as references, `A OR B` normalizes to an ordered array. Parsing returns `{ ok, value/values, diagnostics }`; diagnostics retain caller-provided sheet/row/column/cell context. Unknown types, type-specific unknown fields, duplicate aliases, missing requirements, and invalid scalars are errors. The pure parser performs no file I/O and never exits the process.
 
 ## Required validation before artifact construction
 
@@ -235,6 +260,28 @@ Validation must reject:
 - any normalization that would silently discard source meaning.
 
 Warnings are reserved for intentional editorial incompleteness that runtime artifacts can represent safely. Structural loss is an error. Validation returns all deterministic findings and can run without writing artifact files.
+
+`scripts/game-data/model-validator.mjs` implements this boundary. Errors block artifact construction; warnings preserve complete meaning while identifying an intentional limitation, currently including typed grants whose runtime subsystem is explicitly stubbed. Findings are sorted by canonical tab order, physical row, source column, and stable detection order. Validation includes adapter diagnostics rather than replacing or hiding them.
+
+Whole-model identity and reference rules include:
+
+- global stable identities for classes, techniques, feats, origins, weapon bases, and enhancements;
+- owner-scoped class/origin feature identities and explicit composite identities for class-skill relationships and weapon profiles;
+- same-owner and same-category option-parent resolution without row-order inference;
+- stable class/origin/feat/technique/weapon/enhancement references and unambiguous `choiceId`/`choiceRef` resolution;
+- rejection of display-name-only identity references;
+- status-derived and selection-mode-derived selectability;
+- playable-class readiness, class-skill progression/condition consistency, technique cost-kind readiness, nonnegative costs, normalized tags, and explicit positive option-group counts.
+- class primary-attribute conditions compare normalized values case-insensitively while preserving player-facing capitalization;
+- optional fields in a composite identity may be blank when every required identity component is present.
+
+## Staged runtime artifact schema v2
+
+Artifact construction accepts only a canonical model whose whole-model validation result has no errors. It produces `classes.json`, `class-skills.json`, `class-features.json`, `feats.json`, `techniques.json`, `origins.json`, `weapon-bases.json`, `weapon-enhancements.json`, and the combined `game-x-data.json`. Source row order remains canonical within arrays; object keys and JSON serialization are canonicalized for deterministic bytes.
+
+The combined artifact records source schema, exporter version, and the exact source revision (`fileId`, Drive version, modified time, and XLSX SHA-256). Volatile fetch/export times belong in run reports rather than runtime bytes. Split artifacts must equal their corresponding combined fields, and freshly serialized output must pass current runtime getters, technique indexing, and grant loading before any artifact files are installed.
+
+Schema v2 is staged only. Production remains frozen at schema v1 until an authenticated source run validates, source findings are resolved, the complete diff is reviewed, and `WPB-PUBLISH` promotes the exact approved bytes.
 
 ## Frozen-release diff expectations
 

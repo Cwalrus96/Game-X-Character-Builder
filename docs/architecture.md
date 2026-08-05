@@ -130,10 +130,15 @@ Representative edge types:
 
 - `owns`: source to source-owned answer;
 - `grants`: source to granted node/capacity;
+- `rebinds`: a source-owned overlay to a previously defined choice without replacing its base answer;
 - `requires`: selected node to prerequisite;
 - `satisfies`: fact/answer to requirement;
 - `materializes`: answer to projected runtime object such as a weapon;
 - `excludes`: mutually incompatible nodes.
+
+Choice rebinding is layered state, not destructive replacement. The original answer remains owned by its original grant and is validated against that grant. Each active `choice-rebind` source may own a replacement overlay that is validated against the rebind constraints. The highest-precedence active overlay supplies the effective answer; removing it reveals the preceding active overlay or the original answer. Feature progression establishes precedence, so dropping from level 5 to level 4 removes a level-5 overlay without discarding a level-3 overlay or the base choice. Equal-precedence rebinds of the same answer are a contract conflict unless a later roadmap slice defines an explicit order.
+
+The schema-v2 data pipeline preserves typed `rank` and `choice-rebind` grants with an explicit runtime-stub status. Executable overlay storage, widgets, persistence migration, and graph reconciliation belong to their later character-builder vertical slice; Work Package B must not pretend that preservation alone implements the UI behavior.
 
 ### GraphReconciler
 
@@ -160,7 +165,8 @@ Character-sheet autosave owns only temporary play-state leaves such as current H
 The source pipeline has two independent versioned contracts:
 
 - source schema: native workbook schema v4;
-- runtime artifact schema: currently frozen release schema v1.
+- production runtime artifact schema: frozen release schema v1;
+- staged runtime artifact schema: schema v2, pending authenticated acceptance and reviewed publish.
 
 The exporter is responsible for an explicit transformation between them. It must not treat workbook rows as runtime objects without adaptation.
 
@@ -189,7 +195,7 @@ All saves must be sanitized, narrow, visible on failure, and serialized. Broad m
 
 - Milestone 0 and Work Package A automated safety work are complete; real-browser acceptance remains deployment-blocking.
 - Work Package B is active. The production game-data release is frozen and baselined.
-- Schema-v4 workbook acquisition is automated, but the old exporter still requires expression, adapter, validation, provenance, and diff repair.
+- Schema-v4 acquisition, a domain-neutral XLSX reader, canonical per-tab adapters, shared typed expressions, pure whole-model reference/domain validation, deterministic schema-v2 artifact construction, runtime-load acceptance, atomic staging, and structural/semantic diffing are implemented against fixtures. Live end-to-end acceptance is blocked on the repository Drive identity; production remains frozen pending source resolution, diff review, and publish approval.
 - The complete `CharacterSession`, codec/migration registry, repository, and split compiler/reconciler are target components, not yet fully implemented.
 
 Exact status and the next named step are in [status.md](status.md).

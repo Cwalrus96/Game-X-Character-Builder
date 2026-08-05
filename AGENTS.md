@@ -17,6 +17,8 @@ This file is the required entry point for coding agents working in this reposito
 
 When the user says, for example, “Read `AGENTS.md` and proceed from `WPB-EXPRESSIONS`,” complete that named step through its acceptance criteria, update its evidence and [docs/status.md](docs/status.md), and stop at the next named boundary unless the user explicitly asks to continue.
 
+Before beginning any named roadmap step, explain it in plain language for a technically capable reader who is not familiar with this project's specific implementation. State what the preceding step established, what the named step will produce, why it is useful, and any known blocker or approval boundary. At handoff, explain the purpose and benefit of the next named step by default; do not wait for the user to request that explanation.
+
 ## Source-of-truth hierarchy
 
 Use the narrowest authoritative source; do not resolve contradictions by guessing.
@@ -77,6 +79,7 @@ See [docs/architecture.md](docs/architecture.md) for current-versus-target detai
 ### Game data
 
 - The native Google Sheet is the editable source. A local XLSX is only an ignored fetched snapshot.
+- Never edit the canonical Google Sheet through a connector, API, script, or browser automation unless the user explicitly approves the exact edit scope. Permission to inspect, diagnose, or proceed with a roadmap step is not permission to write source cells.
 - Never hand-edit generated JSON to repair source or exporter defects.
 - Export all records; normal selectors admit only records whose `status` or `selectionMode` allows direct selection.
 - Stable keys, not display names, identify persisted and cross-referenced entities.
@@ -91,7 +94,7 @@ See [docs/architecture.md](docs/architecture.md) for current-versus-target detai
 - Never store credentials anywhere inside the repository, including ignored paths.
 - Use read-only Drive scope for source acquisition.
 - Validate any `GOOGLE_APPLICATION_CREDENTIALS` path with the repository credential policy before authentication.
-- Never deploy while [docs/status.md](docs/status.md) records deployment-blocking manual acceptance as pending.
+- Never deploy while [docs/status.md](docs/status.md) records deployment-blocking manual acceptance as pending unless the user explicitly overrides that boundary in the current request. Record the override and its exact deployment scope; do not infer permission for data publishing, rules, functions, or other targets.
 - Firebase Security Rules are the authorization boundary; client validation is advisory.
 
 ## Repository map
@@ -127,11 +130,11 @@ Game-data commands:
 ```powershell
 npm run data:source:check # metadata-only access check; requires read-only ADC
 npm run fetch:data       # authenticated, read-only Sheet -> ignored staging XLSX + provenance
-npm run stage:data       # fetch, then run the exporter only against ignored staging output
+npm run stage:data       # fetch, validate, runtime-check, and diff an ignored immutable staging run
 npm run baseline:data    # prove reviewed production JSON has not drifted
 ```
 
-`npm run stage:data` is allowed to fail at the current `WPB-EXPRESSIONS` boundary when the old exporter encounters schema-v4 constructs it cannot yet represent. That failure is a contract finding, not permission to coerce or skip data.
+`npm run stage:data` fails closed on acquisition, adaptation, validation, or runtime-load errors. A failed run is a contract/source finding, not permission to coerce, skip, or patch generated data.
 
 ## Implementation and test discipline
 
@@ -144,6 +147,12 @@ npm run baseline:data    # prove reviewed production JSON has not drifted
 - Do not remove compatibility fields or aliases until persisted-state migrations and tests exist.
 - Use `rg`/`rg --files` for repository search. Use `apply_patch` for hand-authored file edits.
 
+## Deployment and commit discipline
+
+- Always redeploy ready website changes to the appropriate website target so manual review and release verification never exercise stale code. While production deployment is blocked or not yet approved, restart/redeploy the local Firebase review environment and report the local URL; do not treat that as permission to deploy production. Once production deployment is unblocked and authorized, deploy the ready change and verify the deployed site.
+- Create a new commit for each new feature. When modifying a feature represented by the current top commit, amend that top commit so the feature remains one coherent change. If that feature commit is not `HEAD`, create a new commit; never rewrite a non-top commit or unrelated history.
+- Before amending, verify the current top commit and worktree scope. Do not fold unrelated user changes into either a new or amended commit.
+
 ## Completion and handoff protocol
 
 Before declaring a named step complete:
@@ -154,5 +163,6 @@ Before declaring a named step complete:
 4. Mark the roadmap step complete without renumbering it; identify the next step.
 5. Record unresolved risks, manual checks, and whether they block implementation, publishing, or deployment.
 6. Leave the worktree reviewable and report any unrelated pre-existing changes.
+7. Explain the next named step in plain language, including its purpose, expected benefit, prerequisites, and approval boundaries, even when stopping at that boundary.
 
 Do not mark an entire work package complete merely because one command succeeds. Production data publishing and website deployment are separate approval boundaries.

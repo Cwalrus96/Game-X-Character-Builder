@@ -12,9 +12,10 @@ For a request such as “Proceed from `WPB-EXPRESSIONS`”:
 
 1. Read `AGENTS.md`, [status.md](status.md), and this step completely.
 2. Verify every prerequisite. Do not silently redo completed work.
-3. Implement only the named scope through its acceptance criteria.
-4. Update tests and living contracts in the same change.
-5. Record evidence here and in [status.md](status.md), then identify the next step.
+3. Before implementation, explain in plain language what the preceding step established, what this step produces, why it is useful, and any blocker or approval boundary.
+4. Implement only the named scope through its acceptance criteria.
+5. Update tests and living contracts in the same change.
+6. Record evidence here and in [status.md](status.md), identify the next step, and explain that next step's purpose and benefit without waiting to be asked.
 
 Standard preflight for every implementation step:
 
@@ -127,7 +128,7 @@ Acceptance:
 
 ### `WPB-EXPRESSIONS` — shared typed expressions
 
-Status: `ready`
+Status: `complete`
 
 Prerequisite: `WPB-SOURCE-SYNC`
 
@@ -159,9 +160,17 @@ Acceptance:
 - unknown types and fields fail with row/cell context;
 - parsing is deterministic and never silently drops meaning.
 
+Evidence:
+
+- `public/js/core/game-data-contract.js` defines type-specific grant and prerequisite registries, schema-v4 enum sets, aliases, scalar contracts, defaults, and runtime status;
+- `public/js/core/game-data-expressions.js` implements pure contextual parsing, object normalization, deterministic serialization, AND/OR preservation, and symbolic capacity expressions without file I/O or process exit;
+- exporter expression handling and runtime grant/prerequisite loading use the same module and registries;
+- `tests/fixtures/game-data-expressions.json` covers every schema-v4 enum entry and malformed expression classes;
+- focused tests cover resource initialization/clamping/prerequisites, weapon predicates, stable-key/filter aliases, runtime compatibility forms, and explicit `familiar`/`vehicle`/`gadget` stubs.
+
 ### `WPB-ADAPTERS` — canonical per-tab source model
 
-Status: `pending`
+Status: `ready` — implementation is fixture-complete; live-source acceptance is blocked by `WPB-SOURCE-ACCESS`
 
 Prerequisite: `WPB-EXPRESSIONS`
 
@@ -176,9 +185,17 @@ Deliverables:
 
 Acceptance: every populated schema-v4 source row is represented or produces an explicit structural diagnostic; no row-order ownership inference or display-name identity remains.
 
+Implementation evidence:
+
+- `scripts/game-data/workbook-reader.mjs` converts in-memory XLSX bytes to domain-neutral headers, raw values, and physical source rows without file I/O;
+- `scripts/game-data/source-adapters.mjs` strictly adapts all contract and runtime-source tabs to a canonical flat model with source-located diagnostics;
+- `tests/fixtures/game-data-schema-v4.mjs` defines an independent 152-field schema-v4 fixture across every required adapter tab;
+- `tests/game-data-adapters.test.mjs` covers XLSX-to-model flow, all tab collections, scalar/expression normalization, explicit owner/parent preservation, strict headers/schema, malformed populated rows, and purity;
+- official live-row acceptance remains open because `npm run data:source:check` cannot access the Sheet with this workstation's current ADC. Connector reads confirmed the exact live headers and 152 schema declarations for implementation guidance but do not replace the repository acquisition contract.
+
 ### `WPB-REFERENCES` — cross-reference and domain validation
 
-Status: `pending`
+Status: `pending` — fixture implementation is complete; official acceptance waits on `WPB-ADAPTERS` live acceptance
 
 Prerequisite: `WPB-ADAPTERS`
 
@@ -193,9 +210,19 @@ Deliverables:
 
 Acceptance: validation runs without writing artifacts and reports all findings deterministically in source order.
 
+Implementation evidence:
+
+- `scripts/game-data/model-validator.mjs` is a pure validation boundary that merges adapter and whole-model diagnostics, classifies errors versus warnings, and sorts findings by canonical source order;
+- identity indexes cover global, owner-scoped, class-skill composite, and weapon-profile composite identities;
+- reference checks cover owners, parents, classes, origins, feats, techniques, weapon bases, enhancements, and source-owned choices without display-name or row-order inference;
+- domain checks cover option-group counts, status/selectability, selection modes, class-skill conditions, stable tags, technique/weapon costs, readiness, and explicit runtime stubs;
+- `tests/fixtures/game-data-references.mjs` supplies an invalid whole-workbook fixture alongside the valid schema-v4 fixture;
+- `tests/game-data-references.test.mjs` proves a clean whole model, exactly 37 deterministic invalid-fixture errors plus one warning, row-order-independent and recursively nested parent resolution, readiness rules, warning non-blocking behavior, and absence of artifact-writing APIs;
+- authenticated live-workbook validation remains blocked by `WPB-SOURCE-ACCESS`, so this step is not marked complete. The user authorized fixture-driven `WPB-STAGING` implementation to proceed without treating that work as official live acceptance.
+
 ### `WPB-STAGING` — deterministic artifacts, provenance, and diff
 
-Status: `pending`
+Status: `pending` - fixture implementation is complete; official acceptance waits on live adapter/reference acceptance and `WPB-SOURCE-ACCESS`
 
 Prerequisite: `WPB-REFERENCES`
 
@@ -210,13 +237,34 @@ Deliverables:
 
 Acceptance: one authenticated command fetches, validates, stages, and reports a complete diff without touching production JSON.
 
+Implementation evidence:
+
+- `scripts/game-data/artifact-builder.mjs` accepts only a successfully validated canonical model and deterministically constructs runtime artifact schema v2 entirely in memory;
+- the v2 artifact set adds normalized `class-skills.json`, preserves stable keys/selectability/structured expressions and costs, and keeps volatile export timestamps out of runtime bytes;
+- `scripts/game-data/runtime-artifact-acceptance.mjs` parses freshly serialized bytes through current runtime getters, technique indexes, and grant loading and checks every split artifact against the combined artifact;
+- `scripts/game-data/artifact-diff.mjs` reports byte hashes, complete structural field paths, and stable-identity semantic changes; it explicitly bridges the frozen release's name-only techniques and identifies weapon profiles by `weaponKey/profileType/profileName/rank` until `profileKey` exists;
+- `scripts/game-data/staging-run.mjs` runs reader -> adapter -> whole-model validation -> construction -> runtime acceptance -> frozen-release diff, installs a unique run atomically, and writes diagnostics only when validation/runtime acceptance fails;
+- `scripts/stage-game-data.mjs` now fetches once and invokes that canonical staging boundary; it never invokes the legacy exporter or writes beneath `public/data/game-x`;
+- `tests/game-data-staging.test.mjs` covers complete output, production immutability, immutable runs, deterministic bytes, validation-error diagnostic-only output, construction gating, runtime acceptance, and structural/semantic diffing;
+- authenticated end-to-end acceptance is still blocked by the external Drive identity tracked as `WPB-SOURCE-ACCESS`; no live run or production publish is claimed.
+
 ### `WPB-SOURCE-RESOLUTION` — resolve remaining findings
 
-Status: `pending`
+Status: `active` - approved canonical-Sheet repairs are applied; official staged validation awaits read-only ADC access
 
 Prerequisite: `WPB-STAGING`
 
 Resolve every validation finding through either a tracked canonical-Sheet edit or a documented contract decision. Never patch generated JSON. Keep editorial changes separately reviewable from exporter behavior where practical.
+
+Read-only evidence, the approved source batch, and post-write verification are recorded in [game-data-source-resolution.md](game-data-source-resolution.md). Repository-side false positives were corrected without source writes. The 2026-08-05 canonical-Sheet batch was applied only after the user approved its exact cells, values, and validation changes; any later source change requires a new exact approval scope.
+
+Evidence as of 2026-08-05:
+
+- descriptions are optional in all relevant adapters, and stable choice identity may be derived from an unambiguous owning source unless a later `choiceRef` requires an explicit ID;
+- generic `rank` and reversible layered `choice-rebind` expressions are typed, round-tripped, and retained with explicit runtime-stub warnings; the base-answer/overlay/reversion contract is recorded for the later builder vertical slice;
+- `draft` records remain exported but are rejected by normal and grant-owned technique selection, direct grants to draft Techniques fail validation, and previously stored draft picks enter normal dependency reconciliation;
+- the exact canonical-Sheet cells, full replacement values, enum additions, and dropdown-validation changes were applied in one approved batch and verified through post-write cell/validation reads;
+- `npm test` passes 113 tests, `npm run validate:assets` passes 14 HTML files, `npm run baseline:data` verifies all 9 frozen production artifacts, and production JSON remains untouched.
 
 Acceptance: the canonical source validates with zero structural errors; intentional incompleteness is representable and explicitly classified.
 

@@ -1,5 +1,6 @@
 import { sanitizeText, sanitizeWeaponList } from "./data-sanitization.js";
-import { SUPPORTED_GRANT_TYPES } from "./game-data-contract.js";
+import { GRANT_EXPRESSION_REGISTRY, SUPPORTED_GRANT_TYPES } from "./game-data-contract.js";
+import { formatExpressionDiagnostic, normalizeExpressionObject, resolveCapacityExpression } from "./game-data-expressions.js";
 
 export const VALID_GRANT_TYPES = new Set(SUPPORTED_GRANT_TYPES);
 
@@ -35,30 +36,11 @@ export function sanitizeGrant(grant, source) {
     throw new Error(`Grant from ${getGrantSourceLabel(source)} must be an object.`);
   }
 
-  const type = sanitizeGrantType(grant.type, source);
-  const name = sanitizeText(grant.name, { maxLen: 200, collapse: true });
-  const key = sanitizeText(grant.key, { maxLen: 96, collapse: true });
-  const progression = normalizeSkillProgression(grant.progression);
-  const skill = sanitizeText(grant.skill, { maxLen: 96, collapse: true });
-  const enhancement = sanitizeText(grant.enhancement, { maxLen: 96, collapse: true });
-  const choiceId = sanitizeText(grant.choiceId, { maxLen: 96, collapse: true });
-  const choiceRef = sanitizeText(grant.choiceRef, { maxLen: 96, collapse: true });
-  const rank = Number.parseInt(String(grant.rank ?? ""), 10);
-  const count = Number.parseInt(String(grant.count ?? ""), 10);
-  const note = sanitizeText(grant.note, { maxLen: 400, collapse: true });
-  const out = { type, source };
-
-  if (name) out.name = name;
-  if (key) out.key = key;
-  if (skill) out.skill = skill;
-  if (enhancement) out.enhancement = enhancement;
-  if (choiceId) out.choiceId = choiceId;
-  if (choiceRef) out.choiceRef = choiceRef;
-  if (progression) out.progression = progression;
-  if (Number.isFinite(rank)) out.rank = rank;
-  if (Number.isFinite(count)) out.count = count;
-  if (note) out.note = note;
-  return out;
+  sanitizeGrantType(grant.type, source);
+  const { source: _existingSource, ...expression } = grant;
+  const result = normalizeExpressionObject("grant", expression, { context: getGrantSourceLabel(source) });
+  if (!result.ok) throw new Error(formatExpressionDiagnostic(result.diagnostics[0]));
+  return { ...result.value, source };
 }
 
 export function getEntryGrants(entry) {
@@ -67,7 +49,30 @@ export function getEntryGrants(entry) {
 }
 
 export function getGrantName(grant) {
-  return sanitizeText(grant?.name || grant?.key || "", { maxLen: 200, collapse: true });
+  return sanitizeText(grant?.name || grant?.key || grant?.resourceKey || "", { maxLen: 200, collapse: true });
+}
+
+export function getGrantRuntimeStatus(grant) {
+  return GRANT_EXPRESSION_REGISTRY[String(grant?.type || "")]?.runtimeStatus || "unknown";
+}
+
+export function initializeGrantedResource(grant, context = {}) {
+  const normalized = sanitizeGrant(grant, context.source || grant?.source);
+  if (normalized.type !== "resource") throw new Error("Only resource grants can initialize resource state.");
+  const capacity = resolveCapacityExpression(normalized.count, context);
+  if (!Number.isInteger(capacity)) throw new Error(`Resource "${normalized.resourceKey}" capacity cannot be resolved.`);
+  return {
+    resourceKey: normalized.resourceKey,
+    name: normalized.name || normalized.resourceKey,
+    capacity,
+    current: capacity,
+  };
+}
+
+export function normalizeResourceCurrent(value, capacity) {
+  const max = Number.isFinite(Number(capacity)) ? Math.max(0, Math.trunc(Number(capacity))) : 0;
+  const current = Number.isFinite(Number(value)) ? Math.trunc(Number(value)) : max;
+  return Math.max(0, Math.min(max, current));
 }
 
 export function isSourceOwnedWeapon(weapon) {

@@ -18,6 +18,7 @@ import {
   getGameXClassFeatures,
   getGameXFeats,
   getGameXTechniques,
+  isGameDataRecordSelectable,
   resolveTechniqueRef,
 } from "./game-data.js";
 import { buildGeneratedWeaponsFromGrantChoices, isSourceOwnedWeapon } from "./grants.js";
@@ -701,6 +702,8 @@ function reconcileTechniqueGrantChoices(gameData, builder, activeGrantChoices, c
     let reason = "";
     if (!technique) {
       reason = "This selected technique no longer exists in the JSON.";
+    } else if (!isGameDataRecordSelectable(technique, { allowGrantedOnly: true })) {
+      reason = "This selected technique is not available from grants.";
     } else if (!grantMatchesTechniqueChoice(grant, technique, context)) {
       reason = "This selected technique no longer matches the granting choice.";
     } else if (!meetsPrerequisites(technique?.prerequisites, {
@@ -779,6 +782,15 @@ function reconcileTechniqueSelections(gameData, builder, changes, {
         nodeId: `choice:technique:${ref}`,
         label: ref,
         reason: "This technique no longer exists in the JSON.",
+      });
+      continue;
+    }
+    if (!isGameDataRecordSelectable(technique)) {
+      removeSelection(selected, ref, changes, {
+        storagePath: "builder.selectedTechniques",
+        nodeId: `choice:technique:${ref}`,
+        label: ref,
+        reason: "This technique is not available for normal selection.",
       });
       continue;
     }

@@ -10,6 +10,7 @@ import {
   computeKnownCombatSkillsAndGrants,
   getGrantName,
   getGameXTechniques,
+  isGameDataRecordSelectable,
   resolveTechniqueRef,
 } from "../../core/game-data.js";
 import { meetsPrerequisites } from "../../core/prerequisites.js";
@@ -473,6 +474,9 @@ export class TechniquesWidget extends BuilderWidget {
     if (!this.techniqueGroupsEl) return;
     const visible = getGameXTechniques(gameData)
       .filter((technique) => !!techniqueName(technique))
+      .filter((technique) => isGameDataRecordSelectable(technique, {
+        allowGrantedOnly: this.isFreeTechniqueName(techniqueName(technique), context),
+      }))
       .filter((technique) => this.passesSearch(technique))
       .filter((technique) => this.passesKnownSkillFilter(technique, context, gameData));
 
