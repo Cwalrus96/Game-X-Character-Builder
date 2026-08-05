@@ -6,7 +6,7 @@ The app is intentionally “no build step”:
 - Static HTML/CSS/JS served from Firebase Hosting (`public/`)
 - ES modules loaded directly in the browser
 - Firebase Auth + Firestore + Cloud Storage as the backend
-- A small Node script converts the **authoritative Google Sheet (exported as XLSX)** into JSON consumed by the site
+- Node tooling acquires the **authoritative Google Sheet** through read-only Drive access, validates it, and stages JSON consumed by the site
 
 This repo is designed to be easy to extend as new builder pages and data-driven systems (classes/feats/techniques) come online.
 
@@ -93,27 +93,27 @@ From the repo root:
 
 ## Core design decisions
 
-### 1) Canonical schema
-`public/character-schema.js` is intended to be the single source of truth for:
-- what a character document looks like
-- what attributes/labels/constraints exist
-- shared calculations used by builder + sheet
+### 1) In-memory character authority
+
+The target architecture reconstructs persisted Firebase state plus unsaved choices in a `CharacterSession`, compiles it into a dependency graph, and reconciles proposed changes before mutation or persistence. Pure shared Rules own capacity and prerequisites; pages and widgets are editors, not dependency truth.
 
 ### 2) Builder steps are data-driven
 Builder pages are meant to be independent.
 Navigation (step list, Prev/Next) is derived from `public/js/builder/builder-flow.js`, not hardcoded per page.
 
-### 3) Data is sourced from a Sheet (XLSX export)
-Classes/feats/techniques are edited in Google Sheets, exported to XLSX, then converted to JSON for the site.
-This keeps content editing approachable while still letting the UI be data-driven.
+### 3) Data is sourced from one canonical Sheet
+
+Structured rules are edited in Google Sheets. Repository tooling exports the fixed private Sheet as XLSX using authenticated read-only Drive access, then adapts and validates it before staging JSON. The live website depends only on reviewed static artifacts, never on Google Sheets availability.
+
+See `AGENTS.md` for the repository operating contract, `docs/architecture.md` for current/target component ownership, and `docs/roadmap.md` for stable implementation step IDs.
 
 ---
 
 ## Data release workflow
 
-The canonical Google Sheet is converted to versioned JSON under `public/data/game-x`. Production export is currently frozen while Work Package B repairs the live field mapping and validation contract; `npm run export:data` intentionally refuses to overwrite those files.
+The canonical Google Sheet is converted to versioned JSON under `public/data/game-x`. Production export is currently frozen while Work Package B repairs the schema-v4 mapping and validation contract; `npm run export:data` intentionally refuses to overwrite those files.
 
-Use `npm run baseline:data` to verify the frozen release. See `docs/data-pipeline.md` for the release workflow and `docs/game-data-contract.md` for the live workbook field mapping and validation contract.
+Use `npm run data:source:check` to verify read-only Drive access, `npm run fetch:data` to acquire an ignored source snapshot with provenance, and `npm run stage:data` to exercise the staging boundary. Use `npm run baseline:data` to verify the frozen release. See `docs/data-pipeline.md` for authentication and release workflow.
 
 ---
 

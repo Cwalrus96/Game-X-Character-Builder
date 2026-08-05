@@ -69,3 +69,6 @@ node_modules/
 .dataconnect
 
 *.xlsx
+
+# Generated game-data source snapshots and staging runs
+.staging/

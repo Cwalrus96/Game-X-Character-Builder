@@ -1,27 +1,49 @@
-# Contributing / Developer workflow
+# Contributing / developer workflow
 
-This is a personal project; the goal is to keep process lightweight.
+Read `AGENTS.md`, `docs/status.md`, and the named step in `docs/roadmap.md` before changing implementation. The roadmap has stable step IDs so work can be handed between agents without relying on chat history.
 
-## Common tasks
+## Common verification
 
-### Export rules data (XLSX ➜ JSON)
-1. Export your Google Sheet as `.xlsx`
-2. Run:
-```bash
-npm run export:data
-```
-3. Commit the generated JSON under `public/data/game-x/`
-
-### Firebase deploy
-```bash
-firebase deploy
+```powershell
+npm install
+npm test
+npm run baseline:data
 ```
 
-## Code style (informal)
-- Prefer small modules under `public/` rather than large inline scripts
-- Keep “business logic” in shared modules (schema, security, flow)
-- Keep pages focused on orchestration + DOM
+Use `npm run test:all` for persistence/rules/release work or changes that cross subsystem boundaries.
 
-## Security expectations
-- Never rely on client-only checks for access control
-- Any new collections or storage paths should be explicitly ruled in/out in Security Rules
+## Game-data work
+
+Do not manually export the canonical Sheet and do not hand-edit generated JSON.
+
+After one-time read-only Drive authentication is configured:
+
+```powershell
+npm run data:source:check
+npm run fetch:data
+npm run stage:data
+```
+
+The source XLSX and staging output are ignored. Production JSON under `public/data/game-x` is frozen until `WPB-PUBLISH`; `npm run export:data` intentionally refuses that target. See `docs/data-pipeline.md` and `docs/game-data-contract.md`.
+
+## Firebase deployment
+
+Deployment remains blocked until the deferred manual browser scenarios in `docs/status.md` pass.
+
+When that boundary is cleared:
+
+```powershell
+npm run deploy:remote
+```
+
+Use the narrower `deploy:hosting` or `deploy:rules` commands only when their scope is intentional.
+
+## Code and architecture expectations
+
+- Prefer small pure modules over large page or CLI files.
+- Put shared business rules in core modules; keep pages focused on orchestration and DOM.
+- Pages and widgets do not own capacity, prerequisite, or dependency-removal policy.
+- Keep source-specific workbook aliases in adapters, not runtime/graph code.
+- Add or update tests and living contracts in the same change.
+- Never rely on client-only authorization checks; Firebase Security Rules are the boundary.
+- Keep all credentials outside the repository, including ignored directories.

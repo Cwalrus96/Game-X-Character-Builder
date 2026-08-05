@@ -7,7 +7,7 @@ import {
   buildGmCustomClaims,
   isPathInsideDirectory,
   parseSetGmArgs,
-} from "../scripts/admin/credential-policy.mjs";
+} from "../scripts/credential-policy.mjs";
 
 test("credential policy rejects repository-owned paths", () => {
   const repository = path.resolve("C:/projects/game-x");

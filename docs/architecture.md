@@ -1,92 +1,210 @@
 # Architecture
 
-This app is a small, static, Firebase-hosted web application.
+Status: living current-and-target architecture.
 
-## High-level diagram
+Last updated: 2026-08-04.
+Execution status and named steps live in [status.md](status.md) and [roadmap.md](roadmap.md).
 
-Browser
-- Loads static pages and ES modules from Firebase Hosting (`public/`)
-- Uses Firebase Auth to identify the user
-- Reads/writes character docs in Firestore
-- Uploads portrait images to Cloud Storage
-- Fetches generated rules JSON (classes/feats/techniques) from Hosting
+## Product shape
 
-Firebase
-- Hosting: serves static content + generated JSON
-- Auth: user identity + optional GM custom claim
-- Firestore: character documents
-- Storage: portrait images
+Game X Character Builder is a static, Firebase-hosted web application:
 
-## “No build step” frontend
+- Firebase Hosting serves HTML, CSS, browser ES modules, and reviewed generated game-data JSON.
+- Firebase Authentication identifies players and optional GMs.
+- Firestore stores character documents.
+- Cloud Storage stores portraits.
+- A native Google Sheet is the editable source for structured rules data; the website never reads the live Sheet at runtime.
 
-This project intentionally avoids a bundler to keep iteration fast:
-- Scripts are ES modules (`type="module"`)
-- Firebase SDK is loaded via the official CDN module endpoints
+The frontend deliberately has no bundler. Browser code under `public/` uses native ES modules. Node-based scripts are development/release tooling only.
 
-### Implications
-Pros
-- Very easy to run and deploy
-- Minimal tooling / fewer moving pieces
-- Each HTML page can stay relatively self-contained
+## Architectural objective
 
-Tradeoffs
-- More network requests (modules loaded individually)
-- Must be mindful about CSP (module imports, inline styles)
-- Refactoring shared UI often means creating shared modules manually (which we do)
+The builder is moving from page-owned mutable state toward a complete in-memory character session and dependency graph.
 
-## Data model overview (Firestore)
+The finished architecture must reconstruct the entire character from persisted Firebase data plus unsaved session commands. Every meaningful selection is represented by a graph node that records:
 
- Primary (current) path:
- - `users/{uid}/characters/{charId}`
- 
-Fields are intentionally flexible, but the current schema centers around:
-- `schemaVersion` (number)
-- `builder` (object; per-step state)
-  - `name` (string)
-  - `portraitPath` (string; Cloud Storage path)
-  - `level` (number)
-  - `classKey` (string; canonical kebab-case id)
-  - `primaryAttribute` (string)
-  - `attributes` (object)
-  - `originKey` / `originKeystone` (origin step state)
-  - `selectedClassFeatureOptions` / `selectedClassUtilitySkills` / `selectedFeats` / `autoAbilityNames` (arrays)
-  - `grantedCoreSkillSnapshot` / `grantedSkillSnapshot` (skills-step bookkeeping for granted class skills)
-  - `bonds` (builder-owned structured bond records: name, rank, keystone)
-- `backgroundKeystones` (builder-owned background keystone strings)
-  - `visitedSteps` / `lastVisitedAt` (builder flow state)
-  - `sheet.fields` / `sheet.repeatables` (temporary character-sheet state only, such as current HP or conditions; permanent character data should come from builder-owned fields)
-- `createdAt` / `updatedAt` (timestamps; server-side)
+- stable identity and choice type;
+- source owner and provenance;
+- grants and prerequisites;
+- storage binding;
+- whether it is persisted, proposed, automatic, derived, incomplete, or invalid.
 
-Note: we store only `portraitPath` in Firestore. Download URLs are resolved at runtime via the Storage SDK.
+Edges express ownership, grants, requirements, satisfaction, materialization, and exclusion. Removing or changing a source computes the complete affected closure through those edges rather than through page-specific branches.
 
-## Roles: GM vs player
+## Dependency direction
 
-The GM role is represented as a custom auth claim (`request.auth.token.gm == true`).
-Rules allow:
-- players to manage only their own data
-- GMs to view/edit other users’ characters (through a controlled path)
+```mermaid
+flowchart TD
+    Page["Pages and widgets"] --> Session["CharacterSession"]
+    Page --> Rules["Pure Rules"]
+    Session --> Compiler["GraphCompiler"]
+    Compiler --> Reconciler["GraphReconciler"]
+    Compiler --> Rules
+    Reconciler --> Rules
+    Session --> Repository["CharacterRepository"]
+    Repository --> Codec["CharacterCodec"]
+    Repository --> Migrations["CharacterMigrations"]
+    Repository --> Firebase["Firebase"]
 
-## Canonical character model and rules
+    Sheet["Canonical Google Sheet"] --> Acquire["Read-only acquisition"]
+    Acquire --> Adapt["Source adapters"]
+    Adapt --> Normalize["Normalization"]
+    Normalize --> Validate["Validation"]
+    Validate --> Stage["Staged artifacts and diff"]
+    Stage --> Publish["Reviewed publish"]
+    Publish --> Runtime["Runtime game-data loader"]
+```
 
-The current codebase splits these responsibilities across focused modules:
-- `public/database-reader.js` – canonical character document defaults + normalization on read
-- `public/database-writer.js` – sanitized patch builders for writes
-- `public/character-rules.js` – attributes, limits / caps / point budgets, and derived calculations
-- `public/data-sanitization.js` – low-level sanitizers shared by read/write modules
+Forbidden reverse dependencies:
 
-Builder pages and the character sheet should reference these modules rather than duplicating logic.
+- Rules and graph modules must not import pages, widgets, DOM state, Firebase, or workbook adapters.
+- Graph reconciliation must not query live widgets.
+- Repositories/codecs/migrations must not depend on builder pages.
+- Runtime code must not know Google Sheet column names or repair source prose.
+- Source adapters must not write release artifacts.
+- Validation must be runnable without publishing.
 
-## Generated game data
+## Character-state layers
 
-Classes, features, feats, techniques, origins, and weapons are treated as **data**, not hardcoded UI.
-The source of truth is one native Google Sheet, converted through a validation-gated exporter into:
-- `public/data/game-x/*.json`
+The target `CharacterSession` owns four explicit states:
 
-Production export is frozen during Work Package B. The checked-in artifacts are protected by `contracts/game-data-release-baseline.json` until the live workbook validates and its staged artifact diff is reviewed.
+| State | Meaning |
+|---|---|
+| Persisted | Canonical character decoded and migrated from Firebase. |
+| Working | Persisted state plus previously accepted unsaved commands. |
+| Proposed | A clone of working state with the current command applied. |
+| Reconciled | Proposed state after graph/rules reach a deterministic fixed point. |
 
-This keeps the UI and rules content loosely coupled without making the live website depend on Google Sheets.
+A change follows this lifecycle:
 
-See `docs/data-pipeline.md` and `docs/game-data-contract.md`.
+```mermaid
+sequenceDiagram
+    participant UI as Page or Widget
+    participant S as CharacterSession
+    participant G as Graph and Rules
+    participant U as User
+    participant R as CharacterRepository
 
+    UI->>S: typed command
+    S->>G: compile and reconcile proposed state
+    G-->>S: reconciled state and structured impacts
+    alt validation errors
+        S-->>UI: reject; errors cannot be confirmed
+    else destructive or confirmation-required impacts
+        S-->>U: preview affected choices
+        U-->>S: confirm or cancel
+    end
+    S->>S: commit exact reconciled state
+    S->>R: canonical versioned patch
+```
 
-Keystone handling is source-owned in storage (origin, background, bond), but UI rendering should derive from a unified normalized keystone view rather than duplicating display logic in each page. Bonds stay separate from that generic keystone view because a bond record contains more than its keystone text.
+Cancellation leaves working state and widget display byte-for-byte unchanged. Confirmation commits the exact reconciled state that produced the preview; reconciliation is not rerun against a different state after confirmation.
+
+## Component ownership
+
+### Pages
+
+Pages bootstrap authentication, load the session, collect widgets, submit commands, show structured impacts, and coordinate navigation/save. They do not calculate capacity, prerequisites, or dependent removals.
+
+Current transition modules include `public/js/builder/builder-page.js` and individual builder page coordinators. Some page-local policy remains and is removed domain by domain in later work packages.
+
+### Widgets
+
+Each widget owns display and editing behavior for one choice type. It can produce commands/proposed patches, display values, and local input errors. It cannot be the authority for whether a source/grant exists or mutate persisted state directly.
+
+Adding a new domain such as Boons should require a widget, rules/registry entries, node/grant factories, and tests—not edits to every page controller or traversal function.
+
+### Rules
+
+Rules are pure functions for capacity, expected selection counts, prerequisites, compatibility, and derived values. Widgets use them for display; graph compilation/reconciliation uses the same functions for enforcement.
+
+Current shared modules include `character-rules.js`, `choice-capacity.js`, `choice-identity.js`, and related core helpers. These are transitional and will be consolidated behind typed contracts rather than duplicated in pages.
+
+### GraphCompiler
+
+The compiler converts one complete character state plus normalized game data into typed nodes and edges. Compilation is deterministic and has no UI or persistence side effects.
+
+Representative node types include character facts, sources, grants, option groups, answers, selected feats/techniques, materialized weapons, resources, and validation diagnostics.
+
+Representative edge types:
+
+- `owns`: source to source-owned answer;
+- `grants`: source to granted node/capacity;
+- `requires`: selected node to prerequisite;
+- `satisfies`: fact/answer to requirement;
+- `materializes`: answer to projected runtime object such as a weapon;
+- `excludes`: mutually incompatible nodes.
+
+### GraphReconciler
+
+The reconciler applies removal/prerequisite/capacity policy to the affected graph closure until no further state changes occur. It returns:
+
+- reconciled canonical state;
+- structured added/changed/removed/incomplete choices;
+- blocking errors;
+- confirmation-required impacts;
+- informational impacts.
+
+It does not produce UI strings as its primary contract; presentation layers format structured impacts.
+
+### CharacterRepository, CharacterCodec, and CharacterMigrations
+
+The repository is the only normal page-facing persistence boundary. The codec supplies exact defaults and rejects malformed or unknown canonical fields. Sequential migrations transform each supported old schema into the next schema deterministically and idempotently.
+
+Until Work Package C, `database-reader.js` and `database-writer.js` remain the transitional boundary. Database-format knowledge must stay there and must not spread into graph, Rules, or widget code.
+
+Character-sheet autosave owns only temporary play-state leaves such as current HP, strain, notes, and conditions. Builder-owned identity, class, attributes, skills, abilities, techniques, equipment, and choices are outside its write scope.
+
+## Game-data architecture
+
+The source pipeline has two independent versioned contracts:
+
+- source schema: native workbook schema v4;
+- runtime artifact schema: currently frozen release schema v1.
+
+The exporter is responsible for an explicit transformation between them. It must not treat workbook rows as runtime objects without adaptation.
+
+Target phases:
+
+1. Acquire the fixed Drive file through read-only authenticated export and capture provenance.
+2. Read workbook cells without applying domain meaning.
+3. Adapt each tab and source-version alias into a canonical in-memory source model.
+4. Normalize expressions/scalars through shared typed registries.
+5. Validate headers, enums, identities, ownership, references, and domain invariants.
+6. Build deterministic artifacts entirely in memory.
+7. Write only a complete staging run plus hashes and semantic diff.
+8. Promote the exact reviewed staged bytes in a separate explicit operation.
+
+The canonical workbook's `Metadata`, `Schema`, and `Enums` tabs participate in validation. `ClassSkills` is the normalized mechanical relationship table. Display-workbook compatibility adapters and Handbook formatting are downstream presentation systems, not runtime source contracts.
+
+See [game-data-contract.md](game-data-contract.md) and [data-pipeline.md](data-pipeline.md).
+
+## Firebase trust boundaries
+
+The primary character path is `users/{uid}/characters/{characterId}`. Firestore/Storage Security Rules, not client UI, enforce ownership and GM access. GM status is the `gm` custom claim.
+
+All saves must be sanitized, narrow, visible on failure, and serialized. Broad map writes from stale tabs are prohibited. See [security.md](security.md) and [admin-operations.md](admin-operations.md).
+
+## Current transition state
+
+- Milestone 0 and Work Package A automated safety work are complete; real-browser acceptance remains deployment-blocking.
+- Work Package B is active. The production game-data release is frozen and baselined.
+- Schema-v4 workbook acquisition is automated, but the old exporter still requires expression, adapter, validation, provenance, and diff repair.
+- The complete `CharacterSession`, codec/migration registry, repository, and split compiler/reconciler are target components, not yet fully implemented.
+
+Exact status and the next named step are in [status.md](status.md).
+
+## Definition of done
+
+The rearchitecture is complete only when:
+
+- Firebase state plus unsaved commands reconstruct one complete in-memory character;
+- every selected answer has stable identity, source, grants, prerequisites, and storage binding;
+- graph edges determine transitive effects without page-specific branches;
+- graph/rules results are deterministic and widget-independent;
+- accepted reconciled state is exactly what persistence writes;
+- stored character versions migrate deterministically;
+- fresh game-data releases are authenticated, validated, reproducible, provenance-stamped, diffed, and accepted by runtime without repair;
+- every builder page uses the shared session lifecycle;
+- Boons can be added without modifying page controllers or graph traversal;
+- tests, documentation, source workbooks, and release artifacts cannot silently drift apart.

@@ -1,69 +1,98 @@
 # Builder flow
 
-The character builder is designed as a multi-step wizard.
-
-## Goals
-- Steps are modular: each page focuses on one decision area.
-- Navigation is consistent: every step has the same “step list + prev/next” controls.
-- The flow is extensible: adding/reordering steps should be a single edit.
+Status: living current/transition contract. The final `CharacterSession` lifecycle is specified in [architecture.md](architecture.md) and scheduled in [roadmap.md](roadmap.md).
 
 ## Step registry
-The canonical step order lives in:
-- `public/js/builder/builder-flow.js`
 
-To add a new step, add a new entry to `BUILDER_STEPS`:
-- `id`: stable identifier for visited tracking
-- `title`: label shown in the step list
-- `path`: page URL (site-root-relative from the `public/` Hosting root, for example `/builder/builder-profile.html`)
+`public/js/builder/builder-flow.js` is the single step-order registry. Every entry has:
 
-Prev/Next relationships are derived at runtime.
+- `id`: stable visited-state identity;
+- `title`: full orientation label;
+- optional `navTitle`: compact label;
+- `path`: site-root-relative HTML path;
+- optional `isEnabled(character)`: future conditional inclusion.
 
-## Navigation / orientation UI
-Rendered by:
-- `public/js/builder/builder-nav.js`
+Prev/Next relationships are derived. Do not hardcode neighboring page URLs inside page modules.
 
-Behavior:
-- shows all enabled steps
-- user can only click steps they have already visited
-- current step has `aria-current="step"`
+Current order:
 
-## Shared builder utilities
-Provided by:
-- `public/js/builder/builder-common.js`
+1. Name & Profile
+2. Class
+3. Attributes
+4. Origin
+5. Skills
+6. Equipment
+7. Techniques
+8. Bonds & Keystones
 
-Common responsibilities:
-- authenticate the user and optionally support GM “edit as”
-- load the Firestore character doc
-- save a partial patch (with timestamps)
-- show confirm modals
-- track visited steps in the character document
+## Navigation contract
 
-## Auto-save
-The design intent is:
-- “Next” triggers an auto-save before moving forward
-- “Save” should always be allowed (even if incomplete), but warns about missing requirements
+`public/js/builder/builder-nav.js` renders the shared orientation/navigation surface:
 
-## Current implemented steps
-The current registry contains these pages:
-- `public/builder/builder-profile.html` / `public/js/builder/builder-profile.js` – Name & Profile
-- `public/builder/builder-class.html` / `public/js/builder/builder-class.js` – Class
-- `public/builder/builder-attributes.html` / `public/js/builder/builder-attributes.js` – Attributes
-- `public/builder/builder-origin.html` / `public/js/builder/builder-origin.js` – Origin
-- `public/builder/builder-skills.html` / `public/js/builder/builder-skills.js` – Skills
-- `public/builder/builder-techniques.html` / `public/js/builder/builder-techniques.js` – Techniques
-- `public/builder/builder-bonds-keystones.html` / `public/js/builder/builder-bonds-keystones.js` – Bonds + Background Keystones
+- current step uses `aria-current="step"`;
+- previously visited steps are links;
+- unvisited steps are visibly locked unless an explicit mode allows all steps;
+- Previous/Next and direct step links use one `onBeforeNavigate(target)` callback;
+- external same-origin navigation is routed through the installed dirty-navigation guard.
 
-## Extending with new pages
-A new builder step should generally:
-1. add the HTML page under `public/builder/` and point its module script at the JS file in `public/js/builder/`
-2. call `initBuilderAuth()` and `loadCharacterDoc()`
-3. render the page UI from the current doc
-4. on edits, update local state and enforce caps/remaining points
-5. on save, write a sanitized patch
-6. call `renderBuilderNav()` with `onBeforeNext` to auto-save
+A dirty page leaves only after its ordinary validate/preview/confirm/save flow succeeds. Failed saves and cancelled warnings keep both navigation and working state in place. Refresh/tab close uses the browser-native unload warning while state is dirty or saving.
 
+## Current page lifecycle
 
-Notes on the current flow:
-- `builder-origin.*` remains the editing step for the Origin Keystone.
-- `builder-bonds-keystones.*` edits structured bonds plus the 2 Background Keystones.
-- The character sheet should render Bonds in their own section, while the generic Keystones section shows the non-bond keystones through a shared derived keystone model.
+Shared transition utilities live in:
+
+- `builder-common.js`: auth/GM bootstrap, URL context, normalized reads, narrow writes, modal support, dirty-navigation adapter;
+- `builder-page.js`: widget registration, proposed patch construction, graph preview, fail-closed confirmation, exact reconciled-state application;
+- `builder-dependencies.js`: current preview/reconcile API;
+- `database-reader.js` and `database-writer.js`: transitional persistence boundary.
+
+Class and Techniques currently use `BuilderPage` most directly. Other pages still contain legacy page-owned state/policy and will migrate in vertical slices; their current existence is not permission to copy that pattern.
+
+## Proposed-change safety
+
+A choice edit must follow this sequence:
+
+1. Widget/page produces a proposed patch without mutating persisted state.
+2. `BuilderPage` combines current widget state and the pending patch.
+3. The dependency layer reconciles a proposed clone in memory.
+4. Validation errors reject immediately and never invoke confirmation.
+5. Dependency removals fail closed if no confirmation handler exists.
+6. Cancellation changes neither working builder state nor widget display.
+7. Acceptance applies the exact `reconciledBuilder` that produced the preview.
+8. The normal page save path persists the reconciled state.
+
+Incomplete but non-destructive expected selections may be informational. Destructive impacts and blocking errors are different structured categories and must not be inferred by filtering warning strings.
+
+## Save and navigation behavior
+
+- `Save` may persist an incomplete but structurally valid character after presenting applicable information/warnings.
+- `Next`, `Previous`, direct step links, Characters/Profile links, and “Save & Open Character Sheet” all use the same page flush boundary.
+- Saves are serialized. Edits made while a save is in flight remain dirty until a later successful flush.
+- Save failures remain visible and retryable.
+- The character sheet writes only its temporary owned leaves; it cannot save builder-owned values.
+
+## Adding or migrating a page
+
+During the current transition:
+
+1. Add the page/module and one registry entry.
+2. Use the shared auth, shell, URL, navigation, status, and persistence boundaries.
+3. Prefer `BuilderPage` and shared widgets for choice edits.
+4. Produce proposed changes; do not pre-clear dependent fields.
+5. Use shared Rules for capacities/prerequisites/expected counts.
+6. Route every exit through the same validate/preview/confirm/save callback.
+7. Add tests for edit, error, cancellation, confirmation, save, navigation, and reload.
+
+Do not add new `onBeforeNext`-only behavior. Do not calculate remaining slots or dependent removals inside the page merely to make a control look enabled.
+
+## Target session flow
+
+Work Package C introduces typed commands and `CharacterSession` persisted/working/proposed/reconciled states. Later graph/domain work removes arbitrary widget patches and remaining page-owned policy. A fully migrated page will:
+
+- load one session projection;
+- collect widgets;
+- submit typed commands;
+- render structured session impacts;
+- request confirmation when policy requires it;
+- save through `CharacterRepository`;
+- contain no domain-specific capacity, prerequisite, or dependent-removal authority.

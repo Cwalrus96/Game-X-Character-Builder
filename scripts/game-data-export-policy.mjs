@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -7,8 +8,24 @@ export const PRODUCTION_DATA_DIRECTORY = fileURLToPath(
 
 export const PRODUCTION_EXPORT_STATUS = "frozen";
 
+export function resolvePathThroughExistingAncestor(candidatePath) {
+  let existing = path.resolve(candidatePath);
+  const suffix = [];
+  while (!fs.existsSync(existing)) {
+    const parent = path.dirname(existing);
+    if (parent === existing) break;
+    suffix.unshift(path.basename(existing));
+    existing = parent;
+  }
+  const resolvedExisting = fs.existsSync(existing) ? fs.realpathSync(existing) : existing;
+  return path.resolve(resolvedExisting, ...suffix);
+}
+
 function isSameOrNestedPath(candidate, parent) {
-  const relative = path.relative(path.resolve(parent), path.resolve(candidate));
+  const relative = path.relative(
+    resolvePathThroughExistingAncestor(parent),
+    resolvePathThroughExistingAncestor(candidate),
+  );
   return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
 }
 

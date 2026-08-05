@@ -18,6 +18,9 @@
     "deploy:remote": "firebase deploy",
     "deploy:hosting": "firebase deploy --only hosting",
     "deploy:rules": "firebase deploy --only firestore:rules,storage",
+    "data:source:check": "node scripts/fetch-game-data-source.mjs --check",
+    "fetch:data": "node scripts/fetch-game-data-source.mjs",
+    "stage:data": "node scripts/stage-game-data.mjs",
     "export:data": "node scripts/export-game-data.mjs data/game-x-class-data.xlsx public/data/game-x",
     "baseline:data": "node scripts/game-data-release-baseline.mjs",
     "validate:assets": "node scripts/validate-public-assets.mjs",
@@ -30,6 +33,7 @@
     "firebase": "^12.7.0",
     "firebase-admin": "^13.6.1",
     "firebase-tools": "^14.1.0",
+    "google-auth-library": "^10.9.1",
     "xlsx": "^0.18.5"
   }
 }

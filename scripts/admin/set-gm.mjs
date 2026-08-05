@@ -16,7 +16,7 @@ import {
   assertCredentialOutsideRepository,
   buildGmCustomClaims,
   parseSetGmArgs,
-} from "./credential-policy.mjs";
+} from "../credential-policy.mjs";
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = realpathSync(path.resolve(scriptDirectory, "..", ".."));

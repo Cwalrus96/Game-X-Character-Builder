@@ -1,0 +1,29 @@
+{
+  "contractVersion": 1,
+  "provider": "google-drive",
+  "fileId": "1TEdxuufglP8lFRNk8QD4N_351-0ihAUFLG2743ESjoI",
+  "expectedName": "game-x-class-data",
+  "nativeMimeType": "application/vnd.google-apps.spreadsheet",
+  "exportMimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "sourceSchemaVersion": 4,
+  "grantSyntaxVersion": 2,
+  "prerequisiteSyntaxVersion": 2,
+  "requiredSheets": [
+    "README",
+    "Classes",
+    "ClassFeatures",
+    "Techniques",
+    "Feats",
+    "Origins",
+    "OriginFeatures",
+    "WeaponBases",
+    "WeaponProfiles",
+    "WeaponEnhancements",
+    "Metadata",
+    "Schema",
+    "Enums",
+    "ClassSkills"
+  ],
+  "workbookFileName": "game-x-class-data.xlsx",
+  "provenanceFileName": "source-provenance.json"
+}

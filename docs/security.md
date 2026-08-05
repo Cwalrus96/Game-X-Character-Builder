@@ -1,59 +1,83 @@
-# Security (practical, low-effort)
+# Security boundaries
 
-This project is a small personal app. The goal is to avoid glaring holes without adding a lot of process or heavy backend code.
+Status: living security overview. Operational credential instructions are in [admin-operations.md](admin-operations.md) and [data-pipeline.md](data-pipeline.md).
 
-## Trust boundaries
-- Anything in the browser can be tampered with.
-- The true enforcement layer is Firebase Security Rules:
-  - Firestore rules for character documents
-  - Storage rules for portrait uploads
+## Browser trust boundary
 
-Client-side validation exists primarily to:
-- keep data tidy
-- reduce accidental risk (e.g., storing HTML)
-- improve user feedback (e.g., “unsupported image type”)
+Anything delivered to or entered in the browser can be inspected or modified by a user. Client-side validation, hidden controls, graph reconciliation, and UI role checks improve correctness and feedback; they do not authorize access.
 
-## Firestore rules
-Rules aim to ensure:
-- players can read/write only their own characters
-- GMs can read/write characters for other users
-- unknown collections are denied by default
+Firebase Security Rules are the enforcement boundary:
 
-Important: Firestore rules and queries must align. If you restrict reads by owner, queries should filter by owner. Otherwise reads can fail even for legitimate users.
+- Firestore rules govern character documents and GM-only data;
+- Storage rules govern portrait reads/writes/deletes;
+- unknown Firestore paths are denied by default.
 
-## Storage rules (portraits)
-Portrait images are restricted by:
-- path ownership (userId in path must match auth.uid unless GM)
-- file size limit
-- content type whitelist (PNG/JPG/WEBP/GIF)
-- deletes allowed separately (because deletes have no request.resource)
+Players normally access `users/{uid}/characters/{characterId}` for their own UID. GMs are recognized through the `gm` custom claim. Rules and queries must remain compatible: a query must be constrainable to the records its caller may read.
 
-This blocks most “bad upload” classes while staying simple.
+The older `characters/{uid}` path remains a deliberate legacy boundary and must not be expanded casually; migration/retirement belongs in the character repository work.
 
-## Hosting security headers
-Firebase Hosting can apply security headers site-wide from `firebase.json`:
-- `X-Content-Type-Options: nosniff`
-- `X-Frame-Options: DENY`
-- `Referrer-Policy`
-- `Permissions-Policy`
-- HSTS
-- CSP in **Report-Only** mode
+## Storage boundary
 
-Why Report-Only?
-- It gives visibility into what would break without risking the app
-- When you decide to enforce CSP, you can tighten it gradually
+Portraits are scoped by user/character path. Rules restrict:
 
-## Canonical sanitize-before-store
-The current codebase splits sanitization and schema responsibilities across a few modules:
-- `public/data-sanitization.js` – basic field-level helpers such as `sanitizeText`, `sanitizeCharName`, and `sanitizeStoragePath`
-- `public/database-writer.js` – sanitized builder patch creation for Firestore writes
-- `public/database-reader.js` – normalization into the canonical character-doc shape on read
-- `public/character-rules.js` – Game X rule math and limits used by builder + sheet
+- authenticated owner or GM access;
+- accepted image content types;
+- upload size;
+- delete behavior separately from writes because deletes have no `request.resource`.
 
-Builder and sheet code should sanitize on write rather than sprinkling one-off checks in each field handler.
-In particular, builder pages should write via `saveCharacterPatch(...)` in `public/builder-common.js`, which delegates to the write-layer helpers before sending the update to Firestore.
+Store only the portrait path in Firestore. Resolve download URLs through the Storage SDK.
 
-## If you later want “one step stronger”
-- Enable CSP enforcement (remove “Report-Only”), then fix violations it reports.
-- Consider moving some validation into Security Rules (basic type/range checks).
-- Add a very small CI check to ensure the exporter runs cleanly (no duplicate technique names).
+## Character write boundary
+
+Current sanitization and persistence modules are under `public/js/core/`:
+
+- `data-sanitization.js`: bounded field-level sanitizers;
+- `database-reader.js`: normalized current character reads;
+- `database-writer.js`: narrow sanitized patches;
+- `sheet-state.js`: exact character-sheet-owned leaf paths;
+- `save-coordinator.js` and `save-status.js`: serialized writes and visible failure/retry.
+
+Builder pages should use the shared builder/database boundary rather than direct Firestore writes. The character sheet may write temporary play-state leaves only; it cannot write builder-owned character identity, class, attributes, skills, abilities, techniques, equipment, or choices.
+
+Work Package C replaces transitional reader/writer behavior with exact CharacterCodec, sequential migrations, and CharacterRepository. Until then, do not spread Firebase document shape knowledge into Rules, graph, or widgets.
+
+## Data-source and administration credentials
+
+Credentials must never be stored inside the repository, including ignored directories or symlinks/junctions that resolve into it.
+
+- Firebase administration and Sheet acquisition use ADC plus the shared policy in `scripts/credential-policy.mjs`.
+- Google Sheet acquisition uses read-only Drive scope and the same credential-path policy.
+- Prefer short-lived service-account impersonation. A persistent service-account key is a fallback stored outside the repository.
+- Never log tokens, authorization headers, credential contents/paths, or complete custom-claim objects.
+- Codex/Google Drive connector identity is not a credential source for repository scripts.
+
+## Generated game data
+
+The live website loads reviewed static JSON; it never reads the Google Sheet. Source acquisition is read-only. Validation and staging must not write production artifacts, and the active production freeze rejects output at/below `public/data/game-x`.
+
+Generated JSON is not a repair surface. Fix source data or versioned adapter/validator behavior, then review the complete staged diff.
+
+## Data-derived HTML
+
+Treat Sheet, Handbook, Firebase, filenames, and user-entered values as untrusted display data. Prefer DOM construction and `textContent`; do not interpolate them into `innerHTML`. URL/path values require context-appropriate validation rather than HTML escaping alone.
+
+## Hosting headers
+
+`firebase.json` currently configures site-wide headers including:
+
+- `X-Content-Type-Options: nosniff`;
+- `X-Frame-Options: DENY`;
+- Referrer and Permissions policies;
+- HSTS;
+- Content Security Policy in Report-Only mode.
+
+Do not describe Report-Only CSP as enforcement. Enforcing CSP requires removal of remaining inline-style/script patterns, testing every route, and an intentional reviewed header change.
+
+## Required security verification
+
+- Unit tests for sanitization, write ownership, credential paths, save isolation, and data-derived HTML.
+- Firebase emulator tests for Firestore and Storage rules.
+- Static asset/path checks.
+- Real-browser tests for auth redirects, GM editing, dirty navigation, failures, multi-tab writes, and CSP/accessibility behavior.
+
+Run `npm run test:all` for changes that touch these boundaries. Deployment remains blocked while [status.md](status.md) lists manual browser acceptance as pending.

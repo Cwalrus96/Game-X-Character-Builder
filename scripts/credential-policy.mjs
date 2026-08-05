@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import path from "node:path";
 
 export function isPathInsideDirectory(directoryPath, candidatePath) {
@@ -11,6 +12,17 @@ export function isPathInsideDirectory(directoryPath, candidatePath) {
 export function assertCredentialOutsideRepository(repositoryRoot, credentialPath) {
   if (isPathInsideDirectory(repositoryRoot, credentialPath)) {
     throw new Error("Refusing to use a credential file stored inside the repository.");
+  }
+
+  // Reject an external-looking symlink/junction that resolves back into the
+  // repository. Nonexistent paths are left to the authentication library so
+  // callers still receive its normal missing-credential diagnostic.
+  if (fs.existsSync(repositoryRoot) && fs.existsSync(credentialPath)) {
+    const realRepository = fs.realpathSync(repositoryRoot);
+    const realCredential = fs.realpathSync(credentialPath);
+    if (isPathInsideDirectory(realRepository, realCredential)) {
+      throw new Error("Refusing to use a credential file stored inside the repository.");
+    }
   }
   return credentialPath;
 }
