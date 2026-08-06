@@ -286,20 +286,82 @@ Remove or change the production freeze only in an explicit reviewed change. Publ
 
 ## Work Package C — character schema and session skeleton
 
-Work Package C begins only after Work Package B has a validated runtime contract. Its steps may be refined, but their IDs remain stable once implementation begins.
+Work Package C begins after Work Package B has a fixture-validated runtime contract. Its pure character-schema work may proceed in parallel with Work Package B's externally blocked live-source acquisition and publishing acceptance. It must not assume that unpublished schema-v4 game data is already available in production. Step IDs remain stable.
 
 ### `WPC-CODEC`
 
-Status: `pending`
+Status: `complete`
 
+Prerequisite: the fixture-validated schema-v4 game-data runtime contract from Work Package B.
 
-Create pure canonical defaults and exact CharacterCodec validation. Unknown or malformed fields must not pass silently.
+Goal: define one complete saved-character shape so malformed, partial, or ambiguously identified state cannot be mistaken for valid canonical state.
+
+Deliverables:
+
+- schema version 5 canonical defaults with independently allocated nested state;
+- a pure exact `CharacterCodec` with structured path-specific diagnostics;
+- stable identity/key requirements for persisted game-data selections and source-owned records;
+- an exact allowlist for character-sheet fields and repeatables;
+- explicit separation of canonical state from Firestore timestamp metadata;
+- a living character-data contract and valid/invalid fixtures.
+
+Non-goals:
+
+- migrating existing schema 1–4 documents;
+- switching the live reader/writer to schema version 5;
+- introducing `CharacterRepository` or changing Firebase writes;
+- defining the later `choice-rebind` overlay persistence shape.
+
+Acceptance:
+
+- complete defaults pass the codec and do not share nested references;
+- encoding and decoding are pure, clone successful values, and never silently coerce input;
+- unknown, missing, malformed, duplicate, and cross-field-invalid values produce exact diagnostics;
+- schema 1–4 values are rejected with an explicit migrate-first diagnostic;
+- timestamp metadata is rejected as canonical state;
+- unit tests cover defaults, a populated round trip, exact keys, stable references, identity ownership, malformed nested values, and assertion errors;
+- the transitional reader/writer remains on schema version 4 until `WPC-MIGRATIONS` exists.
+
+Evidence:
+
+- `public/js/core/character-codec.js` implements schema version 5 defaults, validation, encode/decode, cloning, and typed assertion errors without Firebase, DOM, file, or network access;
+- [character-data-contract.md](character-data-contract.md) records the approved canonical/metadata split, exact nested shapes, stable-reference rules, sheet allowlist, and integration boundary;
+- `tests/character-codec.test.mjs` supplies valid and invalid contract fixtures.
 
 ### `WPC-MIGRATIONS`
 
-Status: `pending`
+Status: `ready`
 
-Create a sequential, idempotent CharacterMigrations registry with fixtures for every supported saved schema, including stable-ID migration preparation.
+Prerequisite: `WPC-CODEC`
+
+Goal: convert every supported historical character shape to the exact v5 contract without making a page, repository, or migration caller guess which repairs occurred.
+
+The problem is that schemas 1–4 are partial and use a mixture of display names, composite labels, optional identity fields, and page-specific defaults. Passing those documents directly to the strict v5 codec would reject existing characters; silently filling them at read time would recreate the ambiguity WPC-CODEC removed.
+
+Deliverables:
+
+- an evidence-backed inventory and fixture for every supported stored schema version;
+- a pure sequential registry with explicit `1 -> 2 -> 3 -> 4 -> 5` transformations;
+- deterministic defaulting and identity assignment rules recorded per migration edge;
+- stable-key migration preparation that reports unresolved or ambiguous display-name mappings instead of guessing;
+- structured migration reports that distinguish preserved, defaulted, renamed, and unresolved state;
+- explicit separation of repository timestamp metadata from the migrated canonical character value.
+
+Non-goals:
+
+- reading or writing Firebase documents;
+- publishing game data or bypassing the Work Package B production freeze;
+- switching pages to the new repository boundary;
+- inventing mappings that cannot be proved from executable history, fixtures, or reviewed game data.
+
+Acceptance:
+
+- each supported historical fixture reaches a value accepted by the v5 codec by applying only adjacent migrations;
+- each migration edge is deterministic, does not mutate its input, and is idempotent when presented with its already-upgraded output through the registry;
+- already-current v5 input remains byte-equivalent in value;
+- unsupported, missing, malformed, unresolved, and ambiguous inputs fail with structured path-specific diagnostics;
+- stable identities are reproducible and collisions are rejected;
+- tests prove that metadata is preserved separately and no production Firebase or game-data artifact is changed.
 
 ### `WPC-REPOSITORY`
 

@@ -156,7 +156,9 @@ It does not produce UI strings as its primary contract; presentation layers form
 
 The repository is the only normal page-facing persistence boundary. The codec supplies exact defaults and rejects malformed or unknown canonical fields. Sequential migrations transform each supported old schema into the next schema deterministically and idempotently.
 
-Until Work Package C, `database-reader.js` and `database-writer.js` remain the transitional boundary. Database-format knowledge must stay there and must not spread into graph, Rules, or widget code.
+Schema version 5 and the pure codec API are defined in [character-data-contract.md](character-data-contract.md). Canonical state excludes Firestore timestamps and uses stable game-data keys rather than display names. The v5 codec exists independently during `WPC-CODEC`; the transitional v4 reader/writer must not stamp v5 until sequential migrations exist and the repository owns migrate-then-decode.
+
+Until `WPC-MIGRATIONS` and `WPC-REPOSITORY` replace the live persistence path, `database-reader.js` and `database-writer.js` remain the transitional boundary. Database-format knowledge must stay there and must not spread into graph, Rules, or widget code.
 
 Character-sheet autosave owns only temporary play-state leaves such as current HP, strain, notes, and conditions. Builder-owned identity, class, attributes, skills, abilities, techniques, equipment, and choices are outside its write scope.
 

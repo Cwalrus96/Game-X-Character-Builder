@@ -19,6 +19,8 @@ When the user says, for example, “Read `AGENTS.md` and proceed from `WPB-EXPRE
 
 Before beginning any named roadmap step, explain it in plain language for a technically capable reader who is not familiar with this project's specific implementation. State what the preceding step established, what the named step will produce, why it is useful, and any known blocker or approval boundary. At handoff, explain the purpose and benefit of the next named step by default; do not wait for the user to request that explanation.
 
+When a decision is required, first explain the concrete problem or ambiguity and the consequence of choosing incorrectly. Then present the viable options and a recommendation. A recommendation by itself is not an adequate decision request.
+
 ## Source-of-truth hierarchy
 
 Use the narrowest authoritative source; do not resolve contradictions by guessing.
