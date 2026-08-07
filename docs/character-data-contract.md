@@ -4,9 +4,9 @@ This document defines the canonical in-memory character state accepted by `Chara
 
 ## Why schema version 5 exists
 
-Schemas 1 through 4 were written incrementally by pages that accepted missing fields, silently sanitized malformed values, and stored some game-data references by display name or composite label. That behavior makes it difficult to distinguish a valid character from a partially damaged one and makes renaming game data unsafe.
+The unversioned, v1, v3, and v4 formats were written incrementally by pages that accepted missing fields, silently sanitized malformed values, and stored some game-data references by display name or composite label. Repository history contains no schema-v2 writer. That behavior makes it difficult to distinguish a valid character from a partially damaged one and makes renaming game data unsafe.
 
-Schema version 5 establishes one complete, exact shape. The codec reports missing, unknown, malformed, duplicate, or inconsistent data instead of trimming, defaulting, or dropping it. Older documents are migration input; they are not valid v5 documents until `CharacterMigrations` has transformed them and the v5 codec accepts the result.
+Schema version 5 establishes one complete, exact shape. The codec reports missing, unknown, malformed, duplicate, or inconsistent data instead of trimming, defaulting, or dropping it. Older documents are migration input; they are not valid v5 documents until `CharacterMigrations` has transformed them and the v5 codec accepts the result. Historical-format knowledge is isolated in that module; the rest of the application consumes only exact v5 state. See [character-migrations.md](character-migrations.md).
 
 ## Boundary between character state and persistence metadata
 
@@ -85,4 +85,4 @@ Each diagnostic has a stable `code`, an exact property `path`, and a human-reada
 
 ## Integration boundary
 
-The current production reader and writer continue to use schema version 4 during WPC-CODEC. They must not import this v5 constant or stamp v5 yet. WPC-MIGRATIONS must first provide tested sequential conversions from every supported saved version; WPC-REPOSITORY will then apply migrations before decoding and isolate Firestore metadata from canonical state.
+The current production reader and writer remain transitional until WPC-REPOSITORY. WPC-MIGRATIONS now provides tested conversions for every supported saved version, but pages must not call it or implement their own compatibility logic. WPC-REPOSITORY will apply migrations before decoding, isolate Firestore metadata from canonical state, and stamp all successful canonical writes as schema version 5.

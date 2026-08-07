@@ -154,11 +154,11 @@ It does not produce UI strings as its primary contract; presentation layers form
 
 ### CharacterRepository, CharacterCodec, and CharacterMigrations
 
-The repository is the only normal page-facing persistence boundary. The codec supplies exact defaults and rejects malformed or unknown canonical fields. Sequential migrations transform each supported old schema into the next schema deterministically and idempotently.
+The repository is the only normal page-facing persistence boundary. The codec supplies exact defaults and rejects malformed or unknown canonical fields. `CharacterMigrations` is the only module allowed to understand historical character formats; it applies the evidence-backed unversioned-to-v1, v1-to-v3, v3-to-v4, and v4-to-v5 edges deterministically. Pages, widgets, rules, graph code, sessions, and canonical repository logic operate only on v5 and must not contain compatibility branches.
 
-Schema version 5 and the pure codec API are defined in [character-data-contract.md](character-data-contract.md). Canonical state excludes Firestore timestamps and uses stable game-data keys rather than display names. The v5 codec exists independently during `WPC-CODEC`; the transitional v4 reader/writer must not stamp v5 until sequential migrations exist and the repository owns migrate-then-decode.
+Schema version 5 and the pure codec API are defined in [character-data-contract.md](character-data-contract.md); the compatibility contract is defined in [character-migrations.md](character-migrations.md). Canonical state excludes Firestore timestamps and uses stable game-data keys rather than display names. The migration registry now exists independently; the transitional v4 reader/writer must not stamp v5 until `WPC-REPOSITORY` owns migrate-then-decode and encode-before-write.
 
-Until `WPC-MIGRATIONS` and `WPC-REPOSITORY` replace the live persistence path, `database-reader.js` and `database-writer.js` remain the transitional boundary. Database-format knowledge must stay there and must not spread into graph, Rules, or widget code.
+Until `WPC-REPOSITORY` replaces the live persistence path, `database-reader.js` and `database-writer.js` remain the transitional boundary. Database-format knowledge must stay there and must not spread into graph, Rules, or widget code.
 
 Character-sheet autosave owns only temporary play-state leaves such as current HP, strain, notes, and conditions. Builder-owned identity, class, attributes, skills, abilities, techniques, equipment, and choices are outside its write scope.
 
@@ -198,7 +198,7 @@ All saves must be sanitized, narrow, visible on failure, and serialized. Broad m
 - Milestone 0 and Work Package A automated safety work are complete; real-browser acceptance remains deployment-blocking.
 - Work Package B is active. The production game-data release is frozen and baselined.
 - Schema-v4 acquisition, a domain-neutral XLSX reader, canonical per-tab adapters, shared typed expressions, pure whole-model reference/domain validation, deterministic schema-v2 artifact construction, runtime-load acceptance, atomic staging, and structural/semantic diffing are implemented against fixtures. Live end-to-end acceptance is blocked on the repository Drive identity; production remains frozen pending source resolution, diff review, and publish approval.
-- The complete `CharacterSession`, codec/migration registry, repository, and split compiler/reconciler are target components, not yet fully implemented.
+- The v5 codec and isolated migration registry are implemented. `CharacterRepository`, the complete `CharacterSession`, and the split compiler/reconciler remain target components.
 
 Exact status and the next named step are in [status.md](status.md).
 

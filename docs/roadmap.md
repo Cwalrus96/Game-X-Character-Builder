@@ -330,18 +330,18 @@ Evidence:
 
 ### `WPC-MIGRATIONS`
 
-Status: `ready`
+Status: `complete`
 
 Prerequisite: `WPC-CODEC`
 
 Goal: convert every supported historical character shape to the exact v5 contract without making a page, repository, or migration caller guess which repairs occurred.
 
-The problem is that schemas 1–4 are partial and use a mixture of display names, composite labels, optional identity fields, and page-specific defaults. Passing those documents directly to the strict v5 codec would reject existing characters; silently filling them at read time would recreate the ambiguity WPC-CODEC removed.
+The problem is that the observed unversioned, v1, v3, and v4 formats are partial and use a mixture of display names, composite labels, optional identity fields, and page-specific defaults. Passing those documents directly to the strict v5 codec would reject existing characters; silently filling them at read time would recreate the ambiguity WPC-CODEC removed. Repository history contains no schema-v2 writer, so claimed v2 documents are rejected instead of assigned an invented meaning.
 
 Deliverables:
 
 - an evidence-backed inventory and fixture for every supported stored schema version;
-- a pure sequential registry with explicit `1 -> 2 -> 3 -> 4 -> 5` transformations;
+- a pure evidence-backed registry with explicit `unversioned -> 1 -> 3 -> 4 -> 5` transformations;
 - deterministic defaulting and identity assignment rules recorded per migration edge;
 - stable-key migration preparation that reports unresolved or ambiguous display-name mappings instead of guessing;
 - structured migration reports that distinguish preserved, defaulted, renamed, and unresolved state;
@@ -356,18 +356,58 @@ Non-goals:
 
 Acceptance:
 
-- each supported historical fixture reaches a value accepted by the v5 codec by applying only adjacent migrations;
-- each migration edge is deterministic, does not mutate its input, and is idempotent when presented with its already-upgraded output through the registry;
+- each supported historical fixture reaches a value accepted by the v5 codec by applying only declared evidence-backed edges;
+- the registry is deterministic, does not mutate its input, and is idempotent when presented with its already-upgraded output;
 - already-current v5 input remains byte-equivalent in value;
 - unsupported, missing, malformed, unresolved, and ambiguous inputs fail with structured path-specific diagnostics;
 - stable identities are reproducible and collisions are rejected;
 - tests prove that metadata is preserved separately and no production Firebase or game-data artifact is changed.
 
+Evidence:
+
+- `public/js/core/character-migrations.js` is the isolated pure compatibility registry and stable-reference-index builder;
+- `tests/fixtures/character-schemas.mjs` records recognized unversioned, v1, v3, v4, and v5 shapes;
+- `tests/character-migrations.test.mjs` covers every declared edge, v2/future rejection, codec acceptance, non-mutation, idempotence, metadata separation, deterministic identities/reports, collisions, unresolved/ambiguous mappings, unknown fields, and purity;
+- [character-migrations.md](character-migrations.md) records the evidence-backed history, conversion policy, unresolved cases, and repository integration boundary.
+
 ### `WPC-REPOSITORY`
 
-Status: `pending`
+Status: `ready`
 
-Introduce CharacterRepository and remove direct Firebase writes from pages. Close open-ended builder path writes and define conflict/revision behavior.
+Prerequisite: `WPC-MIGRATIONS`
+
+Implementation may proceed against fixtures. Switching the deployed persistence path also requires a reviewed runtime game-data release that supplies stable `techniqueKey` values (or another explicitly approved stable-key source); the frozen schema-v1 production artifacts contain technique display names only.
+
+Goal: make one component responsible for loading and saving characters so every application consumer receives exact v5 state and no page needs to understand Firestore layout, historical schemas, timestamps, or revision conflicts.
+
+The problem is that pages currently call transitional Firebase reader/writer helpers directly. Those paths can stamp partial v4 state, accept open-ended patch paths, and let a stale tab overwrite newer data. Connecting the v5 codec or migrator independently in each page would spread persistence and compatibility policy throughout the application.
+
+Deliverables:
+
+- a `CharacterRepository` that is the sole normal character persistence boundary;
+- a read pipeline of raw Firestore envelope -> `CharacterMigrations` -> `CharacterCodec` -> canonical character plus separate metadata, migration report, and revision state;
+- create/replace/patch operations that validate canonical state and stamp schema version 5 before writing;
+- narrow typed write operations, including preservation of the character-sheet temporary-leaf ownership allowlist;
+- tested revision/conflict behavior that rejects stale writes without losing the newer persisted value;
+- page integration that removes normal direct character writes through the transitional reader/writer helpers;
+- the approved migration write-back policy: loading/migration is read-only, and a migrated v5 document is persisted only as part of a successful explicit user save;
+
+Non-goals:
+
+- introducing `CharacterSession` working/proposed/reconciled state;
+- changing graph or reconciliation policy;
+- publishing Work Package B game data;
+- writing production character documents during tests or migration inspection;
+- placing historical-format branches outside `CharacterMigrations`.
+
+Acceptance:
+
+- recognized legacy fixtures load only through migrations and emerge as exact v5; invalid or unresolved documents fail with structured diagnostics;
+- every successful create or save writes a codec-accepted value marked schema version 5 and keeps repository timestamps outside canonical state;
+- stale revisions fail deterministically, while accepted writes preserve unrelated newer data according to the documented operation contract;
+- arbitrary/open-ended page patch paths are rejected and character-sheet writes remain limited to sheet-owned temporary leaves;
+- unit and emulator tests cover create, read, migrated read without a write, explicit-save migration persistence, valid save, invalid save, authorization propagation, missing documents, conflicts, and timestamp handling;
+- no Firebase production document, production game-data artifact, or canonical Sheet cell changes during verification.
 
 ### `WPC-SESSION`
 
