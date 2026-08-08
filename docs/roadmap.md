@@ -111,7 +111,7 @@ Evidence:
 
 ### `WPB-SOURCE-ACCESS` — configure the read-only local identity
 
-Status: `blocked` on one-time external configuration
+Status: `complete`
 
 Prerequisite: `WPB-SOURCE-SYNC`
 
@@ -125,6 +125,13 @@ Acceptance:
 - `npm run fetch:data` writes a valid ignored XLSX and provenance sidecar for the current Drive version;
 - no key/credential file exists anywhere under the repository;
 - the acquired SHA-256/metadata agree with a second read of the same Drive revision.
+
+Completion evidence as of 2026-08-08:
+
+- the dedicated `game-x-sheet-exporter@game-x-character-builder.iam.gserviceaccount.com` identity has Viewer-only access to the canonical Sheet and the local user ADC may impersonate it through a service-account-scoped Token Creator binding;
+- Google Drive and IAM Service Account Credentials APIs are enabled, no persistent service-account key was created, and the repository credential-path boundary remains intact;
+- `npm run data:source:check` succeeded twice against Drive version `642`, modified `2026-08-08T19:36:29.890Z`;
+- `npm run fetch:data` wrote the ignored schema-v4 XLSX and matching provenance sidecar, with the fetch boundary verifying the local SHA-256 and unchanged Drive metadata before and after export.
 
 ### `WPB-EXPRESSIONS` — shared typed expressions
 
@@ -170,7 +177,7 @@ Evidence:
 
 ### `WPB-ADAPTERS` — canonical per-tab source model
 
-Status: `ready` — implementation is fixture-complete; live-source acceptance is blocked by `WPB-SOURCE-ACCESS`
+Status: `complete`
 
 Prerequisite: `WPB-EXPRESSIONS`
 
@@ -191,11 +198,11 @@ Implementation evidence:
 - `scripts/game-data/source-adapters.mjs` strictly adapts all contract and runtime-source tabs to a canonical flat model with source-located diagnostics;
 - `tests/fixtures/game-data-schema-v4.mjs` defines an independent 152-field schema-v4 fixture across every required adapter tab;
 - `tests/game-data-adapters.test.mjs` covers XLSX-to-model flow, all tab collections, scalar/expression normalization, explicit owner/parent preservation, strict headers/schema, malformed populated rows, and purity;
-- official live-row acceptance remains open because `npm run data:source:check` cannot access the Sheet with this workstation's current ADC. Connector reads confirmed the exact live headers and 152 schema declarations for implementation guidance but do not replace the repository acquisition contract.
+- authenticated staging of canonical Drive version `642` adapted every populated schema-v4 source row without structural errors; the live model hash is `1e21863128950325204830abd7e4d3d4f821c56c2df9829b7bd2cd6d172a4da3`.
 
 ### `WPB-REFERENCES` — cross-reference and domain validation
 
-Status: `pending` — fixture implementation is complete; official acceptance waits on `WPB-ADAPTERS` live acceptance
+Status: `complete`
 
 Prerequisite: `WPB-ADAPTERS`
 
@@ -218,11 +225,11 @@ Implementation evidence:
 - domain checks cover option-group counts, status/selectability, selection modes, class-skill conditions, stable tags, technique/weapon costs, readiness, and explicit runtime stubs;
 - `tests/fixtures/game-data-references.mjs` supplies an invalid whole-workbook fixture alongside the valid schema-v4 fixture;
 - `tests/game-data-references.test.mjs` proves a clean whole model, exactly 37 deterministic invalid-fixture errors plus one warning, row-order-independent and recursively nested parent resolution, readiness rules, warning non-blocking behavior, and absence of artifact-writing APIs;
-- authenticated live-workbook validation remains blocked by `WPB-SOURCE-ACCESS`, so this step is not marked complete. The user authorized fixture-driven `WPB-STAGING` implementation to proceed without treating that work as official live acceptance.
+- two authenticated staging runs of canonical Drive version `642` produced the same normalized model and the same ordered set of 28 intentional warnings with zero errors. Runtime-load acceptance also passed without diagnostics.
 
 ### `WPB-STAGING` — deterministic artifacts, provenance, and diff
 
-Status: `pending` - fixture implementation is complete; official acceptance waits on live adapter/reference acceptance and `WPB-SOURCE-ACCESS`
+Status: `active` — authenticated staging succeeds, but repeat-run combined-artifact determinism must be repaired
 
 Prerequisite: `WPB-REFERENCES`
 
@@ -246,11 +253,12 @@ Implementation evidence:
 - `scripts/game-data/staging-run.mjs` runs reader -> adapter -> whole-model validation -> construction -> runtime acceptance -> frozen-release diff, installs a unique run atomically, and writes diagnostics only when validation/runtime acceptance fails;
 - `scripts/stage-game-data.mjs` now fetches once and invokes that canonical staging boundary; it never invokes the legacy exporter or writes beneath `public/data/game-x`;
 - `tests/game-data-staging.test.mjs` covers complete output, production immutability, immutable runs, deterministic bytes, validation-error diagnostic-only output, construction gating, runtime acceptance, and structural/semantic diffing;
-- authenticated end-to-end acceptance is still blocked by the external Drive identity tracked as `WPB-SOURCE-ACCESS`; no live run or production publish is claimed.
+- authenticated end-to-end runs `20260808T193724692Z-18784` and `20260808T193801573Z-25724` each staged nine artifacts, passed zero-error validation and runtime loading, reported the complete frozen-release diff, and left production untouched;
+- the normalized model and eight split artifacts were byte-identical across those runs, but Google returned different raw XLSX ZIP bytes for the unchanged Drive revision and `game-x-data.json` embeds that raw `xlsxSha256` in `sourceRevision`. The resulting combined-artifact hash changes across runs, violating the deterministic-runtime-bytes deliverable. Repair and test this provenance/runtime boundary before marking the step complete or beginning `WPB-DIFF-REVIEW`.
 
 ### `WPB-SOURCE-RESOLUTION` — resolve remaining findings
 
-Status: `active` - approved canonical-Sheet repairs are applied; official staged validation awaits read-only ADC access
+Status: `active` — approved canonical-Sheet repairs are applied and zero-error live validation passes; completion awaits the `WPB-STAGING` determinism repair
 
 Prerequisite: `WPB-STAGING`
 
