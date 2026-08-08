@@ -72,6 +72,7 @@ test("metadata is preserved outside canonical state", () => {
   assert.deepEqual(result.metadata, {
     createdAt: "created-at",
     updatedAt: "updated-at",
+    revision: null,
     lastVisitedAt: "visited-at",
   });
   assert.equal("createdAt" in result.value, false);
@@ -85,10 +86,12 @@ test("current v5 values remain equivalent and repeated registry migration is ide
     ...structuredClone(current),
     createdAt: "created-at",
     updatedAt: "updated-at",
+    revision: 7,
   };
   const first = migrateCharacterDocument(currentWithMetadata, { references });
   assert.equal(first.ok, true, JSON.stringify(first.diagnostics, null, 2));
   assert.deepEqual(first.value, current);
+  assert.equal(first.metadata.revision, 7);
   assert.deepEqual(first.appliedVersions, []);
 
   const historical = migrateCharacterDocument(makeV4Character(), { references });

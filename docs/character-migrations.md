@@ -25,9 +25,11 @@ The recognized unversioned envelope is deliberately narrow. An arbitrary object 
 
 - `ok` and `value`: `value` exists only when the final v5 codec accepts it;
 - `fromVersion`, `toVersion`, and `appliedVersions`: the recognized input and exact edges used;
-- `metadata`: `createdAt`, `updatedAt`, and historical `lastVisitedAt`, separated from canonical state;
+- `metadata`: `createdAt`, `updatedAt`, persistence `revision`, and historical `lastVisitedAt`, separated from canonical state;
 - `report`: deterministic `preserved`, `defaulted`, `normalized`, `renamed`, `removed`, and `unresolved` records;
 - `diagnostics`: deterministic path-specific failures such as malformed input, unknown fields, missing references, ambiguous references, or identity collisions.
+
+The database reader invokes this registry without writing. The database writer persists the migrated v5 value only as part of a successful explicit save with a matching revision. See [character-persistence.md](character-persistence.md).
 
 The registry is pure. It does not read Firebase, load files, access the DOM, fetch game data, or mutate its input.
 

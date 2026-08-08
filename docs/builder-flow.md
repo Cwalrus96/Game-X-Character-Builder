@@ -100,5 +100,5 @@ Work Package C introduces typed commands and `CharacterSession` persisted/workin
 - submit typed commands;
 - render structured session impacts;
 - request confirmation when policy requires it;
-- save through `CharacterRepository`;
+- save through the definitive database reader/writer boundary;
 - contain no domain-specific capacity, prerequisite, or dependent-removal authority.

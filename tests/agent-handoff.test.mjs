@@ -11,6 +11,7 @@ const handoffFiles = [
   "docs/roadmap.md",
   "docs/architecture.md",
   "docs/builder-flow.md",
+  "docs/character-persistence.md",
   "docs/data-pipeline.md",
   "docs/game-data-contract.md",
   "docs/security.md",
@@ -75,10 +76,11 @@ test("source config identity and schema are repeated in the living contract", ()
 test("handoff guide and roadmap state unambiguous ownership and preflight", () => {
   const agents = read("AGENTS.md");
   const roadmap = read("docs/roadmap.md");
-  assert.match(agents, /CharacterSession -> CharacterRepository -> Firebase/);
-  assert.match(agents, /CharacterRepository -> CharacterCodec/);
-  assert.match(agents, /CharacterRepository -> CharacterMigrations/);
-  assert.doesNotMatch(agents, /GraphCompiler[^\n]*CharacterRepository/);
+  assert.match(agents, /CharacterSession -> database reader\/writer -> Firebase/);
+  assert.match(agents, /database reader\/writer -> CharacterCodec/);
+  assert.match(agents, /database reader\/writer -> CharacterMigrations/);
+  assert.match(agents, /do not add a duplicate repository implementation/);
+  assert.doesNotMatch(agents, /GraphCompiler[^\n]*database reader\/writer/);
   assert.match(roadmap, /Standard preflight for every implementation step:/);
   assert.match(roadmap, /WPB-EXPRESSIONS[\s\S]*Step-specific preflight:/);
 });

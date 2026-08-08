@@ -41,10 +41,10 @@ flowchart TD
     Compiler --> Reconciler["GraphReconciler"]
     Compiler --> Rules
     Reconciler --> Rules
-    Session --> Repository["CharacterRepository"]
-    Repository --> Codec["CharacterCodec"]
-    Repository --> Migrations["CharacterMigrations"]
-    Repository --> Firebase["Firebase"]
+    Session --> Persistence["Database reader / writer"]
+    Persistence --> Codec["CharacterCodec"]
+    Persistence --> Migrations["CharacterMigrations"]
+    Persistence --> Firebase["Firebase"]
 
     Sheet["Canonical Google Sheet"] --> Acquire["Read-only acquisition"]
     Acquire --> Adapt["Source adapters"]
@@ -83,7 +83,7 @@ sequenceDiagram
     participant S as CharacterSession
     participant G as Graph and Rules
     participant U as User
-    participant R as CharacterRepository
+    participant R as Database reader/writer
 
     UI->>S: typed command
     S->>G: compile and reconcile proposed state
@@ -152,13 +152,13 @@ The reconciler applies removal/prerequisite/capacity policy to the affected grap
 
 It does not produce UI strings as its primary contract; presentation layers format structured impacts.
 
-### CharacterRepository, CharacterCodec, and CharacterMigrations
+### Database reader/writer, CharacterCodec, and CharacterMigrations
 
-The repository is the only normal page-facing persistence boundary. The codec supplies exact defaults and rejects malformed or unknown canonical fields. `CharacterMigrations` is the only module allowed to understand historical character formats; it applies the evidence-backed unversioned-to-v1, v1-to-v3, v3-to-v4, and v4-to-v5 edges deterministically. Pages, widgets, rules, graph code, sessions, and canonical repository logic operate only on v5 and must not contain compatibility branches.
+The existing `database-reader.js` and `database-writer.js` modules are the two halves of the only normal page-facing character persistence boundary. They are strengthened in place rather than duplicated behind a second repository implementation. The codec supplies exact defaults and rejects malformed or unknown canonical fields. `CharacterMigrations` is the only module allowed to understand historical character formats; it applies the evidence-backed unversioned-to-v1, v1-to-v3, v3-to-v4, and v4-to-v5 edges deterministically. Pages, widgets, rules, graph code, sessions, and canonical persistence logic operate only on v5 and must not contain compatibility branches.
 
-Schema version 5 and the pure codec API are defined in [character-data-contract.md](character-data-contract.md); the compatibility contract is defined in [character-migrations.md](character-migrations.md). Canonical state excludes Firestore timestamps and uses stable game-data keys rather than display names. The migration registry now exists independently; the transitional v4 reader/writer must not stamp v5 until `WPC-REPOSITORY` owns migrate-then-decode and encode-before-write.
+Schema version 5 and the pure codec API are defined in [character-data-contract.md](character-data-contract.md); the compatibility contract is defined in [character-migrations.md](character-migrations.md), and the read/write/revision contract is defined in [character-persistence.md](character-persistence.md). Canonical state excludes Firestore timestamps and revisions and uses stable game-data keys rather than display names. `character-persistence.js` shares Firebase-free envelope, patch-ownership, and revision rules between the reader and writer without becoming a parallel page-facing repository.
 
-Until `WPC-REPOSITORY` replaces the live persistence path, `database-reader.js` and `database-writer.js` remain the transitional boundary. Database-format knowledge must stay there and must not spread into graph, Rules, or widget code.
+The definitive v5 reader/writer APIs are implemented and emulator-tested. Their deployed-page integration remains blocked by the frozen runtime data's missing stable technique keys. Clearly marked v4 exports remain temporarily for existing callers; they are not an approved second architecture and must not spread into graph, Rules, or widget code.
 
 Character-sheet autosave owns only temporary play-state leaves such as current HP, strain, notes, and conditions. Builder-owned identity, class, attributes, skills, abilities, techniques, equipment, and choices are outside its write scope.
 
@@ -198,7 +198,7 @@ All saves must be sanitized, narrow, visible on failure, and serialized. Broad m
 - Milestone 0 and Work Package A automated safety work are complete; real-browser acceptance remains deployment-blocking.
 - Work Package B is active. The production game-data release is frozen and baselined.
 - Schema-v4 acquisition, a domain-neutral XLSX reader, canonical per-tab adapters, shared typed expressions, pure whole-model reference/domain validation, deterministic schema-v2 artifact construction, runtime-load acceptance, atomic staging, and structural/semantic diffing are implemented against fixtures. Live end-to-end acceptance is blocked on the repository Drive identity; production remains frozen pending source resolution, diff review, and publish approval.
-- The v5 codec and isolated migration registry are implemented. `CharacterRepository`, the complete `CharacterSession`, and the split compiler/reconciler remain target components.
+- The v5 codec, isolated migration registry, and definitive database reader/writer APIs are implemented. Switching deployed pages to the v5 boundary remains blocked on reviewed stable-key runtime data. The complete `CharacterSession` and split compiler/reconciler remain target components.
 
 Exact status and the next named step are in [status.md](status.md).
 

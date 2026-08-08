@@ -18,7 +18,7 @@ The canonical value has exactly three root fields:
 | `ownerUid` | Non-empty Firebase owner UID. |
 | `builder` | Complete canonical builder and temporary sheet state. |
 
-Firestore bookkeeping is repository metadata, not canonical character state. `createdAt`, `updatedAt`, and the former `builder.lastVisitedAt` value must be read, written, and exposed separately by `CharacterRepository`. They are rejected if passed to the v5 codec. `builder.visitedSteps` remains canonical state because it records which builder sections the character has visited, rather than when a persistence operation occurred.
+Firestore bookkeeping is repository metadata, not canonical character state. `createdAt`, `updatedAt`, the persistence `revision`, and the former `builder.lastVisitedAt` value must be read, written, and exposed separately by the definitive database reader/writer boundary. They are rejected if passed to the v5 codec. `builder.visitedSteps` remains canonical state because it records which builder sections the character has visited, rather than when a persistence operation occurred.
 
 ## Builder shape
 
@@ -85,4 +85,6 @@ Each diagnostic has a stable `code`, an exact property `path`, and a human-reada
 
 ## Integration boundary
 
-The current production reader and writer remain transitional until WPC-REPOSITORY. WPC-MIGRATIONS now provides tested conversions for every supported saved version, but pages must not call it or implement their own compatibility logic. WPC-REPOSITORY will apply migrations before decoding, isolate Firestore metadata from canonical state, and stamp all successful canonical writes as schema version 5.
+The definitive v5 APIs now live in the existing database reader and writer, backed by the shared pure persistence contract. They apply migrations before decoding, isolate Firestore metadata from canonical state, and stamp every successful canonical create/save as schema version 5. See [character-persistence.md](character-persistence.md).
+
+The currently deployed pages still call clearly marked transitional v4 exports from those modules. Page integration remains blocked until reviewed runtime game data supplies stable technique keys and the affected domains consume v5 stable-key state. Pages must not call migrations, reproduce compatibility logic, or stamp partial legacy state as v5 while that boundary remains.

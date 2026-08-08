@@ -4,10 +4,27 @@
 // All Firestore writes from Builder pages should flow through this module.
 
 import {
+  collection,
+  doc,
+  runTransaction,
+  setDoc,
   updateDoc,
   serverTimestamp,
   arrayUnion,
-} from "/vendor/firebase/firebase-firestore.js";
+} from "../../vendor/firebase/firebase-firestore.js";
+
+import { loadGameXData } from "./game-data.js";
+import { createCharacterMigrationReferences } from "./character-migrations.js";
+import {
+  CharacterPersistenceError,
+  applyCharacterPatch,
+  assertPersistenceResult,
+  checkCharacterRevision,
+  createStoredCharacter,
+  decodeStoredCharacter,
+  planCharacterReplacement,
+  requireCharacterIdentity,
+} from "./character-persistence.js";
 
 import {
   sanitizeText,
@@ -31,7 +48,188 @@ import {
   getAttributeEffectiveCap,
 } from "./character-rules.js";
 
-export const CHARACTER_SCHEMA_VERSION = 4;
+// Compatibility export for the deployed v4 page path. New persistence writes
+// always use the schema version owned by CharacterCodec (currently v5).
+export const TRANSITIONAL_CHARACTER_SCHEMA_VERSION = 4;
+export const CHARACTER_SCHEMA_VERSION = TRANSITIONAL_CHARACTER_SCHEMA_VERSION;
+
+const DEFAULT_FIRESTORE_API = Object.freeze({
+  collection,
+  doc,
+  runTransaction,
+  serverTimestamp,
+  setDoc,
+});
+
+async function resolveMigrationReferences({ references, gameData } = {}) {
+  if (references) return references;
+  const source = gameData || await loadGameXData();
+  return createCharacterMigrationReferences(source);
+}
+
+async function resolveFirestore(firestore) {
+  if (firestore) return firestore;
+  return (await import("./firebase.js")).db;
+}
+
+function requireExistingSnapshot(snapshot) {
+  if (snapshot.exists()) return;
+  throw new CharacterPersistenceError(
+    "character-not-found",
+    `Character ${snapshot.id || "document"} does not exist.`,
+  );
+}
+
+function assertDecodedCharacter(decoded, characterId) {
+  if (decoded.ok) return decoded;
+  throw new CharacterPersistenceError(
+    "character-write-invalid-stored-value",
+    `Character ${characterId} could not be decoded before writing.`,
+    { diagnostics: decoded.diagnostics },
+  );
+}
+
+/** Create a new exact-v5 character at revision 1. */
+export async function createCharacter({
+  ownerUid,
+  firestore = null,
+  firestoreApi = DEFAULT_FIRESTORE_API,
+} = {}) {
+  const uid = requireCharacterIdentity(ownerUid, "ownerUid");
+  const resolvedFirestore = await resolveFirestore(firestore);
+  const characterRef = firestoreApi.doc(
+    firestoreApi.collection(resolvedFirestore, "users", uid, "characters"),
+  );
+  const timestamp = firestoreApi.serverTimestamp();
+  const created = createStoredCharacter({
+    ownerUid: uid,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  });
+  assertPersistenceResult(created, "character-create-invalid", "New character did not satisfy schema v5.");
+  await firestoreApi.setDoc(characterRef, created.value);
+  return Object.freeze({
+    characterId: characterRef.id,
+    ownerUid: uid,
+    character: created.character,
+    revision: created.revision,
+  });
+}
+
+/**
+ * Replace canonical character state at an exact expected revision. A stale
+ * caller is rejected; Firestore remains unchanged.
+ */
+export async function replaceCharacter({
+  ownerUid,
+  characterId,
+  character,
+  expectedRevision,
+  firestore = null,
+  firestoreApi = DEFAULT_FIRESTORE_API,
+} = {}) {
+  const uid = requireCharacterIdentity(ownerUid, "ownerUid");
+  const id = requireCharacterIdentity(characterId, "characterId");
+  const resolvedFirestore = await resolveFirestore(firestore);
+  const characterRef = firestoreApi.doc(resolvedFirestore, "users", uid, "characters", id);
+
+  return firestoreApi.runTransaction(resolvedFirestore, async (transaction) => {
+    const snapshot = await transaction.get(characterRef);
+    requireExistingSnapshot(snapshot);
+    const plan = planCharacterReplacement(snapshot.data(), character, {
+      expectedRevision,
+      expectedOwnerUid: uid,
+      createdAt: firestoreApi.serverTimestamp(),
+      updatedAt: firestoreApi.serverTimestamp(),
+    });
+    assertPersistenceResult(plan, "character-save-invalid", "Character save did not satisfy the persistence contract.");
+    transaction.set(characterRef, plan.value);
+    return Object.freeze({
+      characterId: id,
+      ownerUid: uid,
+      character,
+      revision: plan.revision,
+    });
+  });
+}
+
+/**
+ * Apply a narrow builder or sheet patch to the latest stored value inside the
+ * transaction. This preserves unrelated fields while retaining strict stale-
+ * revision rejection.
+ */
+export async function patchCharacter({
+  ownerUid,
+  characterId,
+  patch,
+  scope = "builder",
+  expectedRevision,
+  references = null,
+  gameData = null,
+  firestore = null,
+  firestoreApi = DEFAULT_FIRESTORE_API,
+} = {}) {
+  const uid = requireCharacterIdentity(ownerUid, "ownerUid");
+  const id = requireCharacterIdentity(characterId, "characterId");
+  const resolvedReferences = await resolveMigrationReferences({ references, gameData });
+  const resolvedFirestore = await resolveFirestore(firestore);
+  const characterRef = firestoreApi.doc(resolvedFirestore, "users", uid, "characters", id);
+
+  return firestoreApi.runTransaction(resolvedFirestore, async (transaction) => {
+    const snapshot = await transaction.get(characterRef);
+    requireExistingSnapshot(snapshot);
+    const raw = snapshot.data();
+    const decoded = assertDecodedCharacter(decodeStoredCharacter(raw, {
+      references: resolvedReferences,
+      expectedOwnerUid: uid,
+    }), id);
+    const patched = applyCharacterPatch(decoded.character, patch, { scope });
+    assertPersistenceResult(patched, "character-patch-invalid", "Character patch did not satisfy schema v5.");
+    const plan = planCharacterReplacement(raw, patched.value, {
+      expectedRevision,
+      expectedOwnerUid: uid,
+      createdAt: firestoreApi.serverTimestamp(),
+      updatedAt: firestoreApi.serverTimestamp(),
+    });
+    assertPersistenceResult(plan, "character-save-invalid", "Character patch could not be persisted.");
+    transaction.set(characterRef, plan.value);
+    return Object.freeze({
+      characterId: id,
+      ownerUid: uid,
+      character: patched.value,
+      revision: plan.revision,
+      migrated: decoded.migrated,
+      migration: decoded.migration,
+    });
+  });
+}
+
+/** Delete only the exact revision the caller reviewed. */
+export async function deleteCharacter({
+  ownerUid,
+  characterId,
+  expectedRevision,
+  firestore = null,
+  firestoreApi = DEFAULT_FIRESTORE_API,
+} = {}) {
+  const uid = requireCharacterIdentity(ownerUid, "ownerUid");
+  const id = requireCharacterIdentity(characterId, "characterId");
+  const resolvedFirestore = await resolveFirestore(firestore);
+  const characterRef = firestoreApi.doc(resolvedFirestore, "users", uid, "characters", id);
+  return firestoreApi.runTransaction(resolvedFirestore, async (transaction) => {
+    const snapshot = await transaction.get(characterRef);
+    requireExistingSnapshot(snapshot);
+    const raw = snapshot.data();
+    const revisionCheck = checkCharacterRevision(raw, expectedRevision);
+    assertPersistenceResult(
+      revisionCheck,
+      "character-delete-invalid-revision",
+      "Character delete revision was invalid or stale.",
+    );
+    transaction.delete(characterRef);
+    return Object.freeze({ characterId: id, ownerUid: uid, revision: revisionCheck.actualRevision });
+  });
+}
 
 // ---- Storage path helpers ----
 

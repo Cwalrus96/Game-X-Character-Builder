@@ -1,6 +1,6 @@
 # Current implementation status
 
-Last updated: 2026-08-06
+Last updated: 2026-08-07
 
 Current branch at update: `codex/work-package-b-data-contract`
 
@@ -19,7 +19,8 @@ This is the only frequently updated project-status document. Historical audits a
 - The initial Work Package B baseline is committed at `637c06f`.
 - `WPB-SOURCE-SYNC` is the checkpoint commit immediately after `637c06f`, titled `Document handoff architecture and automate source acquisition`.
 - The current Work Package B top commit is the schema-v4 expressions/adapters/references/staging and approved source-resolution checkpoint, titled `Implement schema-v4 staging and source resolution`.
-- `WPC-MIGRATIONS` is the current top feature checkpoint, titled `Add isolated character migration registry`.
+- `WPC-MIGRATIONS` is committed at `5568aa5`, titled `Add isolated character migration registry`.
+- The current top feature checkpoint is `WPC-REPOSITORY`, titled `Implement definitive character persistence boundary`; it strengthens the existing database reader/writer rather than adding a duplicate repository implementation.
 - At the beginning of the schema-v4 synchronization work, the Work Package B branch was clean and two commits ahead of `master`.
 
 Always verify these statements with `git status` and `git log`; update this section after each checkpoint commit.
@@ -67,6 +68,17 @@ Evidence: [work-package-a-completion.md](work-package-a-completion.md) and [mile
 - [character-migrations.md](character-migrations.md) is the living backward-compatibility contract. The live persistence path remains transitional until `WPC-REPOSITORY` owns migrate-then-decode and stamps every successful canonical write as v5.
 - Migration write-back policy is approved: opening a historical character migrates it in memory without touching Firebase; the v5 replacement is persisted only when the user explicitly saves successfully.
 
+### Work Package C persistence boundary
+
+- `WPC-REPOSITORY` is active. The existing `database-reader.js` and `database-writer.js` are now the definitive v5 persistence entry points; `character-persistence.js` holds their shared Firebase-free envelope, patch-ownership, revision, and error rules.
+- Reads run raw Firestore data through `CharacterMigrations` and the exact v5 codec and return canonical state separately from timestamps, historical visit time, revision, and migration evidence. Migrated reads never write.
+- Creates, full replacements, narrow builder/sheet patches, and deletes use exact validation. Successful creates/saves stamp v5; patches apply to the latest value inside a Firestore transaction; full replacement, patch, and delete require a matching document-wide revision.
+- Historical documents without a revision are revision 0, new documents begin at 1, and accepted saves increment once. Stale writes raise a typed conflict without changing the newer stored value.
+- The character-sheet temporary-leaf allowlist remains exact, arbitrary page paths are rejected, owner/path mismatch is rejected, missing documents are explicit, and Firebase authorization errors propagate.
+- Focused emulator tests prove create/read, timestamp resolution, migrated read without write, explicit-save migration write-back, valid and invalid patches, newer-value preservation after a conflict, missing documents, and authorization propagation.
+- Deployed page integration is not complete. Existing pages still use clearly marked v4 helpers or direct Firebase calls because the frozen runtime game data lacks stable `techniqueKey` values required to migrate populated technique selections safely. The v4 path must not be removed or falsely stamped v5 until that prerequisite and affected domain integration are complete.
+- [character-persistence.md](character-persistence.md) is the living read/write/revision contract and is now part of the required agent startup reading for persistence work.
+
 ## Canonical external source
 
 | Property | Current value |
@@ -86,7 +98,7 @@ The repository's old `data/game-x-class-data.xlsx` is a June 29 snapshot and is 
 - Production JSON remains frozen at the reviewed June 29 release.
 - The schema-v4 source is newer than the runtime artifacts.
 - The staging CLI now uses the canonical reader -> adapter -> validator -> schema-v2 builder -> runtime acceptance -> diff pipeline. It never invokes the legacy exporter and production remains frozen.
-- Character schema v5 and its tested pure migration registry exist but are not yet connected to Firebase reads or writes; the production site continues to use the transitional v4 persistence path until repository integration is complete.
+- Character schema v5, its migration registry, and the definitive Firebase reader/writer APIs are implemented and emulator-tested. The production site continues to use the transitional v4 page path until stable-key runtime data and affected domain integration permit a safe switch.
 - Repository implementation can proceed against fixtures, but live migration of stored technique selections requires runtime game data with `techniqueKey`. The frozen production schema-v1 artifacts do not provide that key, so switching the deployed persistence path remains blocked until the reviewed Work Package B release or another explicit stable-key source is available.
 - Familiar, vehicle, and gadget expressions are preserved with explicit runtime-stub status until their future subsystem slices; they are no longer rejected or discarded by data loading.
 - The live Handbook import script was not run after spreadsheet normalization because its bound script source/staging target was inaccessible. The Handbook remains untouched.
@@ -116,9 +128,13 @@ See [data-pipeline.md](data-pipeline.md) for exact commands and security guidanc
 
 ## Last verification
 
-Verified for `WPC-MIGRATIONS` on 2026-08-06, with the prior read-only `WPB-SOURCE-RESOLUTION` and Hosting-only release evidence retained below:
+Verified during active `WPC-REPOSITORY` implementation on 2026-08-07, with the prior read-only `WPB-SOURCE-RESOLUTION` and Hosting-only release evidence retained below:
 
-- `npm run test:all`: 133 unit tests, 11 Firebase Rules tests, and all 14 HTML entry points passed; zero failures.
+- `npm run test:all`: 144 unit tests, 16 Firebase emulator tests, and all 14 HTML entry points passed with zero failures. This includes migration metadata/revision separation, exact persistence envelopes, explicit patch ownership, owner/path checks, revision planning, and typed stale conflicts.
+- Five focused persistence emulator tests cover create/read, timestamps, migrated read without a write, explicit-save migration persistence, valid and invalid patches, stale-write preservation, missing documents, and authorization propagation; the other 11 emulator tests continue to cover Firestore and Storage Rules.
+- `npm run baseline:data`: all 9 frozen production artifacts matched; WPC-REPOSITORY changed no production game data.
+- `git diff --check`: passed.
+- The local Firebase review environment was restarted at PID 67024. The served writer and pure persistence assets returned HTTP 200, exposed the new v5 APIs, and contained the final visit-metadata preservation logic. App: `http://127.0.0.1:5000`; Emulator UI: `http://127.0.0.1:4000`.
 - Ten focused migration tests cover every evidence-backed edge, v2/future rejection, exact v5 codec acceptance, non-mutation/idempotence, metadata separation, primary-attribute restoration, stable reference resolution, deterministic IDs/reports, collisions, unresolved/ambiguous/unknown input, and module purity.
 - `npm run baseline:data`: all 9 frozen production artifacts matched; WPC-MIGRATIONS changed no production game data.
 - The local Firebase review environment was restarted (PID 48356) and returned HTTP 200 for `/js/core/character-migrations.js`; the served asset contains the supported-version registry. App: `http://127.0.0.1:5000`; Emulator UI: `http://127.0.0.1:4000`.

@@ -39,7 +39,7 @@ Current sanitization and persistence modules are under `public/js/core/`:
 
 Builder pages should use the shared builder/database boundary rather than direct Firestore writes. The character sheet may write temporary play-state leaves only; it cannot write builder-owned character identity, class, attributes, skills, abilities, techniques, equipment, or choices.
 
-Work Package C replaces transitional reader/writer behavior with exact CharacterCodec, sequential migrations, and CharacterRepository. Until then, do not spread Firebase document shape knowledge into Rules, graph, or widgets.
+Work Package C strengthens the existing database reader/writer into the definitive boundary backed by the exact `CharacterCodec` and sequential migrations. Its v5 APIs are implemented; deployed callers remain on clearly marked transitional helpers until stable-key runtime data permits a safe switch. Do not add a parallel repository or spread Firebase document shape knowledge into Rules, graph, or widgets.
 
 ## Data-source and administration credentials
 

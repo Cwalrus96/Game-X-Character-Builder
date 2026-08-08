@@ -11,6 +11,7 @@ This file is the required entry point for coding agents working in this reposito
    - [docs/architecture.md](docs/architecture.md) for dependency direction and ownership;
    - [docs/game-data-contract.md](docs/game-data-contract.md) and [docs/data-pipeline.md](docs/data-pipeline.md) for source/export work;
    - [docs/builder-flow.md](docs/builder-flow.md) for builder behavior;
+   - [docs/character-persistence.md](docs/character-persistence.md) for saved-character reads, writes, migrations, revisions, and conflicts;
    - [docs/security.md](docs/security.md) and [docs/admin-operations.md](docs/admin-operations.md) for trust boundaries and credentials.
 5. Inspect `git status`, the current branch, and recent commits. Preserve unrelated user changes.
 6. Run the standard preflight in `docs/roadmap.md` plus any step-specific preflight before editing. If the documented status disagrees with the repository or canonical Sheet, stop implementation and update the status/contract evidence first.
@@ -43,9 +44,9 @@ Pages / Widgets -> pure Rules
 CharacterSession -> GraphCompiler -> GraphReconciler
 GraphCompiler -> pure Rules
 GraphReconciler -> pure Rules
-CharacterSession -> CharacterRepository -> Firebase
-CharacterRepository -> CharacterCodec
-CharacterRepository -> CharacterMigrations
+CharacterSession -> database reader/writer -> Firebase
+database reader/writer -> CharacterCodec
+database reader/writer -> CharacterMigrations
 
 Google Sheet -> acquisition -> adaptation -> normalization -> validation
              -> staged artifacts/diff -> reviewed publish -> runtime loader
@@ -58,7 +59,7 @@ Key ownership rules:
 - Rules are pure and shared by widgets and graph code. Rules never depend on DOM or live widgets.
 - The graph is authoritative for what exists, what breaks, and what is removed. It does not depend on live widgets.
 - `CharacterSession` will own persisted, working, proposed, and reconciled in-memory states.
-- Repositories own persistence. Codecs and sequential migrations isolate stored Firebase formats.
+- The existing database reader/writer jointly own character persistence as one boundary; do not add a duplicate repository implementation. Codecs and sequential migrations isolate stored Firebase formats.
 - Database format knowledge stays in reader/writer/codec/migration modules.
 - Game-data source acquisition, adaptation, normalization, validation, artifact writing, and publishing are separate phases.
 

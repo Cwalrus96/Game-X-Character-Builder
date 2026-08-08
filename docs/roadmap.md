@@ -309,7 +309,7 @@ Non-goals:
 
 - migrating existing schema 1–4 documents;
 - switching the live reader/writer to schema version 5;
-- introducing `CharacterRepository` or changing Firebase writes;
+- introducing the definitive database reader/writer APIs or changing Firebase writes;
 - defining the later `choice-rebind` overlay persistence shape.
 
 Acceptance:
@@ -372,19 +372,19 @@ Evidence:
 
 ### `WPC-REPOSITORY`
 
-Status: `ready`
+Status: `active`
 
 Prerequisite: `WPC-MIGRATIONS`
 
 Implementation may proceed against fixtures. Switching the deployed persistence path also requires a reviewed runtime game-data release that supplies stable `techniqueKey` values (or another explicitly approved stable-key source); the frozen schema-v1 production artifacts contain technique display names only.
 
-Goal: make one component responsible for loading and saving characters so every application consumer receives exact v5 state and no page needs to understand Firestore layout, historical schemas, timestamps, or revision conflicts.
+Goal: make one reader/writer boundary responsible for loading and saving characters so every application consumer receives exact v5 state and no page needs to understand Firestore layout, historical schemas, timestamps, or revision conflicts.
 
-The problem is that pages currently call transitional Firebase reader/writer helpers directly. Those paths can stamp partial v4 state, accept open-ended patch paths, and let a stale tab overwrite newer data. Connecting the v5 codec or migrator independently in each page would spread persistence and compatibility policy throughout the application.
+The problem is that pages currently mix direct Firebase calls with transitional reader/writer helpers. Those paths can stamp partial v4 state, accept open-ended patch paths, and let a stale tab overwrite newer data. Connecting the v5 codec or migrator independently in each page would spread persistence and compatibility policy throughout the application.
 
 Deliverables:
 
-- a `CharacterRepository` that is the sole normal character persistence boundary;
+- the existing database reader/writer strengthened as the sole normal character persistence boundary, without adding a duplicate repository implementation;
 - a read pipeline of raw Firestore envelope -> `CharacterMigrations` -> `CharacterCodec` -> canonical character plus separate metadata, migration report, and revision state;
 - create/replace/patch operations that validate canonical state and stamp schema version 5 before writing;
 - narrow typed write operations, including preservation of the character-sheet temporary-leaf ownership allowlist;

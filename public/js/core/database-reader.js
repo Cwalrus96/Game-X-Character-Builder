@@ -1,7 +1,24 @@
 // public/database-reader.js
 //
-// Single source of truth for normalizing Character documents read from Firestore.
-// This module is Game X specific.
+// Definitive entry point for reading Character documents from Firestore.
+// Historical formats are decoded only through CharacterMigrations. The legacy
+// normalizer at the bottom remains temporarily for pages that cannot consume v5
+// until the stable-key game-data release is available.
+
+import {
+  collection,
+  doc,
+  getDoc,
+  onSnapshot,
+} from "../../vendor/firebase/firebase-firestore.js";
+
+import { loadGameXData } from "./game-data.js";
+import { createCharacterMigrationReferences } from "./character-migrations.js";
+import {
+  CharacterPersistenceError,
+  decodeStoredCharacter,
+  requireCharacterIdentity,
+} from "./character-persistence.js";
 
 import {
   sanitizeText,
@@ -26,9 +43,134 @@ import {
 
 import { CHARACTER_SCHEMA_VERSION } from "./database-writer.js";
 
+const DEFAULT_FIRESTORE_API = Object.freeze({
+  collection,
+  doc,
+  getDoc,
+  onSnapshot,
+});
+
+async function resolveMigrationReferences({ references, gameData } = {}) {
+  if (references) return references;
+  const source = gameData || await loadGameXData();
+  return createCharacterMigrationReferences(source);
+}
+
+async function resolveFirestore(firestore) {
+  if (firestore) return firestore;
+  return (await import("./firebase.js")).db;
+}
+
+function decodeSnapshot(snapshot, { ownerUid, references }) {
+  if (!snapshot.exists()) {
+    throw new CharacterPersistenceError(
+      "character-not-found",
+      `Character ${snapshot.id || "document"} does not exist.`,
+    );
+  }
+  const decoded = decodeStoredCharacter(snapshot.data(), {
+    references,
+    expectedOwnerUid: ownerUid,
+  });
+  if (!decoded.ok) {
+    throw new CharacterPersistenceError(
+      "character-read-invalid",
+      `Character ${snapshot.id} could not be decoded as schema v5.`,
+      { diagnostics: decoded.diagnostics },
+    );
+  }
+  return Object.freeze({
+    characterId: snapshot.id,
+    ownerUid,
+    character: decoded.character,
+    metadata: decoded.metadata,
+    revision: decoded.revision,
+    migrated: decoded.migrated,
+    migration: decoded.migration,
+  });
+}
+
+function timestampMillis(value) {
+  if (typeof value?.toMillis === "function") return value.toMillis();
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  const parsed = typeof value === "string" ? Date.parse(value) : Number.NaN;
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+/**
+ * Read one character as exact canonical v5 state plus separate metadata.
+ * This function never writes, including when a historical document migrates.
+ */
+export async function readCharacter({
+  ownerUid,
+  characterId,
+  references = null,
+  gameData = null,
+  firestore = null,
+  firestoreApi = DEFAULT_FIRESTORE_API,
+} = {}) {
+  const uid = requireCharacterIdentity(ownerUid, "ownerUid");
+  const id = requireCharacterIdentity(characterId, "characterId");
+  const resolvedReferences = await resolveMigrationReferences({ references, gameData });
+  const resolvedFirestore = await resolveFirestore(firestore);
+  const snapshot = await firestoreApi.getDoc(
+    firestoreApi.doc(resolvedFirestore, "users", uid, "characters", id),
+  );
+  return decodeSnapshot(snapshot, { ownerUid: uid, references: resolvedReferences });
+}
+
+/**
+ * Subscribe to a user's characters. Invalid documents are reported separately
+ * instead of being silently coerced into application state.
+ */
+export async function observeCharacters({
+  ownerUid,
+  references = null,
+  gameData = null,
+  onChange,
+  onError,
+  firestore = null,
+  firestoreApi = DEFAULT_FIRESTORE_API,
+} = {}) {
+  const uid = requireCharacterIdentity(ownerUid, "ownerUid");
+  if (typeof onChange !== "function") {
+    throw new CharacterPersistenceError("invalid-character-observer", "onChange must be a function.");
+  }
+  const resolvedReferences = await resolveMigrationReferences({ references, gameData });
+  const resolvedFirestore = await resolveFirestore(firestore);
+  const charactersCollection = firestoreApi.collection(
+    resolvedFirestore,
+    "users",
+    uid,
+    "characters",
+  );
+  return firestoreApi.onSnapshot(charactersCollection, (querySnapshot) => {
+    const characters = [];
+    const invalid = [];
+    for (const snapshot of querySnapshot.docs) {
+      try {
+        characters.push(decodeSnapshot(snapshot, { ownerUid: uid, references: resolvedReferences }));
+      } catch (error) {
+        invalid.push(Object.freeze({
+          characterId: snapshot.id,
+          error,
+        }));
+      }
+    }
+    characters.sort((left, right) => (
+      timestampMillis(right.metadata.updatedAt) - timestampMillis(left.metadata.updatedAt)
+      || left.characterId.localeCompare(right.characterId)
+    ));
+    onChange(Object.freeze({
+      characters: Object.freeze(characters),
+      invalid: Object.freeze(invalid),
+    }));
+  }, onError);
+}
+
 /**
  * Construct a canonical default character doc.
- * Used when creating a new character and as the base for normalization.
+ * Transitional v4 helper. New persistence code must use createCharacter().
  */
 export function createDefaultCharacterDoc({ ownerUid } = {}) {
   const uid = sanitizeText(ownerUid, { maxLen: 128, collapse: true });
@@ -77,8 +219,8 @@ export function createDefaultCharacterDoc({ ownerUid } = {}) {
 }
 
 /**
- * Normalize Firestore doc to the canonical shape used by builder + sheet.
- * No legacy support; missing fields are filled with defaults.
+ * Transitional v4 normalizer for currently deployed pages. It is not a
+ * persistence boundary and must not be used by new code.
  */
 export function normalizeCharacterDoc(raw) {
   const src = (raw && typeof raw === "object") ? raw : {};

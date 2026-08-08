@@ -981,6 +981,7 @@ function extractMetadata(value) {
   return {
     createdAt: hasOwn(value || {}, "createdAt") ? cloneValue(value.createdAt) : null,
     updatedAt: hasOwn(value || {}, "updatedAt") ? cloneValue(value.updatedAt) : null,
+    revision: hasOwn(value || {}, "revision") ? cloneValue(value.revision) : null,
     lastVisitedAt: hasOwn(value || {}, "lastVisitedAt")
       ? cloneValue(value.lastVisitedAt)
       : hasOwn(builder, "lastVisitedAt") ? cloneValue(builder.lastVisitedAt) : null,
@@ -989,7 +990,7 @@ function extractMetadata(value) {
 
 function stripV5Metadata(value, metadata, context) {
   const output = cloneValue(value);
-  for (const key of ["createdAt", "updatedAt", "lastVisitedAt"]) {
+  for (const key of ["createdAt", "updatedAt", "revision", "lastVisitedAt"]) {
     if (!hasOwn(output, key)) continue;
     delete output[key];
     addReport(context, "preserved", `metadata.${key}`, `Separated repository metadata ${key} from canonical character state.`);
