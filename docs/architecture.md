@@ -2,7 +2,7 @@
 
 Status: living current-and-target architecture.
 
-Last updated: 2026-08-07.
+Last updated: 2026-08-08.
 Execution status and named steps live in [status.md](status.md) and [roadmap.md](roadmap.md).
 
 ## Product shape
@@ -100,7 +100,7 @@ sequenceDiagram
 
 Cancellation leaves working state and widget display byte-for-byte unchanged. Confirmation commits the exact reconciled state that produced the preview; reconciliation is not rerun against a different state after confirmation.
 
-The session core is implemented in `character-session.js`, with strict direct-intent commands in `character-commands.js` and deterministic canonical diffs in `character-state-diff.js`. It protects every state snapshot from caller mutation, permits only one pending proposal, and uses exact proposal/save identities. The reconciliation function is currently injected: its default is intentionally an identity reconciliation for fixture-driven lifecycle tests, while `WPD-GRAPH-CORE` will supply the production compiler/reconciler policy. See [character-session.md](character-session.md).
+The session core is implemented in `character-session.js`, with strict direct-intent commands in `character-commands.js` and deterministic canonical diffs in `character-state-diff.js`. It protects every state snapshot from caller mutation, permits only one pending proposal, and uses exact proposal/save identities. The reconciliation function remains injected. Its default is intentionally identity-only, while `createCharacterSessionGraphReconciler` now supplies the implemented graph policy for fixture and later domain integration. See [character-session.md](character-session.md) and [character-graph.md](character-graph.md).
 
 ## Component ownership
 
@@ -125,6 +125,8 @@ Current shared modules include `character-rules.js`, `choice-capacity.js`, `choi
 ### GraphCompiler
 
 The compiler converts one complete character state plus normalized game data into typed nodes and edges. Compilation is deterministic and has no UI or persistence side effects.
+
+The pure initial compiler is implemented in `graph-compiler.js`. It accepts only exact schema-v5 characters and normalized runtime artifact schema 2, uses independent node/grant/prerequisite handler registries, and returns sorted frozen plain data. Missing handlers, malformed/dangling identities, conflicting duplicates, dangling edge endpoints, and cycles are blocking structured diagnostics. The current fixture slice covers class facts/features/options, typed technique grants and source-owned answers, normal technique selections, requirements, and the facts that satisfy them. Other populated domains fail explicitly until Work Package E registers their vertical handlers.
 
 Representative node types include character facts, sources, grants, option groups, answers, selected feats/techniques, materialized weapons, resources, and validation diagnostics.
 
@@ -153,6 +155,8 @@ The reconciler applies removal/prerequisite/capacity policy to the affected grap
 - informational impacts.
 
 It does not produce UI strings as its primary contract; presentation layers format structured impacts.
+
+The bounded fixed-point reconciler is implemented in `graph-reconciler.js`. It applies removal, shared prerequisite, normal-technique capacity, and incomplete-selection policy, recompiles until stable, and returns schema-v5 state plus session-compatible error, confirmation-required, and informational impacts. Non-convergence fails without exposing a partial intermediate character. `graph-core.js` owns the typed graph builder/registry and affected-closure traversal. See [character-graph.md](character-graph.md).
 
 ### Database reader/writer, CharacterCodec, and CharacterMigrations
 
@@ -200,7 +204,7 @@ All saves must be sanitized, narrow, visible on failure, and serialized. Broad m
 - Milestone 0 and Work Package A automated safety work are complete; real-browser acceptance remains deployment-blocking.
 - Work Package B is active. The production game-data release is frozen and baselined.
 - Schema-v4 acquisition, a domain-neutral XLSX reader, canonical per-tab adapters, shared typed expressions, pure whole-model reference/domain validation, deterministic schema-v2 artifact construction, runtime-load acceptance, atomic staging, and structural/semantic diffing are implemented against fixtures. Live end-to-end acceptance is blocked on the repository Drive identity; production remains frozen pending source resolution, diff review, and publish approval.
-- The v5 codec, isolated migration registry, definitive database reader/writer APIs, and pure `CharacterSession` lifecycle are implemented. Switching deployed pages to the v5 boundary remains blocked on reviewed stable-key runtime data and domain migration. The split compiler/reconciler remains the next target component.
+- The v5 codec, isolated migration registry, definitive database reader/writer APIs, pure `CharacterSession` lifecycle, and split compiler/fixed-point reconciler are implemented. Switching deployed pages to this path remains blocked on reviewed stable-key runtime data and Work Package E domain migration. The current class/feat/technique vertical slice is the next target component.
 
 Exact status and the next named step are in [status.md](status.md).
 

@@ -1,6 +1,6 @@
 # Implementation roadmap
 
-Last updated: 2026-08-07
+Last updated: 2026-08-08
 
 This is the living execution plan derived from the dated architecture audit. Step IDs are stable API-like identifiers for humans and agents: never rename or renumber an existing ID. Add a new ID if scope changes materially.
 
@@ -459,7 +459,7 @@ Evidence:
 
 ### `WPD-GRAPH-CORE`
 
-Status: `ready`
+Status: `complete`
 
 Prerequisite: `WPC-SESSION`. Fixture-driven graph-core work does not require deployed-page integration or a production game-data publish.
 
@@ -494,9 +494,33 @@ Acceptance:
 - graph/compiler/reconciler modules have no Firebase, DOM, file, network, page, or widget dependency;
 - deterministic example tests and generated/property-oriented tests cover graph construction, transitive affected closure, convergence, cancellation input purity, and output stability.
 
+Evidence:
+
+- `public/js/core/graph-core.js` defines the typed/frozen graph contract, independent handler registries, duplicate/edge/cycle validation, and deterministic affected closure;
+- `public/js/core/graph-compiler.js` compiles exact schema-v5 characters plus normalized schema-v2 fixture data through registered node, grant, and prerequisite handlers;
+- `public/js/core/graph-reconciler.js` applies prerequisite, removal, normal-technique capacity, and incomplete-selection policy to a bounded fixed point and exposes the `CharacterSession` adapter;
+- `tests/fixtures/graph-core.mjs` supplies the normalized stable-key class/technique fixture;
+- `tests/graph-core.test.mjs` covers deterministic ordering, identity/ownership/storage bindings, collection-order stability, cycles, dangling references/edges, duplicate identities, missing handlers, fixed-point convergence, idempotence, non-convergence, affected closure, session exactness/cancellation, 40 generated cases, and dependency purity;
+- [character-graph.md](character-graph.md) records the living graph/compiler/reconciler and Work Package E extension contract.
+
 ### `WPE-DOMAIN-MIGRATION`
 
+Status: `ready`
+
+Prerequisite: `WPD-GRAPH-CORE`. Deployed class/feat/technique cutover also requires reviewed runtime stable keys and coordination with the active `WPC-REPOSITORY` page-integration boundary.
+
+Goal: replace the transitional page/widget dependency policy with typed commands and registered graph handlers one complete vertical domain at a time, proving behavior and persistence parity before removing each legacy path.
+
 Migrate vertical domains in this order: current class/feat/technique slice; Equipment; Attributes; Origin/Skills; Bonds/Keystones/derived abilities; then Boons as the extensibility proof.
+
+Acceptance:
+
+- each vertical slice adds exact typed commands, node/grant/prerequisite handlers, storage bindings, reconciliation policy, and valid/invalid fixtures before the next domain begins;
+- migrated pages submit intent through `CharacterSession`, render structured graph impacts, save the exact accepted reconciled state through the definitive v5 persistence boundary, and contain no duplicate capacity, prerequisite, or dependency-removal authority;
+- stable runtime keys and migration evidence exist before a deployed domain stops reading its transitional compatibility fields;
+- automated tests prove parity, destructive confirmation/cancellation, reload/save conflict behavior, graph convergence/idempotence, and page/widget independence for the migrated domain;
+- the corresponding transitional path is removed only after focused browser acceptance exercises the replacement against the current local review environment;
+- no production data publish or deployed-page cutover is inferred from fixture completion; those approval and stable-key prerequisites remain explicit per slice.
 
 ### `WPF-UI-SYSTEM`
 

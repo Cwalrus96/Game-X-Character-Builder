@@ -1,12 +1,12 @@
 # Current implementation status
 
-Last updated: 2026-08-07
+Last updated: 2026-08-08
 
 Current branch at update: `codex/work-package-b-data-contract`
 
-Active implementation work package: Work Package D — graph core
+Active implementation work package: Work Package E — vertical domain migration
 
-Next implementation step: `WPD-GRAPH-CORE`
+Next implementation step: `WPE-DOMAIN-MIGRATION`
 
 Parallel blocked character step: deployed-page completion of `WPC-REPOSITORY`, pending reviewed runtime stable technique keys and affected domain integration
 
@@ -24,6 +24,7 @@ This is the only frequently updated project-status document. Historical audits a
 - `WPC-MIGRATIONS` is committed at `5568aa5`, titled `Add isolated character migration registry`.
 - The current top feature checkpoint is `WPC-REPOSITORY`, titled `Implement definitive character persistence boundary`; it strengthens the existing database reader/writer rather than adding a duplicate repository implementation.
 - The current Work Package C session checkpoint is `WPC-SESSION`, titled `Add canonical character session lifecycle`; it remains pure and does not switch deployed pages.
+- The current Work Package D graph checkpoint is `WPD-GRAPH-CORE`, titled `Add deterministic character graph core`; it remains fixture-integrated and does not switch deployed pages or publish data.
 - At the beginning of the schema-v4 synchronization work, the Work Package B branch was clean and two commits ahead of `master`.
 
 Always verify these statements with `git status` and `git log`; update this section after each checkpoint commit.
@@ -88,8 +89,18 @@ Evidence: [work-package-a-completion.md](work-package-a-completion.md) and [mile
 - Strict `SetClass` and `SetTechniqueSelection` commands express direct user intent without dependency policy. Unknown commands/fields, malformed stable keys, and duplicate technique identities fail explicitly.
 - One proposal identity records the proposed state, one reconciler invocation, exact reconciled state, deterministic diffs, and structured error/confirmation/information impacts. Pending proposals cannot be silently superseded; cancellation changes no working state; acceptance commits the exact reviewed result without rerunning reconciliation.
 - Exact save snapshots carry the expected persistence revision. Successful acknowledgement advances persisted state to what was actually written while preserving newer accepted edits as dirty working state.
-- The reconciliation boundary is injectable and currently defaults to identity behavior. `WPD-GRAPH-CORE` will supply the production dependency compiler/reconciler; current pages are intentionally unchanged.
+- The reconciliation boundary is injectable and defaults to identity behavior. Work Package D now supplies an explicit graph adapter; current pages are intentionally unchanged until their domain slice migrates.
 - [character-session.md](character-session.md) is the living state/command/proposal/impact/save contract and is required startup reading for session work.
+
+### Work Package D graph core
+
+- `WPD-GRAPH-CORE` is complete: `GraphCompiler` converts an exact schema-v5 character plus normalized runtime schema-v2 fixture data into deterministic frozen typed nodes, edges, diagnostics, and metadata.
+- Every selected class/technique answer in the initial fixture slice has stable identity, source ownership, and an exact scalar, ordered-key-array, or keyed-record storage binding. Populated domains without a registered vertical handler fail explicitly.
+- Independent node, grant, and prerequisite handler registries make extension a domain-registration task rather than a traversal rewrite. The initial grant slice covers direct and source-owned technique choices; typed shared prerequisite evaluation remains the Rules boundary.
+- `GraphReconciler` applies unavailability, prerequisite, orphan-removal, normal-technique capacity, and incomplete-selection policy to a bounded deterministic fixed point. Removals require confirmation, compiler failures remain blocking errors, and valid incomplete choices remain informational.
+- Duplicate identities, dangling references/edges, cycles, missing handlers, handler failures, and non-convergence produce structured diagnostics without hangs or partial reconciled characters.
+- A `CharacterSession` adapter supplies the graph result through the existing injected boundary exactly once per proposal. Acceptance commits the reviewed fixed point and cancellation remains byte-for-byte side-effect free.
+- [character-graph.md](character-graph.md) is the living graph/compiler/reconciler and domain-extension contract.
 
 ## Canonical external source
 
@@ -110,9 +121,10 @@ The repository's old `data/game-x-class-data.xlsx` is a June 29 snapshot and is 
 - Production JSON remains frozen at the reviewed June 29 release.
 - The schema-v4 source is newer than the runtime artifacts.
 - The staging CLI now uses the canonical reader -> adapter -> validator -> schema-v2 builder -> runtime acceptance -> diff pipeline. It never invokes the legacy exporter and production remains frozen.
-- Character schema v5, its migration registry, the definitive Firebase reader/writer APIs, and the pure four-state session lifecycle are implemented and tested. The production site continues to use the transitional v4 page path until stable-key runtime data, graph policy, and affected domain integration permit a safe switch.
+- Character schema v5, its migration registry, the definitive Firebase reader/writer APIs, the pure four-state session lifecycle, and the deterministic graph compiler/fixed-point reconciler are implemented and tested. The production site continues to use the transitional v4 page path until stable-key runtime data and Work Package E domain integration permit a safe switch.
 - Repository implementation can proceed against fixtures, but live migration of stored technique selections requires runtime game data with `techniqueKey`. The frozen production schema-v1 artifacts do not provide that key, so switching the deployed persistence path remains blocked until the reviewed Work Package B release or another explicit stable-key source is available.
 - Familiar, vehicle, and gadget expressions are preserved with explicit runtime-stub status until their future subsystem slices; they are no longer rejected or discarded by data loading.
+- The new graph core requires normalized runtime artifact schema 2 and is fixture-integrated only. It does not read the frozen schema-v1 production artifacts or authorize a deployed-page cutover.
 - The live Handbook import script was not run after spreadsheet normalization because its bound script source/staging target was inaccessible. The Handbook remains untouched.
 
 ## Deferred acceptance and blockers
@@ -140,7 +152,14 @@ See [data-pipeline.md](data-pipeline.md) for exact commands and security guidanc
 
 ## Last verification
 
-Verified at `WPC-SESSION` completion on 2026-08-07, with the prior persistence, migration, read-only `WPB-SOURCE-RESOLUTION`, and Hosting-only release evidence retained below:
+Verified at `WPD-GRAPH-CORE` completion on 2026-08-08, with the prior session, persistence, migration, read-only `WPB-SOURCE-RESOLUTION`, and Hosting-only release evidence retained below:
+
+- `npm run test:all`: 169 unit tests, 16 Firebase emulator tests, and all 14 HTML entry points passed with zero failures.
+- Twelve focused graph-core tests cover deterministic typed graph construction, stable ownership/storage bindings, collection-order stability, duplicate/dangling/cycle/missing-handler failures, fixed-point removal/capacity/prerequisite/incomplete policy, blocking-error separation, bounded non-convergence without partial state, transitive affected closure, exact session acceptance, side-effect-free cancellation, 40 generated convergence/idempotence/input-purity cases, and forbidden dependency imports.
+- `npm run baseline:data`: all 9 frozen production artifacts matched; WPD-GRAPH-CORE changed no production game data.
+- `git diff --check`: passed.
+- The local Firebase review environment was restarted at PID 38004. `/js/core/graph-core.js`, `/js/core/graph-compiler.js`, and `/js/core/graph-reconciler.js` returned HTTP 200. App: `http://127.0.0.1:5000`; Emulator UI: `http://127.0.0.1:4000`.
+- Checkpoint scope: fixture-driven pure graph modules, tests, and living contracts changed; no deployed page path, production JSON, canonical Sheet cell, Firebase document, Rule, Function, or production Hosting release changed.
 
 - `npm run test:all`: 157 unit tests, 16 Firebase emulator tests, and all 14 HTML entry points passed with zero failures.
 - Thirteen focused command/session/diff tests cover direct-intent validation, state isolation, deterministic exact-path diffs and impact ordering, one-pending-proposal identity, structured impact policy, side-effect-free cancellation, exact acceptance without rerunning reconciliation, invalid reconciled state, save-in-flight edits, and dependency purity.

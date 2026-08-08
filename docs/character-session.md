@@ -1,6 +1,6 @@
 # Character session contract
 
-Status: implemented pure Work Package C core. Page integration waits for the graph/domain slices and the stable-key runtime-data prerequisite described in [status.md](status.md).
+Status: implemented pure Work Package C core. Work Package D now supplies the graph reconciliation adapter; page integration waits for Work Package E domain slices and the stable-key runtime-data prerequisite described in [status.md](status.md).
 
 `CharacterSession` is the single in-memory owner of complete canonical character editing state. It sits between pages/widgets and reconciliation/persistence. Pages may inspect its projections and submit typed commands; they may not retain a mutable character object and update it independently.
 
@@ -38,7 +38,7 @@ One proposal may await a decision at a time:
 4. Require the caller to accept or cancel that exact identity; a second proposal cannot silently replace it.
 5. On acceptance, commit the already-reviewed reconciled state without rerunning reconciliation. On cancellation, leave working state unchanged.
 
-The default injected reconciler is an identity function so this lifecycle can be tested before `WPD-GRAPH-CORE`. It is not the final dependency policy.
+The default injected reconciler remains an identity function so session construction never acquires implicit game-data policy. `createCharacterSessionGraphReconciler` is the explicit implemented dependency adapter; callers supply it with normalized schema-v2 game data and the selected handler registry.
 
 Impacts use three categories:
 
@@ -64,4 +64,4 @@ This preserves the approved migration rule: loading an old character can produce
 
 The session, commands, and diff modules are pure browser-compatible modules. They do not import Firebase, DOM, pages, widgets, files, or network APIs.
 
-`WPD-GRAPH-CORE` supplies the production compiler/reconciler behind the injected reconciliation boundary. Later domain migration connects pages and typed domain commands. Until stable-key runtime data and those vertical slices are ready, deployed pages continue using the documented transitional path; that does not authorize a second session implementation.
+`WPD-GRAPH-CORE` now supplies the pure compiler/reconciler behind the injected reconciliation boundary; see [character-graph.md](character-graph.md). Work Package E connects pages and typed domain commands one vertical slice at a time. Until stable-key runtime data and those vertical slices are ready, deployed pages continue using the documented transitional path; that does not authorize a second session implementation.

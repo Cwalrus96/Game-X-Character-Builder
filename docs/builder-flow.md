@@ -1,6 +1,6 @@
 # Builder flow
 
-Status: living current/transition contract. The pure `CharacterSession` lifecycle is implemented and specified in [character-session.md](character-session.md); graph policy and page/domain integration remain scheduled in [roadmap.md](roadmap.md).
+Status: living current/transition contract. The pure `CharacterSession` lifecycle and graph core are implemented and specified in [character-session.md](character-session.md) and [character-graph.md](character-graph.md); page/domain integration remains scheduled in [roadmap.md](roadmap.md).
 
 ## Step registry
 
@@ -93,7 +93,7 @@ Do not add new `onBeforeNext`-only behavior. Do not calculate remaining slots or
 
 ## Target session flow
 
-Work Package C now provides typed class/technique commands and protected `CharacterSession` persisted/working/proposed/reconciled states. The current pages do not yet use that session. Later graph/domain work supplies real reconciliation policy, adds domain commands, and removes arbitrary widget patches and remaining page-owned policy. A fully migrated page will:
+Work Packages C and D now provide typed class/technique commands, protected `CharacterSession` persisted/working/proposed/reconciled states, and a deterministic graph compiler/fixed-point reconciler with a session adapter. The current pages do not yet use that path. Work Package E adds the remaining domain commands/handlers and removes arbitrary widget patches and remaining page-owned policy one vertical slice at a time. A fully migrated page will:
 
 - load one session projection;
 - collect widgets;
