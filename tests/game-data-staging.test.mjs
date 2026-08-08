@@ -86,6 +86,10 @@ test("validated schema-v4 workbook creates a complete immutable staging run with
     assert.equal(combined.techniques[0].techniqueKey, "stalk-prey");
     assert.equal(combined.techniques[0].techniqueName, "Stalk Prey");
     assert.equal(combined.classFeatures.ninja[0].grants[0].key, "stalk-prey");
+    assert.equal(combined.sourceRevision.modelSha256, result.artifactSet.modelSha256);
+    assert.equal("xlsxSha256" in combined.sourceRevision, false);
+    const stagedSourceBytes = await fs.readFile(source.workbookPath);
+    assert.equal(result.exportReport.source.xlsxSha256, sha256(stagedSourceBytes));
     assert.equal(result.diff.summary.removed, 1);
     await assert.rejects(stageWorkbookSnapshot({ ...source, run, productionDirectory }), /immutable/);
   } finally {
@@ -109,6 +113,38 @@ test("identical validated input produces byte-identical artifacts across distinc
   } finally {
     await fs.rm(root, { recursive: true, force: true });
   }
+});
+
+test("transport-specific XLSX provenance does not change runtime artifact bytes", () => {
+  const adapted = adaptGameDataWorkbook(buildSchemaV4Workbook());
+  const validation = validateAdaptedGameData(adapted);
+  assert.equal(validation.ok, true, validation.diagnostics.map((item) => item.message).join("\n"));
+  const revision = {
+    fileId: "fixture-workbook",
+    driveVersion: "42",
+    modifiedTime: "2026-08-04T10:00:00.000Z",
+  };
+  const first = buildGameDataArtifacts({
+    model: adapted.model,
+    validation,
+    provenance: { ...revision, fetchedAt: "2026-08-04T10:01:00.000Z", xlsxSha256: "a".repeat(64) },
+  });
+  const second = buildGameDataArtifacts({
+    model: adapted.model,
+    validation,
+    provenance: { ...revision, fetchedAt: "2026-08-04T10:02:00.000Z", xlsxSha256: "b".repeat(64) },
+  });
+
+  assert.deepEqual(
+    first.files.map(({ name, sha256: hash }) => [name, hash]),
+    second.files.map(({ name, sha256: hash }) => [name, hash]),
+  );
+  assert.deepEqual(first.combined.sourceRevision, {
+    fileId: revision.fileId,
+    driveVersion: revision.driveVersion,
+    modifiedTime: revision.modifiedTime,
+    modelSha256: first.modelSha256,
+  });
 });
 
 test("validation errors stage diagnostics only and never construct runtime artifacts", async () => {

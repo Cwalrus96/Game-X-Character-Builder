@@ -1,16 +1,16 @@
 # WPB source-resolution register
 
-Status: contract decisions implemented locally; approved canonical-Sheet batch applied and connector-verified; official staged validation awaits repository ADC access.
+Status: complete; contract decisions are implemented, the approved canonical-Sheet batch is applied, and authenticated repository staging validates the resolved source with zero errors.
 
-Last inspected: 2026-08-05.
+Last inspected: 2026-08-08.
 
 ## Scope and evidence
 
 The connected Google Sheet was read using exact bounded ranges from the 14-tab canonical workbook `1TEdxuufglP8lFRNk8QD4N_351-0ihAUFLG2743ESjoI` (`game-x-class-data`). Before repair, the read contained the expected 19 Classes, 66 ClassSkills, 103 ClassFeatures, 85 Techniques, 38 Feats, 15 Origins, 23 OriginFeatures, 31 WeaponBases, 33 WeaponProfiles, and 31 WeaponEnhancements, plus all 152 Schema declarations and 41 Enum values. After the approved repair, Drive reported modified time `2026-08-05T23:51:04.524Z` and the Enums tab contained 44 populated values.
 
-This was a connector-assisted diagnostic, not repository acquisition provenance and not a releasable source snapshot. Official fetch/stage acceptance still requires the read-only ADC path in [data-pipeline.md](data-pipeline.md).
+The earlier evidence was connector-assisted diagnostic input rather than repository acquisition provenance. The repository's read-only ADC path is now configured, and canonical Drive version `642`, modified `2026-08-08T19:36:29.890Z`, has completed authenticated fetch, adaptation, validation, staging, runtime-load acceptance, and diff generation.
 
-The repository validator initially reported 149 errors and 14 warnings. An intermediate run against the same unchanged live source reported 77 errors and 16 warnings. The approved repository contract decisions now account for 61 of those errors: 48 blank-description findings and 13 redundant-choice-ID findings. The unchanged Sheet is therefore expected to leave 16 source-expression/readiness errors under the corrected local contract: nine specialized grant types, four duplicate companion IDs, and three incomplete selectable Techniques. This expected reduction has not been claimed as an official live run because repository ADC access remains blocked. The exact Sheet repairs still require approval and application.
+The repository validator initially reported 149 errors and 14 warnings. An intermediate run against the same unchanged live source reported 77 errors and 16 warnings. The approved repository contract decisions accounted for 61 of those errors: 48 blank-description findings and 13 redundant-choice-ID findings. The approved Sheet batch resolved the remaining source-expression/readiness errors. Two authenticated runs of Drive version `642` now produce the same normalized model SHA-256, `1e21863128950325204830abd7e4d3d4f821c56c2df9829b7bd2cd6d172a4da3`, with zero errors and 28 intentional warnings: 25 preserved runtime-subsystem stubs and three non-selectable draft Techniques with incomplete mechanics.
 
 ## Repository corrections and approved decisions
 
@@ -25,7 +25,7 @@ The repository validator initially reported 149 errors and 14 warnings. An inter
 9. `familiar-rank` becomes generic `rank`; `weapon-upgrade` and `weapon-enhancement-swap` become generic `choice-rebind` operations.
 10. Rebinding is a source-owned overlay. The base answer remains stored and is validated against its original grant. Removing a rebind source reveals the preceding overlay or base answer.
 11. `disguise-makeup`, `distant-whispers`, and `watercolor-illusion` are exported as non-selectable `draft` Techniques.
-12. Official ADC source access is deferred until the user returns to a computer.
+12. Official source acquisition uses the dedicated Viewer-only service account through short-lived user-ADC impersonation; no persistent key exists.
 
 ## Applied canonical-Sheet batch
 
@@ -72,3 +72,7 @@ No other Sheet cells, formatting, formulas, or validations were in scope. Every 
 `rank` and `choice-rebind` are losslessly parsed, validated, serialized, staged, and runtime-loaded with explicit stub warnings. Work Package B does not add builder graph behavior. Executable overlay storage, widgets, persistence migration, validation of each layer, and reversion during graph reconciliation require a later character-builder vertical slice.
 
 No production JSON change, publish, or production deployment may occur from this register alone. Any future canonical-Sheet write requires a new exact user-approved scope.
+
+## Authenticated completion evidence
+
+Runs `20260808T194536442Z-37004` and `20260808T194543102Z-38020` independently fetched unchanged Drive version `642`. Google produced different raw XLSX transport hashes, while both runs produced the same normalized model and byte-identical nine-artifact runtime set after raw transport provenance was isolated from runtime revision identity. Runtime loading passed without diagnostics, production remained untouched, and the exact candidate identity is recorded in [game-data-release-candidate-2026-08-08.md](game-data-release-candidate-2026-08-08.md).

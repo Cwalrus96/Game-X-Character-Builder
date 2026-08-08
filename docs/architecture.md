@@ -174,7 +174,7 @@ The source pipeline has two independent versioned contracts:
 
 - source schema: native workbook schema v4;
 - production runtime artifact schema: frozen release schema v1;
-- staged runtime artifact schema: schema v2, pending authenticated acceptance and reviewed publish.
+- staged runtime artifact schema: schema v2, authenticated and deterministic, pending manual diff review and publish approval.
 
 The exporter is responsible for an explicit transformation between them. It must not treat workbook rows as runtime objects without adaptation.
 

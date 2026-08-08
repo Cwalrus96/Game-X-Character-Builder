@@ -11,12 +11,13 @@ The canonical editable source is the native Google Sheet [game-x-class-data](htt
 | Property | Current value |
 |---|---|
 | Drive file ID | `1TEdxuufglP8lFRNk8QD4N_351-0ihAUFLG2743ESjoI` |
-| Observed Drive modified time | `2026-08-04T02:05:29.623Z` |
+| Observed Drive version | `642` |
+| Observed Drive modified time | `2026-08-08T19:36:29.890Z` |
 | Source schema | `4` |
 | Grant syntax | `2` |
 | Prerequisite syntax | `2` |
 | Production runtime release schema | `1` (frozen June 29 artifacts) |
-| Staged runtime artifact schema | `2` (fixture-verified; not yet published) |
+| Staged runtime artifact schema | `2` (authenticated and deterministic; not yet reviewed or published) |
 | Production export status | Frozen |
 
 `contracts/game-data-source.json` is the machine-readable locator and MIME/schema expectation. It contains no credentials. `contracts/game-data-release-baseline.json` protects the exact checked-in production artifacts. These contracts describe different things and must not be conflated.
@@ -279,7 +280,7 @@ Whole-model identity and reference rules include:
 
 Artifact construction accepts only a canonical model whose whole-model validation result has no errors. It produces `classes.json`, `class-skills.json`, `class-features.json`, `feats.json`, `techniques.json`, `origins.json`, `weapon-bases.json`, `weapon-enhancements.json`, and the combined `game-x-data.json`. Source row order remains canonical within arrays; object keys and JSON serialization are canonicalized for deterministic bytes.
 
-The combined artifact records source schema, exporter version, and the exact source revision (`fileId`, Drive version, modified time, and XLSX SHA-256). Volatile fetch/export times belong in run reports rather than runtime bytes. Split artifacts must equal their corresponding combined fields, and freshly serialized output must pass current runtime getters, technique indexing, and grant loading before any artifact files are installed.
+The combined artifact records source schema, exporter version, and the exact stable source revision (`fileId`, Drive version, modified time, and normalized-model SHA-256). The raw XLSX SHA-256 identifies one transport export and remains in source provenance and run reports because Google may generate byte-distinct XLSX ZIPs for an unchanged native Sheet revision. Raw transport hashes and volatile fetch/export times do not belong in runtime bytes. Split artifacts must equal their corresponding combined fields, and freshly serialized output must pass current runtime getters, technique indexing, and grant loading before any artifact files are installed.
 
 Schema v2 is staged only. Production remains frozen at schema v1 until an authenticated source run validates, source findings are resolved, the complete diff is reviewed, and `WPB-PUBLISH` promotes the exact approved bytes.
 

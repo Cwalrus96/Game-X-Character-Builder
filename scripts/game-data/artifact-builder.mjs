@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 
 export const RUNTIME_ARTIFACT_SCHEMA_VERSION = 2;
-export const EXPORTER_VERSION = "2.0.0-wpb-staging";
+export const EXPORTER_VERSION = "2.0.1-wpb-staging";
 
 function canonicalValue(value) {
   if (Array.isArray(value)) return value.map(canonicalValue);
@@ -222,12 +222,12 @@ function buildWeaponBases(model) {
   }));
 }
 
-function sourceRevision(provenance) {
+function sourceRevision(provenance, modelSha256) {
   return cleanObject({
     fileId: provenance.fileId,
     driveVersion: provenance.driveVersion,
     modifiedTime: provenance.modifiedTime,
-    xlsxSha256: provenance.xlsxSha256,
+    modelSha256,
   });
 }
 
@@ -246,11 +246,12 @@ export function buildGameDataArtifacts({ model, validation, provenance }) {
     weaponBases: buildWeaponBases(model),
     weaponEnhancements: cleanObject(model.weaponEnhancements),
   };
+  const modelSha256 = sha256(canonicalJson(model));
   const combined = {
     schemaVersion: RUNTIME_ARTIFACT_SCHEMA_VERSION,
     sourceSchemaVersion: Number(model.metadata.sourceSchemaVersion),
     exporterVersion: EXPORTER_VERSION,
-    sourceRevision: sourceRevision(provenance),
+    sourceRevision: sourceRevision(provenance, modelSha256),
     ...collections,
   };
   const values = {
@@ -271,7 +272,7 @@ export function buildGameDataArtifacts({ model, validation, provenance }) {
   return Object.freeze({
     schemaVersion: RUNTIME_ARTIFACT_SCHEMA_VERSION,
     exporterVersion: EXPORTER_VERSION,
-    modelSha256: sha256(canonicalJson(model)),
+    modelSha256,
     combined,
     files: Object.freeze(files),
   });

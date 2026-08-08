@@ -1,8 +1,8 @@
 # Game-data pipeline: Google Sheet to reviewed JSON
 
-Status: living operational design. Read-only acquisition and the schema-v4 read/validate/stage/diff pipeline are implemented; authenticated live acceptance, source resolution, review, and publishing remain Work Package B work.
+Status: living operational design. Read-only acquisition, schema-v4 read/validate/stage/diff, authenticated live acceptance, and source resolution are complete; manual release-candidate review and publishing remain Work Package B work.
 
-Last updated: 2026-08-04.
+Last updated: 2026-08-08.
 
 ## Goals
 
@@ -176,7 +176,7 @@ Drive acquisition
 
 `scripts/game-data/workbook-reader.mjs` owns only XLSX decoding, raw headers/values, and physical row numbers. `scripts/game-data/source-adapters.mjs` owns schema-v4 tab/header meaning and returns `{ ok, model, diagnostics }` without file I/O. `scripts/game-data/model-validator.mjs` merges adapter findings with duplicate, ownership, reference, choice, status, readiness, and domain findings in deterministic workbook order. Populated invalid rows remain represented when possible; any meaning that cannot be adapted or validated produces a source-located diagnostic. None of these phases writes artifacts. `artifact-builder.mjs` accepts only that validated model, and `staging-run.mjs` owns the later file-I/O boundary.
 
-No runtime artifact is written if validation or runtime-load acceptance has errors. A validation report and provenance may still be staged. The reports record source schema, runtime artifact schema, exporter version, Drive version/time, fetch/export timestamps, source/model/artifact hashes, counts, warnings/errors, runtime acceptance, and diff summary. Runtime artifact bytes omit the volatile export timestamp, so the same validated source revision produces identical hashes in different runs.
+No runtime artifact is written if validation or runtime-load acceptance has errors. A validation report and provenance may still be staged. The reports record source schema, runtime artifact schema, exporter version, Drive version/time, fetch/export timestamps, raw XLSX/model/artifact hashes, counts, warnings/errors, runtime acceptance, and diff summary. The raw XLSX hash identifies the fetched transport bytes but is not runtime revision identity because Google may produce byte-distinct XLSX ZIPs for the same native Sheet revision. Runtime artifact bytes use the stable Drive revision plus normalized-model hash and omit raw transport hashes and volatile timestamps, so the same validated source revision produces identical hashes in different runs.
 
 The semantic diff uses stable identities and reports added, removed, changed entities and every changed field path. Byte hashes alone are not sufficient. Because the frozen release predates `techniqueKey`, the diff explicitly bridges an old technique name to the matching new stable key; this is compatibility analysis, not permission to restore display-name identity. Weapon profiles use the explicit `weaponKey/profileType/profileName/rank` composite until a `profileKey` decision is made.
 

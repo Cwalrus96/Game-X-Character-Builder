@@ -10,7 +10,7 @@ Next implementation step: `WPE-DOMAIN-MIGRATION`
 
 Parallel blocked character step: deployed-page completion of `WPC-REPOSITORY`, pending reviewed runtime stable technique keys and affected domain integration
 
-Parallel game-data step: repair the authenticated `WPB-STAGING` combined-artifact determinism defect, then complete `WPB-SOURCE-RESOLUTION` and `WPB-DIFF-REVIEW`
+Parallel game-data step: `WPB-DIFF-REVIEW` is underway; exact-hash approval of the corrected candidate is the next manual boundary
 
 This is the only frequently updated project-status document. Historical audits and completion records must not be edited to look current.
 
@@ -54,8 +54,9 @@ Evidence: [work-package-a-completion.md](work-package-a-completion.md) and [mile
 - `WPB-EXPRESSIONS` is complete: exporter validation and runtime loading share typed grant/prerequisite registries, pure contextual parsing/serialization, resource capacity semantics, and schema-v4 fixtures.
 - `WPB-SOURCE-ACCESS` is complete: the dedicated Viewer-only Sheet identity is available through short-lived user-ADC impersonation, without a persistent key.
 - `WPB-ADAPTERS` and `WPB-REFERENCES` are complete. Authenticated canonical Drive version `642` adapts and validates with zero errors, 28 intentional warnings, deterministic finding order, and successful runtime-load acceptance.
-- `WPB-STAGING` is active. Authenticated end-to-end staging creates the complete nine-artifact ignored run and frozen-release diff without touching production. Repeat runs exposed one remaining defect: `game-x-data.json` embeds the nondeterministic raw Google XLSX export hash, so its bytes differ even when the Drive revision and normalized model are unchanged. The eight split artifacts remain byte-identical.
-- `WPB-SOURCE-RESOLUTION` is active. Descriptions are optional, implicit source-owned choice identities are accepted, `draft` is excluded from normal and grant-owned selectors, and generic `rank`/reversible `choice-rebind` contracts preserve the approved meaning. The user-approved canonical-Sheet batch was applied and read back on 2026-08-05; the authenticated 2026-08-08 staging run now confirms zero structural errors. Completion awaits the `WPB-STAGING` determinism repair. See [game-data-source-resolution.md](game-data-source-resolution.md).
+- `WPB-STAGING` is complete. Runtime revision identity uses the stable Drive revision plus normalized-model hash; byte-distinct XLSX transports for unchanged Drive version `642` now produce byte-identical nine-artifact runtime sets. Authenticated end-to-end staging passes and leaves production untouched.
+- `WPB-SOURCE-RESOLUTION` is complete. Descriptions are optional, implicit source-owned choice identities are accepted, `draft` is excluded from normal and grant-owned selectors, and generic `rank`/reversible `choice-rebind` contracts preserve the approved meaning. The user-approved canonical-Sheet batch was applied and read back on 2026-08-05; authenticated 2026-08-08 staging confirms zero structural errors and 28 intentional warnings. See [game-data-source-resolution.md](game-data-source-resolution.md).
+- `WPB-DIFF-REVIEW` is underway. The user-approved weapon-base corrections and Heavy/draft enhancement corrections are present in the refreshed immutable candidate; its exact-hash approval checklist is recorded in [game-data-release-candidate-2026-08-08.md](game-data-release-candidate-2026-08-08.md).
 
 ### Work Package C character contract
 
@@ -108,8 +109,8 @@ Evidence: [work-package-a-completion.md](work-package-a-completion.md) and [mile
 |---|---|
 | Source Sheet | [game-x-class-data](https://docs.google.com/spreadsheets/d/1TEdxuufglP8lFRNk8QD4N_351-0ihAUFLG2743ESjoI/edit) |
 | Drive file ID | `1TEdxuufglP8lFRNk8QD4N_351-0ihAUFLG2743ESjoI` |
-| Drive version | `642` |
-| Drive modified time | `2026-08-08T19:36:29.890Z` |
+| Drive version | `647` |
+| Drive modified time | `2026-08-09T02:27:03.310Z` |
 | Source schema | `4` |
 | Grant syntax | `2` |
 | Prerequisite syntax | `2` |
@@ -137,8 +138,8 @@ The repository's old `data/game-x-class-data.xlsx` is a June 29 snapshot and is 
 
 ### Blocks production data publishing
 
-- `WPB-ADAPTERS` and `WPB-REFERENCES` authenticated acceptance is complete, and the canonical source validates with zero errors. `WPB-STAGING` remains incomplete because repeat runs change the combined artifact's embedded raw-XLSX hash even though the Drive revision and normalized model are unchanged.
-- A complete schema-v4 staging export and diff exist, but they are not yet a deterministic reviewed release candidate.
+- `WPB-ADAPTERS`, `WPB-REFERENCES`, `WPB-STAGING`, and `WPB-SOURCE-RESOLUTION` are complete. The refreshed deterministic schema-v4 release candidate still requires exact-hash approval.
+- A complete deterministic schema-v4 staging export and diff exist, but they are not yet a reviewed release candidate.
 - The production export freeze must remain active.
 - The decisions covering all 77 previously recorded live-source findings are implemented locally or applied to the canonical Sheet. Authenticated repository validation now confirms zero errors and 28 intentional warnings.
 
@@ -155,11 +156,13 @@ See [data-pipeline.md](data-pipeline.md) for exact commands and security guidanc
 
 Authenticated Work Package B source/staging verification on 2026-08-08:
 
-- `npm run data:source:check` passed twice for canonical Drive version `642`, modified `2026-08-08T19:36:29.890Z`.
-- `npm run fetch:data` wrote the ignored schema-v4 XLSX and provenance sidecar; each acquisition verified its own raw byte hash and unchanged pre/post Drive metadata.
-- `npm run stage:data` passed twice with zero errors, 28 intentional warnings, runtime-load acceptance, nine staged artifacts, and no production write. Model SHA-256 was identical: `1e21863128950325204830abd7e4d3d4f821c56c2df9829b7bd2cd6d172a4da3`.
-- The repeat-run comparison found eight identical split artifacts and one nondeterministic combined artifact. The only `game-x-data.json` difference is `sourceRevision.xlsxSha256`, because two exports of unchanged Drive version `642` produced different raw XLSX ZIP hashes. This blocks `WPB-STAGING` completion and `WPB-DIFF-REVIEW` until repaired.
-- `npm test`: all 169 unit tests passed; `npm run baseline:data`: all 9 frozen production artifacts matched; `git diff --check`: passed.
+- The user approved and the agent applied exactly six `WeaponBases` source-cell corrections: the display and stable tag lists for Longsword, Shuriken, and Greatsword. Connector readback verified the values and preserved surrounding formatting.
+- The user also approved executable Heavy prerequisites and `draft` selection mode for Gravity Weapon and Seismic Weapon; connector readback verified the six affected cells and preserved their validation and formatting.
+- `npm run data:source:check` passed for canonical Drive version `647`, modified `2026-08-09T02:27:03.310Z`, using the dedicated Viewer identity through short-lived impersonation.
+- `npm run stage:data` produced immutable run `20260809T022801911Z-51956` with zero errors, the same 28 intentional warnings, runtime-load acceptance, nine staged artifacts, and no production write. Model SHA-256: `c03ed329b10e27310baef32d73fe239c9146e415c332ae62f7842d81e9a17739`.
+- Against the preceding candidate, only `weapon-enhancements.json` and the combined `game-x-data.json` changed, matching the approved source scope. The refreshed exact candidate is `20260809T022801911Z-51956`.
+- Earlier runs `20260808T194536442Z-37004` and `20260808T194543102Z-38020` established that byte-distinct XLSX transports for unchanged Drive version `642` produce byte-identical runtime artifacts.
+- `npm run test:all`: 170 unit tests, 16 Firebase emulator tests, and all 14 HTML entry points passed; `npm run baseline:data`: all 9 frozen production artifacts matched; production remains untouched.
 
 Verified at `WPD-GRAPH-CORE` completion on 2026-08-08, with the prior session, persistence, migration, read-only `WPB-SOURCE-RESOLUTION`, and Hosting-only release evidence retained below:
 
