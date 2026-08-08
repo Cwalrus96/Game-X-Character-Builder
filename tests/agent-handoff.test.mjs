@@ -11,6 +11,7 @@ const handoffFiles = [
   "docs/roadmap.md",
   "docs/architecture.md",
   "docs/builder-flow.md",
+  "docs/character-session.md",
   "docs/character-persistence.md",
   "docs/data-pipeline.md",
   "docs/game-data-contract.md",

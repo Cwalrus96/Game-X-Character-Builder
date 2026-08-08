@@ -11,6 +11,7 @@ This file is the required entry point for coding agents working in this reposito
    - [docs/architecture.md](docs/architecture.md) for dependency direction and ownership;
    - [docs/game-data-contract.md](docs/game-data-contract.md) and [docs/data-pipeline.md](docs/data-pipeline.md) for source/export work;
    - [docs/builder-flow.md](docs/builder-flow.md) for builder behavior;
+   - [docs/character-session.md](docs/character-session.md) for canonical in-memory editing state, commands, proposals, impacts, and save snapshots;
    - [docs/character-persistence.md](docs/character-persistence.md) for saved-character reads, writes, migrations, revisions, and conflicts;
    - [docs/security.md](docs/security.md) and [docs/admin-operations.md](docs/admin-operations.md) for trust boundaries and credentials.
 5. Inspect `git status`, the current branch, and recent commits. Preserve unrelated user changes.

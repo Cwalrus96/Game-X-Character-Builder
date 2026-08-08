@@ -4,9 +4,11 @@ Last updated: 2026-08-07
 
 Current branch at update: `codex/work-package-b-data-contract`
 
-Active implementation work package: Work Package C — character schema and session skeleton
+Active implementation work package: Work Package D — graph core
 
-Next implementation step: `WPC-REPOSITORY`
+Next implementation step: `WPD-GRAPH-CORE`
+
+Parallel blocked character step: deployed-page completion of `WPC-REPOSITORY`, pending reviewed runtime stable technique keys and affected domain integration
 
 Parallel blocked game-data steps: `WPB-SOURCE-ACCESS`, then live acceptance for `WPB-ADAPTERS`, `WPB-REFERENCES`, `WPB-STAGING`, and `WPB-SOURCE-RESOLUTION`
 
@@ -21,6 +23,7 @@ This is the only frequently updated project-status document. Historical audits a
 - The current Work Package B top commit is the schema-v4 expressions/adapters/references/staging and approved source-resolution checkpoint, titled `Implement schema-v4 staging and source resolution`.
 - `WPC-MIGRATIONS` is committed at `5568aa5`, titled `Add isolated character migration registry`.
 - The current top feature checkpoint is `WPC-REPOSITORY`, titled `Implement definitive character persistence boundary`; it strengthens the existing database reader/writer rather than adding a duplicate repository implementation.
+- The current Work Package C session checkpoint is `WPC-SESSION`, titled `Add canonical character session lifecycle`; it remains pure and does not switch deployed pages.
 - At the beginning of the schema-v4 synchronization work, the Work Package B branch was clean and two commits ahead of `master`.
 
 Always verify these statements with `git status` and `git log`; update this section after each checkpoint commit.
@@ -79,6 +82,15 @@ Evidence: [work-package-a-completion.md](work-package-a-completion.md) and [mile
 - Deployed page integration is not complete. Existing pages still use clearly marked v4 helpers or direct Firebase calls because the frozen runtime game data lacks stable `techniqueKey` values required to migrate populated technique selections safely. The v4 path must not be removed or falsely stamped v5 until that prerequisite and affected domain integration are complete.
 - [character-persistence.md](character-persistence.md) is the living read/write/revision contract and is now part of the required agent startup reading for persistence work.
 
+### Work Package C character session
+
+- `WPC-SESSION` is complete: `CharacterSession` privately owns exact v5 persisted, working, proposed, and reconciled state and exposes only protected projections.
+- Strict `SetClass` and `SetTechniqueSelection` commands express direct user intent without dependency policy. Unknown commands/fields, malformed stable keys, and duplicate technique identities fail explicitly.
+- One proposal identity records the proposed state, one reconciler invocation, exact reconciled state, deterministic diffs, and structured error/confirmation/information impacts. Pending proposals cannot be silently superseded; cancellation changes no working state; acceptance commits the exact reviewed result without rerunning reconciliation.
+- Exact save snapshots carry the expected persistence revision. Successful acknowledgement advances persisted state to what was actually written while preserving newer accepted edits as dirty working state.
+- The reconciliation boundary is injectable and currently defaults to identity behavior. `WPD-GRAPH-CORE` will supply the production dependency compiler/reconciler; current pages are intentionally unchanged.
+- [character-session.md](character-session.md) is the living state/command/proposal/impact/save contract and is required startup reading for session work.
+
 ## Canonical external source
 
 | Property | Current value |
@@ -98,7 +110,7 @@ The repository's old `data/game-x-class-data.xlsx` is a June 29 snapshot and is 
 - Production JSON remains frozen at the reviewed June 29 release.
 - The schema-v4 source is newer than the runtime artifacts.
 - The staging CLI now uses the canonical reader -> adapter -> validator -> schema-v2 builder -> runtime acceptance -> diff pipeline. It never invokes the legacy exporter and production remains frozen.
-- Character schema v5, its migration registry, and the definitive Firebase reader/writer APIs are implemented and emulator-tested. The production site continues to use the transitional v4 page path until stable-key runtime data and affected domain integration permit a safe switch.
+- Character schema v5, its migration registry, the definitive Firebase reader/writer APIs, and the pure four-state session lifecycle are implemented and tested. The production site continues to use the transitional v4 page path until stable-key runtime data, graph policy, and affected domain integration permit a safe switch.
 - Repository implementation can proceed against fixtures, but live migration of stored technique selections requires runtime game data with `techniqueKey`. The frozen production schema-v1 artifacts do not provide that key, so switching the deployed persistence path remains blocked until the reviewed Work Package B release or another explicit stable-key source is available.
 - Familiar, vehicle, and gadget expressions are preserved with explicit runtime-stub status until their future subsystem slices; they are no longer rejected or discarded by data loading.
 - The live Handbook import script was not run after spreadsheet normalization because its bound script source/staging target was inaccessible. The Handbook remains untouched.
@@ -128,13 +140,14 @@ See [data-pipeline.md](data-pipeline.md) for exact commands and security guidanc
 
 ## Last verification
 
-Verified during active `WPC-REPOSITORY` implementation on 2026-08-07, with the prior read-only `WPB-SOURCE-RESOLUTION` and Hosting-only release evidence retained below:
+Verified at `WPC-SESSION` completion on 2026-08-07, with the prior persistence, migration, read-only `WPB-SOURCE-RESOLUTION`, and Hosting-only release evidence retained below:
 
-- `npm run test:all`: 144 unit tests, 16 Firebase emulator tests, and all 14 HTML entry points passed with zero failures. This includes migration metadata/revision separation, exact persistence envelopes, explicit patch ownership, owner/path checks, revision planning, and typed stale conflicts.
-- Five focused persistence emulator tests cover create/read, timestamps, migrated read without a write, explicit-save migration persistence, valid and invalid patches, stale-write preservation, missing documents, and authorization propagation; the other 11 emulator tests continue to cover Firestore and Storage Rules.
-- `npm run baseline:data`: all 9 frozen production artifacts matched; WPC-REPOSITORY changed no production game data.
+- `npm run test:all`: 157 unit tests, 16 Firebase emulator tests, and all 14 HTML entry points passed with zero failures.
+- Thirteen focused command/session/diff tests cover direct-intent validation, state isolation, deterministic exact-path diffs and impact ordering, one-pending-proposal identity, structured impact policy, side-effect-free cancellation, exact acceptance without rerunning reconciliation, invalid reconciled state, save-in-flight edits, and dependency purity.
+- The five focused persistence emulator tests remain green for create/read, timestamps, migrated read without a write, explicit-save migration persistence, valid and invalid patches, stale-write preservation, missing documents, and authorization propagation; the other 11 emulator tests continue to cover Firestore and Storage Rules.
+- `npm run baseline:data`: all 9 frozen production artifacts matched; WPC-SESSION changed no production game data.
 - `git diff --check`: passed.
-- The local Firebase review environment was restarted at PID 67024. The served writer and pure persistence assets returned HTTP 200, exposed the new v5 APIs, and contained the final visit-metadata preservation logic. App: `http://127.0.0.1:5000`; Emulator UI: `http://127.0.0.1:4000`.
+- The local Firebase review environment was restarted at PID 24476. `/js/core/character-session.js` and `/js/core/character-commands.js` both returned HTTP 200 and exposed the protected session, deterministic impact IDs, and typed command implementations. App: `http://127.0.0.1:5000`; Emulator UI: `http://127.0.0.1:4000`.
 - Ten focused migration tests cover every evidence-backed edge, v2/future rejection, exact v5 codec acceptance, non-mutation/idempotence, metadata separation, primary-attribute restoration, stable reference resolution, deterministic IDs/reports, collisions, unresolved/ambiguous/unknown input, and module purity.
 - `npm run baseline:data`: all 9 frozen production artifacts matched; WPC-MIGRATIONS changed no production game data.
 - The local Firebase review environment was restarted (PID 48356) and returned HTTP 200 for `/js/core/character-migrations.js`; the served asset contains the supported-version registry. App: `http://127.0.0.1:5000`; Emulator UI: `http://127.0.0.1:4000`.

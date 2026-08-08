@@ -2,7 +2,7 @@
 
 Status: living current-and-target architecture.
 
-Last updated: 2026-08-04.
+Last updated: 2026-08-07.
 Execution status and named steps live in [status.md](status.md) and [roadmap.md](roadmap.md).
 
 ## Product shape
@@ -66,7 +66,7 @@ Forbidden reverse dependencies:
 
 ## Character-state layers
 
-The target `CharacterSession` owns four explicit states:
+The implemented pure `CharacterSession` owns four explicit states:
 
 | State | Meaning |
 |---|---|
@@ -99,6 +99,8 @@ sequenceDiagram
 ```
 
 Cancellation leaves working state and widget display byte-for-byte unchanged. Confirmation commits the exact reconciled state that produced the preview; reconciliation is not rerun against a different state after confirmation.
+
+The session core is implemented in `character-session.js`, with strict direct-intent commands in `character-commands.js` and deterministic canonical diffs in `character-state-diff.js`. It protects every state snapshot from caller mutation, permits only one pending proposal, and uses exact proposal/save identities. The reconciliation function is currently injected: its default is intentionally an identity reconciliation for fixture-driven lifecycle tests, while `WPD-GRAPH-CORE` will supply the production compiler/reconciler policy. See [character-session.md](character-session.md).
 
 ## Component ownership
 
@@ -198,7 +200,7 @@ All saves must be sanitized, narrow, visible on failure, and serialized. Broad m
 - Milestone 0 and Work Package A automated safety work are complete; real-browser acceptance remains deployment-blocking.
 - Work Package B is active. The production game-data release is frozen and baselined.
 - Schema-v4 acquisition, a domain-neutral XLSX reader, canonical per-tab adapters, shared typed expressions, pure whole-model reference/domain validation, deterministic schema-v2 artifact construction, runtime-load acceptance, atomic staging, and structural/semantic diffing are implemented against fixtures. Live end-to-end acceptance is blocked on the repository Drive identity; production remains frozen pending source resolution, diff review, and publish approval.
-- The v5 codec, isolated migration registry, and definitive database reader/writer APIs are implemented. Switching deployed pages to the v5 boundary remains blocked on reviewed stable-key runtime data. The complete `CharacterSession` and split compiler/reconciler remain target components.
+- The v5 codec, isolated migration registry, definitive database reader/writer APIs, and pure `CharacterSession` lifecycle are implemented. Switching deployed pages to the v5 boundary remains blocked on reviewed stable-key runtime data and domain migration. The split compiler/reconciler remains the next target component.
 
 Exact status and the next named step are in [status.md](status.md).
 

@@ -1,6 +1,6 @@
 # Implementation roadmap
 
-Last updated: 2026-08-04
+Last updated: 2026-08-07
 
 This is the living execution plan derived from the dated architecture audit. Step IDs are stable API-like identifiers for humans and agents: never rename or renumber an existing ID. Add a new ID if scope changes materially.
 
@@ -411,15 +411,88 @@ Acceptance:
 
 ### `WPC-SESSION`
 
-Status: `pending`
+Status: `complete`
 
-Introduce CharacterSession with persisted, working, proposed, and reconciled states; typed `SetClass` and `SetTechniqueSelection` commands; canonical state diff; and structured impacts.
+Prerequisite: the exact v5 codec, migrations, and definitive reader/writer APIs from the implemented portion of `WPC-REPOSITORY`. The blocked deployed-page cutover is not a prerequisite for this pure fixture-driven session core.
+
+Goal: give one in-memory component ownership of character editing state so pages can submit explicit intent, preview one deterministic reconciliation result, and accept or cancel that exact result without mutating persisted state.
+
+The problem is that current pages and `BuilderPage` still coordinate mutable builder objects and arbitrary patches. Even where preview safety exists, there is no complete-character owner that distinguishes loaded state, accepted unsaved state, the current proposal, and its reconciled result. Extending that pattern would make later graph integration and stale-save handling page-dependent.
+
+Deliverables:
+
+- a pure `CharacterSession` with independently protected persisted, working, proposed, and reconciled canonical v5 states;
+- strict typed `SetClass` and `SetTechniqueSelection` commands that express only direct user intent and reject unknown or malformed commands;
+- a deterministic canonical state diff with exact paths and cloned before/after values;
+- a structured impact contract that distinguishes blocking errors, confirmation-required impacts, and informational impacts without making UI strings authoritative;
+- an injected reconciliation boundary so the session lifecycle is complete before `WPD-GRAPH-CORE` supplies the final compiler/reconciler;
+- proposal acceptance/cancellation behavior that never reruns reconciliation or changes working state behind the reviewed preview;
+- save-snapshot bookkeeping that can acknowledge a successful persistence revision without discarding edits accepted while the save was in flight.
+
+Non-goals:
+
+- implementing `GraphCompiler` or `GraphReconciler` policy;
+- connecting deployed pages or removing transitional v4 persistence helpers;
+- defining `choice-rebind` overlays or migrating additional domains;
+- publishing game data or writing production Firebase documents.
+
+Acceptance:
+
+- construction and every exposed state accept only exact codec-valid v5 and do not share mutable references with callers;
+- commands alter only their declared direct fields, preserve selection order, and fail explicitly on invalid type, keys, duplicates, or unknown command types;
+- proposing records proposed and reconciled states, invokes the supplied reconciler exactly once, and produces deterministic diff and structured impacts;
+- blocking impacts can never be accepted, confirmation-required impacts require explicit confirmation, cancellation is byte-for-byte side-effect free, and acceptance commits the exact reviewed reconciled state;
+- a proposal awaiting a decision cannot be silently superseded;
+- save acknowledgement advances persisted state/revision to the exact save snapshot while preserving newer accepted working edits as dirty;
+- unit tests cover valid/invalid commands, state isolation, deterministic diff/impacts, proposal conflicts, error/confirmation/information policy, cancel, exact accept, and save-in-flight behavior;
+- the session/diff/command modules have no Firebase, DOM, file, network, page, or widget dependency.
+
+Evidence:
+
+- `public/js/core/character-session.js` owns the protected four-state proposal and save lifecycle;
+- `public/js/core/character-commands.js` defines the initial strict direct-intent command registry;
+- `public/js/core/character-state-diff.js` defines deterministic canonical diffs;
+- `tests/character-session.test.mjs`, `tests/character-commands.test.mjs`, and `tests/character-state-diff.test.mjs` cover the acceptance cases;
+- [character-session.md](character-session.md) records the living session/command/impact/save contract.
 
 ## Later work packages
 
 ### `WPD-GRAPH-CORE`
 
-Build GraphCompiler/GraphReconciler, typed nodes/edges, fixed-point reconciliation, registries, pure Rules integration, and deterministic/property tests.
+Status: `ready`
+
+Prerequisite: `WPC-SESSION`. Fixture-driven graph-core work does not require deployed-page integration or a production game-data publish.
+
+Goal: make one deterministic graph, rather than pages or widgets, authoritative for what character selections exist, what owns them, which requirements they satisfy, and what must change when a source changes.
+
+The problem is that the session now safely separates proposed and accepted state, but its injected reconciler does not yet understand dependencies. The transitional dependency layer can preview parts of class/feat/technique behavior, but it relies on current builder shapes and does not expose a complete typed graph or a general fixed-point contract. Connecting pages directly to that transitional policy would preserve duplicated domain rules and incomplete transitive removal behavior.
+
+Deliverables:
+
+- pure typed node and edge contracts with stable identities, source ownership, storage bindings, and structured diagnostics;
+- registries for node, grant, and prerequisite handlers so new domains do not require edits to graph traversal;
+- a deterministic `GraphCompiler` that builds a graph from one exact v5 character plus normalized fixture game data;
+- a deterministic `GraphReconciler` that applies registered removal, prerequisite, capacity, and incomplete-selection rules to a fixed point;
+- structured reconciliation output compatible with `CharacterSession`: exact reconciled character plus error, confirmation-required, and informational impacts;
+- deterministic and property-oriented tests covering ordering, idempotence, convergence, affected closure, cycles, missing handlers, and widget/DOM independence.
+
+Non-goals:
+
+- switching deployed pages or removing the transitional dependency layer;
+- migrating every domain or implementing `choice-rebind` overlays before its vertical slice;
+- publishing staged game data or changing the canonical Sheet;
+- reading or writing Firebase.
+
+Acceptance:
+
+- compiling the same canonical character and normalized game data always yields byte-equivalent nodes, edges, diagnostics, and ordering;
+- every selected answer represented by the initial fixture slice has stable identity, source ownership, and storage binding, with malformed or unhandled inputs failing explicitly;
+- reconciliation reaches a deterministic fixed point, is idempotent on its own output, and reports rather than silently applies any removal requiring confirmation;
+- blocking errors cannot be converted into confirmation impacts, while incomplete-but-valid selections remain informational according to shared Rules;
+- cycles, dangling references, duplicate identities, missing registry handlers, and non-convergence fail with structured diagnostics rather than hangs or partial results;
+- `CharacterSession` can consume the reconciler result through its existing injected boundary without rerunning or translating graph policy;
+- graph/compiler/reconciler modules have no Firebase, DOM, file, network, page, or widget dependency;
+- deterministic example tests and generated/property-oriented tests cover graph construction, transitive affected closure, convergence, cancellation input purity, and output stability.
 
 ### `WPE-DOMAIN-MIGRATION`
 

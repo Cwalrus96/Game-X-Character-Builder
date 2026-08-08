@@ -72,6 +72,14 @@ const SKILL_RANK_PATTERN = /^(?:[0-6])?$/;
 const POSITIVE_RANK_PATTERN = /^(?:[1-6])?$/;
 const OPTIONAL_INTEGER_PATTERN = /^(?:0|[1-9][0-9]{0,5})?$/;
 
+export function isCanonicalStableKey(value, { allowEmpty = true } = {}) {
+  if (typeof value !== "string") return false;
+  const normalized = sanitizeText(value, { maxLen: 128, collapse: true });
+  if (normalized !== value) return false;
+  if (value === "") return allowEmpty;
+  return STABLE_KEY_PATTERN.test(value);
+}
+
 function isPlainObject(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
   const prototype = Object.getPrototypeOf(value);
@@ -134,8 +142,7 @@ function validateCanonicalText(value, path, diagnostics, {
 
 function validateStableKey(value, path, diagnostics, { allowEmpty = true } = {}) {
   if (!validateCanonicalText(value, path, diagnostics, { maxLen: 128, allowEmpty })) return false;
-  if (value === "" && allowEmpty) return true;
-  if (!STABLE_KEY_PATTERN.test(value)) {
+  if (!isCanonicalStableKey(value, { allowEmpty })) {
     addDiagnostic(diagnostics, "invalid-stable-key", path, "Expected a lowercase stable key using letters, digits, underscores, or hyphens.");
     return false;
   }
