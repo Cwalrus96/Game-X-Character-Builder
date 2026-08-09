@@ -27,7 +27,7 @@ import { LevelChoiceWidget } from "./widgets/level-choice-widget.js";
 import { OptionGroupWidget } from "./widgets/option-group-widget.js";
 import { PrimaryAttributeWidget } from "./widgets/primary-attribute-widget.js";
 
-import { loadGameXData, getGameXClasses, getGameXClassFeatures, getGameXFeats, getGameXWeaponBases, getGameXWeaponEnhancements } from "../core/game-data.js";
+import { loadGameXData, getGameXClasses, getGameXClassFeatures, getGameXFeatsForClass, getGameXWeaponBases, getGameXWeaponEnhancements } from "../core/game-data.js";
 
 import { ATTR_KEYS, clampLevel, coerceAttrKey, labelForAttrKey } from "../core/character-rules.js";
 import { buildBuilderWithPatch, reconcileBuilderChange, summarizeDependencyChanges, summarizeDependencyRemovals } from "../core/builder-dependencies.js";
@@ -772,10 +772,8 @@ async function main() {
       getAvailableFeats: ({ gameData: data = gameData, builder = {} } = {}) => {
         const classKey = builder.classKey ?? selectedClassKey;
         const level = builder.level ?? selectedLevel;
-        const feats = Array.isArray(data?.feats) ? data.feats : getGameXFeats(gameData);
         const L = clampLevel(level);
-        return feats
-          .filter((feat) => String(feat?.classKey || "") === String(classKey || ""))
+        return getGameXFeatsForClass(data || gameData, classKey)
           .filter((feat) => Number(feat?.minLevel || 0) <= L);
       },
       getFeatSlots,

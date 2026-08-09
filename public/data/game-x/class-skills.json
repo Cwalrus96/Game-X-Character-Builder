@@ -1,0 +1,662 @@
+[
+  {
+    "choiceGroup": null,
+    "classKey": "ninja",
+    "displayOrder": 1,
+    "progression": "fast",
+    "role": "combat-defense",
+    "skillKey": "mental-defense",
+    "skillName": "Mental Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "ninja",
+    "displayOrder": 2,
+    "progression": "fast",
+    "role": "combat-technique",
+    "skillKey": "ninjutsu",
+    "skillName": "Ninjutsu",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "ninja",
+    "displayOrder": 3,
+    "progression": "slow",
+    "role": "combat-defense",
+    "skillKey": "physical-defense",
+    "skillName": "Physical Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "ninja",
+    "displayOrder": 4,
+    "progression": "medium",
+    "role": "combat-defense",
+    "skillKey": "spiritual-defense",
+    "skillName": "Spiritual Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "ninja",
+    "displayOrder": 5,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "athletics",
+    "skillName": "Athletics",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "ninja",
+    "displayOrder": 6,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "deception",
+    "skillName": "Deception",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "ninja",
+    "displayOrder": 7,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "medicine",
+    "skillName": "Medicine",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "ninja",
+    "displayOrder": 8,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "roguery",
+    "skillName": "Roguery",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "ninja",
+    "displayOrder": 9,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "nature",
+    "skillName": "Nature",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "magical-guardian",
+    "displayOrder": 1,
+    "progression": "medium",
+    "role": "combat-defense",
+    "skillKey": "mental-defense",
+    "skillName": "Mental Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "magical-guardian",
+    "displayOrder": 2,
+    "progression": "slow",
+    "role": "combat-defense",
+    "skillKey": "physical-defense",
+    "skillName": "Physical Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "magical-guardian",
+    "displayOrder": 3,
+    "progression": "fast",
+    "role": "combat-technique",
+    "skillKey": "spellcasting",
+    "skillName": "Spellcasting",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "magical-guardian",
+    "displayOrder": 4,
+    "progression": "fast",
+    "role": "combat-defense",
+    "skillKey": "spiritual-defense",
+    "skillName": "Spiritual Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "magical-guardian",
+    "displayOrder": 5,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "spirituality",
+    "skillName": "Spirituality",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "magical-guardian",
+    "displayOrder": 6,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "performance",
+    "skillName": "Performance",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "magical-guardian",
+    "displayOrder": 7,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "medicine",
+    "skillName": "Medicine",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "magical-guardian",
+    "displayOrder": 8,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "influence",
+    "skillName": "Influence",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "magical-guardian",
+    "displayOrder": 9,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "nature",
+    "skillName": "Nature",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "monster-tamer",
+    "displayOrder": 1,
+    "progression": "fast",
+    "role": "combat-defense",
+    "skillKey": "mental-defense",
+    "skillName": "Mental Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "monster-tamer",
+    "displayOrder": 2,
+    "progression": "fast",
+    "role": "combat-technique",
+    "skillKey": "monster-taming",
+    "skillName": "Monster Taming",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "monster-tamer",
+    "displayOrder": 3,
+    "progression": "slow",
+    "role": "combat-defense",
+    "skillKey": "physical-defense",
+    "skillName": "Physical Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "monster-tamer",
+    "displayOrder": 4,
+    "progression": "medium",
+    "role": "combat-defense",
+    "skillKey": "spiritual-defense",
+    "skillName": "Spiritual Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "monster-tamer",
+    "displayOrder": 5,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "medicine",
+    "skillName": "Medicine",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "monster-tamer",
+    "displayOrder": 6,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "nature",
+    "skillName": "Nature",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "monster-tamer",
+    "displayOrder": 7,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "influence",
+    "skillName": "Influence",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "monster-tamer",
+    "displayOrder": 8,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "athletics",
+    "skillName": "Athletics",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "monster-tamer",
+    "displayOrder": 9,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "stealth",
+    "skillName": "Stealth",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "spirit-warrior",
+    "displayOrder": 1,
+    "progression": "fast",
+    "role": "combat-technique",
+    "skillKey": "martial-arts",
+    "skillName": "Martial Arts",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "spirit-warrior",
+    "displayOrder": 2,
+    "progression": "slow",
+    "role": "combat-defense",
+    "skillKey": "mental-defense",
+    "skillName": "Mental Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "spirit-warrior",
+    "displayOrder": 3,
+    "progression": "fast",
+    "role": "combat-defense",
+    "skillKey": "physical-defense",
+    "skillName": "Physical Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "spirit-warrior",
+    "displayOrder": 4,
+    "progression": "medium",
+    "role": "combat-defense",
+    "skillKey": "spiritual-defense",
+    "skillName": "Spiritual Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "spirit-warrior",
+    "displayOrder": 5,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "spirituality",
+    "skillName": "Spirituality",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "spirit-warrior",
+    "displayOrder": 6,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "athletics",
+    "skillName": "Athletics",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "spirit-warrior",
+    "displayOrder": 7,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "medicine",
+    "skillName": "Medicine",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "spirit-warrior",
+    "displayOrder": 8,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "culinary",
+    "skillName": "Culinary",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "spirit-warrior",
+    "displayOrder": 9,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "insight",
+    "skillName": "Insight",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "weapon-master",
+    "displayOrder": 1,
+    "progression": "fast",
+    "role": "combat-technique",
+    "skillKey": "melee-weapons",
+    "skillName": "Melee Weapons",
+    "whenPrimaryAttribute": "strength"
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "weapon-master",
+    "displayOrder": 2,
+    "progression": "medium",
+    "role": "combat-technique",
+    "skillKey": "melee-weapons",
+    "skillName": "Melee Weapons",
+    "whenPrimaryAttribute": "agility"
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "weapon-master",
+    "displayOrder": 3,
+    "progression": "medium",
+    "role": "combat-technique",
+    "skillKey": "targeting",
+    "skillName": "Targeting",
+    "whenPrimaryAttribute": "strength"
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "weapon-master",
+    "displayOrder": 4,
+    "progression": "fast",
+    "role": "combat-technique",
+    "skillKey": "targeting",
+    "skillName": "Targeting",
+    "whenPrimaryAttribute": "agility"
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "weapon-master",
+    "displayOrder": 5,
+    "progression": "medium",
+    "role": "combat-defense",
+    "skillKey": "mental-defense",
+    "skillName": "Mental Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "weapon-master",
+    "displayOrder": 6,
+    "progression": "fast",
+    "role": "combat-defense",
+    "skillKey": "physical-defense",
+    "skillName": "Physical Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "weapon-master",
+    "displayOrder": 7,
+    "progression": "slow",
+    "role": "combat-defense",
+    "skillKey": "spiritual-defense",
+    "skillName": "Spiritual Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "weapon-master",
+    "displayOrder": 8,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "athletics",
+    "skillName": "Athletics",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "weapon-master",
+    "displayOrder": 9,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "society",
+    "skillName": "Society",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "weapon-master",
+    "displayOrder": 10,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "influence",
+    "skillName": "Influence",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "weapon-master",
+    "displayOrder": 11,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "observation",
+    "skillName": "Observation",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "weapon-master",
+    "displayOrder": 12,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "crafting",
+    "skillName": "Crafting",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "henshin-hero",
+    "displayOrder": 1,
+    "progression": "fast",
+    "role": "combat-technique",
+    "skillKey": "henshin-arts",
+    "skillName": "Henshin Arts",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "henshin-hero",
+    "displayOrder": 2,
+    "progression": "slow",
+    "role": "combat-defense",
+    "skillKey": "mental-defense",
+    "skillName": "Mental Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "henshin-hero",
+    "displayOrder": 3,
+    "progression": "fast",
+    "role": "combat-defense",
+    "skillKey": "physical-defense",
+    "skillName": "Physical Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "henshin-hero",
+    "displayOrder": 4,
+    "progression": "medium",
+    "role": "combat-defense",
+    "skillKey": "spiritual-defense",
+    "skillName": "Spiritual Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "henshin-hero",
+    "displayOrder": 5,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "athletics",
+    "skillName": "Athletics",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "henshin-hero",
+    "displayOrder": 6,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "performance",
+    "skillName": "Performance",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "henshin-hero",
+    "displayOrder": 7,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "technology",
+    "skillName": "Technology",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "henshin-hero",
+    "displayOrder": 8,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "science",
+    "skillName": "Science",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "henshin-hero",
+    "displayOrder": 9,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "vehicles",
+    "skillName": "Vehicles",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "metamorph",
+    "displayOrder": 1,
+    "progression": "medium",
+    "role": "combat-defense",
+    "skillKey": "mental-defense",
+    "skillName": "Mental Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "metamorph",
+    "displayOrder": 2,
+    "progression": "fast",
+    "role": "combat-technique",
+    "skillKey": "metamorphosis",
+    "skillName": "Metamorphosis",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "metamorph",
+    "displayOrder": 3,
+    "progression": "fast",
+    "role": "combat-defense",
+    "skillKey": "physical-defense",
+    "skillName": "Physical Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "metamorph",
+    "displayOrder": 4,
+    "progression": "slow",
+    "role": "combat-defense",
+    "skillKey": "spiritual-defense",
+    "skillName": "Spiritual Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "metamorph",
+    "displayOrder": 5,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "nature",
+    "skillName": "Nature",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "metamorph",
+    "displayOrder": 6,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "spirituality",
+    "skillName": "Spirituality",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "metamorph",
+    "displayOrder": 7,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "deception",
+    "skillName": "Deception",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "metamorph",
+    "displayOrder": 8,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "performance",
+    "skillName": "Performance",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "metamorph",
+    "displayOrder": 9,
+    "progression": null,
+    "role": "utility-option",
+    "skillKey": "roguery",
+    "skillName": "Roguery",
+    "whenPrimaryAttribute": null
+  }
+]

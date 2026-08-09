@@ -1,8 +1,8 @@
 # Game-data source contract
 
-Status: living source-schema contract. Shared schema-v4 expressions, canonical source adapters, pure whole-model validation, and deterministic schema-v2 staging are implemented against fixtures; live acceptance and publishing remain open.
+Status: living source/runtime contract. Schema-v4 acquisition, adaptation, validation, deterministic schema-v2 staging, reviewed publishing, and rollback are implemented and accepted.
 
-Last updated: 2026-08-04.
+Last updated: 2026-08-09.
 
 ## Canonical source and versions
 
@@ -11,14 +11,14 @@ The canonical editable source is the native Google Sheet [game-x-class-data](htt
 | Property | Current value |
 |---|---|
 | Drive file ID | `1TEdxuufglP8lFRNk8QD4N_351-0ihAUFLG2743ESjoI` |
-| Observed Drive version | `642` |
-| Observed Drive modified time | `2026-08-08T19:36:29.890Z` |
+| Observed Drive version | `647` |
+| Observed Drive modified time | `2026-08-09T02:27:03.310Z` |
 | Source schema | `4` |
 | Grant syntax | `2` |
 | Prerequisite syntax | `2` |
-| Production runtime release schema | `1` (frozen June 29 artifacts) |
-| Staged runtime artifact schema | `2` (authenticated and deterministic; not yet reviewed or published) |
-| Production export status | Frozen |
+| Production runtime release schema | `2` (reviewed candidate `20260809T022801911Z-51956`) |
+| Staged runtime artifact schema | `2` |
+| Production export status | Exact reviewed publisher only; generic export frozen |
 
 `contracts/game-data-source.json` is the machine-readable locator and MIME/schema expectation. It contains no credentials. `contracts/game-data-release-baseline.json` protects the exact checked-in production artifacts. These contracts describe different things and must not be conflated.
 
@@ -282,11 +282,11 @@ Artifact construction accepts only a canonical model whose whole-model validatio
 
 The combined artifact records source schema, exporter version, and the exact stable source revision (`fileId`, Drive version, modified time, and normalized-model SHA-256). The raw XLSX SHA-256 identifies one transport export and remains in source provenance and run reports because Google may generate byte-distinct XLSX ZIPs for an unchanged native Sheet revision. Raw transport hashes and volatile fetch/export times do not belong in runtime bytes. Split artifacts must equal their corresponding combined fields, and freshly serialized output must pass current runtime getters, technique indexing, and grant loading before any artifact files are installed.
 
-Schema v2 is staged only. Production remains frozen at schema v1 until an authenticated source run validates, source findings are resolved, the complete diff is reviewed, and `WPB-PUBLISH` promotes the exact approved bytes.
+Schema v2 is the production runtime contract. `WPB-PUBLISH` promoted the exact approved bytes from immutable run `20260809T022801911Z-51956`; the release contract and baseline preserve the approved source/model/artifact hashes. Future releases must repeat acquisition, validation, staging, complete diff review, and separately approved publishing.
 
-## Frozen-release diff expectations
+## Published schema-v1 to schema-v2 transition
 
-The frozen schema-v1 release predates the normalized source. Its eventual reviewed diff is expected to include, among other content changes:
+The reviewed transition from schema v1 included, among other content changes:
 
 - removal of the stale class-feature owner bucket `5`;
 - removal of the empty feat record;
@@ -295,7 +295,7 @@ The frozen schema-v1 release predates the normalized source. Its eventual review
 - stable technique keys and structured costs;
 - normalized class skills and new/expanded typed grants.
 
-These are expectations, not permission to publish without the complete `WPB-STAGING` through `WPB-DIFF-REVIEW` gates.
+The exact complete diff and hashes are preserved in [game-data-release-candidate-2026-08-08.md](game-data-release-candidate-2026-08-08.md), and the promotion/rollback evidence is preserved in [game-data-release-2026-08-09.md](game-data-release-2026-08-09.md).
 
 ## Work Package B handoff
 

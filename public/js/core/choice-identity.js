@@ -9,6 +9,10 @@ export function normalizeChoiceId(value) {
   return sanitizeText(value, { maxLen: 96, collapse: true });
 }
 
+function normalizeDerivedIdentity(value) {
+  return normalizeChoiceId(value).toLowerCase();
+}
+
 function choiceHash(value) {
   let hash = 5381;
   for (const ch of String(value || "")) {
@@ -17,14 +21,15 @@ function choiceHash(value) {
   return hash.toString(36);
 }
 
-function resolveLegacyGrantChoiceId(grant, { sourceId = "", index = 0 } = {}) {
+function resolveLegacyGrantChoiceId(grant, { sourceId = "", index = 0, normalizeSemantic = true } = {}) {
   const explicit = normalizeChoiceId(grant?.choiceId);
   if (explicit) return explicit;
   if (!grantCreatesChoice(grant)) return "";
 
   const source = normalizeChoiceId(sourceId || "source");
-  const type = normalizeChoiceId(grant?.type || "choice");
-  const skill = normalizeChoiceId(grant?.skill || grant?.name || grant?.key || "");
+  const type = normalizeDerivedIdentity(grant?.type || "choice");
+  const rawSkill = grant?.skillKey || grant?.key || grant?.skill || grant?.name || "";
+  const skill = normalizeSemantic ? normalizeDerivedIdentity(rawSkill) : normalizeChoiceId(rawSkill);
   return normalizeChoiceId([source, type, skill, String(index)].filter(Boolean).join(":"));
 }
 
@@ -42,8 +47,8 @@ export function resolveGrantChoiceId(grant, { sourceId = "", index = 0 } = {}) {
   if (explicit) return explicit;
   if (!grantCreatesChoice(grant)) return "";
 
-  const type = normalizeChoiceId(grant?.type || "choice");
-  const skill = normalizeChoiceId(grant?.skill || grant?.name || grant?.key || "");
+  const type = normalizeDerivedIdentity(grant?.type || "choice");
+  const skill = normalizeDerivedIdentity(grant?.skillKey || grant?.key || grant?.skill || grant?.name || "");
   const rawSource = sanitizeText(sourceId || "source", { maxLen: 260, collapse: true });
   const raw = [rawSource, type, skill, String(index)].filter(Boolean).join(":");
   const sourceSlug = normalizeChoiceId(rawSource.split(":").filter(Boolean).pop() || rawSource || "source");
@@ -71,7 +76,8 @@ export function resolveGrantChoiceIds(grant, { sourceId = "", index = 0 } = {}) 
 export function resolveGrantChoiceAliases(grant, { sourceId = "", index = 0 } = {}) {
   const canonical = resolveGrantChoiceId(grant, { sourceId, index });
   const legacy = resolveLegacyGrantChoiceId(grant, { sourceId, index });
-  return [canonical, legacy].filter((id, idx, arr) => id && arr.indexOf(id) === idx);
+  const displayCaseLegacy = resolveLegacyGrantChoiceId(grant, { sourceId, index, normalizeSemantic: false });
+  return [canonical, legacy, displayCaseLegacy].filter((id, idx, arr) => id && arr.indexOf(id) === idx);
 }
 
 export function resolveGrantChoiceRef(grant) {

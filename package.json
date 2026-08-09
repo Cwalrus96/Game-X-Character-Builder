@@ -21,6 +21,7 @@
     "data:source:check": "node scripts/fetch-game-data-source.mjs --check",
     "fetch:data": "node scripts/fetch-game-data-source.mjs",
     "stage:data": "node scripts/stage-game-data.mjs",
+    "publish:data": "node scripts/publish-game-data.mjs",
     "export:data": "node scripts/export-game-data.mjs data/game-x-class-data.xlsx public/data/game-x",
     "baseline:data": "node scripts/game-data-release-baseline.mjs",
     "validate:assets": "node scripts/validate-public-assets.mjs",

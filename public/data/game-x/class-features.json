@@ -1,975 +1,2209 @@
 {
-  "5": [
-    {
-      "type": "feature",
-      "classKey": "5",
-      "level": 1,
-      "featureKey": "guardian-transformation",
-      "name": "Guardian Transformation",
-      "description": "As an action while holding your Guardian Accessory, you can speak your transformation phrase to transform into your Magical Guardian form. This transformation usually involves a costume change, the user being enveloped in bright light, and cool particle effects. When you activate your Guardian Transformation, increment your Power Die by 1. You also gain a number of “Charms” equal to your Primary Attribute. When an ally you can see makes a defense roll, you may choose to spend one “Charm” to add +1D to that ally’s roll (after seeing the result of their roll, but before determining the outcome). You can also spend an action to touch a willing creature and expend any number of “Charms” to heal that creature by 5 times the number of charms spent. Once you’ve transformed into your guardian form, you can’t do so again until you take a short rest.",
-      "prerequisites": null,
-      "grants": [],
-      "grantNotes": null
-    }
-  ],
   "henshin-hero": [
     {
-      "type": "feature",
+      "chooseCount": null,
       "classKey": "henshin-hero",
-      "level": 1,
+      "description": "You have an object - such as a Crystal, Technological Device, a watch, or a weapon, that serves as your Transformation object. This object channels your energy, and allows you to transform into a powerful new form. As an action while holding this item you can transform into your Henshin Hero form. This transformation usually involves a costume change, the user being enveloped in energy, and possibly explosions. When you transform into your Hero form, increment your Power Die by 1, and you gain 1 Armor.\n\nYou leave this transformation when you drop to 0 HP, after 10 rounds have passed, or you spend an action to transform back into your civilian form. Once you have transformed in this way, you cannot do so again until you take a short rest.",
       "featureKey": "hero-transformation",
+      "grantNotes": null,
+      "grantText": null,
+      "grants": [],
+      "grantsRaw": null,
+      "level": 1,
       "name": "Hero Transformation",
-      "description": "You have an object - such as a Crystal, Technological Device, a watch, or a weapon, that serves as your Transformation object. This object channels your energy, and allows you to transform into a powerful new form. As an action while holding this item you can transform into your Henshin Hero form. This transformation usually involves a costume change, the user being enveloped in energy, and possibly explosions. When you transform into your Hero form, increment your Power Die by 1, and you gain 1 Armor. You also gain the following ability:\n\nInspiring Aura\nYour heroic presence and cinematic fighting style inspires your allies. While transformed, you have an aura that affects allies within 3 squares of you (including yourself). Allies in this aura gain a +1D Status Bonus to Mental Defense rolls. You leave this transformation when you drop to 0 HP, or you spend an action to transform back into your civilian form. Once you have transformed in this way, you cannot do so again until you take a short rest.",
-      "prerequisites": null,
-      "grants": [],
-      "grantNotes": null
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
     },
     {
-      "type": "optionGroup",
+      "chooseCount": null,
       "classKey": "henshin-hero",
+      "description": "Your heroic presence and cinematic fighting style inspires your allies. While transformed, you have an aura that affects allies within 3 squares of you (including yourself). Allies in this aura gain a +1D Status Bonus to Mental Defense rolls.",
+      "featureKey": "inspiring-aura",
+      "grantNotes": null,
+      "grantText": null,
+      "grants": [],
+      "grantsRaw": null,
       "level": 1,
-      "featureKey": "heroic-combat-training",
-      "name": "Heroic Combat Training",
+      "name": "Inspiring Aura",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
+    },
+    {
+      "chooseCount": 1,
+      "classKey": "henshin-hero",
       "description": "Choose one of the following combat skills: Targeting, Melee Weapons, or Martial Arts. You have a Medium skill progression in the chosen skill. If you choose Targeting or Melee Weapons, you gain 1 Rank 1 weapon that uses that skill.",
-      "prerequisites": null,
-      "grants": [],
+      "featureKey": "heroic-combat-training",
       "grantNotes": null,
-      "chooseCount": 1,
+      "grantText": null,
+      "grants": [],
+      "grantsRaw": null,
+      "level": 1,
+      "name": "Heroic Combat Training",
+      "notes": null,
       "options": [
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "henshin-hero",
-          "level": 1,
-          "featureKey": "targeting",
-          "name": "Targeting",
           "description": null,
-          "prerequisites": null,
+          "featureKey": "heroic-combat-training-targeting",
+          "grantNotes": "Gain Medium progression in Targeting and one Rank 1 Targeting weapon.",
+          "grantText": "Gain Medium progression in Targeting and one Rank 1 Targeting weapon.",
           "grants": [
             {
-              "type": "skill",
               "name": "Targeting",
-              "progression": "medium"
+              "progression": "medium",
+              "type": "skill"
+            },
+            {
+              "count": 1,
+              "rank": 1,
+              "skill": "Targeting",
+              "type": "weapon"
             }
           ],
-          "grantNotes": null
+          "grantsRaw": "skill | name=Targeting | progression=medium\nweapon | skill=Targeting | rank=1 | count=1",
+          "level": 1,
+          "name": "Targeting",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
         },
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "henshin-hero",
-          "level": 1,
-          "featureKey": "melee-weapons",
-          "name": "Melee Weapons",
           "description": null,
-          "prerequisites": null,
+          "featureKey": "heroic-combat-training-melee-weapons",
+          "grantNotes": "Gain Medium progression in Melee Weapons and one Rank 1 Melee Weapon.",
+          "grantText": "Gain Medium progression in Melee Weapons and one Rank 1 Melee Weapon.",
           "grants": [
             {
-              "type": "skill",
               "name": "Melee Weapons",
-              "progression": "medium"
+              "progression": "medium",
+              "type": "skill"
+            },
+            {
+              "count": 1,
+              "rank": 1,
+              "skill": "Melee Weapons",
+              "type": "weapon"
             }
           ],
-          "grantNotes": null
+          "grantsRaw": "skill | name=Melee Weapons | progression=medium\nweapon | skill=Melee Weapons | rank=1 | count=1",
+          "level": 1,
+          "name": "Melee Weapons",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
         },
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "henshin-hero",
-          "level": 1,
-          "featureKey": "martial-arts",
-          "name": "Martial Arts",
           "description": null,
-          "prerequisites": null,
+          "featureKey": "heroic-combat-training-martial-arts",
+          "grantNotes": null,
+          "grantText": null,
           "grants": [
             {
-              "type": "skill",
               "name": "Martial Arts",
-              "progression": "medium"
+              "progression": "medium",
+              "type": "skill"
             }
           ],
-          "grantNotes": null
+          "grantsRaw": "skill | name=Martial Arts | progression=medium",
+          "level": 1,
+          "name": "Martial Arts",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
         }
-      ]
+      ],
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "optionGroup"
     },
     {
-      "type": "optionGroup",
-      "classKey": "henshin-hero",
-      "level": 1,
-      "featureKey": "emblem",
-      "name": "Emblem",
-      "description": "Choose one of the following Emblems. This emblem represents the “theme” of your transformation. Each emblem provides a benefit to the user, as well as an aura that provides a benefit to allies near you.",
-      "prerequisites": null,
-      "grants": [],
-      "grantNotes": null,
       "chooseCount": 1,
+      "classKey": "henshin-hero",
+      "description": "Choose one of the following Emblems. This emblem represents the “theme” of your transformation. Each emblem provides a benefit to the user, as well as an aura that provides a benefit to allies near you.",
+      "featureKey": "emblem",
+      "grantNotes": null,
+      "grantText": null,
+      "grants": [],
+      "grantsRaw": null,
+      "level": 1,
+      "name": "Emblem",
+      "notes": null,
       "options": [
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "henshin-hero",
-          "level": 1,
-          "featureKey": "wild-animal",
-          "name": "Wild Animal",
           "description": "This emblem takes the form of a wild animal such as a lion, shark, or eagle. You gain the following action: Mark Prey\nYour enhanced animalist senses allow you to detect signs of danger - allies within your inspiring aura also gain a +1D Status Bonus to Observation.",
-          "prerequisites": null,
+          "featureKey": "emblem-wild-animal",
+          "grantNotes": "Gain the Mark Prey technique.",
+          "grantText": "Gain the Mark Prey technique.",
           "grants": [
             {
-              "type": "technique",
-              "name": "Mark Prey"
+              "key": "mark-prey",
+              "name": "Mark Prey",
+              "type": "technique"
             }
           ],
-          "grantNotes": null
+          "grantsRaw": "technique | name=Mark Prey | techniqueKey=mark-prey",
+          "level": 1,
+          "name": "Wild Animal",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
         },
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "henshin-hero",
-          "level": 1,
-          "featureKey": "prehistoric-beast",
-          "name": "Prehistoric Beast",
           "description": "This emblem takes the form of an extinct prehistoric animal, such as a Dinosaur, Pteranodon, or Mammoth. Titanic Strength - You channel the massive strength and size of a prehistoric beast. Your scale is treated as +1 for the purposes of forced movement. Whenever you would forcibly push or pull another creature, increase the maximum distance by 1 square. When another creature would try to move you, you may choose to reduce that distance by 1 square. Allies in your inspiring aura gain a +1D Status Bonus to Athletics, as they channel the awe-inspiring strength of these ancient creatures.",
-          "prerequisites": null,
+          "featureKey": "emblem-prehistoric-beast",
+          "grantNotes": null,
+          "grantText": null,
           "grants": [],
-          "grantNotes": null
+          "grantsRaw": null,
+          "level": 1,
+          "name": "Prehistoric Beast",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
         },
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "henshin-hero",
-          "level": 1,
-          "featureKey": "mythical-creature",
-          "name": "Mythical Creature",
           "description": "This emblem takes the form of a legendary being such as a dragon, phoenix, or unicorn. You gain the following reaction: Mythic Rebirth",
-          "prerequisites": null,
+          "featureKey": "emblem-mythical-creature",
+          "grantNotes": "Gain the Mythic Rebirth technique.",
+          "grantText": "Gain the Mythic Rebirth technique.",
           "grants": [
             {
-              "type": "technique",
-              "name": "Mythic Rebirth"
+              "key": "mythic-rebirth",
+              "name": "Mythic Rebirth",
+              "type": "technique"
             }
           ],
-          "grantNotes": null
+          "grantsRaw": "technique | name=Mythic Rebirth | techniqueKey=mythic-rebirth",
+          "level": 1,
+          "name": "Mythical Creature",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
         },
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "henshin-hero",
-          "level": 1,
-          "featureKey": "insect",
-          "name": "Insect",
           "description": "This emblem takes the form of an inconspicuous and adaptable insect, such as a Stag Beetle, Grasshopper, or Butterfly. You gain the following ability:\n\nBeetle Armor - You gain Armor 5 to Bleeding and Poison\nAllies in your inspiring aura gain a +1D status bonus to stealth, as your aura helps camouflage them into their surroundings.",
-          "prerequisites": null,
+          "featureKey": "emblem-insect",
+          "grantNotes": null,
+          "grantText": null,
           "grants": [],
-          "grantNotes": null
+          "grantsRaw": null,
+          "level": 1,
+          "name": "Insect",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
         },
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "henshin-hero",
-          "level": 1,
-          "featureKey": "element",
-          "name": "Element",
           "description": "This emblem takes the form of a primal element, such as Water, Fire, Earth, or Wind. Choose one of these elements. You gain Rank 1 (Beginner) training in the Elementalism skill using the chosen element, and a “Slow” skill progression with this skill. See the “Elemental Powers” section for details. Allies in your inspiring aura gain Armor 5 against attacks with the chosen element trait.",
-          "prerequisites": null,
+          "featureKey": "emblem-element",
+          "grantNotes": "Choose an element and gain Slow progression in Elementalism.",
+          "grantText": "Choose an element and gain Slow progression in Elementalism.",
           "grants": [
             {
-              "type": "skill",
               "name": "Elementalism",
-              "progression": "slow"
+              "progression": "slow",
+              "type": "skill"
+            },
+            {
+              "choiceId": "element",
+              "count": 1,
+              "filterType": "element",
+              "type": "choice"
             }
           ],
-          "grantNotes": null
+          "grantsRaw": "skill | name=Elementalism | progression=slow\nchoice | choiceId=element | type=element | count=1",
+          "level": 1,
+          "name": "Element",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
         },
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "henshin-hero",
-          "level": 1,
-          "featureKey": "vehicle",
-          "name": "Vehicle",
           "description": "This emblem takes the form of a mechanical vehicle, such as a race-car, fire-truck, or fighter jet. You gain a Rank 1 Vehicle (see the “Vehicles” section for details). While transformed into your Hero form, you can summon your vehicle to you using an action. If you do so, it appears in the nearest unoccupied location to you that is large enough to fit the vehicle. Channeling the speed of a motorized vehicle, allies that start their turns in your aura gain +2 movement speed that turn.",
-          "prerequisites": null,
-          "grants": [],
-          "grantNotes": null
-        },
-        {
-          "type": "option",
-          "classKey": "henshin-hero",
-          "level": 1,
-          "featureKey": "ancient-warriors",
-          "name": "Ancient Warriors",
-          "description": "This emblem takes the form of a legendary warrior from history, such as a Samurai, Knight, or Gladiator. You gain the following ability: Know your Enemy\n\nBolstered by the discipline of these ancient warriors, allies in your Inspiring Aura gain immunity to the charmed, frightened, and taunted conditions.",
-          "prerequisites": null,
+          "featureKey": "emblem-vehicle",
+          "grantNotes": "Gain one Rank 1 vehicle. Vehicle support is not yet implemented.",
+          "grantText": "Gain one Rank 1 vehicle. Vehicle support is not yet implemented.",
           "grants": [
             {
-              "type": "technique",
-              "name": "Know your Enemy"
+              "count": 1,
+              "rank": 1,
+              "type": "vehicle"
             }
           ],
-          "grantNotes": null
+          "grantsRaw": "vehicle | rank=1 | count=1",
+          "level": 1,
+          "name": "Vehicle",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
+        },
+        {
+          "chooseCount": null,
+          "classKey": "henshin-hero",
+          "description": "This emblem takes the form of a legendary warrior from history, such as a Samurai, Knight, or Gladiator. You gain the following ability: Know your Enemy\n\nBolstered by the discipline of these ancient warriors, allies in your Inspiring Aura gain immunity to the charmed, frightened, and taunted conditions.",
+          "featureKey": "emblem-ancient-warriors",
+          "grantNotes": "Gain the Know your Enemy technique.",
+          "grantText": "Gain the Know your Enemy technique.",
+          "grants": [
+            {
+              "key": "know-your-enemy",
+              "name": "Know your Enemy",
+              "type": "technique"
+            }
+          ],
+          "grantsRaw": "technique | name=Know your Enemy | techniqueKey=know-your-enemy",
+          "level": 1,
+          "name": "Ancient Warriors",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
         }
-      ]
+      ],
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "optionGroup"
     }
   ],
   "magical-guardian": [
     {
-      "type": "optionGroup",
+      "chooseCount": null,
       "classKey": "magical-guardian",
-      "level": 1,
-      "featureKey": "guardian-accessory",
-      "name": "Guardian Accessory",
-      "description": "You have an important object - maybe an old family heirloom, personal treasure, or mysterious artifact given by a stranger. This object channels your energy, and allows you to transform.When you transform, your Accessory changes into one of the following forms.",
-      "prerequisites": null,
-      "grants": [],
+      "description": "As an action while holding your Guardian Accessory, you can speak your transformation phrase to transform into your Magical Guardian form. This transformation usually involves a costume change, the user being enveloped in bright light, and cool particle effects. When you activate your Guardian Transformation you gain the benefits of the Charge Action.\n\nYou leave this transformation when you drop to 0 HP, after 10 rounds have passed, or when you spend an action to transform back into your civilian form. Once you’ve transformed into your guardian form, you can’t do so again until you take a short rest.",
+      "featureKey": "guardian-transformation",
       "grantNotes": null,
+      "grantText": null,
+      "grants": [],
+      "grantsRaw": null,
+      "level": 1,
+      "name": "Guardian Transformation",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
+    },
+    {
+      "chooseCount": null,
+      "classKey": "magical-guardian",
+      "description": "While transformed, you gain a number of “Charms” equal to your Primary Attribute. When an ally you can see makes a defense roll, you may choose to spend one “Charm” to add +1D to that ally’s roll (after seeing the result of their roll, but before determining the outcome). You can also spend an action to touch a willing creature and expend any number of “Charms” to heal that creature by 5 times the number of charms spent. Any unspent charms are lost when you end your transformation.",
+      "featureKey": "charms",
+      "grantNotes": "Gain the Charms resource with capacity equal to your Primary Attribute.",
+      "grantText": "Gain the Charms resource with capacity equal to your Primary Attribute.",
+      "grants": [
+        {
+          "count": {
+            "kind": "symbol",
+            "symbol": "primary-attribute"
+          },
+          "name": "Charms",
+          "resourceKey": "charms",
+          "type": "resource"
+        }
+      ],
+      "grantsRaw": "resource | resourceKey=charms | name=Charms | count=primary-attribute",
+      "level": 1,
+      "name": "Charms",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
+    },
+    {
       "chooseCount": 1,
+      "classKey": "magical-guardian",
+      "description": "You have an important object - maybe an old family heirloom, personal treasure, or mysterious artifact given by a stranger. This object channels your energy, and allows you to transform. When you transform, your Accessory changes into one of the following forms.",
+      "featureKey": "guardian-accessory",
+      "grantNotes": null,
+      "grantText": null,
+      "grants": [],
+      "grantsRaw": null,
+      "level": 1,
+      "name": "Guardian Accessory",
+      "notes": null,
       "options": [
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "magical-guardian",
-          "level": 1,
-          "featureKey": "dazzling-wand",
-          "name": "Dazzling Wand",
           "description": "Your transformation item takes the form of a beautiful, ornate wand. You learn 1 additional spellcasting technique.",
-          "prerequisites": null,
+          "featureKey": "dazzling-wand",
+          "grantNotes": "Choose one Spellcasting technique.",
+          "grantText": "Choose one Spellcasting technique.",
           "grants": [
             {
-              "type": "technique-choice",
-              "skill": "spellcasting",
-              "count": 1
+              "count": 1,
+              "skill": "Spellcasting",
+              "type": "technique-choice"
             }
           ],
-          "grantNotes": null
+          "grantsRaw": "technique | skill=Spellcasting | count=1",
+          "level": 1,
+          "name": "Dazzling Wand",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
         },
         {
-          "type": "optionGroup",
-          "classKey": "magical-guardian",
-          "level": 1,
-          "featureKey": "shining-weapon",
-          "name": "Shining Weapon",
-          "description": "Choose a one of the following skills - Melee Weapons or Targeting. You gain Rank 1 training in the chosen skill, with a slow progression.",
-          "prerequisites": null,
-          "grants": [],
-          "grantNotes": null,
           "chooseCount": 1,
+          "classKey": "magical-guardian",
+          "description": "Choose a one of the following skills - Melee Weapons or Targeting. You gain Rank 1 training in the chosen skill, with a slow progression.",
+          "featureKey": "shining-weapon",
+          "grantNotes": null,
+          "grantText": null,
+          "grants": [],
+          "grantsRaw": null,
+          "level": 1,
+          "name": "Shining Weapon",
+          "notes": null,
           "options": [
             {
-              "type": "option",
+              "chooseCount": null,
               "classKey": "magical-guardian",
-              "level": 1,
-              "featureKey": "shining-weapon-melee-weapons",
-              "name": "Melee Weapons",
               "description": null,
-              "prerequisites": null,
+              "featureKey": "shining-weapon-melee-weapons",
+              "grantNotes": null,
+              "grantText": null,
               "grants": [
                 {
-                  "type": "skill",
                   "name": "Melee Weapons",
+                  "progression": "slow",
                   "rank": 1,
-                  "progression": "slow"
+                  "type": "skill"
                 }
               ],
-              "grantNotes": null
+              "grantsRaw": "skill | name=Melee Weapons | rank=1 | progression=slow",
+              "level": 1,
+              "name": "Melee Weapons",
+              "notes": null,
+              "prerequisites": [],
+              "prerequisitesRaw": null,
+              "type": "option"
             },
             {
-              "type": "option",
+              "chooseCount": null,
               "classKey": "magical-guardian",
-              "level": 1,
-              "featureKey": "shining-weapon-targeting",
-              "name": "Targeting",
               "description": null,
-              "prerequisites": null,
+              "featureKey": "shining-weapon-targeting",
+              "grantNotes": null,
+              "grantText": null,
               "grants": [
                 {
-                  "type": "skill",
                   "name": "Targeting",
+                  "progression": "slow",
                   "rank": 1,
-                  "progression": "slow"
+                  "type": "skill"
                 }
               ],
-              "grantNotes": null
+              "grantsRaw": "skill | name=Targeting | rank=1 | progression=slow",
+              "level": 1,
+              "name": "Targeting",
+              "notes": null,
+              "prerequisites": [],
+              "prerequisitesRaw": null,
+              "type": "option"
             }
-          ]
+          ],
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "optionGroup"
         },
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "magical-guardian",
-          "level": 1,
-          "featureKey": "magnificent-gadget",
-          "name": "Magnificent Gadget",
           "description": "Choose a skill you have at least Beginner training in. Your Transformation Object takes a form related to that skill. For example, if you choose the “Medicine” skill, it may transform into a Stethoscope. While holding the object, you have a +1D Item bonus to all rolls using that skill.",
-          "prerequisites": null,
-          "grants": [],
-          "grantNotes": null
+          "featureKey": "magnificent-gadget",
+          "grantNotes": "Choose one skill in which you have at least Rank 1 training.",
+          "grantText": "Choose one skill in which you have at least Rank 1 training.",
+          "grants": [
+            {
+              "choiceId": "trained-skill",
+              "count": 1,
+              "minRank": 1,
+              "type": "skill"
+            }
+          ],
+          "grantsRaw": "skill | choiceId=trained-skill | minRank=1 | count=1",
+          "level": 1,
+          "name": "Magnificent Gadget",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
+        },
+        {
+          "chooseCount": null,
+          "classKey": "magical-guardian",
+          "description": "You have a magical familiar. This familiar may be a magical spirit who grants you powers, a pet who is transformed by your magical abilities, or any number of other whimsical beasts. Create a Rank 0 Familiar using the Familiar Subsystem.",
+          "featureKey": "familiar-totem",
+          "grantNotes": "Gain one Rank 0 familiar. Familiar support is not yet implemented.",
+          "grantText": "Gain one Rank 0 familiar. Familiar support is not yet implemented.",
+          "grants": [
+            {
+              "count": 1,
+              "rank": 0,
+              "type": "familiar"
+            }
+          ],
+          "grantsRaw": "familiar | count=1 | rank=0",
+          "level": 1,
+          "name": "Familiar Totem",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
         }
-      ]
+      ],
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "optionGroup"
     },
     {
-      "type": "feature",
+      "chooseCount": null,
       "classKey": "magical-guardian",
-      "level": 1,
-      "featureKey": "magical-familiar",
-      "name": "Magical Familiar",
-      "description": "You have a magical familiar. This familiar may be a magical spirit who grants you powers, a pet who is transformed by your magical abilities, or any number of other whimsical beasts. Create a Rank 0 Familiar using the Familiar Subsystem.",
-      "prerequisites": null,
-      "grants": [],
-      "grantNotes": null
-    },
-    {
-      "type": "feature",
-      "classKey": "magical-guardian",
-      "level": 2,
+      "description": "You learn a single Magical Guardian class feat, or a general feat.",
       "featureKey": "magical-guardian-feat",
+      "grantNotes": "Choose one Magical Guardian class feat of level 2 or lower.",
+      "grantText": "Choose one Magical Guardian class feat of level 2 or lower.",
+      "grants": [
+        {
+          "category": "magical-guardian",
+          "count": 1,
+          "filterType": "class",
+          "level": 2,
+          "type": "feat"
+        }
+      ],
+      "grantsRaw": "feat | type=class | category=magical-guardian | maxLevel=2 | count=1",
+      "level": 2,
       "name": "Magical Guardian Feat",
-      "description": "You learn a single Magical Guardian class feat, or a general feat.",
-      "prerequisites": null,
-      "grants": [],
-      "grantNotes": null
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
     },
     {
-      "type": "feature",
+      "chooseCount": null,
       "classKey": "magical-guardian",
-      "level": 3,
-      "featureKey": "advanced-spellcasting",
-      "name": "Advanced Spellcasting",
+      "description": "Choose one Magical Guardian Archetype, or a Multiclass Archetype.",
+      "featureKey": "magical-guardian-archetype",
+      "grantNotes": "Choose one Magical Guardian or multiclass archetype.",
+      "grantText": "Choose one Magical Guardian or multiclass archetype.",
+      "grants": [
+        {
+          "category": "magical-guardian",
+          "count": 1,
+          "filterType": "archetype",
+          "type": "feat"
+        }
+      ],
+      "grantsRaw": "feat | type=archetype | category=magical-guardian | count=1",
+      "level": 2,
+      "name": "Magical Guardian Archetype",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
+    },
+    {
+      "chooseCount": null,
+      "classKey": "magical-guardian",
       "description": "Your Spellcasting Skill increases to Rank 2 - Advanced. You can now learn up to Rank 2 Spellcasting Techniques. You may replace one spellcasting technique you know with another that you qualify for.",
-      "prerequisites": null,
+      "featureKey": "advanced-spellcasting",
+      "grantNotes": null,
+      "grantText": null,
       "grants": [],
-      "grantNotes": null
-    },
-    {
-      "type": "feature",
-      "classKey": "magical-guardian",
-      "level": 4,
-      "featureKey": "magical-guardian-feat-2",
-      "name": "Magical Guardian Feat",
-      "description": "You learn a single Magical Guardian class feat, or a general feat.",
-      "prerequisites": null,
-      "grants": [],
-      "grantNotes": null
-    },
-    {
-      "type": "feature",
-      "classKey": "magical-guardian",
-      "level": 5,
-      "featureKey": "super-guardian-transformation",
-      "name": "Super Guardian Transformation",
-      "description": "In dire situations, your Magical Guardian unlocks the ability to ascend to a more powerful form. If your guardian is already transformed, they may spend an additional action and X energy to transform into their “Super” form. In this form gain TBD.",
-      "prerequisites": null,
-      "grants": [],
-      "grantNotes": null
-    },
-    {
-      "type": "feature",
-      "classKey": "magical-guardian",
+      "grantsRaw": null,
       "level": 3,
-      "featureKey": "master-spellcasting",
-      "name": "Master Spellcasting",
-      "description": "Your Spellcasting Skill increases to Rank 3 - Master. You can now learn up to Rank 3 Spellcasting Techniques. You may replace one spellcasting technique you know with another that you qualify for.",
-      "prerequisites": null,
+      "name": "Advanced Spellcasting",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
+    },
+    {
+      "chooseCount": null,
+      "classKey": "magical-guardian",
+      "description": "Your charms improve. Details TBD.",
+      "featureKey": "improved-charms",
+      "grantNotes": null,
+      "grantText": null,
       "grants": [],
-      "grantNotes": null
+      "grantsRaw": null,
+      "level": 3,
+      "name": "Improved Charms",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
+    },
+    {
+      "chooseCount": null,
+      "classKey": "magical-guardian",
+      "description": "You learn a single Magical Guardian class feat, or a general feat.",
+      "featureKey": "magical-guardian-feat-2",
+      "grantNotes": "Choose one Magical Guardian class feat of level 4 or lower.",
+      "grantText": "Choose one Magical Guardian class feat of level 4 or lower.",
+      "grants": [
+        {
+          "category": "magical-guardian",
+          "count": 1,
+          "filterType": "class",
+          "level": 4,
+          "type": "feat"
+        }
+      ],
+      "grantsRaw": "feat | type=class | category=magical-guardian | maxLevel=4 | count=1",
+      "level": 4,
+      "name": "Magical Guardian Feat",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
+    },
+    {
+      "chooseCount": null,
+      "classKey": "magical-guardian",
+      "description": "In dire situations, your Magical Guardian unlocks the ability to ascend to a more powerful form. If your guardian is already transformed, they may spend an additional action and 7 energy to transform into their “Super” form. When you transform, increment your power die and regain any spent charms. You can fly.",
+      "featureKey": "super-guardian-transformation",
+      "grantNotes": null,
+      "grantText": null,
+      "grants": [],
+      "grantsRaw": null,
+      "level": 5,
+      "name": "Super Guardian Transformation",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
+    },
+    {
+      "chooseCount": null,
+      "classKey": "magical-guardian",
+      "description": "Your Spellcasting Skill increases to Rank 3 - Master. You can now learn up to Rank 3 Spellcasting Techniques. You may replace one spellcasting technique you know with another that you qualify for.",
+      "featureKey": "master-spellcasting",
+      "grantNotes": null,
+      "grantText": null,
+      "grants": [],
+      "grantsRaw": null,
+      "level": 5,
+      "name": "Master Spellcasting",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
     }
   ],
   "metamorph": [
     {
-      "type": "optionGroup",
-      "classKey": "metamorph",
-      "level": 1,
-      "featureKey": "metamorphic-transformations",
-      "name": "Metamorphic Transformations",
-      "description": "You know one of the following forms. You can choose to transform into your chosen form as an action. Each form has a number of unique adaptations, and you can choose which adaptations to activate when you transform. You may only have one of these forms active at a time. While transformed, you may spend an action to modify your chosen adaptations, or to switch into a different form (if you have multiple forms known).",
-      "prerequisites": null,
-      "grants": [],
-      "grantNotes": null,
       "chooseCount": 1,
+      "classKey": "metamorph",
+      "description": "You know one of the following forms. You can choose to transform into your chosen form as an action. Each form has a number of unique adaptations, and you can choose which adaptations to activate when you transform. You may only have one of these forms active at a time. While transformed, you may spend an action to modify your chosen adaptations, or to switch into a different form (if you have multiple forms known).",
+      "featureKey": "metamorphic-transformations",
+      "grantNotes": null,
+      "grantText": null,
+      "grants": [],
+      "grantsRaw": null,
+      "level": 1,
+      "name": "Metamorphic Transformations",
+      "notes": null,
       "options": [
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "metamorph",
-          "level": 1,
-          "featureKey": "beast-form",
-          "name": "Beast Form",
           "description": "You take on the properties of animals and beasts. When you transform into this form, choose 2 of the following adaptations: Gliding: You do not take damage from falling. For every square you fall, you may also move horizontally 1 square. Tough Hide: You gain 1 armor. Spikes: Your body is covered in dangerous spikes. Whenever an enemy deals Melee damage to you, they also take damage equal to 1 + your Metamorphosis Rank. Savage Claws: Your melee attacks deal additional damage equal to 1 + your Metamorphosis Rank. Enhanced Senses: You gain a +1D bonus to Perception, and you know the location of creatures within 10 squares of you (even if you cannot see them). Creatures you cannot see are Obscured but not Concealed. Amphibious: You can breathe both air and water, and gain a swim speed equal to your movement speed. Climber: You gain a climbing speed and can move freely on vertical surfaces. Burrower: You gain a burrowing speed equal to half your movement speed. Quadrupedal: You gain +2 Movement Speed Natural Camouflage: You gain a +1D Bonus to Stealth. You are Obscured to Ranged attacks.",
-          "prerequisites": null,
+          "featureKey": "beast-form",
+          "grantNotes": null,
+          "grantText": null,
           "grants": [],
-          "grantNotes": null
+          "grantsRaw": null,
+          "level": 1,
+          "name": "Beast Form",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
         },
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "metamorph",
-          "level": 1,
-          "featureKey": "material-form",
-          "name": "Material Form",
           "description": "Your body takes on the properties of various materials. When you transform, choose 2 of the following adaptations: Elastic: Your melee attacks gain +1 reach. High Density: Whenever you would be pushed or pulled, reduce the distance by 2 squares. Magnetic: You can push and pull nearby metal objects. Metal weapons have a -1D penalty to attacks against you. If you hit a creature made of metal (or wearing metal armor) with an attack, you can push that creature a number of squares away from you equal to your Metamorphosis rank. Liquid: You can squeeze through small openings and cracks, and can share spaces with other creatures. Slippery: You cannot be immobilized. Sticky: When you succeed on a melee attack against a single target, you may choose to have that creature become grappled. Variable Hardness: When you take damage, gain 1 armor until the beginning of your next turn. If you take damage while you already have an armor bonus due to this ability, increase that bonus by 1.",
-          "prerequisites": null,
+          "featureKey": "material-form",
+          "grantNotes": null,
+          "grantText": null,
           "grants": [],
-          "grantNotes": null
+          "grantsRaw": null,
+          "level": 1,
+          "name": "Material Form",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
         },
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "metamorph",
-          "level": 1,
-          "featureKey": "elemental-form",
-          "name": "Elemental Form",
           "description": "Your body takes on the properties of various elemental powers. Choose one of the following elements: Water, Fire, Earth, Air, Metal, Ice, Electricity. You gain the following traits for that element: Elemental Resistance: You gain Armor 5 against attacks with the chosen trait. Elemental Strikes: Your attacks gain the chosen trait, and have the “Attack Modifiers” of that element (see the Elemental Powers Subsystem).",
-          "prerequisites": null,
+          "featureKey": "elemental-form",
+          "grantNotes": null,
+          "grantText": null,
           "grants": [],
-          "grantNotes": null
+          "grantsRaw": null,
+          "level": 1,
+          "name": "Elemental Form",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
         }
-      ]
+      ],
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "optionGroup"
     },
     {
-      "type": "feature",
+      "chooseCount": null,
       "classKey": "metamorph",
-      "level": 1,
-      "featureKey": "monstrous-mimicry",
-      "name": "Monstrous Mimicry",
       "description": "If you are in a square adjacent to a defeated enemy whose Threat Level is less than or equal to your Level, you may spend 1 action to absorb that enemy’s spirit energy. If you do so, you can temporarily transform into a copy of that enemy. This transformation lasts until the end of the combat, or until you spend an action to transform again.",
-      "prerequisites": null,
+      "featureKey": "monstrous-mimicry",
+      "grantNotes": null,
+      "grantText": null,
       "grants": [],
-      "grantNotes": null
+      "grantsRaw": null,
+      "level": 1,
+      "name": "Monstrous Mimicry",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
     }
   ],
   "monster-tamer": [
     {
-      "type": "feature",
+      "chooseCount": null,
       "classKey": "monster-tamer",
-      "level": 1,
-      "featureKey": "monster-companion",
-      "name": "Monster Companion",
       "description": "You have a Familiar - a creature formed from a strong bond and the power of your spirit energy. Use the Familiar Subsystem to determine the statistics for your familiar. You can choose any archetype and template, as well as 2 Rank 1 or lower Familiar Traits.",
-      "prerequisites": null,
-      "grants": [],
-      "grantNotes": null
-    },
-    {
-      "type": "feature",
-      "classKey": "monster-tamer",
-      "level": 1,
-      "featureKey": "creature-summoning",
-      "name": "Creature Summoning",
-      "description": "As an action, you can choose to summon or dismiss your bonded creature. When your creature is not summoned they may disappear to another dimension, or they may be stored in a physical object (such as an orb, figurine, or a card). Your creature disappears when it drops to 0 hit points, and it cannot be summoned again until you take a short rest.",
-      "prerequisites": null,
-      "grants": [],
-      "grantNotes": null
-    },
-    {
-      "type": "feature",
-      "classKey": "monster-tamer",
-      "level": 1,
-      "featureKey": "basic-monster-taming",
-      "name": "Basic Monster Taming",
-      "description": "You gain the following technique, using your \"Monster Taming\" skill: Tame Monster \nYou can also make “Investigate Enemy” actions using Intellect (Monster Taming). If you do so, you can ask the question “Can I tame this enemy”, in addition to the normal questions available to the “Investigate Enemy” action.",
-      "prerequisites": null,
+      "featureKey": "monster-companion",
+      "grantNotes": "Gain one Monster Companion. Familiar support is not yet implemented.",
+      "grantText": "Gain one Monster Companion. Familiar support is not yet implemented.",
       "grants": [
         {
-          "type": "technique",
-          "name": "Tame Monster"
+          "choiceId": "monster-companion",
+          "count": 1,
+          "type": "familiar"
         }
       ],
-      "grantNotes": null
-    },
-    {
-      "type": "feature",
-      "classKey": "monster-tamer",
+      "grantsRaw": "familiar | choiceId=monster-companion | count=1",
       "level": 1,
-      "featureKey": "tamer-bond",
-      "name": "Tamer Bond",
-      "description": "You have a Rank 1 Bond with your Monster Companion. This bond increases automatically as you level up, and is always equal to your Monster Taming skill Rank. If you have multiple Monster Companions, they are considered to have a bond of this same rank with each other. This bond also applies towards any Monsters that critically failed against your “Tame Monster” action.",
-      "prerequisites": null,
-      "grants": [],
-      "grantNotes": null
+      "name": "Monster Companion",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
     },
     {
-      "type": "feature",
+      "chooseCount": null,
       "classKey": "monster-tamer",
-      "level": 2,
-      "featureKey": "monster-tamer-feat",
-      "name": "Monster Tamer Feat",
-      "description": "You learn a single Monster Tamer class feat, or a general feat.",
-      "prerequisites": null,
-      "grants": [],
-      "grantNotes": null
-    },
-    {
-      "type": "optionGroup",
-      "classKey": "monster-tamer",
-      "level": 2,
-      "featureKey": "monster-evolution-or-collection",
-      "name": "Monster Evolution or Collection",
-      "description": "Choose one of the following:",
-      "prerequisites": null,
-      "grants": [],
+      "description": "As an action, you can choose to summon or dismiss your bonded creature. When your creature is not summoned they may disappear to another dimension, or they may be stored in a physical object (such as an orb, figurine, or a card). Your creature disappears when it drops to 0 hit points, and it cannot be summoned again until you take a short rest.",
+      "featureKey": "creature-summoning",
       "grantNotes": null,
+      "grantText": null,
+      "grants": [],
+      "grantsRaw": null,
+      "level": 1,
+      "name": "Creature Summoning",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
+    },
+    {
+      "chooseCount": null,
+      "classKey": "monster-tamer",
+      "description": "You gain the following technique, using your \"Monster Taming\" skill: Tame Monster\nYou can also make “Investigate Enemy” actions using Intellect (Monster Taming). If you do so, you can ask the question “Can I tame this enemy”, in addition to the normal questions available to the “Investigate Enemy” action.",
+      "featureKey": "basic-monster-taming",
+      "grantNotes": "Gain the Tame Monster technique.",
+      "grantText": "Gain the Tame Monster technique.",
+      "grants": [
+        {
+          "key": "tame-monster",
+          "name": "Tame Monster",
+          "type": "technique"
+        }
+      ],
+      "grantsRaw": "technique | name=Tame Monster | techniqueKey=tame-monster",
+      "level": 1,
+      "name": "Basic Monster Taming",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
+    },
+    {
+      "chooseCount": null,
+      "classKey": "monster-tamer",
+      "description": "You have a Rank 1 Bond with your Monster Companion. This bond increases automatically as you level up, and is always equal to your Monster Taming skill Rank. If you have multiple Monster Companions, they are considered to have a bond of this same rank with each other. This bond also applies towards any Monsters that critically failed against your “Tame Monster” action.",
+      "featureKey": "tamer-bond",
+      "grantNotes": null,
+      "grantText": null,
+      "grants": [],
+      "grantsRaw": null,
+      "level": 1,
+      "name": "Tamer Bond",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
+    },
+    {
+      "chooseCount": null,
+      "classKey": "monster-tamer",
+      "description": "You learn a single Monster Tamer class feat, or a general feat.",
+      "featureKey": "monster-tamer-feat",
+      "grantNotes": "Choose one Monster Tamer class feat of level 2 or lower.",
+      "grantText": "Choose one Monster Tamer class feat of level 2 or lower.",
+      "grants": [
+        {
+          "category": "monster-tamer",
+          "count": 1,
+          "filterType": "class",
+          "level": 2,
+          "type": "feat"
+        }
+      ],
+      "grantsRaw": "feat | type=class | category=monster-tamer | maxLevel=2 | count=1",
+      "level": 2,
+      "name": "Monster Tamer Feat",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
+    },
+    {
       "chooseCount": 1,
+      "classKey": "monster-tamer",
+      "description": "Choose one of the following. You make this choice again at levels 4, 6, 8, and 10.",
+      "featureKey": "monster-evolution-or-collection",
+      "grantNotes": null,
+      "grantText": null,
+      "grants": [],
+      "grantsRaw": null,
+      "level": 2,
+      "name": "Monster Evolution or Collection",
+      "notes": null,
       "options": [
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "monster-tamer",
-          "level": 2,
+          "description": "One of your Monster Companions gains a new evolution. Choose one of your Monster Companions.\nIf the rank of that companion is lower than your Monster Taming skill, increase its Rank by 1.\nOtherwise, if that creature does not have a Stage 2 evolution, it gains a Stage 2 evolution and one additional Familiar trait.\nStage 2 Evolution (1 Action + 3 Energy). Your Monster Companion transforms into a new, more powerful form. It is treated as 1 Rank higher, and gains 1 Familiar trait of its new Rank or lower.\nIf the creature already has a Stage 2 transformation, it gains a Stage 3 transformation and an additional Familiar trait.\nStage 3 Evolution (1 Action + 5 Energy). Your Monster Companion transforms into a new, more powerful form. It is treated as 2 Ranks higher than its base rank, and gains 1 Familiar trait of its new Rank or lower.",
           "featureKey": "monster-evolution",
+          "grantNotes": "Choose one Monster Companion and increase its rank by 1.",
+          "grantText": "Choose one Monster Companion and increase its rank by 1.",
+          "grants": [
+            {
+              "choiceId": "monster-evolution-companion",
+              "count": 1,
+              "type": "familiar"
+            },
+            {
+              "choiceRef": "monster-evolution-companion",
+              "operation": "increase",
+              "type": "rank",
+              "value": 1
+            }
+          ],
+          "grantsRaw": "familiar | choiceId=monster-evolution-companion | count=1\nrank | choiceRef=monster-evolution-companion | operation=increase | value=1",
+          "level": 2,
           "name": "Monster Evolution",
-          "description": "One of your Monster Companions gains a new evolution. Choose one of your Monster Companions.\nIf the rank of that companion is lower than your Monster Taming skill, increase its Rank by 1.\nOtherwise, if that creature does not have a Stage 2 evolution, it gains a Stage 2 evolution and one additional Familiar trait.\nStage 2 Evolution (1 Action + 3 Energy). Your Monster Companion transforms into a new, more powerful form. It is treated as 1 Rank higher, and gains 1 Familiar trait of its new Rank or lower. \nIf the creature already has a Stage 2 transformation, it gains a Stage 3 transformation and an additional Familiar trait.\nStage 3 Evolution (1 Action + 5 Energy). Your Monster Companion transforms into a new, more powerful form. It is treated as 2 Ranks higher than its base rank, and gains 1 Familiar trait of its new Rank or lower.",
-          "prerequisites": null,
-          "grants": [],
-          "grantNotes": null
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
         },
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "monster-tamer",
-          "level": 2,
-          "featureKey": "monster-collection",
-          "name": "Monster Collection",
           "description": "You gain a new Monster Companion. Its rank is 1 less than your Monster Taming skill.",
-          "prerequisites": null,
-          "grants": [],
-          "grantNotes": null
+          "featureKey": "monster-collection",
+          "grantNotes": "Gain one Monster Companion with rank equal to your Monster Taming rank minus 1.",
+          "grantText": "Gain one Monster Companion with rank equal to your Monster Taming rank minus 1.",
+          "grants": [
+            {
+              "count": 1,
+              "rankFormula": "monster-taming-rank-minus-1",
+              "type": "familiar"
+            }
+          ],
+          "grantsRaw": "familiar | count=1 | rankFormula=monster-taming-rank-minus-1",
+          "level": 2,
+          "name": "Monster Collection",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
         }
-      ]
+      ],
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "optionGroup"
+    },
+    {
+      "chooseCount": null,
+      "classKey": "monster-tamer",
+      "description": "Your Monster Taming skill increases to Rank 2 (Advanced).",
+      "featureKey": "advanced-monster-taming",
+      "grantNotes": null,
+      "grantText": null,
+      "grants": [],
+      "grantsRaw": null,
+      "level": 3,
+      "name": "Advanced Monster Taming",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
+    },
+    {
+      "chooseCount": null,
+      "classKey": "monster-tamer",
+      "description": "Increase the Rank of all of your Monster Companions by 1.",
+      "featureKey": "monster-rank-up",
+      "grantNotes": null,
+      "grantText": null,
+      "grants": [],
+      "grantsRaw": null,
+      "level": 3,
+      "name": "Monster Rank Up",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
+    },
+    {
+      "chooseCount": 1,
+      "classKey": "monster-tamer",
+      "description": "Choose either Monster Evolution or Monster Collection at level 4.",
+      "featureKey": "monster-evolution-or-collection-4",
+      "grantNotes": null,
+      "grantText": null,
+      "grants": [],
+      "grantsRaw": null,
+      "level": 4,
+      "name": "Monster Evolution or Collection",
+      "notes": null,
+      "options": [
+        {
+          "chooseCount": null,
+          "classKey": "monster-tamer",
+          "description": "Choose one of your Monster Companions. Increase its rank by 1.",
+          "featureKey": "monster-evolution-4",
+          "grantNotes": "Choose one Monster Companion and increase its rank by 1.",
+          "grantText": "Choose one Monster Companion and increase its rank by 1.",
+          "grants": [
+            {
+              "choiceId": "monster-evolution-4-companion",
+              "count": 1,
+              "type": "familiar"
+            },
+            {
+              "choiceRef": "monster-evolution-4-companion",
+              "operation": "increase",
+              "type": "rank",
+              "value": 1
+            }
+          ],
+          "grantsRaw": "familiar | choiceId=monster-evolution-4-companion | count=1\nrank | choiceRef=monster-evolution-4-companion | operation=increase | value=1",
+          "level": 4,
+          "name": "Monster Evolution",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
+        },
+        {
+          "chooseCount": null,
+          "classKey": "monster-tamer",
+          "description": "You gain a new Monster Companion. Its rank is 1 less than your Monster Taming skill.",
+          "featureKey": "monster-collection-4",
+          "grantNotes": "Gain one Monster Companion with rank equal to your Monster Taming rank minus 1.",
+          "grantText": "Gain one Monster Companion with rank equal to your Monster Taming rank minus 1.",
+          "grants": [
+            {
+              "count": 1,
+              "rankFormula": "monster-taming-rank-minus-1",
+              "type": "familiar"
+            }
+          ],
+          "grantsRaw": "familiar | count=1 | rankFormula=monster-taming-rank-minus-1",
+          "level": 4,
+          "name": "Monster Collection",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
+        }
+      ],
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "optionGroup"
+    },
+    {
+      "chooseCount": 1,
+      "classKey": "monster-tamer",
+      "description": "Choose either Monster Evolution or Monster Collection at level 6.",
+      "featureKey": "monster-evolution-or-collection-6",
+      "grantNotes": null,
+      "grantText": null,
+      "grants": [],
+      "grantsRaw": null,
+      "level": 6,
+      "name": "Monster Evolution or Collection",
+      "notes": null,
+      "options": [
+        {
+          "chooseCount": null,
+          "classKey": "monster-tamer",
+          "description": "Choose one of your Monster Companions. Increase its rank by 1.",
+          "featureKey": "monster-evolution-6",
+          "grantNotes": "Choose one Monster Companion and increase its rank by 1.",
+          "grantText": "Choose one Monster Companion and increase its rank by 1.",
+          "grants": [
+            {
+              "choiceId": "monster-evolution-6-companion",
+              "count": 1,
+              "type": "familiar"
+            },
+            {
+              "choiceRef": "monster-evolution-6-companion",
+              "operation": "increase",
+              "type": "rank",
+              "value": 1
+            }
+          ],
+          "grantsRaw": "familiar | choiceId=monster-evolution-6-companion | count=1\nrank | choiceRef=monster-evolution-6-companion | operation=increase | value=1",
+          "level": 6,
+          "name": "Monster Evolution",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
+        },
+        {
+          "chooseCount": null,
+          "classKey": "monster-tamer",
+          "description": "You gain a new Monster Companion. Its rank is 1 less than your Monster Taming skill.",
+          "featureKey": "monster-collection-6",
+          "grantNotes": "Gain one Monster Companion with rank equal to your Monster Taming rank minus 1.",
+          "grantText": "Gain one Monster Companion with rank equal to your Monster Taming rank minus 1.",
+          "grants": [
+            {
+              "count": 1,
+              "rankFormula": "monster-taming-rank-minus-1",
+              "type": "familiar"
+            }
+          ],
+          "grantsRaw": "familiar | count=1 | rankFormula=monster-taming-rank-minus-1",
+          "level": 6,
+          "name": "Monster Collection",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
+        }
+      ],
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "optionGroup"
+    },
+    {
+      "chooseCount": 1,
+      "classKey": "monster-tamer",
+      "description": "Choose either Monster Evolution or Monster Collection at level 8.",
+      "featureKey": "monster-evolution-or-collection-8",
+      "grantNotes": null,
+      "grantText": null,
+      "grants": [],
+      "grantsRaw": null,
+      "level": 8,
+      "name": "Monster Evolution or Collection",
+      "notes": null,
+      "options": [
+        {
+          "chooseCount": null,
+          "classKey": "monster-tamer",
+          "description": "Choose one of your Monster Companions. Increase its rank by 1.",
+          "featureKey": "monster-evolution-8",
+          "grantNotes": "Choose one Monster Companion and increase its rank by 1.",
+          "grantText": "Choose one Monster Companion and increase its rank by 1.",
+          "grants": [
+            {
+              "choiceId": "monster-evolution-8-companion",
+              "count": 1,
+              "type": "familiar"
+            },
+            {
+              "choiceRef": "monster-evolution-8-companion",
+              "operation": "increase",
+              "type": "rank",
+              "value": 1
+            }
+          ],
+          "grantsRaw": "familiar | choiceId=monster-evolution-8-companion | count=1\nrank | choiceRef=monster-evolution-8-companion | operation=increase | value=1",
+          "level": 8,
+          "name": "Monster Evolution",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
+        },
+        {
+          "chooseCount": null,
+          "classKey": "monster-tamer",
+          "description": "You gain a new Monster Companion. Its rank is 1 less than your Monster Taming skill.",
+          "featureKey": "monster-collection-8",
+          "grantNotes": "Gain one Monster Companion with rank equal to your Monster Taming rank minus 1.",
+          "grantText": "Gain one Monster Companion with rank equal to your Monster Taming rank minus 1.",
+          "grants": [
+            {
+              "count": 1,
+              "rankFormula": "monster-taming-rank-minus-1",
+              "type": "familiar"
+            }
+          ],
+          "grantsRaw": "familiar | count=1 | rankFormula=monster-taming-rank-minus-1",
+          "level": 8,
+          "name": "Monster Collection",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
+        }
+      ],
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "optionGroup"
+    },
+    {
+      "chooseCount": 1,
+      "classKey": "monster-tamer",
+      "description": "Choose either Monster Evolution or Monster Collection at level 10.",
+      "featureKey": "monster-evolution-or-collection-10",
+      "grantNotes": null,
+      "grantText": null,
+      "grants": [],
+      "grantsRaw": null,
+      "level": 10,
+      "name": "Monster Evolution or Collection",
+      "notes": null,
+      "options": [
+        {
+          "chooseCount": null,
+          "classKey": "monster-tamer",
+          "description": "Choose one of your Monster Companions. Increase its rank by 1.",
+          "featureKey": "monster-evolution-10",
+          "grantNotes": "Choose one Monster Companion and increase its rank by 1.",
+          "grantText": "Choose one Monster Companion and increase its rank by 1.",
+          "grants": [
+            {
+              "choiceId": "monster-evolution-10-companion",
+              "count": 1,
+              "type": "familiar"
+            },
+            {
+              "choiceRef": "monster-evolution-10-companion",
+              "operation": "increase",
+              "type": "rank",
+              "value": 1
+            }
+          ],
+          "grantsRaw": "familiar | choiceId=monster-evolution-10-companion | count=1\nrank | choiceRef=monster-evolution-10-companion | operation=increase | value=1",
+          "level": 10,
+          "name": "Monster Evolution",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
+        },
+        {
+          "chooseCount": null,
+          "classKey": "monster-tamer",
+          "description": "You gain a new Monster Companion. Its rank is 1 less than your Monster Taming skill.",
+          "featureKey": "monster-collection-10",
+          "grantNotes": "Gain one Monster Companion with rank equal to your Monster Taming rank minus 1.",
+          "grantText": "Gain one Monster Companion with rank equal to your Monster Taming rank minus 1.",
+          "grants": [
+            {
+              "count": 1,
+              "rankFormula": "monster-taming-rank-minus-1",
+              "type": "familiar"
+            }
+          ],
+          "grantsRaw": "familiar | count=1 | rankFormula=monster-taming-rank-minus-1",
+          "level": 10,
+          "name": "Monster Collection",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
+        }
+      ],
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "optionGroup"
     }
   ],
   "ninja": [
     {
-      "type": "optionGroup",
-      "classKey": "ninja",
-      "level": 1,
-      "featureKey": "ninja-combat-training",
-      "name": "Ninja Combat Training",
-      "description": "Choose one of the following combat skills: Targeting, Melee Weapons, or Martial Arts. You have a Medium skill progression in the chosen skill. If you chose Targeting or Melee Weapons, you gain 1 Rank 1 weapon that uses that skill.",
-      "prerequisites": null,
-      "grants": [],
-      "grantNotes": null,
       "chooseCount": 1,
+      "classKey": "ninja",
+      "description": "Choose one of the following combat skills: Targeting, Melee Weapons, or Martial Arts. You have a Medium skill progression in the chosen skill. If you chose Targeting or Melee Weapons, you gain 1 Rank 1 weapon that uses that skill.",
+      "featureKey": "ninja-combat-training",
+      "grantNotes": null,
+      "grantText": null,
+      "grants": [],
+      "grantsRaw": null,
+      "level": 1,
+      "name": "Ninja Combat Training",
+      "notes": null,
       "options": [
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "ninja",
-          "level": 1,
-          "featureKey": "targeting",
-          "name": "Targeting",
           "description": null,
-          "prerequisites": null,
+          "featureKey": "ninja-combat-training-targeting",
+          "grantNotes": "Gain Medium progression in Targeting and one Rank 1 Targeting weapon.",
+          "grantText": "Gain Medium progression in Targeting and one Rank 1 Targeting weapon.",
           "grants": [
             {
-              "type": "skill",
               "name": "Targeting",
-              "progression": "medium"
+              "progression": "medium",
+              "type": "skill"
+            },
+            {
+              "count": 1,
+              "rank": 1,
+              "skill": "Targeting",
+              "type": "weapon"
             }
           ],
-          "grantNotes": null
+          "grantsRaw": "skill | name=Targeting | progression=medium\nweapon | skill=Targeting | rank=1 | count=1",
+          "level": 1,
+          "name": "Targeting",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
         },
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "ninja",
-          "level": 1,
-          "featureKey": "melee-weapons",
-          "name": "Melee Weapons",
           "description": null,
-          "prerequisites": null,
+          "featureKey": "ninja-combat-training-melee-weapons",
+          "grantNotes": "Gain Medium progression in Melee Weapons and one Rank 1 Melee Weapon.",
+          "grantText": "Gain Medium progression in Melee Weapons and one Rank 1 Melee Weapon.",
           "grants": [
             {
-              "type": "skill",
               "name": "Melee Weapons",
-              "progression": "medium"
+              "progression": "medium",
+              "type": "skill"
+            },
+            {
+              "count": 1,
+              "rank": 1,
+              "skill": "Melee Weapons",
+              "type": "weapon"
             }
           ],
-          "grantNotes": null
+          "grantsRaw": "skill | name=Melee Weapons | progression=medium\nweapon | skill=Melee Weapons | rank=1 | count=1",
+          "level": 1,
+          "name": "Melee Weapons",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
         },
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "ninja",
-          "level": 1,
-          "featureKey": "martial-arts",
-          "name": "Martial Arts",
           "description": null,
-          "prerequisites": null,
+          "featureKey": "ninja-combat-training-martial-arts",
+          "grantNotes": null,
+          "grantText": null,
           "grants": [
             {
-              "type": "skill",
               "name": "Martial Arts",
-              "progression": "medium"
+              "progression": "medium",
+              "type": "skill"
             }
           ],
-          "grantNotes": null
+          "grantsRaw": "skill | name=Martial Arts | progression=medium",
+          "level": 1,
+          "name": "Martial Arts",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
         }
-      ]
+      ],
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "optionGroup"
     },
     {
-      "type": "feature",
+      "chooseCount": null,
       "classKey": "ninja",
-      "level": 1,
-      "featureKey": "exceptional-stealth",
-      "name": "Exceptional Stealth",
       "description": "Your Stealth Skill is exceptional - you get Advanced training at level 1, and you are allowed to train the Stealth skill up to 1 rank higher than the standard skill rank cap.",
-      "prerequisites": null,
+      "featureKey": "exceptional-stealth",
+      "grantNotes": null,
+      "grantText": null,
       "grants": [],
-      "grantNotes": null
-    },
-    {
-      "type": "feature",
-      "classKey": "ninja",
+      "grantsRaw": null,
       "level": 1,
-      "featureKey": "stealth-attack",
-      "name": "Stealth Attack",
-      "description": "If you make an attack against a single target while Concealed to that target, increase the degree of success by 1.",
-      "prerequisites": null,
-      "grants": [],
-      "grantNotes": null
+      "name": "Exceptional Stealth",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
     },
     {
-      "type": "feature",
+      "chooseCount": null,
       "classKey": "ninja",
-      "level": 2,
-      "featureKey": "ninja-feat",
-      "name": "Ninja Feat",
-      "description": "Choose one ninja feat your character qualifies for.",
-      "prerequisites": null,
+      "description": "If you make an attack against a single target while Concealed to that target, increase the degree of success by 1.",
+      "featureKey": "stealth-attack",
+      "grantNotes": null,
+      "grantText": null,
       "grants": [],
-      "grantNotes": null
+      "grantsRaw": null,
+      "level": 1,
+      "name": "Stealth Attack",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
+    },
+    {
+      "chooseCount": null,
+      "classKey": "ninja",
+      "description": "Choose one ninja feat your character qualifies for.",
+      "featureKey": "ninja-feat",
+      "grantNotes": "Choose one Ninja class feat of level 2 or lower.",
+      "grantText": "Choose one Ninja class feat of level 2 or lower.",
+      "grants": [
+        {
+          "category": "ninja",
+          "count": 1,
+          "filterType": "class",
+          "level": 2,
+          "type": "feat"
+        }
+      ],
+      "grantsRaw": "feat | type=class | category=ninja | maxLevel=2 | count=1",
+      "level": 2,
+      "name": "Ninja Feat",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
     }
   ],
   "spirit-warrior": [
     {
-      "type": "feature",
+      "chooseCount": null,
       "classKey": "spirit-warrior",
-      "level": 1,
-      "featureKey": "reactive-strikes",
-      "name": "Reactive Strikes",
       "description": "When an enemy leaves your melee range, you can use a reaction to make a Martial Arts attack against that enemy. On a success, the target’s movement ends (in addition to the attack’s other effects).",
-      "prerequisites": null,
-      "grants": [],
-      "grantNotes": null
-    },
-    {
-      "type": "feature",
-      "classKey": "spirit-warrior",
-      "level": 1,
-      "featureKey": "martial-arts-specialist",
-      "name": "Martial Arts Specialist",
-      "description": "Choose one “Martial Arts Tag” from those listed in the Martial Arts section of the document. You gain a +1D specialization bonus when performing a technique with the chosen tag.",
-      "prerequisites": null,
-      "grants": [],
-      "grantNotes": null
-    },
-    {
-      "type": "feature",
-      "classKey": "spirit-warrior",
-      "level": 1,
-      "featureKey": "combo-system",
-      "name": "Combo System",
-      "description": "Your mastery of Martial Arts allows you to string multiple techniques together to perform devastating combos. To perform a combo, you must declare all of the techniques you wish to perform, the targets of those techniques, and spend 3 actions and any required energy up-front. If you do so, the entire combo is treated as a single Activity, and therefore does not suffer from any repeated action penalties. A combo must start with an “Opener”, can contain any number of “Follow-Up”s, and may end with a “Finisher”. It is not required for a combo to contain all three types of moves - the only restrictions are that it must begin with an Opener, and if a finisher is used it must be at the end of the combo. At level 1, if you choose to perform a combo you must spend all 3 actions to do so.",
-      "prerequisites": null,
-      "grants": [],
-      "grantNotes": null
-    },
-    {
-      "type": "feature",
-      "classKey": "spirit-warrior",
-      "level": 1,
-      "featureKey": "warrior-s-mark",
-      "name": "Warrior’s Mark",
-      "description": "When you hit an enemy with a melee attack, you can choose to mark that enemy as your chosen target. Only 1 enemy may be marked this way at a time, and you cannot switch targets until the current target is knocked out or surrenders. While an enemy is marked in this way, both you and the enemy have a -1D status penalty to attack anyone besides the other. Also, you may make a reactive strike against the marked enemy if they attack a target other than you.",
-      "prerequisites": null,
-      "grants": [],
-      "grantNotes": null
-    },
-    {
-      "type": "optionGroup",
-      "classKey": "spirit-warrior",
-      "level": 1,
-      "featureKey": "stances",
-      "name": "Stances",
-      "description": "Your character knows 2 of the following Stances.. Each stance grants a passive benefit, as well as a drawback. Entering a stance, or switching between stances, requires an action.",
-      "prerequisites": null,
-      "grants": [],
+      "featureKey": "reactive-strikes",
       "grantNotes": null,
-      "chooseCount": 2,
+      "grantText": null,
+      "grants": [],
+      "grantsRaw": null,
+      "level": 1,
+      "name": "Reactive Strikes",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
+    },
+    {
+      "chooseCount": 1,
+      "classKey": "spirit-warrior",
+      "description": "Choose one Martial Arts technique tag. You gain a +1D Specialization Bonus when using Martial Arts techniques with that tag.",
+      "featureKey": "martial-arts-specialist",
+      "grantNotes": null,
+      "grantText": null,
+      "grants": [],
+      "grantsRaw": null,
+      "level": 1,
+      "name": "Martial Arts Specialist",
+      "notes": null,
       "options": [
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "spirit-warrior",
+          "description": null,
+          "featureKey": "martial-arts-specialist-opener",
+          "grantNotes": "Gain a +1D specialization bonus with Opener Martial Arts techniques.",
+          "grantText": "Gain a +1D specialization bonus with Opener Martial Arts techniques.",
+          "grants": [
+            {
+              "bonus": "1D",
+              "skill": "Martial Arts",
+              "tag": "Opener",
+              "type": "specialization"
+            }
+          ],
+          "grantsRaw": "specialization | skill=Martial Arts | tag=Opener | bonus=1D",
           "level": 1,
-          "featureKey": "tortoise-stance",
-          "name": "Tortoise Stance",
-          "description": "Emulate the steadfastness of the tortoise - slow but sturdy.\nPassive: Gain +1D Status Bonus to all defenses. If you would be pushed or pulled by an enemy ability, reduce the number of squares of movement by your Martial Arts rank. Drawback: Your Speed is halved, and you take a -1D status penalty to attacks.",
-          "prerequisites": null,
-          "grants": [],
-          "grantNotes": null
+          "name": "Opener",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
         },
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "spirit-warrior",
+          "description": null,
+          "featureKey": "martial-arts-specialist-follow-up",
+          "grantNotes": "Gain a +1D specialization bonus with Follow-Up Martial Arts techniques.",
+          "grantText": "Gain a +1D specialization bonus with Follow-Up Martial Arts techniques.",
+          "grants": [
+            {
+              "bonus": "1D",
+              "skill": "Martial Arts",
+              "tag": "Follow-Up",
+              "type": "specialization"
+            }
+          ],
+          "grantsRaw": "specialization | skill=Martial Arts | tag=Follow-Up | bonus=1D",
           "level": 1,
-          "featureKey": "tiger-stance",
-          "name": "Tiger Stance",
-          "description": "Strike with the single-minded ferocity of a hunting tiger. Passive: Add +2 damage to all unarmed strikes Drawback: When you enter this stance you gain the “off guard 1” condition, and this condition cannot be cleared as long as you are in this stance.",
-          "prerequisites": null,
-          "grants": [],
-          "grantNotes": null
+          "name": "Follow-Up",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
         },
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "spirit-warrior",
+          "description": null,
+          "featureKey": "martial-arts-specialist-finisher",
+          "grantNotes": "Gain a +1D specialization bonus with Finisher Martial Arts techniques.",
+          "grantText": "Gain a +1D specialization bonus with Finisher Martial Arts techniques.",
+          "grants": [
+            {
+              "bonus": "1D",
+              "skill": "Martial Arts",
+              "tag": "Finisher",
+              "type": "specialization"
+            }
+          ],
+          "grantsRaw": "specialization | skill=Martial Arts | tag=Finisher | bonus=1D",
           "level": 1,
-          "featureKey": "shark-stance",
-          "name": "Shark Stance",
-          "description": "Channel the surging speed of a shark, endlessly chasing its prey. Passive: Increase your movement speed by 2. You gain a +1D circumstance bonus to dodge rolls. Drawback: You cannot use “grapple” techniques, and must use at least half of your movement each turn, if possible.",
-          "prerequisites": null,
-          "grants": [],
-          "grantNotes": null
+          "name": "Finisher",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
         },
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "spirit-warrior",
+          "description": null,
+          "featureKey": "martial-arts-specialist-mobile",
+          "grantNotes": "Gain a +1D specialization bonus with Mobile Martial Arts techniques.",
+          "grantText": "Gain a +1D specialization bonus with Mobile Martial Arts techniques.",
+          "grants": [
+            {
+              "bonus": "1D",
+              "skill": "Martial Arts",
+              "tag": "Mobile",
+              "type": "specialization"
+            }
+          ],
+          "grantsRaw": "specialization | skill=Martial Arts | tag=Mobile | bonus=1D",
           "level": 1,
-          "featureKey": "crane-stance",
-          "name": "Crane Stance",
-          "description": "Soar and gently float, like a majestic but fragile crane. Passive: You may expend your movement to perform incredible leaps. You may leap to a maximum height equal to half your movement (rounded down). While in this stance, you do not take fall damage. Drawback: You have a -1D penalty to resist being pushed, pulled, or grappled. When you would be pushed or pulled, you are moved 1 additional square.",
-          "prerequisites": null,
-          "grants": [],
-          "grantNotes": null
+          "name": "Mobile",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
         },
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "spirit-warrior",
+          "description": null,
+          "featureKey": "martial-arts-specialist-flurry",
+          "grantNotes": "Gain a +1D specialization bonus with Flurry Martial Arts techniques.",
+          "grantText": "Gain a +1D specialization bonus with Flurry Martial Arts techniques.",
+          "grants": [
+            {
+              "bonus": "1D",
+              "skill": "Martial Arts",
+              "tag": "Flurry",
+              "type": "specialization"
+            }
+          ],
+          "grantsRaw": "specialization | skill=Martial Arts | tag=Flurry | bonus=1D",
           "level": 1,
-          "featureKey": "python-stance",
-          "name": "Python Stance",
-          "description": "Restrain and crush your enemies like a powerful constrictor snake. Passive: You gain a +1D status bonus to techniques with the “grapple” tag, you can grapple creatures up to 2 scales larger than you, and moving while grappling does not cost extra movement. Drawback: You cannot use techniques with the “aerial” or “mobile” tags.",
-          "prerequisites": null,
-          "grants": [],
-          "grantNotes": null
+          "name": "Flurry",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
         },
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "spirit-warrior",
+          "description": null,
+          "featureKey": "martial-arts-specialist-aerial",
+          "grantNotes": "Gain a +1D specialization bonus with Aerial Martial Arts techniques.",
+          "grantText": "Gain a +1D specialization bonus with Aerial Martial Arts techniques.",
+          "grants": [
+            {
+              "bonus": "1D",
+              "skill": "Martial Arts",
+              "tag": "Aerial",
+              "type": "specialization"
+            }
+          ],
+          "grantsRaw": "specialization | skill=Martial Arts | tag=Aerial | bonus=1D",
           "level": 1,
-          "featureKey": "gorilla-stance",
-          "name": "Gorilla Stance",
-          "description": "Like a cornered silverback, you lash out against multiple enemies surrounding you. Passive: When you perform a technique with the “flurry” or “push” tags, you may perform 1 additional unarmed strike or shove on a different target. Your Martial Arts rank is treated as 1 lower for the purpose of this additional attack. Drawback: You cannot mark enemies, and all current marks end.",
-          "prerequisites": null,
-          "grants": [],
-          "grantNotes": null
+          "name": "Aerial",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
+        },
+        {
+          "chooseCount": null,
+          "classKey": "spirit-warrior",
+          "description": null,
+          "featureKey": "martial-arts-specialist-push",
+          "grantNotes": "Gain a +1D specialization bonus with Push Martial Arts techniques.",
+          "grantText": "Gain a +1D specialization bonus with Push Martial Arts techniques.",
+          "grants": [
+            {
+              "bonus": "1D",
+              "skill": "Martial Arts",
+              "tag": "Push",
+              "type": "specialization"
+            }
+          ],
+          "grantsRaw": "specialization | skill=Martial Arts | tag=Push | bonus=1D",
+          "level": 1,
+          "name": "Push",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
+        },
+        {
+          "chooseCount": null,
+          "classKey": "spirit-warrior",
+          "description": null,
+          "featureKey": "martial-arts-specialist-grounded",
+          "grantNotes": "Gain a +1D specialization bonus with Grounded Martial Arts techniques.",
+          "grantText": "Gain a +1D specialization bonus with Grounded Martial Arts techniques.",
+          "grants": [
+            {
+              "bonus": "1D",
+              "skill": "Martial Arts",
+              "tag": "Grounded",
+              "type": "specialization"
+            }
+          ],
+          "grantsRaw": "specialization | skill=Martial Arts | tag=Grounded | bonus=1D",
+          "level": 1,
+          "name": "Grounded",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
+        },
+        {
+          "chooseCount": null,
+          "classKey": "spirit-warrior",
+          "description": null,
+          "featureKey": "martial-arts-specialist-debilitate",
+          "grantNotes": "Gain a +1D specialization bonus with Debilitate Martial Arts techniques.",
+          "grantText": "Gain a +1D specialization bonus with Debilitate Martial Arts techniques.",
+          "grants": [
+            {
+              "bonus": "1D",
+              "skill": "Martial Arts",
+              "tag": "Debilitate",
+              "type": "specialization"
+            }
+          ],
+          "grantsRaw": "specialization | skill=Martial Arts | tag=Debilitate | bonus=1D",
+          "level": 1,
+          "name": "Debilitate",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
+        },
+        {
+          "chooseCount": null,
+          "classKey": "spirit-warrior",
+          "description": null,
+          "featureKey": "martial-arts-specialist-reflex",
+          "grantNotes": "Gain a +1D specialization bonus with Reflex Martial Arts techniques.",
+          "grantText": "Gain a +1D specialization bonus with Reflex Martial Arts techniques.",
+          "grants": [
+            {
+              "bonus": "1D",
+              "skill": "Martial Arts",
+              "tag": "Reflex",
+              "type": "specialization"
+            }
+          ],
+          "grantsRaw": "specialization | skill=Martial Arts | tag=Reflex | bonus=1D",
+          "level": 1,
+          "name": "Reflex",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
+        },
+        {
+          "chooseCount": null,
+          "classKey": "spirit-warrior",
+          "description": null,
+          "featureKey": "martial-arts-specialist-grapple",
+          "grantNotes": "Gain a +1D specialization bonus with Grapple Martial Arts techniques.",
+          "grantText": "Gain a +1D specialization bonus with Grapple Martial Arts techniques.",
+          "grants": [
+            {
+              "bonus": "1D",
+              "skill": "Martial Arts",
+              "tag": "Grapple",
+              "type": "specialization"
+            }
+          ],
+          "grantsRaw": "specialization | skill=Martial Arts | tag=Grapple | bonus=1D",
+          "level": 1,
+          "name": "Grapple",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
+        },
+        {
+          "chooseCount": null,
+          "classKey": "spirit-warrior",
+          "description": null,
+          "featureKey": "martial-arts-specialist-spirit",
+          "grantNotes": "Gain a +1D specialization bonus with Spirit Martial Arts techniques.",
+          "grantText": "Gain a +1D specialization bonus with Spirit Martial Arts techniques.",
+          "grants": [
+            {
+              "bonus": "1D",
+              "skill": "Martial Arts",
+              "tag": "Spirit",
+              "type": "specialization"
+            }
+          ],
+          "grantsRaw": "specialization | skill=Martial Arts | tag=Spirit | bonus=1D",
+          "level": 1,
+          "name": "Spirit",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
         }
-      ]
+      ],
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "optionGroup"
+    },
+    {
+      "chooseCount": null,
+      "classKey": "spirit-warrior",
+      "description": "Your mastery of Martial Arts allows you to string multiple techniques together to perform devastating combos. A \"Combo\" is considered to be two or more consecutive attacks against a single target. When you perform a combo, you must begin with an \"Opener\". If you use a \"Finisher\", the combo ends. Attacks in the combo deal additional damage equal to the number of previous attacks in the combo. For example, if this is the 3rd attack in the combo, it deals +2 additional damage. Ending a turn does not reset the combo counter, but ending combat resets the counter to 0.",
+      "featureKey": "combo-system",
+      "grantNotes": null,
+      "grantText": null,
+      "grants": [],
+      "grantsRaw": null,
+      "level": 1,
+      "name": "Combo System",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
+    },
+    {
+      "chooseCount": null,
+      "classKey": "spirit-warrior",
+      "description": "When you hit an enemy with a melee attack, you can choose to mark that enemy as your chosen target. Only 1 enemy may be marked this way at a time, and you cannot switch targets until the current target is knocked out or surrenders. While an enemy is marked in this way, both you and the enemy have a -1D status penalty to attack anyone besides the other. Also, you may make a reactive strike against the marked enemy if they attack a target other than you.",
+      "featureKey": "warriors-mark",
+      "grantNotes": null,
+      "grantText": null,
+      "grants": [],
+      "grantsRaw": null,
+      "level": 1,
+      "name": "Warrior’s Mark",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
+    },
+    {
+      "chooseCount": 2,
+      "classKey": "spirit-warrior",
+      "description": "Your character knows 2 of the following Stances. Each stance grants a passive benefit, as well as a drawback. Entering a stance, or switching between stances, requires an action.",
+      "featureKey": "stances",
+      "grantNotes": null,
+      "grantText": null,
+      "grants": [],
+      "grantsRaw": null,
+      "level": 1,
+      "name": "Stances",
+      "notes": null,
+      "options": [
+        {
+          "chooseCount": null,
+          "classKey": "spirit-warrior",
+          "description": "Emulate the steadfastness of the tortoise - slow but sturdy.\nPassive: Gain +1D Status Bonus to all defenses. If you would be pushed or pulled by an enemy ability, reduce the number of squares of movement by your Martial Arts rank. Drawback: Your Speed is halved, and you take a -1D status penalty to attacks.",
+          "featureKey": "tortoise-stance",
+          "grantNotes": null,
+          "grantText": null,
+          "grants": [],
+          "grantsRaw": null,
+          "level": 1,
+          "name": "Tortoise Stance",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
+        },
+        {
+          "chooseCount": null,
+          "classKey": "spirit-warrior",
+          "description": "Strike with the single-minded ferocity of a hunting tiger. Passive: Add +2 damage to all unarmed strikes Drawback: When you enter this stance you gain the “off guard 1” condition, and this condition cannot be cleared as long as you are in this stance.",
+          "featureKey": "tiger-stance",
+          "grantNotes": null,
+          "grantText": null,
+          "grants": [],
+          "grantsRaw": null,
+          "level": 1,
+          "name": "Tiger Stance",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
+        },
+        {
+          "chooseCount": null,
+          "classKey": "spirit-warrior",
+          "description": "Channel the surging speed of a shark, endlessly chasing its prey. Passive: Increase your movement speed by 2. You gain a +1D circumstance bonus to dodge rolls. Drawback: You cannot use “grapple” techniques, and must use at least half of your movement each turn, if possible.",
+          "featureKey": "shark-stance",
+          "grantNotes": null,
+          "grantText": null,
+          "grants": [],
+          "grantsRaw": null,
+          "level": 1,
+          "name": "Shark Stance",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
+        },
+        {
+          "chooseCount": null,
+          "classKey": "spirit-warrior",
+          "description": "Soar and gently float, like a majestic but fragile crane. Passive: You may expend your movement to perform incredible leaps. You may leap to a maximum height equal to half your movement (rounded down). While in this stance, you do not take fall damage. Drawback: You have a -1D penalty to resist being pushed, pulled, or grappled. When you would be pushed or pulled, you are moved 1 additional square.",
+          "featureKey": "crane-stance",
+          "grantNotes": null,
+          "grantText": null,
+          "grants": [],
+          "grantsRaw": null,
+          "level": 1,
+          "name": "Crane Stance",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
+        },
+        {
+          "chooseCount": null,
+          "classKey": "spirit-warrior",
+          "description": "Restrain and crush your enemies like a powerful constrictor snake. Passive: You gain a +1D status bonus to techniques with the “grapple” tag, you can grapple creatures up to 2 scales larger than you, and moving while grappling does not cost extra movement. Drawback: You cannot use techniques with the “aerial” or “mobile” tags.",
+          "featureKey": "python-stance",
+          "grantNotes": null,
+          "grantText": null,
+          "grants": [],
+          "grantsRaw": null,
+          "level": 1,
+          "name": "Python Stance",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
+        },
+        {
+          "chooseCount": null,
+          "classKey": "spirit-warrior",
+          "description": "Like a cornered silverback, you lash out against multiple enemies surrounding you. Passive: When you perform a technique with the “flurry” or “push” tags, you may perform 1 additional unarmed strike or shove on a different target. Your Martial Arts rank is treated as 1 lower for the purpose of this additional attack. Drawback: You cannot mark enemies, and all current marks end.",
+          "featureKey": "gorilla-stance",
+          "grantNotes": null,
+          "grantText": null,
+          "grants": [],
+          "grantsRaw": null,
+          "level": 1,
+          "name": "Gorilla Stance",
+          "notes": null,
+          "prerequisites": [],
+          "prerequisitesRaw": null,
+          "type": "option"
+        }
+      ],
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "optionGroup"
     }
   ],
   "weapon-master": [
     {
-      "type": "feature",
+      "chooseCount": null,
       "classKey": "weapon-master",
-      "level": 1,
-      "featureKey": "soulbound-weapon",
-      "name": "Soulbound Weapon",
       "description": "You have a special connection with a particular weapon, and can easily channel your spirit energy through it. You gain a level 1 weapon of your choice. You gain a Specialization in the chosen weapon type (+1D Specialization Bonus). The weapon gains the “soulbound” enhancement (This enhancement does not count towards your weapon’s enhancement slots). Its rank automatically increases, and is always equal to the rank of the skill used to attack with this weapon.",
-      "prerequisites": null,
+      "featureKey": "soulbound-weapon",
+      "grantNotes": "Choose a Rank 1 Soulbound Weapon and its specialization.",
+      "grantText": "Choose a Rank 1 Soulbound Weapon and its specialization.",
       "grants": [
         {
-          "type": "weapon",
+          "choiceId": "soulbound-weapon",
           "enhancement": "soulbound",
-          "rank": 1,
           "progression": "weapon skill",
-          "choiceId": "soulbound-weapon"
+          "rank": 1,
+          "type": "weapon"
         },
         {
-          "type": "specialization",
-          "choiceRef": "soulbound-weapon"
+          "choiceRef": "soulbound-weapon",
+          "type": "specialization"
         }
       ],
-      "grantNotes": null
+      "grantsRaw": "weapon | enhancement=soulbound | rank=1 | progression=weapon skill | choiceId=soulbound-weapon\nspecialization | choiceRef=soulbound-weapon",
+      "level": 1,
+      "name": "Soulbound Weapon",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
     },
     {
-      "type": "feature",
+      "chooseCount": null,
       "classKey": "weapon-master",
-      "level": 1,
-      "featureKey": "weapon-enhancement",
-      "name": "Weapon Enhancement",
       "description": "Your soulbound weapon is no ordinary weapon. Choose one additional Rank 1 weapon enhancement to apply to your Soulbound Weapon.",
-      "prerequisites": null,
+      "featureKey": "weapon-enhancement",
+      "grantNotes": "Choose one additional Rank 1 enhancement for your Soulbound Weapon.",
+      "grantText": "Choose one additional Rank 1 enhancement for your Soulbound Weapon.",
       "grants": [
         {
-          "type": "weapon-enhancement",
+          "choiceRef": "soulbound-weapon",
           "rank": 1,
-          "choiceRef": "soulbound-weapon"
+          "type": "weapon-enhancement"
         }
       ],
-      "grantNotes": null
+      "grantsRaw": "weapon-enhancement | rank=1 | choiceRef=soulbound-weapon",
+      "level": 1,
+      "name": "Weapon Enhancement",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
     },
     {
-      "type": "optionGroup",
-      "classKey": "weapon-master",
-      "level": 1,
-      "featureKey": "fighting-styles",
-      "name": "Fighting Styles",
-      "description": "Choose one of the following fighting styles. Each style has a prerequisite, based on your chosen Soulbound weapon. Each fighting style provides a passive buff to weapons of that type, and a recommended technique that fits the style.",
-      "prerequisites": null,
-      "grants": [],
-      "grantNotes": null,
       "chooseCount": 1,
+      "classKey": "weapon-master",
+      "description": "Choose one of the following fighting styles. Each style has a prerequisite, based on your chosen Soulbound weapon. Each fighting style provides a passive buff to weapons of that type, and a recommended technique that fits the style.",
+      "featureKey": "fighting-styles",
+      "grantNotes": null,
+      "grantText": null,
+      "grants": [],
+      "grantsRaw": null,
+      "level": 1,
+      "name": "Fighting Styles",
+      "notes": null,
       "options": [
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "weapon-master",
-          "level": 1,
-          "featureKey": "sentinel-style",
-          "name": "Sentinel Style",
           "description": "Prerequisite: Soulbound Weapon with 'Reach' tag. Sweet-spot : When you hit a creature that is not adjacent to you with a melee attack using a weapon with the 'Reach' tag, you deal an additional amount of damage equal to 2 times your Melee Weapons Skill Rank. Recommended Technique: Keep At Bay",
+          "featureKey": "sentinel-style",
+          "grantNotes": null,
+          "grantText": null,
+          "grants": [],
+          "grantsRaw": null,
+          "level": 1,
+          "name": "Sentinel Style",
+          "notes": null,
           "prerequisites": [
             {
-              "type": "choice",
               "choiceRef": "soulbound-weapon",
-              "tag": "reach"
+              "tag": "reach",
+              "type": "choice"
             }
           ],
-          "grants": [],
-          "grantNotes": null
+          "prerequisitesRaw": "choice | choiceRef=soulbound-weapon | tag=reach",
+          "type": "option"
         },
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "weapon-master",
-          "level": 1,
-          "featureKey": "paired-weapons-style",
-          "name": "Paired Weapons Style",
           "description": "Prerequisites: Soulbound weapon with the “One-handed” tag Two-point defense: You gain access to an additional Rank 1 weapon with the one-handed trait. While wielding a one-handed weapon in both hands, Treat the number of enemies adjacent to you as one fewer for the purposes of flanking. Recommended Techniques: Dual-Strike",
-          "prerequisites": [
+          "featureKey": "paired-weapons-style",
+          "grantNotes": "Gain one additional Rank 1 one-handed weapon.",
+          "grantText": "Gain one additional Rank 1 one-handed weapon.",
+          "grants": [
             {
-              "type": "choice",
-              "choiceRef": "soulbound-weapon",
-              "tag": "one-handed"
+              "count": 1,
+              "rank": 1,
+              "tag": "one-handed",
+              "type": "weapon"
             }
           ],
-          "grants": [],
-          "grantNotes": null
+          "grantsRaw": "weapon | tag=one-handed | rank=1 | count=1",
+          "level": 1,
+          "name": "Paired Weapons Style",
+          "notes": null,
+          "prerequisites": [
+            {
+              "choiceRef": "soulbound-weapon",
+              "tag": "one-handed",
+              "type": "choice"
+            }
+          ],
+          "prerequisitesRaw": "choice | choiceRef=soulbound-weapon | tag=one-handed",
+          "type": "option"
         },
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "weapon-master",
-          "level": 1,
-          "featureKey": "barrage-style",
-          "name": "Barrage Style",
           "description": "Prerequisites: Soulbound Weapon with the 'Thrown' tag. Passive Benefit: While wielding a thrown weapon, all thrown weapons you wield gain the 'Returning' tag for as long as you wield them and have this fighting style. Recommended Technique: Spread Volley",
+          "featureKey": "barrage-style",
+          "grantNotes": null,
+          "grantText": null,
+          "grants": [],
+          "grantsRaw": null,
+          "level": 1,
+          "name": "Barrage Style",
+          "notes": null,
           "prerequisites": [
             {
-              "type": "choice",
               "choiceRef": "soulbound-weapon",
-              "tag": "thrown"
+              "tag": "thrown",
+              "type": "choice"
             }
           ],
-          "grants": [],
-          "grantNotes": null
+          "prerequisitesRaw": "choice | choiceRef=soulbound-weapon | tag=thrown",
+          "type": "option"
         },
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "weapon-master",
-          "level": 1,
-          "featureKey": "marksman-style",
-          "name": "Marksman Style",
           "description": "Prerequisites: Soulbound Weapon with the 'Ranged' tag. Sharpshooter’s aim: When you take the “Aim” action, also double the range of your ranged weapon attacks. Recommended Technique: Piercing Shot",
+          "featureKey": "marksman-style",
+          "grantNotes": null,
+          "grantText": null,
+          "grants": [],
+          "grantsRaw": null,
+          "level": 1,
+          "name": "Marksman Style",
+          "notes": null,
           "prerequisites": [
             {
-              "type": "choice",
               "choiceRef": "soulbound-weapon",
-              "tag": "ranged"
+              "tag": "ranged",
+              "type": "choice"
             }
           ],
-          "grants": [],
-          "grantNotes": null
+          "prerequisitesRaw": "choice | choiceRef=soulbound-weapon | tag=ranged",
+          "type": "option"
         },
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "weapon-master",
-          "level": 1,
-          "featureKey": "skirmisher-style",
-          "name": "Skirmisher Style",
           "description": "Prerequisites: Soulbound Weapon with the 'Ranged' or ‘Thrown’ tag. Point-Blank Proficiency: You do not provoke reactions from creatures when making a ranged or thrown attack while adjacent to them. You also do not take a -1D penalty to these attacks while adjacent to a hostile creature. Recommended Technique: Slowing Shot",
+          "featureKey": "skirmisher-style",
+          "grantNotes": null,
+          "grantText": null,
+          "grants": [],
+          "grantsRaw": null,
+          "level": 1,
+          "name": "Skirmisher Style",
+          "notes": null,
           "prerequisites": [
             {
-              "type": "choice",
               "choiceRef": "soulbound-weapon",
               "tag": [
                 "ranged",
                 "thrown"
-              ]
+              ],
+              "type": "choice"
             }
           ],
-          "grants": [],
-          "grantNotes": null
+          "prerequisitesRaw": "choice | choiceRef=soulbound-weapon | tag=ranged OR thrown",
+          "type": "option"
         },
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "weapon-master",
-          "level": 1,
-          "featureKey": "titan-style",
-          "name": "Titan Style",
           "description": "Prerequisites: Soulbound Weapon with the “Heavy” or “Two-Handed” tag. Armor Breaker: When you deal a critical success to a creature with a melee attack using a weapon with the 'Heavy' tag, that creature suffers a -1D penalty to their Physical Defense until the end of their next turn. Recommended Technique: Devastating Blow",
+          "featureKey": "titan-style",
+          "grantNotes": null,
+          "grantText": null,
+          "grants": [],
+          "grantsRaw": null,
+          "level": 1,
+          "name": "Titan Style",
+          "notes": null,
           "prerequisites": [
             {
-              "type": "choice",
               "choiceRef": "soulbound-weapon",
               "tag": [
                 "heavy",
                 "two-handed"
-              ]
+              ],
+              "type": "choice"
             }
           ],
-          "grants": [],
-          "grantNotes": null
+          "prerequisitesRaw": "choice | choiceRef=soulbound-weapon | tag=heavy OR two-handed",
+          "type": "option"
         },
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "weapon-master",
-          "level": 1,
-          "featureKey": "guardian-style",
-          "name": "Guardian Style",
           "description": "Prerequisite: Soulbound Weapon with the 'Defensive' tag Vigilant Defense: When you use the “Parry” reaction, you gain a +1D bonus to all other defense rolls until the end of your next turn. Recommended Technique: Protective Parry",
+          "featureKey": "guardian-style",
+          "grantNotes": null,
+          "grantText": null,
+          "grants": [],
+          "grantsRaw": null,
+          "level": 1,
+          "name": "Guardian Style",
+          "notes": null,
           "prerequisites": [
             {
-              "type": "choice",
               "choiceRef": "soulbound-weapon",
-              "tag": "defensive"
+              "tag": "defensive",
+              "type": "choice"
             }
           ],
-          "grants": [],
-          "grantNotes": null
+          "prerequisitesRaw": "choice | choiceRef=soulbound-weapon | tag=defensive",
+          "type": "option"
         },
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "weapon-master",
-          "level": 1,
-          "featureKey": "smasher-style",
-          "name": "Smasher Style",
           "description": "Prerequisite: Soulbound Weapon with the 'Blunt' tag. Bash: Your blunt weapons gain the “Bash” Alternative Use: Alternative Use - Bash: You swing your weapon to knock away your enemies. On a failure, push the target back 1 square. On a success, push the target 1 additional square for every hit that exceeds their Defense. Recommended Technique: Armor Crusher",
+          "featureKey": "smasher-style",
+          "grantNotes": null,
+          "grantText": null,
+          "grants": [],
+          "grantsRaw": null,
+          "level": 1,
+          "name": "Smasher Style",
+          "notes": null,
           "prerequisites": [
             {
-              "type": "choice",
               "choiceRef": "soulbound-weapon",
-              "tag": "blunt"
+              "tag": "blunt",
+              "type": "choice"
             }
           ],
-          "grants": [],
-          "grantNotes": null
+          "prerequisitesRaw": "choice | choiceRef=soulbound-weapon | tag=blunt",
+          "type": "option"
         },
         {
-          "type": "option",
+          "chooseCount": null,
           "classKey": "weapon-master",
-          "level": 1,
-          "featureKey": "blademaster-style",
-          "name": "Blademaster Style",
           "description": "Prerequisite: Soulbound weapon with the 'Sharp' tag. Exploit Vulnerability: Bleeding enemies have a -1D penalty to defenses against your attacks Recommended Technique: Vicious Rend",
+          "featureKey": "blademaster-style",
+          "grantNotes": null,
+          "grantText": null,
+          "grants": [],
+          "grantsRaw": null,
+          "level": 1,
+          "name": "Blademaster Style",
+          "notes": null,
           "prerequisites": [
             {
-              "type": "choice",
               "choiceRef": "soulbound-weapon",
-              "tag": "sharp"
+              "tag": "sharp",
+              "type": "choice"
             }
           ],
-          "grants": [],
-          "grantNotes": null
+          "prerequisitesRaw": "choice | choiceRef=soulbound-weapon | tag=sharp",
+          "type": "option"
         }
-      ]
+      ],
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "optionGroup"
     },
     {
-      "type": "feature",
+      "chooseCount": null,
       "classKey": "weapon-master",
-      "level": 1,
-      "featureKey": "heart-stealer",
-      "name": "Heart Stealer",
       "description": "Whenever you drop an enemy creature to 0 hit points, you regain a number of hit points equal to your Primary Attribute + Your Level.",
-      "prerequisites": null,
+      "featureKey": "heart-stealer",
+      "grantNotes": null,
+      "grantText": null,
       "grants": [],
-      "grantNotes": null
+      "grantsRaw": null,
+      "level": 1,
+      "name": "Heart Stealer",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
+    },
+    {
+      "chooseCount": null,
+      "classKey": "weapon-master",
+      "description": "Your Melee Weapons and Targeting skills increase to Rank 2. Upgrade or replace your Soulbound Weapon with a Rank 2 weapon base. Choose one additional enhancement of Rank 2 or lower, and you may swap one existing enhancement.",
+      "featureKey": "advanced-weapon-training",
+      "grantNotes": "Both weapon skills reach Rank 2; upgrade the Soulbound Weapon, add one enhancement, and optionally swap one.",
+      "grantText": "Both weapon skills reach Rank 2; upgrade the Soulbound Weapon, add one enhancement, and optionally swap one.",
+      "grants": [
+        {
+          "name": "Melee Weapons",
+          "rank": 2,
+          "type": "skill"
+        },
+        {
+          "name": "Targeting",
+          "rank": 2,
+          "type": "skill"
+        },
+        {
+          "choiceRef": "soulbound-weapon",
+          "count": 1,
+          "rank": 2,
+          "type": "choice-rebind"
+        },
+        {
+          "choiceRef": "soulbound-weapon",
+          "count": 1,
+          "maxRank": 2,
+          "type": "weapon-enhancement"
+        },
+        {
+          "answerType": "weapon-enhancement",
+          "choiceRef": "soulbound-weapon",
+          "count": 1,
+          "maxRank": 2,
+          "type": "choice-rebind"
+        }
+      ],
+      "grantsRaw": "skill | name=Melee Weapons | rank=2\nskill | name=Targeting | rank=2\nchoice-rebind | choiceRef=soulbound-weapon | rank=2\nweapon-enhancement | choiceRef=soulbound-weapon | maxRank=2 | count=1\nchoice-rebind | choiceRef=soulbound-weapon | answerType=weapon-enhancement | maxRank=2 | count=1",
+      "level": 3,
+      "name": "Advanced Weapon Training",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
+    },
+    {
+      "chooseCount": null,
+      "classKey": "weapon-master",
+      "description": "Choose one Weapon Master class feat or general feat you qualify for.",
+      "featureKey": "weapon-master-feat",
+      "grantNotes": "Choose one Weapon Master class feat of level 4 or lower.",
+      "grantText": "Choose one Weapon Master class feat of level 4 or lower.",
+      "grants": [
+        {
+          "category": "weapon-master",
+          "count": 1,
+          "filterType": "class",
+          "level": 4,
+          "type": "feat"
+        }
+      ],
+      "grantsRaw": "feat | type=class | category=weapon-master | maxLevel=4 | count=1",
+      "level": 4,
+      "name": "Weapon Master Feat",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
+    },
+    {
+      "chooseCount": null,
+      "classKey": "weapon-master",
+      "description": "Your Melee Weapons and Targeting skills increase to Rank 3. Upgrade or replace your Soulbound Weapon with a Rank 3 weapon base. Choose one additional enhancement of Rank 3 or lower, and you may swap one existing enhancement.",
+      "featureKey": "master-weapon-training",
+      "grantNotes": "Both weapon skills reach Rank 3; upgrade the Soulbound Weapon, add one enhancement, and optionally swap one.",
+      "grantText": "Both weapon skills reach Rank 3; upgrade the Soulbound Weapon, add one enhancement, and optionally swap one.",
+      "grants": [
+        {
+          "name": "Melee Weapons",
+          "rank": 3,
+          "type": "skill"
+        },
+        {
+          "name": "Targeting",
+          "rank": 3,
+          "type": "skill"
+        },
+        {
+          "choiceRef": "soulbound-weapon",
+          "count": 1,
+          "rank": 3,
+          "type": "choice-rebind"
+        },
+        {
+          "choiceRef": "soulbound-weapon",
+          "count": 1,
+          "maxRank": 3,
+          "type": "weapon-enhancement"
+        },
+        {
+          "answerType": "weapon-enhancement",
+          "choiceRef": "soulbound-weapon",
+          "count": 1,
+          "maxRank": 3,
+          "type": "choice-rebind"
+        }
+      ],
+      "grantsRaw": "skill | name=Melee Weapons | rank=3\nskill | name=Targeting | rank=3\nchoice-rebind | choiceRef=soulbound-weapon | rank=3\nweapon-enhancement | choiceRef=soulbound-weapon | maxRank=3 | count=1\nchoice-rebind | choiceRef=soulbound-weapon | answerType=weapon-enhancement | maxRank=3 | count=1",
+      "level": 5,
+      "name": "Master Weapon Training",
+      "notes": null,
+      "prerequisites": [],
+      "prerequisitesRaw": null,
+      "type": "feature"
     }
   ]
 }

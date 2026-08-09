@@ -1,6 +1,6 @@
 # Current implementation status
 
-Last updated: 2026-08-08
+Last updated: 2026-08-09
 
 Current branch at update: `codex/work-package-b-data-contract`
 
@@ -8,9 +8,9 @@ Active implementation work package: Work Package E — vertical domain migration
 
 Next implementation step: `WPE-DOMAIN-MIGRATION`
 
-Parallel blocked character step: deployed-page completion of `WPC-REPOSITORY`, pending reviewed runtime stable technique keys and affected domain integration
+Parallel blocked character step: deployed-page completion of `WPC-REPOSITORY`, pending affected Work Package E domain integration; the reviewed stable-technique-key data prerequisite is now satisfied
 
-Parallel game-data step: `WPB-DIFF-REVIEW` is underway; exact-hash approval of the corrected candidate is the next manual boundary
+Parallel game-data step: Work Package B is complete through `WPB-PUBLISH`; no game-data manual action is pending
 
 This is the only frequently updated project-status document. Historical audits and completion records must not be edited to look current.
 
@@ -20,7 +20,8 @@ This is the only frequently updated project-status document. Historical audits a
 - Milestone 0 stabilization is committed at `7d4fc6e`.
 - The initial Work Package B baseline is committed at `637c06f`.
 - `WPB-SOURCE-SYNC` is the checkpoint commit immediately after `637c06f`, titled `Document handoff architecture and automate source acquisition`.
-- The current Work Package B top commit is the schema-v4 expressions/adapters/references/staging and approved source-resolution checkpoint, titled `Implement schema-v4 staging and source resolution`.
+- The current Work Package B release promotes approved schema-v2 candidate `20260809T022801911Z-51956`, adds the exact-byte publisher, and records transactional rollback.
+- The `WPB-PUBLISH` checkpoint is the current top commit, titled `Publish reviewed schema-v2 game data`.
 - `WPC-MIGRATIONS` is committed at `5568aa5`, titled `Add isolated character migration registry`.
 - The current top feature checkpoint is `WPC-REPOSITORY`, titled `Implement definitive character persistence boundary`; it strengthens the existing database reader/writer rather than adding a duplicate repository implementation.
 - The current Work Package C session checkpoint is `WPC-SESSION`, titled `Add canonical character session lifecycle`; it remains pure and does not switch deployed pages.
@@ -56,7 +57,8 @@ Evidence: [work-package-a-completion.md](work-package-a-completion.md) and [mile
 - `WPB-ADAPTERS` and `WPB-REFERENCES` are complete. Authenticated canonical Drive version `642` adapts and validates with zero errors, 28 intentional warnings, deterministic finding order, and successful runtime-load acceptance.
 - `WPB-STAGING` is complete. Runtime revision identity uses the stable Drive revision plus normalized-model hash; byte-distinct XLSX transports for unchanged Drive version `642` now produce byte-identical nine-artifact runtime sets. Authenticated end-to-end staging passes and leaves production untouched.
 - `WPB-SOURCE-RESOLUTION` is complete. Descriptions are optional, implicit source-owned choice identities are accepted, `draft` is excluded from normal and grant-owned selectors, and generic `rank`/reversible `choice-rebind` contracts preserve the approved meaning. The user-approved canonical-Sheet batch was applied and read back on 2026-08-05; authenticated 2026-08-08 staging confirms zero structural errors and 28 intentional warnings. See [game-data-source-resolution.md](game-data-source-resolution.md).
-- `WPB-DIFF-REVIEW` is underway. The user-approved weapon-base corrections and Heavy/draft enhancement corrections are present in the refreshed immutable candidate; its exact-hash approval checklist is recorded in [game-data-release-candidate-2026-08-08.md](game-data-release-candidate-2026-08-08.md).
+- `WPB-DIFF-REVIEW` is complete. The user approved the exact nine-artifact candidate `20260809T022801911Z-51956`; its identity and hashes are recorded in [game-data-release-candidate-2026-08-08.md](game-data-release-candidate-2026-08-08.md).
+- `WPB-PUBLISH` is complete. The separate publisher verified both approval gates and exact source/model/artifact hashes, installed only the approved bytes, removed stale `export-report.json`, added `class-skills.json`, refreshed the exact baseline, and retained the generic production-export freeze. Release and rollback evidence is in [game-data-release-2026-08-09.md](game-data-release-2026-08-09.md).
 
 ### Work Package C character contract
 
@@ -81,7 +83,7 @@ Evidence: [work-package-a-completion.md](work-package-a-completion.md) and [mile
 - Historical documents without a revision are revision 0, new documents begin at 1, and accepted saves increment once. Stale writes raise a typed conflict without changing the newer stored value.
 - The character-sheet temporary-leaf allowlist remains exact, arbitrary page paths are rejected, owner/path mismatch is rejected, missing documents are explicit, and Firebase authorization errors propagate.
 - Focused emulator tests prove create/read, timestamp resolution, migrated read without write, explicit-save migration write-back, valid and invalid patches, newer-value preservation after a conflict, missing documents, and authorization propagation.
-- Deployed page integration is not complete. Existing pages still use clearly marked v4 helpers or direct Firebase calls because the frozen runtime game data lacks stable `techniqueKey` values required to migrate populated technique selections safely. The v4 path must not be removed or falsely stamped v5 until that prerequisite and affected domain integration are complete.
+- Deployed page integration is not complete. The published runtime now supplies stable `techniqueKey` values, satisfying the data prerequisite, but existing pages still use clearly marked v4 helpers or direct Firebase calls until their affected Work Package E domain integration is complete. The v4 path must not be removed or falsely stamped v5 before that integration is accepted.
 - [character-persistence.md](character-persistence.md) is the living read/write/revision contract and is now part of the required agent startup reading for persistence work.
 
 ### Work Package C character session
@@ -120,13 +122,13 @@ The repository's old `data/game-x-class-data.xlsx` is a June 29 snapshot and is 
 
 ## Current boundaries
 
-- Production JSON remains frozen at the reviewed June 29 release.
-- The schema-v4 source is newer than the runtime artifacts.
-- The staging CLI now uses the canonical reader -> adapter -> validator -> schema-v2 builder -> runtime acceptance -> diff pipeline. It never invokes the legacy exporter and production remains frozen.
+- Production JSON is the reviewed schema-v2 release from canonical Drive version `647`, exact-hash baselined across nine runtime artifacts.
+- The staging CLI uses the canonical reader -> adapter -> validator -> schema-v2 builder -> runtime acceptance -> diff pipeline. It never invokes the legacy exporter or publisher.
+- The generic exporter remains frozen. Only `npm run publish:data -- --confirm <approved-run-id>` may promote an exact separately approved staging run.
 - Character schema v5, its migration registry, the definitive Firebase reader/writer APIs, the pure four-state session lifecycle, and the deterministic graph compiler/fixed-point reconciler are implemented and tested. The production site continues to use the transitional v4 page path until stable-key runtime data and Work Package E domain integration permit a safe switch.
-- Repository implementation can proceed against fixtures, but live migration of stored technique selections requires runtime game data with `techniqueKey`. The frozen production schema-v1 artifacts do not provide that key, so switching the deployed persistence path remains blocked until the reviewed Work Package B release or another explicit stable-key source is available.
+- Runtime stable technique keys are now available. Switching the deployed persistence path remains blocked only on the affected Work Package E domain integration and its acceptance boundaries.
 - Familiar, vehicle, and gadget expressions are preserved with explicit runtime-stub status until their future subsystem slices; they are no longer rejected or discarded by data loading.
-- The new graph core requires normalized runtime artifact schema 2 and is fixture-integrated only. It does not read the frozen schema-v1 production artifacts or authorize a deployed-page cutover.
+- The graph core requires normalized runtime artifact schema 2, which is now published, but remains fixture-integrated until the corresponding Work Package E page/domain slice authorizes a deployed-page cutover.
 - The live Handbook import script was not run after spreadsheet normalization because its bound script source/staging target was inaccessible. The Handbook remains untouched.
 
 ## Deferred acceptance and blockers
@@ -136,12 +138,10 @@ The repository's old `data/game-x-class-data.xlsx` is a June 29 snapshot and is 
 - Manual browser scenarios in [work-package-a-completion.md](work-package-a-completion.md) remain pending: destructive reconciliation, capacity changes, source-owned choices/weapons, dialog focus, dirty navigation, unload prompt, save retry, and two-tab isolation.
 - On 2026-08-05 the user explicitly overrode this gate for a production Firebase Hosting deployment of the current committed `public/` tree. This override does not authorize game-data publishing, Firebase Rules/Functions deployment, or removal of the outstanding acceptance debt.
 
-### Blocks production data publishing
+### Production data publishing
 
-- `WPB-ADAPTERS`, `WPB-REFERENCES`, `WPB-STAGING`, and `WPB-SOURCE-RESOLUTION` are complete. The refreshed deterministic schema-v4 release candidate still requires exact-hash approval.
-- A complete deterministic schema-v4 staging export and diff exist, but they are not yet a reviewed release candidate.
-- The production export freeze must remain active.
-- The decisions covering all 77 previously recorded live-source findings are implemented locally or applied to the canonical Sheet. Authenticated repository validation now confirms zero errors and 28 intentional warnings.
+- No publishing blocker remains for candidate `20260809T022801911Z-51956`; it was approved and promoted through the exact-byte publisher.
+- Future source changes require a new immutable run, zero-error validation, complete semantic diff review, an exact release contract, and separate publish approval. The generic production export freeze remains active.
 
 ### Automated source acquisition
 
@@ -154,7 +154,7 @@ See [data-pipeline.md](data-pipeline.md) for exact commands and security guidanc
 
 ## Last verification
 
-Authenticated Work Package B source/staging verification on 2026-08-08:
+Work Package B publish verification on 2026-08-09:
 
 - The user approved and the agent applied exactly six `WeaponBases` source-cell corrections: the display and stable tag lists for Longsword, Shuriken, and Greatsword. Connector readback verified the values and preserved surrounding formatting.
 - The user also approved executable Heavy prerequisites and `draft` selection mode for Gravity Weapon and Seismic Weapon; connector readback verified the six affected cells and preserved their validation and formatting.
@@ -162,7 +162,14 @@ Authenticated Work Package B source/staging verification on 2026-08-08:
 - `npm run stage:data` produced immutable run `20260809T022801911Z-51956` with zero errors, the same 28 intentional warnings, runtime-load acceptance, nine staged artifacts, and no production write. Model SHA-256: `c03ed329b10e27310baef32d73fe239c9146e415c332ae62f7842d81e9a17739`.
 - Against the preceding candidate, only `weapon-enhancements.json` and the combined `game-x-data.json` changed, matching the approved source scope. The refreshed exact candidate is `20260809T022801911Z-51956`.
 - Earlier runs `20260808T194536442Z-37004` and `20260808T194543102Z-38020` established that byte-distinct XLSX transports for unchanged Drive version `642` produce byte-identical runtime artifacts.
-- `npm run test:all`: 170 unit tests, 16 Firebase emulator tests, and all 14 HTML entry points passed; `npm run baseline:data`: all 9 frozen production artifacts matched; production remains untouched.
+- The user approved the exact candidate and separately authorized `WPB-PUBLISH`. `npm run publish:data -- --confirm 20260809T022801911Z-51956` installed the nine exact artifacts and transactionally updated release provenance/baseline.
+- Publisher tests cover approval mismatch/tampering, exact promotion and stale-artifact removal, and full restoration of production plus baseline after an injected mid-install failure.
+- The schema-v2 release exposed and repaired legacy feat-category and grant-identity casing assumptions; compatibility aliases preserve existing source-owned choice answers.
+- `npm run test:all`: 174 unit tests, 16 Firebase emulator tests, and all 14 HTML entry points passed. `npm run baseline:data` verified all nine schema-v2 production artifacts.
+- The local Firebase review environment was restarted at PID 24108. An authenticated browser loaded the existing Magical Guardian class builder, class feats, Dazzling Wand, canonical Spellcasting technique choices, and stable-key technique options with no console errors. App: `http://127.0.0.1:5000`; Emulator UI: `http://127.0.0.1:4000`.
+- `npm run deploy:hosting` released 100 public files successfully at `https://game-x-character-builder.web.app`; no Rules, Functions, or other Firebase target was deployed.
+- External verification returned HTTP 200 for every runtime artifact; all nine deployed byte lengths and SHA-256 hashes exactly matched `contracts/game-data-release.json`. The deployed sign-in page loaded in the browser with no console errors.
+- Checkpoint scope: the exact approved production JSON, compatibility loaders/identity handling, publisher, release contracts, baseline, tests, and living docs changed. No canonical-Sheet cell, Firebase Rule, Function, or Firebase document changed.
 
 Verified at `WPD-GRAPH-CORE` completion on 2026-08-08, with the prior session, persistence, migration, read-only `WPB-SOURCE-RESOLUTION`, and Hosting-only release evidence retained below:
 

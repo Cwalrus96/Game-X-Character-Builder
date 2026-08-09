@@ -280,7 +280,7 @@ Acceptance: the canonical source validates with zero structural errors; intentio
 
 ### `WPB-DIFF-REVIEW` — review the complete release candidate
 
-Status: `ready` — manual review underway; exact-hash approval required
+Status: `complete`
 
 Prerequisite: `WPB-SOURCE-RESOLUTION`
 
@@ -288,13 +288,17 @@ Review every added, removed, and changed runtime record, including removal of st
 
 Candidate identity, hashes, validation evidence, selectability checks, and the approved weapon-base and Heavy/draft enhancement corrections are frozen in [game-data-release-candidate-2026-08-08.md](game-data-release-candidate-2026-08-08.md). Exact-hash approval is a manual boundary; no production publish is implied.
 
+Acceptance evidence: the user approved the exact nine-artifact candidate `20260809T022801911Z-51956` and separately authorized `WPB-PUBLISH` on 2026-08-09.
+
 ### `WPB-PUBLISH` — unlock reviewed production export
 
-Status: `pending`
+Status: `complete`
 
 Prerequisite: `WPB-DIFF-REVIEW`
 
 Remove or change the production freeze only in an explicit reviewed change. Publish the approved staged bytes, update the release baseline/provenance, run the full test suite and browser data-loading smoke test, and document rollback.
+
+Acceptance evidence: `npm run publish:data -- --confirm 20260809T022801911Z-51956` promoted only the approved hashes, removed the stale runtime `export-report.json`, installed `class-skills.json`, and transactionally refreshed the release baseline. Injected-failure tests prove production and baseline rollback. `npm run test:all` passes 174 unit tests, 16 Firebase emulator tests, and all 14 HTML entry points; `npm run baseline:data` verifies the nine published artifacts. Local browser loading exercised the schema-v2 class builder with stable technique keys and no console errors. Release and rollback details are in [game-data-release-2026-08-09.md](game-data-release-2026-08-09.md).
 
 ## Work Package C — character schema and session skeleton
 
@@ -388,7 +392,7 @@ Status: `active`
 
 Prerequisite: `WPC-MIGRATIONS`
 
-Implementation may proceed against fixtures. Switching the deployed persistence path also requires a reviewed runtime game-data release that supplies stable `techniqueKey` values (or another explicitly approved stable-key source); the frozen schema-v1 production artifacts contain technique display names only.
+The reviewed schema-v2 production release now supplies stable `techniqueKey` values, satisfying the data prerequisite. Switching the deployed persistence path still requires the affected Work Package E domain integration and its acceptance boundaries.
 
 Goal: make one reader/writer boundary responsible for loading and saving characters so every application consumer receives exact v5 state and no page needs to understand Firestore layout, historical schemas, timestamps, or revision conflicts.
 

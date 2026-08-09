@@ -1,326 +1,414 @@
 [
   {
-    "enhancementKey": "soulbound",
-    "name": "Soulbound",
     "description": "As an action, you can cause the weapon to teleport from its current location and materialize in your hands, or disappear into a higher-dimensional space. This enhancement CANNOT be removed or exchanged by abilities that allow you to modify your weapon’s enhancements. A soulbound weapon does not take up a weapon slot.",
+    "enhancementKey": "soulbound",
     "minRank": 1,
-    "prerequisites": [
-      {
-        "type": "class",
-        "name": "weapon-master"
-      }
-    ],
+    "name": "Soulbound",
     "notes": null,
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "selectable": false,
+    "selectionMode": "granted-only",
     "sourceNote": null
   },
   {
-    "enhancementKey": "rapid_retrieval",
-    "name": "Rapid Retrieval",
     "description": "A thrown weapon gains the Returning tag, letting it come back to the wielder after being thrown.",
+    "enhancementKey": "rapid_retrieval",
     "minRank": 1,
-    "prerequisites": [
-      {
-        "type": "tag",
-        "name": "thrown"
-      }
-    ],
+    "name": "Rapid Retrieval",
     "notes": "Simple passive enhancement.",
+    "prerequisites": [
+      {
+        "name": "thrown",
+        "type": "tag"
+      }
+    ],
+    "prerequisitesRaw": "tag | name=thrown",
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "basic_elemental_infusion",
-    "name": "Basic Elemental Infusion",
     "description": "Choose Water, Fire, Earth, or Wind; attacks made with the weapon gain that elemental tag and its related effects.",
+    "enhancementKey": "basic_elemental_infusion",
     "minRank": 1,
-    "prerequisites": null,
+    "name": "Basic Elemental Infusion",
     "notes": "See Elemental Subsystem for exact effects.",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "extended_reach",
-    "name": "Extended Reach",
     "description": "A melee weapon's attack range increases beyond normal melee reach.",
+    "enhancementKey": "extended_reach",
     "minRank": 1,
-    "prerequisites": [
-      {
-        "type": "tag",
-        "name": "melee"
-      }
-    ],
+    "name": "Extended Reach",
     "notes": "Increase the weapon's reach by 1 square; use normalized reach wording in export/display.",
+    "prerequisites": [
+      {
+        "name": "melee",
+        "type": "tag"
+      }
+    ],
+    "prerequisitesRaw": "tag | name=melee",
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "enhanced_targeting",
-    "name": "Enhanced Targeting",
     "description": "The weapon is easier to line up for careful shots.",
+    "enhancementKey": "enhanced_targeting",
     "minRank": 1,
-    "prerequisites": null,
+    "name": "Enhanced Targeting",
     "notes": "Gain an additional +1D status bonus when taking the Aim action.",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "agile_weapon",
-    "name": "Agile Weapon",
     "description": "The weapon is balanced for speed and finesse rather than brute force.",
+    "enhancementKey": "agile_weapon",
     "minRank": 1,
-    "prerequisites": [
-      {
-        "type": "tag",
-        "name": "melee"
-      }
-    ],
+    "name": "Agile Weapon",
     "notes": "Attack rolls and damage use Agility instead of Strength.",
+    "prerequisites": [
+      {
+        "name": "melee",
+        "type": "tag"
+      }
+    ],
+    "prerequisitesRaw": "tag | name=melee",
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "spiritual_weapon",
-    "name": "Spiritual Weapon",
     "description": "The weapon is infused with spirit energy so it strikes at the soul instead of the body.",
+    "enhancementKey": "spiritual_weapon",
     "minRank": 1,
-    "prerequisites": null,
+    "name": "Spiritual Weapon",
     "notes": "Attacks made with the weapon target Spiritual Defense instead of Physical Defense.",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "weighted",
-    "name": "Weighted",
     "description": "The weapon is deliberately built heavier to hit harder.",
+    "enhancementKey": "weighted",
     "minRank": 1,
-    "prerequisites": null,
+    "name": "Weighted",
     "notes": "Attacks deal +2 damage on a success, but the weapon gains the Heavy tag.",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "lightweight",
-    "name": "Lightweight",
     "description": "The weapon is made from a lighter material without losing its edge or durability.",
+    "enhancementKey": "lightweight",
     "minRank": 1,
-    "prerequisites": null,
+    "name": "Lightweight",
     "notes": "The weapon loses the \"Heavy\" tag.",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "defensive",
-    "name": "Defensive",
     "description": "The weapon is specially built to block and deflect incoming blows.",
+    "enhancementKey": "defensive",
     "minRank": 1,
-    "prerequisites": null,
+    "name": "Defensive",
     "notes": "The weapon gains the \"Defensive\" tag.",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "armor_piercing",
-    "name": "Armor Piercing",
     "description": "The weapon is designed to punch through defensive gear and protective equipment.",
+    "enhancementKey": "armor_piercing",
     "minRank": 2,
-    "prerequisites": null,
+    "name": "Armor Piercing",
     "notes": "This weapon ignores Equipment Bonuses to defenses.",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "shapeshifting_weapon",
-    "name": "Shapeshifting Weapon",
     "description": "The weapon can switch between multiple forms to suit the situation.",
+    "enhancementKey": "shapeshifting_weapon",
     "minRank": 2,
-    "prerequisites": null,
+    "name": "Shapeshifting Weapon",
     "notes": "Has 3 forms: 1 inconspicuous non-weapon form and 2 distinct weapon forms.",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "swiss_army_weapon",
-    "name": "Swiss-Army Weapon",
     "description": "The weapon includes an integrated tool or utility function beyond combat use.",
+    "enhancementKey": "swiss_army_weapon",
     "minRank": 2,
-    "prerequisites": null,
+    "name": "Swiss-Army Weapon",
     "notes": "Choose a utility skill; gain +1 Equipment bonus to checks using that skill while wielding the weapon.",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "bane_weapon",
-    "name": "Bane Weapon",
     "description": "The weapon is especially deadly against a chosen kind of enemy.",
+    "enhancementKey": "bane_weapon",
     "minRank": 2,
-    "prerequisites": null,
+    "name": "Bane Weapon",
     "notes": "Deals +2 damage against enemies with a chosen trait, such as Spirit.",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "high_impact_ammunition",
-    "name": "High-Impact Ammunition",
     "description": "The weapon fires rounds that hit with enough force to shove targets backward.",
+    "enhancementKey": "high_impact_ammunition",
     "minRank": 2,
-    "prerequisites": [
-      {
-        "type": "tag",
-        "name": "ranged"
-      }
-    ],
+    "name": "High-Impact Ammunition",
     "notes": "On hit, enemies are also pushed back; distance increases at higher ranks.",
+    "prerequisites": [
+      {
+        "name": "ranged",
+        "type": "tag"
+      }
+    ],
+    "prerequisitesRaw": "tag | name=ranged",
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "instant_retrieval",
-    "name": "Instant Retrieval",
     "description": "A thrown weapon can be recalled to the wielder's hand immediately after it is thrown.",
+    "enhancementKey": "instant_retrieval",
     "minRank": 3,
-    "prerequisites": [
-      {
-        "type": "tag",
-        "name": "thrown"
-      }
-    ],
+    "name": "Instant Retrieval",
     "notes": "Recall requires no action.",
+    "prerequisites": [
+      {
+        "name": "thrown",
+        "type": "tag"
+      }
+    ],
+    "prerequisitesRaw": "tag | name=thrown",
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "size_changing_extending",
-    "name": "Size Changing / Extending",
     "description": "The weapon can grow, shrink, or elongate to fit the needs of the moment.",
+    "enhancementKey": "size_changing_extending",
     "minRank": 3,
-    "prerequisites": null,
+    "name": "Size Changing / Extending",
     "notes": "Draft-level entry; intended to increase size/reach, possibly with drawbacks in tight spaces.",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "sentient_weapon",
-    "name": "Sentient Weapon",
     "description": "The weapon is alive or self-aware and can communicate with its wielder.",
+    "enhancementKey": "sentient_weapon",
     "minRank": 3,
-    "prerequisites": null,
+    "name": "Sentient Weapon",
     "notes": "May speak aloud or communicate telepathically.",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "heart_seeker",
-    "name": "Heart-Seeker",
     "description": "The weapon is unusually precise at striking vital openings.",
+    "enhancementKey": "heart_seeker",
     "minRank": 3,
-    "prerequisites": null,
+    "name": "Heart-Seeker",
     "notes": "Attacks with this weapon score a critical hit if they exceed the TN by 2 or more.",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "energy_drain",
-    "name": "Energy Drain",
     "description": "The weapon siphons energy during combat and feeds it back to its wielder.",
+    "enhancementKey": "energy_drain",
     "minRank": 3,
-    "prerequisites": null,
+    "name": "Energy Drain",
     "notes": "Absorbs energy on hit, or when used to defend against attacks.",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "freeze_beam",
-    "name": "Freeze Beam",
     "description": "The weapon can project a line of freezing cold in addition to its normal attacks.",
+    "enhancementKey": "freeze_beam",
     "minRank": 3,
-    "prerequisites": null,
+    "name": "Freeze Beam",
     "notes": "Rank of Ice equals the weapon's skill rank minus 1; area increases at higher ranks.",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "lightning_launcher",
-    "name": "Lightning Launcher",
     "description": "The weapon can project a line of lightning in addition to its normal attacks.",
+    "enhancementKey": "lightning_launcher",
     "minRank": 3,
-    "prerequisites": null,
+    "name": "Lightning Launcher",
     "notes": "Handbook text appears to contain a copy/paste typo; likely intended to use Lightning rather than Ice.",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "flamethrowing_weapon",
-    "name": "Flamethrowing Weapon",
     "description": "The weapon can spew flame in a line or cone as an additional attack mode.",
+    "enhancementKey": "flamethrowing_weapon",
     "minRank": 3,
-    "prerequisites": null,
+    "name": "Flamethrowing Weapon",
     "notes": "Rank of Flame equals the weapon's skill rank minus 1; area increases at higher ranks.",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "explosive_ammunition",
-    "name": "Explosive Ammunition",
     "description": "The weapon fires ammunition that detonates on impact.",
+    "enhancementKey": "explosive_ammunition",
     "minRank": 3,
-    "prerequisites": [
-      {
-        "type": "tag",
-        "name": "ranged"
-      }
-    ],
+    "name": "Explosive Ammunition",
     "notes": "Deals damage to nearby creatures around the point of impact.",
+    "prerequisites": [
+      {
+        "name": "ranged",
+        "type": "tag"
+      }
+    ],
+    "prerequisitesRaw": "tag | name=ranged",
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "beast_bullets",
-    "name": "Beast Bullets",
     "description": "The weapon fires spiritual creatures as ammunition to attack enemies.",
+    "enhancementKey": "beast_bullets",
     "minRank": 4,
-    "prerequisites": null,
+    "name": "Beast Bullets",
     "notes": "Example given: Caster Shell #5 from Outlaw Star.",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "titan_weapon",
-    "name": "Titan Weapon",
     "description": "The weapon is massively oversized and built for truly gigantic force.",
+    "enhancementKey": "titan_weapon",
     "minRank": 4,
-    "prerequisites": null,
+    "name": "Titan Weapon",
     "notes": "Draft-level entry with minimal defined mechanics.",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "autonomous_weapon",
-    "name": "Autonomous Weapon",
     "description": "The weapon can act and attack on its own without being directly wielded.",
+    "enhancementKey": "autonomous_weapon",
     "minRank": 4,
-    "prerequisites": null,
+    "name": "Autonomous Weapon",
     "notes": "Draft-level entry with minimal defined mechanics.",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "gravity_weapon",
-    "name": "Gravity Weapon",
     "description": "The weapon manipulates gravity to empower swings and pull or repel enemies.",
+    "enhancementKey": "gravity_weapon",
     "minRank": 4,
-    "prerequisites": [
-      {
-        "type": "text",
-        "text": "Heavy weapon concept"
-      }
-    ],
+    "name": "Gravity Weapon",
     "notes": "Draft-level entry; combines swing enhancement with attraction/repulsion effects.",
-    "sourceNote": "Player's Handbook"
-  },
-  {
-    "enhancementKey": "seismic_weapon",
-    "name": "Seismic Weapon",
-    "description": "A heavy weapon that creates shockwaves, tremors, and fissures in the ground.",
-    "minRank": 5,
     "prerequisites": [
       {
-        "type": "text",
-        "text": "Heavy weapon concept"
+        "name": "heavy",
+        "type": "tag"
       }
     ],
-    "notes": "Draft-level entry with minimal defined mechanics.",
+    "prerequisitesRaw": "tag | name=heavy",
+    "selectable": false,
+    "selectionMode": "draft",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "black_hole_shooter",
-    "name": "Black Hole Shooter",
+    "description": "A heavy weapon that creates shockwaves, tremors, and fissures in the ground.",
+    "enhancementKey": "seismic_weapon",
+    "minRank": 5,
+    "name": "Seismic Weapon",
+    "notes": "Draft-level entry with minimal defined mechanics.",
+    "prerequisites": [
+      {
+        "name": "heavy",
+        "type": "tag"
+      }
+    ],
+    "prerequisitesRaw": "tag | name=heavy",
+    "selectable": false,
+    "selectionMode": "draft",
+    "sourceNote": "Player's Handbook"
+  },
+  {
     "description": "The weapon fires miniature black holes as devastating projectiles.",
+    "enhancementKey": "black_hole_shooter",
     "minRank": 6,
-    "prerequisites": null,
+    "name": "Black Hole Shooter",
     "notes": "Draft-level entry with minimal defined mechanics.",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   },
   {
-    "enhancementKey": "conceptual_weapon",
-    "name": "Conceptual Weapon",
     "description": "The weapon attacks a target on a deeper metaphysical level rather than only harming the body.",
+    "enhancementKey": "conceptual_weapon",
     "minRank": 6,
-    "prerequisites": null,
+    "name": "Conceptual Weapon",
     "notes": "Draft-level entry; handbook notes ideas like attacking a target's \"name,\" \"identity,\" or \"existence.\"",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceNote": "Player's Handbook"
   }
 ]

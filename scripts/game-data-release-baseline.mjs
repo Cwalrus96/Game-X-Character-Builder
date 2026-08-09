@@ -24,6 +24,7 @@ function countChoiceNodes(entries) {
 
 export function summarizeCombinedGameData(gameData = {}) {
   const classes = Array.isArray(gameData.classes) ? gameData.classes : [];
+  const classSkills = Array.isArray(gameData.classSkills) ? gameData.classSkills : null;
   const classFeatures = gameData.classFeatures && typeof gameData.classFeatures === "object"
     ? gameData.classFeatures
     : {};
@@ -37,6 +38,7 @@ export function summarizeCombinedGameData(gameData = {}) {
     schemaVersion: gameData.schemaVersion ?? null,
     generatedAt: gameData.generatedAt ?? null,
     classes: classes.length,
+    ...(classSkills ? { classSkills: classSkills.length } : {}),
     classFeatureOwners: Object.keys(classFeatures).length,
     classFeatureNodes: Object.values(classFeatures).reduce((count, entries) => count + countChoiceNodes(entries), 0),
     feats: feats.length,
@@ -69,7 +71,12 @@ export function buildReleaseArtifactSnapshot(dataDirectory = DEFAULT_GAME_DATA_D
 
 export function compareReleaseArtifactSnapshot(expected, actual) {
   const issues = [];
-  const normalize = (snapshot) => ({
+  const canonicalize = (value) => {
+    if (Array.isArray(value)) return value.map(canonicalize);
+    if (!value || typeof value !== "object") return value;
+    return Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonicalize(value[key])]));
+  };
+  const normalize = (snapshot) => canonicalize({
     ...snapshot,
     files: (Array.isArray(snapshot?.files) ? snapshot.files : [])
       .slice()

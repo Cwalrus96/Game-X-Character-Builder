@@ -173,8 +173,8 @@ Character-sheet autosave owns only temporary play-state leaves such as current H
 The source pipeline has two independent versioned contracts:
 
 - source schema: native workbook schema v4;
-- production runtime artifact schema: frozen release schema v1;
-- staged runtime artifact schema: schema v2, authenticated and deterministic, pending manual diff review and publish approval.
+- production runtime artifact schema: reviewed schema v2;
+- staged runtime artifact schema: schema v2, authenticated and deterministic, with exact-hash review required for each future publish.
 
 The exporter is responsible for an explicit transformation between them. It must not treat workbook rows as runtime objects without adaptation.
 
@@ -202,8 +202,8 @@ All saves must be sanitized, narrow, visible on failure, and serialized. Broad m
 ## Current transition state
 
 - Milestone 0 and Work Package A automated safety work are complete; real-browser acceptance remains deployment-blocking.
-- Work Package B is active. The production game-data release is frozen and baselined.
-- Schema-v4 acquisition, a domain-neutral XLSX reader, canonical per-tab adapters, shared typed expressions, pure whole-model reference/domain validation, deterministic schema-v2 artifact construction, runtime-load acceptance, atomic staging, and structural/semantic diffing are implemented against fixtures. Live end-to-end acceptance is blocked on the repository Drive identity; production remains frozen pending source resolution, diff review, and publish approval.
+- Work Package B is complete. Schema-v2 production game data is exact-hash baselined; the generic exporter remains frozen and only the reviewed publisher may change production artifacts.
+- Schema-v4 acquisition, a domain-neutral XLSX reader, canonical per-tab adapters, shared typed expressions, pure whole-model reference/domain validation, deterministic schema-v2 artifact construction, runtime-load acceptance, atomic staging, structural/semantic diffing, exact-byte publishing, and transactional rollback are implemented and live-accepted.
 - The v5 codec, isolated migration registry, definitive database reader/writer APIs, pure `CharacterSession` lifecycle, and split compiler/fixed-point reconciler are implemented. Switching deployed pages to this path remains blocked on reviewed stable-key runtime data and Work Package E domain migration. The current class/feat/technique vertical slice is the next target component.
 
 Exact status and the next named step are in [status.md](status.md).

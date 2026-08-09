@@ -16,7 +16,7 @@ import {
   computeKnownCombatSkillsAndGrants,
   getEntryGrants,
   getGameXClassFeatures,
-  getGameXFeats,
+  getGameXFeatsForClass,
   getGameXTechniques,
   isGameDataRecordSelectable,
   resolveTechniqueRef,
@@ -129,8 +129,7 @@ function availableFeatEntries(gameData, builder) {
   const classKey = sanitizeText(builder?.classKey || "", { maxLen: 64, collapse: true });
   const level = Number.parseInt(String(builder?.level ?? 1), 10);
   const currentLevel = Number.isFinite(level) ? Math.max(1, Math.min(12, level)) : 1;
-  return getGameXFeats(gameData)
-    .filter((feat) => String(feat?.classKey || "") === classKey)
+  return getGameXFeatsForClass(gameData, classKey)
     .filter((feat) => getEntryRequiredLevel(feat) <= currentLevel);
 }
 
@@ -301,7 +300,11 @@ function addGrantNodes(graph, activeEntries, { builder = {} } = {}) {
         maxLen: 200,
         collapse: true,
       });
-      const grantId = `grant:${grant.type}:${sourceLabel}:${grantName}:${index}`;
+      const grantIdentity = sanitizeText(
+        grant.key || grant.skillKey || grant.enhancementKey || grant.choiceId || grant.choiceRef || grantName,
+        { maxLen: 200, collapse: true },
+      ).toLowerCase();
+      const grantId = `grant:${grant.type}:${sourceLabel}:${grantIdentity}:${index}`;
       graph.addNode({
         id: grantId,
         kind: "grant",

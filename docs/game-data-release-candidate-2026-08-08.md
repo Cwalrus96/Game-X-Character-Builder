@@ -1,6 +1,6 @@
 # Game-data release candidate review — 2026-08-08
 
-Status: ready for manual `WPB-DIFF-REVIEW`; not approved or published.
+Status: exact-hash review approved and published through `WPB-PUBLISH` on 2026-08-09.
 
 ## Exact candidate identity
 
@@ -53,4 +53,4 @@ The previous staging candidates were superseded after the user approved canonica
 4. Confirm the added `class-skills.json`, removal of the stale runtime `export-report.json`, stable-key additions, normalized costs/expressions, and the incomplete class/origin selectability lists above are intended.
 5. Approve or reject this exact candidate. Approval must name Drive version `647`, normalized-model SHA-256 `c03ed329b10e27310baef32d73fe239c9146e415c332ae62f7842d81e9a17739`, and the artifact hashes in this record. Any new Drive revision or different artifact hash requires a new review.
 
-Approval of `WPB-DIFF-REVIEW` does not authorize `WPB-PUBLISH`. Publishing remains a separate explicit boundary, and production JSON remains frozen until that later approval.
+The user separately approved `WPB-DIFF-REVIEW` and then explicitly authorized `WPB-PUBLISH`. The release result and rollback instructions are recorded in [game-data-release-2026-08-09.md](game-data-release-2026-08-09.md).

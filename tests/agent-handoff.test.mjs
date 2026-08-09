@@ -95,10 +95,11 @@ test("handoff guide requires fresh review deployments and safe feature commits",
   assert.match(agents, /never rewrite a non-top commit/);
 });
 
-test("package scripts expose acquisition, staging, and frozen-release verification", () => {
+test("package scripts expose acquisition, staging, reviewed publishing, and release verification", () => {
   const packageJson = JSON.parse(read("package.json"));
   assert.equal(packageJson.scripts["data:source:check"], "node scripts/fetch-game-data-source.mjs --check");
   assert.equal(packageJson.scripts["fetch:data"], "node scripts/fetch-game-data-source.mjs");
   assert.equal(packageJson.scripts["stage:data"], "node scripts/stage-game-data.mjs");
+  assert.equal(packageJson.scripts["publish:data"], "node scripts/publish-game-data.mjs");
   assert.ok(packageJson.scripts["baseline:data"]);
 });

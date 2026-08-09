@@ -1,6 +1,6 @@
 # Game-data pipeline: Google Sheet to reviewed JSON
 
-Status: living operational design. Read-only acquisition, schema-v4 read/validate/stage/diff, authenticated live acceptance, and source resolution are complete; manual release-candidate review and publishing remain Work Package B work.
+Status: living operational design. Read-only acquisition, schema-v4 read/validate/stage/diff, authenticated live acceptance, exact reviewed publishing, and rollback are implemented.
 
 Last updated: 2026-08-08.
 
@@ -145,7 +145,7 @@ npm run baseline:data
 
 This verifies exact filenames, byte lengths, SHA-256 hashes, release metadata, and structural counts for the nine reviewed production artifacts.
 
-`npm run export:data` still targets `public/data/game-x` and intentionally fails before reading/writing while the production freeze is active. It is retained as a negative safety boundary until `WPB-PUBLISH` replaces it with explicit promotion.
+`npm run export:data` still targets `public/data/game-x` and intentionally fails before reading/writing. It remains a negative safety boundary: production can be changed only by the separately approved exact-byte publisher.
 
 ## Staging run
 
@@ -182,14 +182,22 @@ The semantic diff uses stable identities and reports added, removed, changed ent
 
 ## Publishing boundary
 
-Publishing is deliberately not implemented yet. `WPB-PUBLISH` will add a separate command that promotes the exact reviewed staged bytes without re-downloading or regenerating them. It must require:
+Publishing is a separate exact-byte operation. The checked-in `contracts/game-data-release.json` records the approved run, source/model hashes, every artifact hash and byte length, and both approval gates. Run:
+
+```powershell
+npm run publish:data -- --confirm <approved-run-id>
+```
+
+The publisher does not authenticate, fetch, adapt, regenerate, or infer approval. It fails unless all of the following match exactly:
 
 - zero structural validation errors;
 - runtime-load acceptance of staged artifacts;
 - approved source/model/artifact hashes;
 - completed semantic diff review;
-- intentional production-freeze change;
+- explicit diff-review and publish approval booleans plus the matching CLI confirmation;
 - updated release baseline and rollback record.
+
+It also verifies that the currently installed production bytes still match their existing baseline, reruns runtime acceptance against the candidate, installs only the nine approved artifact names, removes stale runtime files, and updates `contracts/game-data-release-baseline.json` in the same transaction. If either installation fails, it restores both the prior production directory and prior baseline. The generic exporter remains frozen so a fresh source run cannot bypass review.
 
 Fetch, stage, and publish must never be aliases for the same side-effecting operation.
 
@@ -199,9 +207,10 @@ Source resolution is not automatic cleanup. Read-only inspection, validation, or
 
 ## Runtime artifacts
 
-The website currently loads `public/data/game-x/game-x-data.json`; domain files remain checked in for review/tooling. The frozen schema-v1 production release contains:
+The website loads `public/data/game-x/game-x-data.json`; domain files remain checked in for review/tooling. The reviewed schema-v2 production release contains:
 
 - `classes.json`
+- `class-skills.json`
 - `class-features.json`
 - `feats.json`
 - `techniques.json`
@@ -209,9 +218,8 @@ The website currently loads `public/data/game-x/game-x-data.json`; domain files 
 - `weapon-bases.json`
 - `weapon-enhancements.json`
 - `game-x-data.json`
-- `export-report.json`
 
-Schema-v2 staging produces the eight corresponding runtime domain/combined files plus `class-skills.json`. `export-report.json` is run metadata beside `artifacts/`, not a runtime artifact. The v2 bytes preserve `ClassSkills`, stable technique keys, status/selectability, structured costs and expressions, source revision identity, and explicit stubbed subsystems. Source rows are not dropped merely to preserve the old file list.
+`export-report.json` is run metadata beside staged `artifacts/`, not a runtime artifact, and was removed from production during the schema-v2 publish. The v2 bytes preserve `ClassSkills`, stable technique keys, status/selectability, structured costs and expressions, source revision identity, and explicit stubbed subsystems. Source rows are not dropped merely to preserve the old file list.
 
 ## Failure policy
 
@@ -221,6 +229,6 @@ Schema-v2 staging produces the eight corresponding runtime domain/combined files
 - source version changes during export: discard bytes and retry in a new invocation.
 - empty, oversized, structurally unreadable, wrong-version, or wrong-workbook response: stop without replacing the last valid snapshot.
 - validation errors: stage diagnostics only; write no artifacts.
-- production path while frozen: reject before reading or writing.
+- generic production export: reject before reading or writing; only the exact reviewed publisher may install production bytes.
 
 The local snapshot is a convenience, not a fallback authority. If Drive is unavailable, use an explicitly supplied known snapshot only for offline parser development and label its provenance; never treat it as a releasable current source.

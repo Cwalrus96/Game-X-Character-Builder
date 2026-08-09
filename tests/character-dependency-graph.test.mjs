@@ -7,7 +7,7 @@ import { BuilderPage } from "../public/js/builder/builder-page.js";
 import { buildClassChangePatch } from "../public/js/builder/widgets/class-choice-widget.js";
 import { buildCharacterDependencyGraph } from "../public/js/core/character-dependency-graph.js";
 import { getChoiceCountState, getExpectedSelectionIssue } from "../public/js/core/choice-capacity.js";
-import { buildGrantChoiceNodeId, resolveGrantChoiceId } from "../public/js/core/choice-identity.js";
+import { buildGrantChoiceNodeId, resolveGrantChoiceAliases, resolveGrantChoiceId } from "../public/js/core/choice-identity.js";
 import { buildOptionKey, sanitizeGrantChoices } from "../public/js/core/data-sanitization.js";
 
 const gameData = JSON.parse(fs.readFileSync(new URL("../public/data/game-x/game-x-data.json", import.meta.url), "utf8"));
@@ -23,6 +23,15 @@ function magicalGuardianAccessoryOption(optionName) {
   const option = group.options.find((entry) => entry.name === optionName);
   return { group, option, key: buildOptionKey(group, option) };
 }
+
+test("derived grant-choice identities ignore display-only skill capitalization", () => {
+  const lower = { type: "technique-choice", skill: "spellcasting", count: 1 };
+  const displayCase = { type: "technique-choice", skill: "Spellcasting", count: 1 };
+  const options = { sourceId: "choice:feature:Dazzling Wand", index: 0 };
+
+  assert.equal(resolveGrantChoiceId(displayCase, options), resolveGrantChoiceId(lower, options));
+  assert(resolveGrantChoiceAliases(displayCase, options).includes("choice:feature:Dazzling Wand:technique-choice:Spellcasting:0"));
+});
 
 function gameDataWithSourceOwnedWeaponGrant() {
   return {
@@ -479,7 +488,7 @@ test("source-owned technique choices report incomplete answers on the grant choi
     change.type === "incomplete"
     && change.storagePath === "builder.grantChoices"
     && change.label === "Dazzling Wand"
-    && change.reason === "Dazzling Wand grants a spellcasting technique. Choose 1 technique."
+    && change.reason === "Dazzling Wand grants a Spellcasting technique. Choose 1 technique."
     && change.nextValue === 1
   )));
 });

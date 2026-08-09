@@ -1,305 +1,613 @@
 [
   {
-    "classKey": "elementalist",
-    "name": "Elementalist",
-    "pitch": "The elementalist uses Spirit Energy to manipulate various forms of matter - traditionally water, fire, earth, and air.",
-    "examples": "Avatar: The Last Airbender, Fullmetal Alchemist, Gaara (Naruto)",
-    "hpProgression": "",
-    "primaryAttributeA": "",
-    "primaryAttributeB": "",
-    "combatTechniqueSkill": "",
-    "combatSkills": [],
-    "utilitySkillOptions": [],
-    "notes": "Design Note: Magical Guardians that focus on Attunement tend to emphasize the “Magic” part of their name - they are deeply in-tune with the spiritual energy around them, and able to manipulate it more easily. Guardians that choose Heart as their primary attribute tend to focus on the bond they have with their teammates, and using these bonds to buff, heal, and protect their allies."
-  },
-  {
-    "classKey": "henshin-hero",
-    "name": "Henshin Hero",
-    "pitch": "The Henshin Hero, similar to the Magical Guardian, has two forms. They spend most of their time in their average human forms, but transform for battle. The Henshin Hero is more combat oriented than the Magical Guardian, usually having some innate armor and weapons when they transform.",
-    "examples": "Ultraman, Kamen Rider, Super Sentai",
-    "hpProgression": "High",
-    "primaryAttributeA": "Strength",
-    "primaryAttributeB": "Heart",
-    "combatTechniqueSkill": "Henshin Arts",
-    "combatSkills": [
-      {
-        "name": "Henshin Arts",
-        "progression": "fast"
-      },
-      {
-        "name": "Mental Defense",
-        "progression": "slow"
-      },
-      {
-        "name": "Physical Defense",
-        "progression": "fast"
-      },
-      {
-        "name": "Spiritual Defense",
-        "progression": "medium"
-      }
-    ],
-    "utilitySkillOptions": [
-      "Athletics",
-      "Performance",
-      "Technology",
-      "Science",
-      "Vehicles"
-    ],
-    "notes": "Design Note: Magical Guardians that focus on Attunement tend to emphasize the “Magic” part of their name - they are deeply in-tune with the spiritual energy around them, and able to manipulate it more easily. Guardians that choose Heart as their primary attribute tend to focus on the bond they have with their teammates, and using these bonds to buff, heal, and protect their allies."
-  },
-  {
-    "classKey": "magical-guardian",
-    "name": "Magical Guardian",
-    "pitch": "The Magical Guardian uses spirit energy to defend, heal, and enhance their allies. They are primarily a support class, and their magic can provide a wide range of utility.",
-    "examples": "Sailor Moon, Cardcaptor Sakura, Puella Magi Madoka Magica",
-    "hpProgression": "Low",
-    "primaryAttributeA": "Attunement",
-    "primaryAttributeB": "Heart",
-    "combatTechniqueSkill": "Spellcasting",
-    "combatSkills": [
-      {
-        "name": "Mental Defense",
-        "progression": "medium"
-      },
-      {
-        "name": "Physical Defense",
-        "progression": "slow"
-      },
-      {
-        "name": "Spellcasting",
-        "progression": "fast"
-      },
-      {
-        "name": "Spiritual Defense",
-        "progression": "fast"
-      }
-    ],
-    "utilitySkillOptions": [
-      "Spirituality",
-      "Performance",
-      "Medicine",
-      "Influence",
-      "Nature"
-    ],
-    "notes": "Design Note: Magical Guardians that focus on Attunement tend to emphasize the “Magic” part of their name - they are deeply in-tune with the spiritual energy around them, and able to manipulate it more easily. Guardians that choose Heart as their primary attribute tend to focus on the bond they have with their teammates, and using these bonds to buff, heal, and protect their allies."
-  },
-  {
-    "classKey": "mech-pilot",
-    "name": "Mech Pilot",
-    "pitch": "The Mech Pilot class revolves around channeling their spiritual energy through technology - particularly a piloted robotic vehicle known as a mech.",
-    "examples": "Kamina (Gurren Lagann), Shinji (Evangelion), Amuro (Gundam)",
-    "hpProgression": "",
-    "primaryAttributeA": "",
-    "primaryAttributeB": "",
-    "combatTechniqueSkill": "",
-    "combatSkills": [],
-    "utilitySkillOptions": [],
-    "notes": "Design Note: Magical Guardians that focus on Attunement tend to emphasize the “Magic” part of their name - they are deeply in-tune with the spiritual energy around them, and able to manipulate it more easily. Guardians that choose Heart as their primary attribute tend to focus on the bond they have with their teammates, and using these bonds to buff, heal, and protect their allies."
-  },
-  {
-    "classKey": "metamorph",
-    "name": "Metamorph",
-    "pitch": "The Metamorph uses spiritual energy to modify their own bodies - either whole or in part - into new forms. These new forms include elemental transformations, bestial or alien forms, growing giant, changing their body’s composition to have new material properties, etc.",
-    "examples": "Titan Shifters (Attack on Titan), Luffy (One Piece - Rubber material), Ben 10, Kirby",
-    "hpProgression": "High",
-    "primaryAttributeA": "Strength",
-    "primaryAttributeB": "Willpower",
-    "combatTechniqueSkill": "Metamorphosis",
-    "combatSkills": [
-      {
-        "name": "Mental Defense",
-        "progression": "medium"
-      },
-      {
-        "name": "Metamorphosis",
-        "progression": "fast"
-      },
-      {
-        "name": "Physical Defense",
-        "progression": "fast"
-      },
-      {
-        "name": "Spiritual Defense",
-        "progression": "slow"
-      }
-    ],
-    "utilitySkillOptions": [
-      "Nature",
-      "Spirituality",
-      "Deception",
-      "Performance",
-      "Roguery"
-    ],
-    "notes": "Design Note: Magical Guardians that focus on Attunement tend to emphasize the “Magic” part of their name - they are deeply in-tune with the spiritual energy around them, and able to manipulate it more easily. Guardians that choose Heart as their primary attribute tend to focus on the bond they have with their teammates, and using these bonds to buff, heal, and protect their allies."
-  },
-  {
-    "classKey": "monster-tamer",
-    "name": "Monster Tamer",
-    "pitch": "A monster tamer shares a special bond with one or more creatures that helps them both to grow stronger.",
-    "examples": "Ash (Pokemon), Tai (Digimon), Yugi Muto (Yu-Gi-Oh), Final Fantasy, etc.",
-    "hpProgression": "Medium",
-    "primaryAttributeA": "Willpower",
-    "primaryAttributeB": "Heart",
-    "combatTechniqueSkill": "Monster Taming",
-    "combatSkills": [
-      {
-        "name": "Mental Defense",
-        "progression": "fast"
-      },
-      {
-        "name": "Monster Taming",
-        "progression": "fast"
-      },
-      {
-        "name": "Physical Defense",
-        "progression": "slow"
-      },
-      {
-        "name": "Spiritual Defense",
-        "progression": "medium"
-      }
-    ],
-    "utilitySkillOptions": [
-      "Medicine",
-      "Nature",
-      "Influence",
-      "Athletics",
-      "Stealth"
-    ],
-    "notes": "Design Note: Magical Guardians that focus on Attunement tend to emphasize the “Magic” part of their name - they are deeply in-tune with the spiritual energy around them, and able to manipulate it more easily. Guardians that choose Heart as their primary attribute tend to focus on the bond they have with their teammates, and using these bonds to buff, heal, and protect their allies."
-  },
-  {
     "classKey": "ninja",
-    "name": "Ninja",
-    "pitch": "A character who uses spirit energy to enhance their stealth, deception, and infiltration. Ninjas are fast, tricky, mysterious, and deadly.",
-    "examples": "most characters from Naruto.",
-    "hpProgression": "Medium",
-    "primaryAttributeA": "Agility",
-    "primaryAttributeB": "Intellect",
-    "combatTechniqueSkill": "Ninjutsu",
     "combatSkills": [
       {
         "name": "Mental Defense",
-        "progression": "fast"
+        "progression": "fast",
+        "role": "combat-defense",
+        "skillKey": "mental-defense",
+        "whenPrimaryAttribute": null
       },
       {
         "name": "Ninjutsu",
-        "progression": "fast"
+        "progression": "fast",
+        "role": "combat-technique",
+        "skillKey": "ninjutsu",
+        "whenPrimaryAttribute": null
       },
       {
         "name": "Physical Defense",
-        "progression": "slow"
+        "progression": "slow",
+        "role": "combat-defense",
+        "skillKey": "physical-defense",
+        "whenPrimaryAttribute": null
       },
       {
         "name": "Spiritual Defense",
-        "progression": "medium"
+        "progression": "medium",
+        "role": "combat-defense",
+        "skillKey": "spiritual-defense",
+        "whenPrimaryAttribute": null
       }
     ],
+    "combatTechniqueSkill": "Ninjutsu",
+    "examples": [
+      "most characters from Naruto."
+    ],
+    "hpProgression": "medium",
+    "name": "Ninja",
+    "notes": "Design Note: Ninjas that focus on Intelligence tend to be tricksters and manipulators - using illusions and deception to influence their foes, and using their skills and cunning to set up advantages for themselves. Ninjas that prioritize Agility tend to be deadly skirmishers, striking quickly from the shadows and hiding away before they can be caught.",
+    "pitch": "A character who uses spirit energy to enhance their stealth, deception, and infiltration. Ninjas are fast, tricky, mysterious, and deadly.",
+    "primaryAttributeA": "Agility",
+    "primaryAttributeB": "Intellect",
+    "primaryAttributes": [
+      "Agility",
+      "Intellect"
+    ],
+    "selectable": true,
+    "status": "playable",
     "utilitySkillOptions": [
       "Athletics",
       "Deception",
       "Medicine",
       "Roguery",
       "Nature"
-    ],
-    "notes": "Design Note: Ninjas that focus on Intelligence tend to be tricksters and manipulators - using illusions and deception to influence their foes, and using their skills and cunning to set up advantages for themselves. Ninjas that prioritize Agility tend to be deadly skirmishers, striking quickly from the shadows and hiding away before they can be caught."
+    ]
   },
   {
-    "classKey": "psychic",
-    "name": "Psychic",
-    "pitch": "The psychic primarily uses spirit energy to enhance their minds, not their bodies. They can use their minds to manipulate objects, read and project thoughts, and eventually even stop time.",
-    "examples": "Mob Psycho 100, Akira, Jojo’s Bizarre Adventure (Arguably)",
-    "hpProgression": "Low",
-    "primaryAttributeA": "",
-    "primaryAttributeB": "",
-    "combatTechniqueSkill": "",
-    "combatSkills": [],
-    "utilitySkillOptions": [],
-    "notes": "Design Note: Magical Guardians that focus on Attunement tend to emphasize the “Magic” part of their name - they are deeply in-tune with the spiritual energy around them, and able to manipulate it more easily. Guardians that choose Heart as their primary attribute tend to focus on the bond they have with their teammates, and using these bonds to buff, heal, and protect their allies."
-  },
-  {
-    "classKey": "spirit-warrior",
-    "name": "Spirit Warrior",
-    "pitch": "A Spirit Warrior channels Spirit Energy to enhance their physical abilities, and can also release their Spirit Energy in various forms of attack. Focuses on close-combat against a single target. High single-target damage and good bulk. Struggles more with multiple targets and ranged abilities.",
-    "examples": "Goku (Dragonball), Ryu (Street Fighter), Rock Lee (Naruto), Kenshiro (Fist of the North Star)",
-    "hpProgression": "High",
-    "primaryAttributeA": "Strength",
-    "primaryAttributeB": "Agility",
-    "combatTechniqueSkill": "Martial Arts",
+    "classKey": "magical-guardian",
     "combatSkills": [
       {
-        "name": "Martial Arts",
-        "progression": "fast"
-      },
-      {
         "name": "Mental Defense",
-        "progression": "slow"
+        "progression": "medium",
+        "role": "combat-defense",
+        "skillKey": "mental-defense",
+        "whenPrimaryAttribute": null
       },
       {
         "name": "Physical Defense",
-        "progression": "fast"
+        "progression": "slow",
+        "role": "combat-defense",
+        "skillKey": "physical-defense",
+        "whenPrimaryAttribute": null
+      },
+      {
+        "name": "Spellcasting",
+        "progression": "fast",
+        "role": "combat-technique",
+        "skillKey": "spellcasting",
+        "whenPrimaryAttribute": null
       },
       {
         "name": "Spiritual Defense",
-        "progression": "medium"
+        "progression": "fast",
+        "role": "combat-defense",
+        "skillKey": "spiritual-defense",
+        "whenPrimaryAttribute": null
       }
     ],
+    "combatTechniqueSkill": "Spellcasting",
+    "examples": [
+      "Sailor Moon, Cardcaptor Sakura, Puella Magi Madoka Magica"
+    ],
+    "hpProgression": "low",
+    "name": "Magical Guardian",
+    "notes": "Design Note: Magical Guardians that focus on Attunement tend to emphasize the “Magic” part of their name - they are deeply in-tune with the spiritual energy around them, and able to manipulate it more easily. Guardians that choose Heart as their primary attribute tend to focus on the bond they have with their teammates, and using these bonds to buff, heal, and protect their allies.",
+    "pitch": "The Magical Guardian uses spirit energy to defend, heal, and enhance their allies. They are primarily a support class, and their magic can provide a wide range of utility.",
+    "primaryAttributeA": "Attunement",
+    "primaryAttributeB": "Heart",
+    "primaryAttributes": [
+      "Attunement",
+      "Heart"
+    ],
+    "selectable": true,
+    "status": "playable",
+    "utilitySkillOptions": [
+      "Spirituality",
+      "Performance",
+      "Medicine",
+      "Influence",
+      "Nature"
+    ]
+  },
+  {
+    "classKey": "monster-tamer",
+    "combatSkills": [
+      {
+        "name": "Mental Defense",
+        "progression": "fast",
+        "role": "combat-defense",
+        "skillKey": "mental-defense",
+        "whenPrimaryAttribute": null
+      },
+      {
+        "name": "Monster Taming",
+        "progression": "fast",
+        "role": "combat-technique",
+        "skillKey": "monster-taming",
+        "whenPrimaryAttribute": null
+      },
+      {
+        "name": "Physical Defense",
+        "progression": "slow",
+        "role": "combat-defense",
+        "skillKey": "physical-defense",
+        "whenPrimaryAttribute": null
+      },
+      {
+        "name": "Spiritual Defense",
+        "progression": "medium",
+        "role": "combat-defense",
+        "skillKey": "spiritual-defense",
+        "whenPrimaryAttribute": null
+      }
+    ],
+    "combatTechniqueSkill": "Monster Taming",
+    "examples": [
+      "Ash (Pokemon), Tai (Digimon), Yugi Muto (Yu-Gi-Oh), Final Fantasy, etc."
+    ],
+    "hpProgression": "medium",
+    "name": "Monster Tamer",
+    "notes": "Design Note: Monster Tamers who focus on Willpower tend to emphasize controlling and recruiting creatures. Those who focus on Heart tend to emphasize their bonds with companions and coordinated teamwork.",
+    "pitch": "A monster tamer shares a special bond with one or more creatures that helps them both to grow stronger.",
+    "primaryAttributeA": "Willpower",
+    "primaryAttributeB": "Heart",
+    "primaryAttributes": [
+      "Willpower",
+      "Heart"
+    ],
+    "selectable": true,
+    "status": "playable",
+    "utilitySkillOptions": [
+      "Medicine",
+      "Nature",
+      "Influence",
+      "Athletics",
+      "Stealth"
+    ]
+  },
+  {
+    "classKey": "spirit-warrior",
+    "combatSkills": [
+      {
+        "name": "Martial Arts",
+        "progression": "fast",
+        "role": "combat-technique",
+        "skillKey": "martial-arts",
+        "whenPrimaryAttribute": null
+      },
+      {
+        "name": "Mental Defense",
+        "progression": "slow",
+        "role": "combat-defense",
+        "skillKey": "mental-defense",
+        "whenPrimaryAttribute": null
+      },
+      {
+        "name": "Physical Defense",
+        "progression": "fast",
+        "role": "combat-defense",
+        "skillKey": "physical-defense",
+        "whenPrimaryAttribute": null
+      },
+      {
+        "name": "Spiritual Defense",
+        "progression": "medium",
+        "role": "combat-defense",
+        "skillKey": "spiritual-defense",
+        "whenPrimaryAttribute": null
+      }
+    ],
+    "combatTechniqueSkill": "Martial Arts",
+    "examples": [
+      "Goku (Dragonball), Ryu (Street Fighter), Rock Lee (Naruto), Kenshiro (Fist of the North Star)"
+    ],
+    "hpProgression": "high",
+    "name": "Spirit Warrior",
+    "notes": "Design Note: Spirit Warriors who focus on Strength tend to emphasize powerful strikes, forced movement, and grappling. Those who focus on Agility tend to emphasize mobility, rapid flurries, and fighting multiple targets.",
+    "pitch": "A Spirit Warrior channels Spirit Energy to enhance their physical abilities, and can also release their Spirit Energy in various forms of attack. Focuses on close-combat against a single target. High single-target damage and good bulk. Struggles more with multiple targets and ranged abilities.",
+    "primaryAttributeA": "Strength",
+    "primaryAttributeB": "Agility",
+    "primaryAttributes": [
+      "Strength",
+      "Agility"
+    ],
+    "selectable": true,
+    "status": "playable",
     "utilitySkillOptions": [
       "Spirituality",
       "Athletics",
       "Medicine",
       "Culinary",
       "Insight"
+    ]
+  },
+  {
+    "classKey": "elementalist",
+    "combatSkills": [],
+    "combatTechniqueSkill": null,
+    "examples": [
+      "Avatar: The Last Airbender, Fullmetal Alchemist, Gaara (Naruto)"
     ],
-    "notes": "Design Note: Magical Guardians that focus on Attunement tend to emphasize the “Magic” part of their name - they are deeply in-tune with the spiritual energy around them, and able to manipulate it more easily. Guardians that choose Heart as their primary attribute tend to focus on the bond they have with their teammates, and using these bonds to buff, heal, and protect their allies."
+    "hpProgression": null,
+    "name": "Elementalist",
+    "notes": null,
+    "pitch": "The elementalist uses Spirit Energy to manipulate various forms of matter - traditionally water, fire, earth, and air.",
+    "primaryAttributeA": null,
+    "primaryAttributeB": null,
+    "primaryAttributes": [],
+    "selectable": false,
+    "status": "incomplete",
+    "utilitySkillOptions": []
+  },
+  {
+    "classKey": "mech-pilot",
+    "combatSkills": [],
+    "combatTechniqueSkill": null,
+    "examples": [
+      "Kamina (Gurren Lagann), Shinji (Evangelion), Amuro (Gundam)"
+    ],
+    "hpProgression": null,
+    "name": "Mech Pilot",
+    "notes": null,
+    "pitch": "The Mech Pilot class revolves around channeling their spiritual energy through technology - particularly a piloted robotic vehicle known as a mech.",
+    "primaryAttributeA": null,
+    "primaryAttributeB": null,
+    "primaryAttributes": [],
+    "selectable": false,
+    "status": "incomplete",
+    "utilitySkillOptions": []
   },
   {
     "classKey": "weapon-master",
-    "name": "Weapon Master",
-    "pitch": "The weapon master is a master of weapons and armor. They use spirit energy to enhance their abilities both offensively and defensively. They channel energy through their weapons to perform incredible feats, such as slicing a boulder in half, deflecting bullets in midair, or swinging weapons with ease that a normal person couldn’t even lift. The weapon master focuses on battlefield control and multi-target damage. Their single-target damage isn’t bad, but doesn’t match up to classes that focus on single combat.",
-    "examples": "Goemon (Lupin III), Guts (Berserk), Rurouni Kenshin, Ichigo (Bleach)",
-    "hpProgression": "High",
-    "primaryAttributeA": "Strength",
-    "primaryAttributeB": "Agility",
-    "combatTechniqueSkill": "Melee Weapons, Targeting",
     "combatSkills": [
       {
-        "name": "Melee Weapons:Fast (Strength Primary)",
-        "progression": null
+        "name": "Melee Weapons",
+        "progression": "fast",
+        "role": "combat-technique",
+        "skillKey": "melee-weapons",
+        "whenPrimaryAttribute": "strength"
       },
       {
-        "name": "Medium (Agility Primary)",
-        "progression": null
+        "name": "Melee Weapons",
+        "progression": "medium",
+        "role": "combat-technique",
+        "skillKey": "melee-weapons",
+        "whenPrimaryAttribute": "agility"
+      },
+      {
+        "name": "Targeting",
+        "progression": "medium",
+        "role": "combat-technique",
+        "skillKey": "targeting",
+        "whenPrimaryAttribute": "strength"
+      },
+      {
+        "name": "Targeting",
+        "progression": "fast",
+        "role": "combat-technique",
+        "skillKey": "targeting",
+        "whenPrimaryAttribute": "agility"
       },
       {
         "name": "Mental Defense",
-        "progression": "medium"
+        "progression": "medium",
+        "role": "combat-defense",
+        "skillKey": "mental-defense",
+        "whenPrimaryAttribute": null
       },
       {
         "name": "Physical Defense",
-        "progression": "fast"
+        "progression": "fast",
+        "role": "combat-defense",
+        "skillKey": "physical-defense",
+        "whenPrimaryAttribute": null
       },
       {
         "name": "Spiritual Defense",
-        "progression": "slow"
-      },
-      {
-        "name": "Targeting:Medium (Strength Primary)",
-        "progression": null
-      },
-      {
-        "name": "Fast (Agility Primary)",
-        "progression": null
+        "progression": "slow",
+        "role": "combat-defense",
+        "skillKey": "spiritual-defense",
+        "whenPrimaryAttribute": null
       }
     ],
+    "combatTechniqueSkill": "Melee Weapons",
+    "examples": [
+      "Goemon (Lupin III), Guts (Berserk), Rurouni Kenshin, Ichigo (Bleach)"
+    ],
+    "hpProgression": "high",
+    "name": "Weapon Master",
+    "notes": "Design Note: Weapon Masters who focus on Strength tend toward melee weapons. Those who focus on Agility tend toward ranged weapons.",
+    "pitch": "The weapon master is a master of weapons and armor. They use spirit energy to enhance their abilities both offensively and defensively. They channel energy through their weapons to perform incredible feats, such as slicing a boulder in half, deflecting bullets in midair, or swinging weapons with ease that a normal person couldn’t even lift. The weapon master focuses on battlefield control and multi-target damage. Their single-target damage isn’t bad, but doesn’t match up to classes that focus on single combat.",
+    "primaryAttributeA": "Strength",
+    "primaryAttributeB": "Agility",
+    "primaryAttributes": [
+      "Strength",
+      "Agility"
+    ],
+    "selectable": true,
+    "status": "playable",
     "utilitySkillOptions": [
       "Athletics",
       "Society",
       "Influence",
       "Observation",
       "Crafting"
+    ]
+  },
+  {
+    "classKey": "henshin-hero",
+    "combatSkills": [
+      {
+        "name": "Henshin Arts",
+        "progression": "fast",
+        "role": "combat-technique",
+        "skillKey": "henshin-arts",
+        "whenPrimaryAttribute": null
+      },
+      {
+        "name": "Mental Defense",
+        "progression": "slow",
+        "role": "combat-defense",
+        "skillKey": "mental-defense",
+        "whenPrimaryAttribute": null
+      },
+      {
+        "name": "Physical Defense",
+        "progression": "fast",
+        "role": "combat-defense",
+        "skillKey": "physical-defense",
+        "whenPrimaryAttribute": null
+      },
+      {
+        "name": "Spiritual Defense",
+        "progression": "medium",
+        "role": "combat-defense",
+        "skillKey": "spiritual-defense",
+        "whenPrimaryAttribute": null
+      }
     ],
-    "notes": "Design Note: Magical Guardians that focus on Attunement tend to emphasize the “Magic” part of their name - they are deeply in-tune with the spiritual energy around them, and able to manipulate it more easily. Guardians that choose Heart as their primary attribute tend to focus on the bond they have with their teammates, and using these bonds to buff, heal, and protect their allies."
+    "combatTechniqueSkill": "Henshin Arts",
+    "examples": [
+      "Ultraman, Kamen Rider, Super Sentai"
+    ],
+    "hpProgression": "high",
+    "name": "Henshin Hero",
+    "notes": null,
+    "pitch": "The Henshin Hero, similar to the Magical Guardian, has two forms. They spend most of their time in their average human forms, but transform for battle. The Henshin Hero is more combat oriented than the Magical Guardian, usually having some innate armor and weapons when they transform.",
+    "primaryAttributeA": "Strength",
+    "primaryAttributeB": "Heart",
+    "primaryAttributes": [
+      "Strength",
+      "Heart"
+    ],
+    "selectable": true,
+    "status": "playable",
+    "utilitySkillOptions": [
+      "Athletics",
+      "Performance",
+      "Technology",
+      "Science",
+      "Vehicles"
+    ]
+  },
+  {
+    "classKey": "psychic",
+    "combatSkills": [],
+    "combatTechniqueSkill": null,
+    "examples": [
+      "Mob Psycho 100, Akira, Jojo’s Bizarre Adventure (Arguably)"
+    ],
+    "hpProgression": "low",
+    "name": "Psychic",
+    "notes": null,
+    "pitch": "The psychic primarily uses spirit energy to enhance their minds, not their bodies. They can use their minds to manipulate objects, read and project thoughts, and eventually even stop time.",
+    "primaryAttributeA": null,
+    "primaryAttributeB": null,
+    "primaryAttributes": [],
+    "selectable": false,
+    "status": "incomplete",
+    "utilitySkillOptions": []
+  },
+  {
+    "classKey": "metamorph",
+    "combatSkills": [
+      {
+        "name": "Mental Defense",
+        "progression": "medium",
+        "role": "combat-defense",
+        "skillKey": "mental-defense",
+        "whenPrimaryAttribute": null
+      },
+      {
+        "name": "Metamorphosis",
+        "progression": "fast",
+        "role": "combat-technique",
+        "skillKey": "metamorphosis",
+        "whenPrimaryAttribute": null
+      },
+      {
+        "name": "Physical Defense",
+        "progression": "fast",
+        "role": "combat-defense",
+        "skillKey": "physical-defense",
+        "whenPrimaryAttribute": null
+      },
+      {
+        "name": "Spiritual Defense",
+        "progression": "slow",
+        "role": "combat-defense",
+        "skillKey": "spiritual-defense",
+        "whenPrimaryAttribute": null
+      }
+    ],
+    "combatTechniqueSkill": "Metamorphosis",
+    "examples": [
+      "Titan Shifters (Attack on Titan), Luffy (One Piece - Rubber material), Ben 10, Kirby"
+    ],
+    "hpProgression": "high",
+    "name": "Metamorph",
+    "notes": null,
+    "pitch": "The Metamorph uses spiritual energy to modify their own bodies - either whole or in part - into new forms. These new forms include elemental transformations, bestial or alien forms, growing giant, changing their body’s composition to have new material properties, etc.",
+    "primaryAttributeA": "Strength",
+    "primaryAttributeB": "Willpower",
+    "primaryAttributes": [
+      "Strength",
+      "Willpower"
+    ],
+    "selectable": true,
+    "status": "playable",
+    "utilitySkillOptions": [
+      "Nature",
+      "Spirituality",
+      "Deception",
+      "Performance",
+      "Roguery"
+    ]
+  },
+  {
+    "classKey": "jrpg-mage",
+    "combatSkills": [],
+    "combatTechniqueSkill": null,
+    "examples": [],
+    "hpProgression": null,
+    "name": "JRPG Mage",
+    "notes": null,
+    "pitch": null,
+    "primaryAttributeA": null,
+    "primaryAttributeB": null,
+    "primaryAttributes": [],
+    "selectable": false,
+    "status": "incomplete",
+    "utilitySkillOptions": []
+  },
+  {
+    "classKey": "mastermind",
+    "combatSkills": [],
+    "combatTechniqueSkill": null,
+    "examples": [],
+    "hpProgression": null,
+    "name": "Mastermind",
+    "notes": null,
+    "pitch": null,
+    "primaryAttributeA": null,
+    "primaryAttributeB": null,
+    "primaryAttributes": [],
+    "selectable": false,
+    "status": "incomplete",
+    "utilitySkillOptions": []
+  },
+  {
+    "classKey": "dragoon",
+    "combatSkills": [],
+    "combatTechniqueSkill": null,
+    "examples": [],
+    "hpProgression": null,
+    "name": "Dragoon",
+    "notes": null,
+    "pitch": null,
+    "primaryAttributeA": null,
+    "primaryAttributeB": null,
+    "primaryAttributes": [],
+    "selectable": false,
+    "status": "incomplete",
+    "utilitySkillOptions": []
+  },
+  {
+    "classKey": "sports-athlete",
+    "combatSkills": [],
+    "combatTechniqueSkill": null,
+    "examples": [],
+    "hpProgression": null,
+    "name": "Sports Athlete",
+    "notes": null,
+    "pitch": null,
+    "primaryAttributeA": null,
+    "primaryAttributeB": null,
+    "primaryAttributes": [],
+    "selectable": false,
+    "status": "incomplete",
+    "utilitySkillOptions": []
+  },
+  {
+    "classKey": "racer",
+    "combatSkills": [],
+    "combatTechniqueSkill": null,
+    "examples": [],
+    "hpProgression": null,
+    "name": "Racer",
+    "notes": null,
+    "pitch": null,
+    "primaryAttributeA": null,
+    "primaryAttributeB": null,
+    "primaryAttributes": [],
+    "selectable": false,
+    "status": "incomplete",
+    "utilitySkillOptions": []
+  },
+  {
+    "classKey": "gamer",
+    "combatSkills": [],
+    "combatTechniqueSkill": null,
+    "examples": [],
+    "hpProgression": null,
+    "name": "Gamer",
+    "notes": null,
+    "pitch": null,
+    "primaryAttributeA": null,
+    "primaryAttributeB": null,
+    "primaryAttributes": [],
+    "selectable": false,
+    "status": "incomplete",
+    "utilitySkillOptions": []
+  },
+  {
+    "classKey": "idol",
+    "combatSkills": [],
+    "combatTechniqueSkill": null,
+    "examples": [],
+    "hpProgression": null,
+    "name": "Idol",
+    "notes": null,
+    "pitch": null,
+    "primaryAttributeA": null,
+    "primaryAttributeB": null,
+    "primaryAttributes": [],
+    "selectable": false,
+    "status": "incomplete",
+    "utilitySkillOptions": []
+  },
+  {
+    "classKey": "spirit-exorcist",
+    "combatSkills": [],
+    "combatTechniqueSkill": null,
+    "examples": [],
+    "hpProgression": null,
+    "name": "Spirit Exorcist",
+    "notes": null,
+    "pitch": null,
+    "primaryAttributeA": null,
+    "primaryAttributeB": null,
+    "primaryAttributes": [],
+    "selectable": false,
+    "status": "incomplete",
+    "utilitySkillOptions": []
+  },
+  {
+    "classKey": "monster-hunter",
+    "combatSkills": [],
+    "combatTechniqueSkill": null,
+    "examples": [],
+    "hpProgression": null,
+    "name": "Monster Hunter",
+    "notes": null,
+    "pitch": null,
+    "primaryAttributeA": null,
+    "primaryAttributeB": null,
+    "primaryAttributes": [],
+    "selectable": false,
+    "status": "incomplete",
+    "utilitySkillOptions": []
   }
 ]

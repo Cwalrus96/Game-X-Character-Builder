@@ -1,51 +1,85 @@
 {
-  "schemaVersion": 1,
-  "capturedOn": "2026-08-03",
-  "sourceWorkbook": {
-    "fileId": "1TEdxuufglP8lFRNk8QD4N_351-0ihAUFLG2743ESjoI",
-    "title": "game-x-class-data",
-    "url": "https://docs.google.com/spreadsheets/d/1TEdxuufglP8lFRNk8QD4N_351-0ihAUFLG2743ESjoI/edit",
-    "modifiedTime": "2026-07-31T21:50:31.191Z",
-    "observedSheets": [
-      { "title": "README", "sheetId": 503091388, "dataRows": 5 },
-      { "title": "Classes", "sheetId": 1361311258, "dataRows": 19 },
-      { "title": "ClassFeatures", "sheetId": 99671034, "dataRows": 73 },
-      { "title": "Techniques", "sheetId": 1925001475, "dataRows": 85 },
-      { "title": "Feats", "sheetId": 1031532335, "dataRows": 38 },
-      { "title": "Origins", "sheetId": 1216424881, "dataRows": 15 },
-      { "title": "OriginFeatures", "sheetId": 1354829599, "dataRows": 23 },
-      { "title": "WeaponBases", "sheetId": 1782767706, "dataRows": 31 },
-      { "title": "WeaponProfiles", "sheetId": 479657807, "dataRows": 33 },
-      { "title": "WeaponEnhancements", "sheetId": 954265338, "dataRows": 31 }
-    ]
+  "capturedOn": "2026-08-09",
+  "release": {
+    "approvalContext": "User approved WPB-DIFF-REVIEW and explicitly requested WPB-PUBLISH in the Codex task on 2026-08-09.",
+    "candidateRunId": "20260809T022801911Z-51956",
+    "runtimeArtifactSchemaVersion": 2
   },
   "releaseArtifact": {
+    "counts": {
+      "classFeatureNodes": 103,
+      "classFeatureOwners": 7,
+      "classSkills": 66,
+      "classes": 19,
+      "featNodes": 38,
+      "feats": 36,
+      "generatedAt": null,
+      "originFeatures": 23,
+      "origins": 15,
+      "schemaVersion": 2,
+      "techniques": 85,
+      "weaponBases": 31,
+      "weaponEnhancements": 31,
+      "weaponProfiles": 33
+    },
     "directory": "public/data/game-x",
     "files": [
-      { "name": "classes.json", "bytes": 13146, "sha256": "5c1fb426ca7dd96d97355facab119a9676437895c76ed81b678b380336c278a9" },
-      { "name": "class-features.json", "bytes": 44713, "sha256": "94abf0c877d50c46f5dfa5cb4dfc954cf8eed508b8ab1ba79659769966a9bcfb" },
-      { "name": "export-report.json", "bytes": 840, "sha256": "3912254408633e0ea02de6944f5d01407145209e312605385619ab4767d47db4" },
-      { "name": "feats.json", "bytes": 23754, "sha256": "c501128a086d5e629c6c907c1306ade594e19b9b6a85d58d70bac6599cea5e09" },
-      { "name": "game-x-data.json", "bytes": 278594, "sha256": "32b654823b898cdcae67012780bbb73e0bbde524ac72c46f8d55e07084720369" },
-      { "name": "origins.json", "bytes": 34765, "sha256": "5d27caf05c80eacb4c797dd74782d1604fd893502377d655a37944c4b88c88ee" },
-      { "name": "techniques.json", "bytes": 84413, "sha256": "f091dc55ec70ba4e7c34351de7e035e117ad4222b8b1b6fa49d1f46b8c536c93" },
-      { "name": "weapon-bases.json", "bytes": 51390, "sha256": "f55e7d7ff26c37270f6b6c95c5a3d584c5e17f5ee41ae13ed4d8d979bedc68e2" },
-      { "name": "weapon-enhancements.json", "bytes": 11439, "sha256": "bb36c49b6744d04793d479d1b27eeb759b814fe3addca031d1d2487193eb1db5" }
-    ],
-    "counts": {
-      "schemaVersion": 1,
-      "generatedAt": "2026-06-29T22:09:43.726Z",
-      "classes": 10,
-      "classFeatureOwners": 8,
-      "classFeatureNodes": 70,
-      "feats": 37,
-      "featNodes": 39,
-      "techniques": 85,
-      "origins": 14,
-      "originFeatures": 23,
-      "weaponBases": 31,
-      "weaponProfiles": 33,
-      "weaponEnhancements": 31
-    }
+      {
+        "bytes": 89868,
+        "name": "class-features.json",
+        "sha256": "2fa2b7597c6454a4426b816d2e0566820ba6b3aba7b73ef9f483887cec6cdfff"
+      },
+      {
+        "bytes": 16483,
+        "name": "class-skills.json",
+        "sha256": "215de2cabf534ed2b69dd08cc9f1ed1f281b5ef978a6647f5ab5dd64b1f18a48"
+      },
+      {
+        "bytes": 18653,
+        "name": "classes.json",
+        "sha256": "21e43f0b5fdd31273c321b0257a2dcdef698ada145867ff00e208672707fb559"
+      },
+      {
+        "bytes": 35712,
+        "name": "feats.json",
+        "sha256": "e0f7f78bc1682acc04bde78c16a30f2209707c6ba4c86bf254a28b6cf513339f"
+      },
+      {
+        "bytes": 407626,
+        "name": "game-x-data.json",
+        "sha256": "1b394658a0ac5042600e1f5ecd361f88f5fe2d98f2a339d77c0c4dba6b45a177"
+      },
+      {
+        "bytes": 42184,
+        "name": "origins.json",
+        "sha256": "a5d1aa39a07c139c37cd291e7a503ecf04b215e3cf610dabc8ab1c7e6422bac1"
+      },
+      {
+        "bytes": 109919,
+        "name": "techniques.json",
+        "sha256": "1c97d44358c7eb45648cc9b84faa08a76c0efbb3893b7f3062672f19f8055a40"
+      },
+      {
+        "bytes": 56935,
+        "name": "weapon-bases.json",
+        "sha256": "9ade906def32c14d597d4166913a28a4de6a0f9faea5b8a59b7f02c81de9f3de"
+      },
+      {
+        "bytes": 14155,
+        "name": "weapon-enhancements.json",
+        "sha256": "e71c273497442dd51baaee84f6397f0248342e951ecd1a76043e0f590aa70c6e"
+      }
+    ]
+  },
+  "schemaVersion": 2,
+  "sourceWorkbook": {
+    "driveVersion": "647",
+    "fileId": "1TEdxuufglP8lFRNk8QD4N_351-0ihAUFLG2743ESjoI",
+    "modelSha256": "c03ed329b10e27310baef32d73fe239c9146e415c332ae62f7842d81e9a17739",
+    "modifiedTime": "2026-08-09T02:27:03.310Z",
+    "sourceSchemaVersion": 4,
+    "title": "game-x-class-data",
+    "url": "https://docs.google.com/spreadsheets/d/1TEdxuufglP8lFRNk8QD4N_351-0ihAUFLG2743ESjoI/edit",
+    "xlsxSha256": "2db974d02773d340957a2f34c1c3de47f365064d5307658bba9572392ccd5916"
   }
 }

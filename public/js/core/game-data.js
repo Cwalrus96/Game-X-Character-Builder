@@ -64,6 +64,18 @@ export function getGameXFeats(gameData) {
   return Array.isArray(gameData?.feats) ? gameData.feats : [];
 }
 
+export function getFeatClassKey(feat) {
+  const legacyClassKey = sanitizeText(feat?.classKey || "", { maxLen: 64, collapse: true });
+  if (legacyClassKey) return legacyClassKey;
+  if (String(feat?.featType || "").trim().toLowerCase() !== "class") return "";
+  return sanitizeText(feat?.category || "", { maxLen: 64, collapse: true });
+}
+
+export function getGameXFeatsForClass(gameData, classKey) {
+  const key = sanitizeText(classKey || "", { maxLen: 64, collapse: true });
+  return getGameXFeats(gameData).filter((feat) => getFeatClassKey(feat) === key);
+}
+
 export function getGameXTechniques(gameData) {
   return Array.isArray(gameData?.techniques) ? gameData.techniques : [];
 }
