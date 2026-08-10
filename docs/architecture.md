@@ -164,7 +164,7 @@ The existing `database-reader.js` and `database-writer.js` modules are the two h
 
 Schema version 5 and the pure codec API are defined in [character-data-contract.md](character-data-contract.md); the compatibility contract is defined in [character-migrations.md](character-migrations.md), and the read/write/revision contract is defined in [character-persistence.md](character-persistence.md). Canonical state excludes Firestore timestamps and revisions and uses stable game-data keys rather than display names. `character-persistence.js` shares Firebase-free envelope, patch-ownership, and revision rules between the reader and writer without becoming a parallel page-facing repository.
 
-The definitive v5 reader/writer APIs are implemented and emulator-tested. Their deployed-page integration remains blocked by the frozen runtime data's missing stable technique keys. Clearly marked v4 exports remain temporarily for existing callers; they are not an approved second architecture and must not spread into graph, Rules, or widget code.
+The definitive v5 reader/writer APIs are implemented and emulator-tested. The reviewed schema-v2 runtime data now supplies stable technique keys; deployed-page integration remains blocked on the affected Work Package E vertical slices and their acceptance. Clearly marked v4 exports remain temporarily for existing callers; they are not an approved second architecture and must not spread into graph, Rules, or widget code.
 
 Character-sheet autosave owns only temporary play-state leaves such as current HP, strain, notes, and conditions. Builder-owned identity, class, attributes, skills, abilities, techniques, equipment, and choices are outside its write scope.
 
@@ -204,7 +204,7 @@ All saves must be sanitized, narrow, visible on failure, and serialized. Broad m
 - Milestone 0 and Work Package A automated safety work are complete; real-browser acceptance remains deployment-blocking.
 - Work Package B is complete. Schema-v2 production game data is exact-hash baselined; the generic exporter remains frozen and only the reviewed publisher may change production artifacts.
 - Schema-v4 acquisition, a domain-neutral XLSX reader, canonical per-tab adapters, shared typed expressions, pure whole-model reference/domain validation, deterministic schema-v2 artifact construction, runtime-load acceptance, atomic staging, structural/semantic diffing, exact-byte publishing, and transactional rollback are implemented and live-accepted.
-- The v5 codec, isolated migration registry, definitive database reader/writer APIs, pure `CharacterSession` lifecycle, and split compiler/fixed-point reconciler are implemented. Switching deployed pages to this path remains blocked on reviewed stable-key runtime data and Work Package E domain migration. The current class/feat/technique vertical slice is the next target component.
+- The v5 codec, isolated migration registry, definitive database reader/writer APIs, pure `CharacterSession` lifecycle, and split compiler/fixed-point reconciler are implemented. Reviewed stable-key runtime data is published. Switching deployed pages to this path remains blocked on Work Package E domain migration and focused acceptance. The current class/feat/technique vertical slice is the next target component.
 
 Exact status and the next named step are in [status.md](status.md).
 

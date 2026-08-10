@@ -1,8 +1,8 @@
 # Character graph contract
 
-Status: implemented pure Work Package D core. The initial fixture-driven slice covers class facts/features/options, normal and source-owned technique selections, typed technique grants, prerequisites, capacity, and incomplete selections. Deployed-page and remaining-domain integration belongs to Work Package E.
+Status: implemented pure Work Package D core. The initial fixture-driven slice covers class facts/features/options, normal and source-owned technique selections, typed technique grants, prerequisites, capacity, and incomplete selections. Reviewed schema-v2 runtime data is published; deployed-page and remaining-domain integration belongs to Work Package E.
 
-Last updated: 2026-08-08.
+Last updated: 2026-08-10.
 
 ## Purpose and boundary
 
@@ -10,7 +10,7 @@ The graph is the authoritative pure representation of character selection owners
 
 `GraphCompiler` never reads Firebase, the DOM, pages, widgets, files, or the network. `GraphReconciler` repeatedly compiles and applies registered removal, prerequisite, capacity, and incomplete-selection policy until it reaches a deterministic fixed point. Neither component mutates caller-owned character or game-data values.
 
-The production game-data release is still frozen at schema v1, so the graph core is fixture-integrated only. This implementation does not authorize publishing staged data or switching deployed pages.
+The reviewed production game-data release is schema v2 and now supplies stable keys. The graph core remains fixture-integrated until Work Package E connects and accepts each page/domain slice; published data alone does not authorize switching deployed pages.
 
 ## Node contract
 

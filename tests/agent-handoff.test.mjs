@@ -86,6 +86,18 @@ test("handoff guide and roadmap state unambiguous ownership and preflight", () =
   assert.match(roadmap, /WPB-EXPRESSIONS[\s\S]*Step-specific preflight:/);
 });
 
+test("agent guide requires automatic plain-language briefings before and after roadmap work", () => {
+  const agents = read("AGENTS.md");
+  const roadmap = read("docs/roadmap.md");
+  assert.match(agents, /Human-readable communication protocol/);
+  assert.match(agents, /Before implementation/);
+  assert.match(agents, /After implementation/);
+  assert.match(agents, /should never have to prompt/);
+  assert.match(agents, /Do not substitute a list of filenames/);
+  assert.match(agents, /Commentary updates during implementation do not replace/);
+  assert.match(roadmap, /self-contained after-implementation explanation/);
+});
+
 test("handoff guide requires fresh review deployments and safe feature commits", () => {
   const agents = read("AGENTS.md");
   assert.match(agents, /Always redeploy ready website changes/);

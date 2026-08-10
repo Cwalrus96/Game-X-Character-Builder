@@ -20,7 +20,27 @@ This file is the required entry point for coding agents working in this reposito
 
 When the user says, for example, “Read `AGENTS.md` and proceed from `WPB-EXPRESSIONS`,” complete that named step through its acceptance criteria, update its evidence and [docs/status.md](docs/status.md), and stop at the next named boundary unless the user explicitly asks to continue.
 
-Before beginning any named roadmap step, explain it in plain language for a technically capable reader who is not familiar with this project's specific implementation. State what the preceding step established, what the named step will produce, why it is useful, and any known blocker or approval boundary. At handoff, explain the purpose and benefit of the next named step by default; do not wait for the user to request that explanation.
+Before beginning any named roadmap step, follow the human-readable communication protocol below. At handoff, explain the purpose and benefit of the next named step by default; do not wait for the user to request that explanation.
+
+## Human-readable communication protocol
+
+The user should never have to prompt for an understandable explanation of roadmap work. For every named roadmap step, provide both of these explanations automatically:
+
+1. **Before implementation:** explain the task in plain language for a technically capable reader who is unfamiliar with this repository and its exact technologies. State:
+   - the current behavior or problem in concrete terms;
+   - what the preceding work established and how it makes this step possible;
+   - what this step will change from the user/application point of view;
+   - the major components or data flow involved, defining project-specific terms such as “domain,” “vertical slice,” “session,” “graph,” or “reconciliation” when they matter;
+   - why the change is useful; and
+   - what is explicitly outside scope, blocked, or requires separate approval.
+2. **After implementation:** explain what actually changed in plain language, whether the intended outcome was achieved, and how behavior differs from before. Include:
+   - the important user-visible and architectural changes, not an exhaustive field-by-field or file-by-file dump;
+   - significant decisions, compatibility behavior, or tradeoffs;
+   - verification performed and its result;
+   - unresolved risks, deferred work, and the next manual action if one exists; and
+   - the next named roadmap step, with its purpose, expected benefit, prerequisites, and approval boundaries.
+
+Do not substitute a list of filenames, commit hashes, test names, or implementation jargon for either explanation. Technical evidence may follow the explanation. Commentary updates during implementation do not replace the self-contained after-implementation explanation in the final handoff. If investigation finds that no implementation change is needed, say what was inspected, what was learned, and why no change was made.
 
 When a decision is required, first explain the concrete problem or ambiguity and the consequence of choosing incorrectly. Then present the viable options and a recommendation. A recommendation by itself is not an adequate decision request.
 
@@ -169,5 +189,6 @@ Before declaring a named step complete:
 5. Record unresolved risks, manual checks, and whether they block implementation, publishing, or deployment.
 6. Leave the worktree reviewable and report any unrelated pre-existing changes.
 7. Explain the next named step in plain language, including its purpose, expected benefit, prerequisites, and approval boundaries, even when stopping at that boundary.
+8. Give the self-contained after-implementation explanation required by the human-readable communication protocol; do not assume earlier progress commentary remains visible.
 
 Do not mark an entire work package complete merely because one command succeeds. Production data publishing and website deployment are separate approval boundaries.

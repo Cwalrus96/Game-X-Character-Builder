@@ -1,6 +1,6 @@
 # Current implementation status
 
-Last updated: 2026-08-09
+Last updated: 2026-08-10
 
 Current branch at update: `codex/work-package-b-data-contract`
 
@@ -26,6 +26,7 @@ This is the only frequently updated project-status document. Historical audits a
 - The current top feature checkpoint is `WPC-REPOSITORY`, titled `Implement definitive character persistence boundary`; it strengthens the existing database reader/writer rather than adding a duplicate repository implementation.
 - The current Work Package C session checkpoint is `WPC-SESSION`, titled `Add canonical character session lifecycle`; it remains pure and does not switch deployed pages.
 - The current Work Package D graph checkpoint is `WPD-GRAPH-CORE`, titled `Add deterministic character graph core`; it remains fixture-integrated and does not switch deployed pages or publish data.
+- Agent guidance now requires automatic human-readable briefings before every named roadmap step and self-contained plain-language outcome summaries afterward; filenames, test lists, and jargon cannot substitute for those explanations.
 - At the beginning of the schema-v4 synchronization work, the Work Package B branch was clean and two commits ahead of `master`.
 
 Always verify these statements with `git status` and `git log`; update this section after each checkpoint commit.

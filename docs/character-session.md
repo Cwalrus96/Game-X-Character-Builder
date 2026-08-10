@@ -1,6 +1,6 @@
 # Character session contract
 
-Status: implemented pure Work Package C core. Work Package D now supplies the graph reconciliation adapter; page integration waits for Work Package E domain slices and the stable-key runtime-data prerequisite described in [status.md](status.md).
+Status: implemented pure Work Package C core. Work Package D supplies the graph reconciliation adapter and the stable-key runtime-data prerequisite is satisfied; page integration waits for Work Package E domain slices described in [status.md](status.md).
 
 `CharacterSession` is the single in-memory owner of complete canonical character editing state. It sits between pages/widgets and reconciliation/persistence. Pages may inspect its projections and submit typed commands; they may not retain a mutable character object and update it independently.
 
@@ -64,4 +64,4 @@ This preserves the approved migration rule: loading an old character can produce
 
 The session, commands, and diff modules are pure browser-compatible modules. They do not import Firebase, DOM, pages, widgets, files, or network APIs.
 
-`WPD-GRAPH-CORE` now supplies the pure compiler/reconciler behind the injected reconciliation boundary; see [character-graph.md](character-graph.md). Work Package E connects pages and typed domain commands one vertical slice at a time. Until stable-key runtime data and those vertical slices are ready, deployed pages continue using the documented transitional path; that does not authorize a second session implementation.
+`WPD-GRAPH-CORE` supplies the pure compiler/reconciler behind the injected reconciliation boundary; see [character-graph.md](character-graph.md). Work Package E connects pages and typed domain commands one vertical slice at a time. Stable-key runtime data is now available, but deployed pages continue using the documented transitional path until their vertical slice passes acceptance; that does not authorize a second session implementation.

@@ -1,6 +1,6 @@
 # Implementation roadmap
 
-Last updated: 2026-08-08
+Last updated: 2026-08-10
 
 This is the living execution plan derived from the dated architecture audit. Step IDs are stable API-like identifiers for humans and agents: never rename or renumber an existing ID. Add a new ID if scope changes materially.
 
@@ -12,10 +12,10 @@ For a request such as “Proceed from `WPB-EXPRESSIONS`”:
 
 1. Read `AGENTS.md`, [status.md](status.md), and this step completely.
 2. Verify every prerequisite. Do not silently redo completed work.
-3. Before implementation, explain in plain language what the preceding step established, what this step produces, why it is useful, and any blocker or approval boundary.
+3. Before implementation, give the full plain-language briefing required by the human-readable communication protocol in `AGENTS.md`.
 4. Implement only the named scope through its acceptance criteria.
 5. Update tests and living contracts in the same change.
-6. Record evidence here and in [status.md](status.md), identify the next step, and explain that next step's purpose and benefit without waiting to be asked.
+6. Record evidence here and in [status.md](status.md), then give the self-contained after-implementation explanation and next-step briefing required by `AGENTS.md` without waiting to be asked.
 
 Standard preflight for every implementation step:
 
@@ -526,6 +526,23 @@ Status: `ready`
 Prerequisite: `WPD-GRAPH-CORE`. Deployed class/feat/technique cutover also requires reviewed runtime stable keys and coordination with the active `WPC-REPOSITORY` page-integration boundary.
 
 Goal: replace the transitional page/widget dependency policy with typed commands and registered graph handlers one complete vertical domain at a time, proving behavior and persistence parity before removing each legacy path.
+
+Plain-language overview: a **domain** is one related area of character building, including its screen controls, character fields, rules, dependencies, saving/loading behavior, and tests. A **vertical slice** means migrating that complete path from the browser control all the way through state management, dependency reconciliation, and Firebase persistence. It does not mean rewriting one technical layer for every feature at once.
+
+The application currently has two generations of architecture. The deployed builder pages still assemble mutable page/widget state and send broad patches through transitional dependency code. The new core already provides an exact schema-v5 character model, a `CharacterSession` that protects proposed versus accepted edits, a typed dependency graph, deterministic reconciliation, and revision-aware persistence. `WPE-DOMAIN-MIGRATION` connects those pieces to real pages while preserving existing behavior.
+
+For the first class/feat/technique slice, a user action such as lowering a character from level 5 to level 3 will become a typed statement of intent. `CharacterSession` creates a protected proposal; the graph determines which feat, class option, or technique would become invalid or exceed capacity; the UI displays structured errors, confirmations, or informational notices; cancellation changes nothing; acceptance saves the exact reviewed reconciled state through the v5 reader/writer. Page and widget code will no longer independently decide what to delete or how many selections fit.
+
+Each slice follows the same sequence:
+
+1. define exact commands for the user's direct choices;
+2. register graph nodes, grants, prerequisites, storage bindings, and reconciliation rules for that domain;
+3. connect its pages/widgets to `CharacterSession` and structured impacts;
+4. save and reload through the definitive v5 persistence boundary, including revision conflicts;
+5. prove parity, cancellation, confirmation, convergence, and independence with automated and focused browser tests; and
+6. remove that domain's transitional path only after the replacement passes acceptance.
+
+This incremental order limits risk: a migrated domain has one clear authority, while untouched domains continue on their documented compatibility path. The first slice is class/feat/technique because the graph already covers much of that behavior and the published schema-v2 game data now supplies the required stable keys. Fixture success alone does not authorize production cutover, Firebase data migration, game-data publishing, or removal of legacy code before browser acceptance.
 
 Migrate vertical domains in this order: current class/feat/technique slice; Equipment; Attributes; Origin/Skills; Bonds/Keystones/derived abilities; then Boons as the extensibility proof.
 
