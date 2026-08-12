@@ -2,13 +2,12 @@ import {
   ATTR_KEYS,
   CORE_SKILL_FIELDS,
   DEFENSE_SKILL_FIELDS,
-  getAttributeEffectiveCap,
 } from "./character-rules.js";
 import { sanitizeStoragePath, sanitizeText } from "./data-sanitization.js";
 
 export const CHARACTER_SCHEMA_VERSION = 5;
 
-const BUILDER_STEP_IDS = Object.freeze([
+export const BUILDER_STEP_IDS = Object.freeze([
   "basics",
   "class",
   "attributes",
@@ -227,17 +226,13 @@ function validateCanonicalTextArray(value, path, diagnostics, { maxItems, maxLen
   });
 }
 
-function validateAttributes(value, builder, path, diagnostics) {
+function validateAttributes(value, path, diagnostics) {
   if (!validateExactKeys(value, path, ATTR_KEYS, diagnostics)) return;
-  const level = Number.isInteger(builder.level) ? builder.level : 1;
-  const primary = typeof builder.primaryAttribute === "string" ? builder.primaryAttribute : "";
   for (const key of ATTR_KEYS) {
     if (!Object.prototype.hasOwnProperty.call(value, key)) continue;
-    const minimum = primary === key ? 1 : 0;
-    validateInteger(value[key], `${path}.${key}`, diagnostics, {
-      min: minimum,
-      max: getAttributeEffectiveCap(level, key, primary),
-    });
+    // The codec owns canonical shape, not level/primary game rules. The graph
+    // reconciles the effective cap and primary minimum before accepted state is saved.
+    validateInteger(value[key], `${path}.${key}`, diagnostics, { min: 0, max: 10 });
   }
 }
 
@@ -441,7 +436,7 @@ function validateBuilder(value, path, diagnostics) {
   if (typeof value.primaryAttribute === "string" && value.primaryAttribute !== "" && !ATTR_KEYS.includes(value.primaryAttribute)) {
     addDiagnostic(diagnostics, "invalid-enum", `${path}.primaryAttribute`, "Primary attribute is not a recognized attribute key.");
   }
-  validateAttributes(value.attributes, value, `${path}.attributes`, diagnostics);
+  validateAttributes(value.attributes, `${path}.attributes`, diagnostics);
   validateStableKey(value.originKey, `${path}.originKey`, diagnostics);
   validateCanonicalText(value.originKeystone, `${path}.originKeystone`, diagnostics, { maxLen: 400 });
   validateStableKeyArray(value.selectedClassFeatureOptions, `${path}.selectedClassFeatureOptions`, diagnostics, { maxItems: 500 });

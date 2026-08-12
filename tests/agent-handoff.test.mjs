@@ -77,7 +77,8 @@ test("source config identity and schema are repeated in the living contract", ()
 test("handoff guide and roadmap state unambiguous ownership and preflight", () => {
   const agents = read("AGENTS.md");
   const roadmap = read("docs/roadmap.md");
-  assert.match(agents, /CharacterSession -> database reader\/writer -> Firebase/);
+  assert.match(agents, /CharacterSession -> Character Dependency Graph subsystem/);
+  assert.match(agents, /Pages -> database reader\/writer -> Firebase/);
   assert.match(agents, /database reader\/writer -> CharacterCodec/);
   assert.match(agents, /database reader\/writer -> CharacterMigrations/);
   assert.match(agents, /do not add a duplicate repository implementation/);
@@ -96,6 +97,13 @@ test("agent guide requires automatic plain-language briefings before and after r
   assert.match(agents, /Do not substitute a list of filenames/);
   assert.match(agents, /Commentary updates during implementation do not replace/);
   assert.match(roadmap, /self-contained after-implementation explanation/);
+});
+
+test("agent guide reserves mechanic formulas and limits for centralized pure Rules", () => {
+  const guide = read("AGENTS.md");
+  assert.match(guide, /only home for game-mechanic formulas, limits, eligibility, capacity/i);
+  assert.match(guide, /Graph compilation and widgets must import the same Rules API/i);
+  assert.match(guide, /must not reconstruct that arithmetic or policy locally/i);
 });
 
 test("handoff guide requires fresh review deployments and safe feature commits", () => {

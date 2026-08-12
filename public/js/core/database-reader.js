@@ -13,12 +13,12 @@ import {
 } from "../../vendor/firebase/firebase-firestore.js";
 
 import { loadGameXData } from "./game-data.js";
-import { createCharacterMigrationReferences } from "./character-migrations.js";
+import { createCharacterMigrationReferences } from "./character-migrations.js?v=wpe6";
 import {
   CharacterPersistenceError,
   decodeStoredCharacter,
   requireCharacterIdentity,
-} from "./character-persistence.js";
+} from "./character-persistence.js?v=wpe6";
 
 import {
   sanitizeText,

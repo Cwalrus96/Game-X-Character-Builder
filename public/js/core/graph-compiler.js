@@ -1,15 +1,52 @@
-import { decodeCharacter } from "./character-codec.js";
-import { computeTechniqueSlots } from "./character-rules.js";
+import { decodeCharacter } from "./character-codec.js?v=wpe1";
+import {
+  coerceAttrKey,
+  computeTechniqueSlots,
+  getAttributeAllocationState,
+} from "./character-rules.js?v=wpe1";
+import {
+  allocateFeatsToExplicitSlots,
+  createFeatGrantSlots,
+} from "./feat-rules.js?v=wpe10";
 import { resolveGrantChoiceIds } from "./choice-identity.js";
-import { RUNTIME_PREREQUISITE_TYPES } from "./game-data-contract.js";
-import { isGameDataRecordSelectable } from "./game-data.js";
+import {
+  getBondAllocationState,
+  isSourceOwnedBondId,
+  makeSourceBondId,
+  sourceBondTargetName,
+} from "./bond-rules.js?v=wpe5";
+import { RUNTIME_PREREQUISITE_TYPES, SUPPORTED_GRANT_TYPES } from "./game-data-contract.js";
+import {
+  createCharacterGrantCollection,
+} from "./game-data.js?v=wpe1";
+import { isGameDataRecordSelectable } from "./selection-rules.js";
+import {
+  computeGrantedSkillsState,
+  computeKnownCombatSkillsAndGrants,
+  getClassUtilitySkillState,
+  getSkillAllocationState,
+} from "./skill-rules.js?v=wpe13";
 import { evaluatePrerequisite } from "./prerequisites.js";
+import { initializeGrantedResource } from "./grants.js";
+import { getOriginSelectionState } from "./origin-rules.js";
+import { registerDefaultGraphExtensions } from "./graph-extensions.js";
 import {
   CharacterGraphBuilder,
   GraphHandlerRegistry,
   cloneGraphValue,
   frozenGraphClone,
 } from "./graph-core.js";
+import { isSourceOwnedWeapon } from "./grants.js";
+import {
+  MAX_WEAPON_SLOTS,
+  computeEnhancementCapacity,
+  computeTotalWeaponSlots,
+  countPurchasedEnhancements,
+  getEnhancementSelectionSpecs,
+  getWeaponSkillRankCap,
+  getWeaponSkillRanks,
+  isEnhancementCompatible,
+} from "./weapon-utils.js";
 
 const DEFAULT_NODE_TYPES = Object.freeze([
   "root",
@@ -20,16 +57,30 @@ const DEFAULT_NODE_TYPES = Object.freeze([
   "class-feature",
   "choice-group",
   "class-option",
+  "feat-selection",
+  "feat-slot",
+  "feat-choice-group",
+  "feat-option",
+  "class-utility-skill",
+  "origin-feature",
+  "skill",
   "grant",
   "automatic-technique",
   "grant-choice",
   "grant-answer",
   "technique-selection",
+  "weapon",
+  "weapon-enhancement",
   "requirement",
   "unsupported-answer",
+  "deferred-grant-effect",
+  "grant-resource",
+  "grant-bond",
+  "bond",
+  "keystone",
 ]);
 
-const STABLE_KEY_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const STABLE_KEY_PATTERN = /^[a-z0-9](?:[a-z0-9_-]{0,127})$/;
 
 function isPlainObject(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
@@ -215,8 +266,218 @@ function defaultTechniqueGrantHandler(context) {
       sourceOwnerId,
       sourceName,
       grant,
+      answerType: "technique",
       path,
     });
+  }
+}
+
+function defaultWeaponGrantHandler(context) {
+  const {
+    grant,
+    grantIndex,
+    grantNodeId,
+    sourceNodeId,
+    sourceOwnerId,
+    sourceName,
+    addTypedNode,
+    graph,
+    activeChoices,
+    character,
+    path,
+  } = context;
+  const choiceIds = resolveGrantChoiceIds(grant, { sourceId: sourceNodeId, index: grantIndex });
+  for (const choiceId of choiceIds) {
+    if (activeChoices.has(choiceId)) {
+      context.addDiagnostic({
+        code: "duplicate-choice-identity",
+        path,
+        nodeId: `grant-choice:${choiceId}`,
+        message: `Choice identity "${choiceId}" is owned by more than one active grant.`,
+      });
+      continue;
+    }
+    const choiceNodeId = `grant-choice:${choiceId}`;
+    const answered = Object.prototype.hasOwnProperty.call(character.builder.grantChoices, choiceId);
+    addTypedNode("grant-choice", {
+      id: choiceNodeId,
+      key: choiceId,
+      label: sourceName || choiceId,
+      state: answered ? "selected" : "incomplete",
+      sourceOwnerId,
+      storageBinding: { path: "builder.grantChoices", kind: "keyed-record", key: choiceId },
+      metadata: {
+        choiceId,
+        answered,
+        answerType: "weapon",
+        sourceNodeId,
+        grantNodeId,
+        rank: Number.parseInt(String(grant?.rank ?? 1), 10) || 1,
+        enhancement: stableKey(grant?.enhancement),
+      },
+    }, path);
+    graph.addEdge({ kind: "grants", from: grantNodeId, to: choiceNodeId }, { path });
+    activeChoices.set(choiceId, {
+      choiceId,
+      choiceNodeId,
+      sourceNodeId,
+      sourceOwnerId,
+      sourceName,
+      grant,
+      answerType: "weapon",
+      path,
+    });
+  }
+}
+
+function defaultResourceGrantHandler(context) {
+  const {
+    grant,
+    grantIndex,
+    grantNodeId,
+    sourceOwnerId,
+    addTypedNode,
+    graph,
+    character,
+    path,
+  } = context;
+  const primaryKey = character.builder.primaryAttribute;
+  let resource;
+  try {
+    resource = initializeGrantedResource(grant, {
+      source: grant.source,
+      primaryAttribute: primaryKey ? character.builder.attributes[primaryKey] : 0,
+      values: character.builder.attributes,
+    });
+  } catch (error) {
+    context.addDiagnostic({
+      code: "invalid-resource-grant",
+      path,
+      nodeId: grantNodeId,
+      message: error?.message || "Resource grant capacity could not be resolved.",
+    });
+    return;
+  }
+  const nodeId = `grant-resource:${grantNodeId}:${resource.resourceKey}:${grantIndex}`;
+  addTypedNode("grant-resource", {
+    id: nodeId,
+    key: resource.resourceKey,
+    label: resource.name,
+    state: "automatic",
+    sourceOwnerId,
+    storageBinding: { path: "builder.resources", kind: "keyed-record", key: resource.resourceKey },
+    metadata: {
+      resourceKey: resource.resourceKey,
+      name: resource.name,
+      capacity: resource.capacity,
+    },
+  }, path);
+  graph.addEdge({ kind: "materializes", from: grantNodeId, to: nodeId }, { path });
+}
+
+function defaultBondGrantHandler(context) {
+  const {
+    grant,
+    grantIndex,
+    grantNodeId,
+    sourceOwnerId,
+    addTypedNode,
+    graph,
+    activeBondGrants,
+    path,
+  } = context;
+  const count = Math.max(1, Math.min(20, Number.parseInt(String(grant?.count ?? 1), 10) || 1));
+  const rank = Math.max(1, Math.min(6, Number.parseInt(String(grant?.rank ?? 1), 10) || 1));
+  const choiceId = stableKey(grant?.choiceId) || `bond-${grantIndex + 1}`;
+  for (let index = 0; index < count; index += 1) {
+    const bondId = makeSourceBondId(sourceOwnerId, choiceId, index);
+    if (activeBondGrants.has(bondId)) {
+      context.addDiagnostic({
+        code: "duplicate-bond-grant-identity",
+        path,
+        nodeId: `grant-bond:${bondId}`,
+        message: `Bond grant identity "${bondId}" is owned by more than one active source.`,
+      });
+      continue;
+    }
+    const targetName = sourceBondTargetName(choiceId);
+    const nodeId = `grant-bond:${bondId}`;
+    const spec = { bondId, choiceId, targetName, rank, sourceOwnerId, grantNodeId };
+    activeBondGrants.set(bondId, spec);
+    addTypedNode("grant-bond", {
+      id: nodeId,
+      key: bondId,
+      label: targetName,
+      state: "automatic",
+      sourceOwnerId,
+      storageBinding: { path: "builder.bonds", kind: "keyed-record", key: bondId },
+      metadata: spec,
+    }, path);
+    graph.addEdge({ kind: "materializes", from: grantNodeId, to: nodeId }, { path });
+  }
+}
+
+function deferredGrantHandler({
+  grant,
+  grantIndex,
+  grantNodeId,
+  sourceOwnerId,
+  addTypedNode,
+  addDiagnostic,
+  path,
+}) {
+  const type = text(grant?.type) || "unknown";
+  const nodeId = `deferred-grant-effect:${grantNodeId}:${grantIndex}`;
+  addTypedNode("deferred-grant-effect", {
+    id: nodeId,
+    key: type,
+    label: sourceLabel(grant, type),
+    state: "incomplete",
+    sourceOwnerId,
+    storageBinding: null,
+    metadata: {
+      grantType: type,
+      runtimeStatus: "deferred-domain",
+    },
+  }, path);
+  addDiagnostic({
+    severity: "warning",
+    code: "deferred-grant-domain",
+    path,
+    nodeId,
+    message: `Grant type "${type}" belongs to a later domain slice and is preserved without materialization here.`,
+  });
+}
+
+function defaultFeatGrantHandler({
+  grant,
+  grantIndex,
+  grantNodeId,
+  sourceOwnerId,
+  sourceName,
+  addTypedNode,
+  activeFeatSlots,
+  graph,
+  path,
+}) {
+  const slots = createFeatGrantSlots(grant, {
+    sourceId: sourceOwnerId,
+    sourceLabel: sourceName,
+    grantId: grantNodeId,
+    grantIndex,
+  });
+  for (const slot of slots) {
+    activeFeatSlots.push(slot);
+    addTypedNode("feat-slot", {
+      id: slot.slotId,
+      key: `${slot.grantId}:${slot.slotIndex}`,
+      label: slot.sourceLabel,
+      state: "available",
+      sourceOwnerId,
+      storageBinding: { path: "builder.selectedFeats", kind: "ordered-key-array" },
+      metadata: cloneGraphValue(slot),
+    }, path);
+    graph.addEdge({ kind: "materializes", from: grantNodeId, to: slot.slotId }, { path });
   }
 }
 
@@ -225,10 +486,17 @@ export function createDefaultGraphHandlerRegistry() {
   for (const type of DEFAULT_NODE_TYPES) registry.registerNode(type, defaultNodeHandler);
   registry.registerGrant("technique", defaultTechniqueGrantHandler);
   registry.registerGrant("technique-choice", defaultTechniqueGrantHandler);
+  registry.registerGrant("weapon", defaultWeaponGrantHandler);
+  registry.registerGrant("resource", defaultResourceGrantHandler);
+  registry.registerGrant("bond", defaultBondGrantHandler);
+  registry.registerGrant("feat", defaultFeatGrantHandler);
+  for (const type of SUPPORTED_GRANT_TYPES) {
+    if (!registry.getGrant(type)) registry.registerGrant(type, deferredGrantHandler);
+  }
   for (const type of RUNTIME_PREREQUISITE_TYPES) {
     registry.registerPrerequisite(type, defaultPrerequisiteHandler);
   }
-  return registry;
+  return registerDefaultGraphExtensions(registry);
 }
 
 function graphWithCharacter(graph, character) {
@@ -283,23 +551,288 @@ function indexRecords(records, keyField, label, graph, path) {
   return index;
 }
 
-function unsupportedCharacterDomains(character, graph) {
-  const builder = character.builder;
-  const domains = [
-    ["selectedClassUtilitySkills", "builder.selectedClassUtilitySkills"],
-    ["selectedFeats", "builder.selectedFeats"],
-    ["selectedFeatOptions", "builder.selectedFeatOptions"],
-    ["bonds", "builder.bonds"],
-    ["weapons", "builder.weapons"],
-  ];
-  for (const [field, path] of domains) {
-    if (!Array.isArray(builder[field]) || builder[field].length === 0) continue;
-    graph.addDiagnostic({
-      code: "unhandled-character-domain",
-      path,
-      message: `The initial graph-core slice does not yet register the ${field} domain.`,
+function compileEquipment(context, character, weaponBasesByKey, weaponEnhancementsByKey, graph) {
+  const { builder } = character;
+  if (builder.weapons.length === 0) return;
+  const grantedSkillState = computeGrantedSkillsState(context.gameData, builder);
+  const skillRanks = getWeaponSkillRanks(builder, grantedSkillState);
+  const grantCollection = createCharacterGrantCollection(context.gameData, builder);
+  const grantedEnhancementSlots = (grantCollection.weaponEnhancementGrants || []).reduce((total, grant) => {
+    const count = Number.parseInt(String(grant?.count ?? 1), 10);
+    return total + (Number.isFinite(count) ? Math.max(0, count) : 1);
+  }, 0);
+  const weaponBases = Array.from(weaponBasesByKey.values());
+
+  for (const [weaponIndex, weapon] of builder.weapons.entries()) {
+    const path = `character.builder.weapons.${weaponIndex}`;
+    const nodeId = `weapon:${weapon.id}`;
+    const definition = weaponBasesByKey.get(weapon.weaponKey);
+    const sourceOwned = isSourceOwnedWeapon(weapon);
+    const selectable = !!definition && isGameDataRecordSelectable(definition, { allowGrantedOnly: sourceOwned });
+    const sourceOwnerId = sourceOwned ? `grant-answer:${weapon.sourceChoiceId || weapon.choiceId}` : "root:character";
+    const sourceActive = !sourceOwned || context.activeChoices.has(weapon.sourceChoiceId || weapon.choiceId);
+    const skillRankCap = definition ? getWeaponSkillRankCap(definition, skillRanks) : 0;
+    const hasRankedSkill = definition ? definition.profiles?.some((profile) => (
+      profile?.profileType === "basicAttack" && Object.prototype.hasOwnProperty.call(skillRanks, profile?.skill)
+    )) : false;
+    const minimumRank = Number(definition?.minRank || 0);
+    let valid = !!definition && selectable;
+    let issue = definition ? (selectable ? "" : "unavailable-definition") : "missing-definition";
+    let reason = definition
+      ? (selectable ? "" : `Weapon "${weapon.weaponKey}" is unavailable for this selection.`)
+      : `Weapon "${weapon.weaponKey}" does not exist in normalized game data.`;
+    if (valid && weapon.rank < minimumRank) {
+      valid = false;
+      issue = "below-minimum-rank";
+      reason = `Weapon "${weapon.weaponKey}" requires rank ${minimumRank} or higher.`;
+    } else if (valid && !sourceOwned && hasRankedSkill && weapon.rank > skillRankCap) {
+      valid = false;
+      issue = "above-skill-rank";
+      reason = `Weapon "${weapon.weaponKey}" exceeds its governing skill rank of ${skillRankCap}.`;
+    }
+    context.addTypedNode("weapon", {
+      id: nodeId,
+      key: weapon.weaponKey,
+      label: text(weapon.customName || definition?.name) || weapon.weaponKey,
+      state: valid && sourceActive ? (sourceOwned ? "automatic" : "selected") : "invalid",
+      sourceOwnerId,
+      storageBinding: { path: "builder.weapons", kind: "keyed-record", key: weapon.id },
+      metadata: { weaponId: weapon.id, weaponIndex, sourceOwned, sourceActive, valid, issue, reason, minimumRank, skillRankCap },
+    }, path);
+    if (sourceActive) {
+      graph.addEdge({ kind: sourceOwned ? "materializes" : "owns", from: sourceOwnerId, to: nodeId }, { path });
+    }
+    if (!valid && !["above-skill-rank", "unavailable-definition"].includes(issue)) {
+      context.addDiagnostic({ code: "invalid-weapon", path, nodeId, message: reason });
+    }
+
+    for (const [enhancementIndex, enhancement] of weapon.enhancements.entries()) {
+      const enhancementPath = `${path}.enhancements.${enhancementIndex}`;
+      const enhancementNodeId = `weapon-enhancement:${weapon.id}:${enhancement.id}`;
+      const enhancementDefinition = weaponEnhancementsByKey.get(enhancement.enhancementKey);
+      const enhancementSelectable = !!enhancementDefinition
+        && isGameDataRecordSelectable(enhancementDefinition, { allowGrantedOnly: sourceOwned });
+      const minimumEnhancementRank = Number(enhancementDefinition?.minRank || 0);
+      let enhancementValid = !!enhancementDefinition && enhancementSelectable;
+      let enhancementIssue = enhancementDefinition
+        ? (enhancementSelectable ? "" : "unavailable-definition")
+        : "missing-definition";
+      let enhancementReason = enhancementDefinition
+        ? (enhancementSelectable ? "" : `Enhancement "${enhancement.enhancementKey}" is unavailable for this selection.`)
+        : `Enhancement "${enhancement.enhancementKey}" does not exist in normalized game data.`;
+      if (enhancementValid && enhancement.rank < minimumEnhancementRank) {
+        enhancementValid = false;
+        enhancementIssue = "below-minimum-rank";
+        enhancementReason = `Enhancement "${enhancement.enhancementKey}" requires rank ${minimumEnhancementRank} or higher.`;
+      } else if (enhancementValid && enhancement.rank > weapon.rank) {
+        enhancementValid = false;
+        enhancementIssue = "above-weapon-rank";
+        enhancementReason = `Enhancement "${enhancement.enhancementKey}" exceeds weapon rank ${weapon.rank}.`;
+      } else if (enhancementValid && !isEnhancementCompatible(
+        enhancementDefinition,
+        weapon,
+        weaponBases,
+        { gameData: context.gameData, builder, grantedSkillState },
+      )) {
+        enhancementValid = false;
+        enhancementIssue = "incompatible";
+        enhancementReason = `Enhancement "${enhancement.enhancementKey}" is incompatible with this weapon.`;
+      } else if (enhancementValid && enhancement.granted === true && !sourceOwned) {
+        enhancementValid = false;
+        enhancementIssue = "invalid-granted-owner";
+        enhancementReason = "A user-owned weapon cannot mark an enhancement as source-granted.";
+      }
+      context.addTypedNode("weapon-enhancement", {
+        id: enhancementNodeId,
+        key: enhancement.enhancementKey,
+        label: text(enhancementDefinition?.name) || enhancement.enhancementKey,
+        state: enhancementValid ? (enhancement.granted ? "automatic" : "selected") : "invalid",
+        sourceOwnerId: nodeId,
+        storageBinding: { path: `${path}.enhancements`, kind: "keyed-record", key: enhancement.id },
+        metadata: {
+          weaponId: weapon.id,
+          enhancementId: enhancement.id,
+          weaponIndex,
+          enhancementIndex,
+          granted: enhancement.granted,
+          valid: enhancementValid,
+          issue: enhancementIssue,
+          minimumRank: minimumEnhancementRank,
+          reason: enhancementReason,
+        },
+      }, enhancementPath);
+      graph.addEdge({ kind: "owns", from: nodeId, to: enhancementNodeId }, { path: enhancementPath });
+      if (!enhancementValid && (sourceOwned || !["above-weapon-rank", "incompatible", "unavailable-definition"].includes(enhancementIssue))) {
+        context.addDiagnostic({ code: "invalid-weapon-enhancement", path: enhancementPath, nodeId: enhancementNodeId, message: enhancementReason });
+      }
+      for (const selection of getEnhancementSelectionSpecs(enhancement.enhancementKey)) {
+        if (text(enhancement.selections?.[selection.key])) continue;
+        context.addDiagnostic({
+          severity: "warning",
+          code: "weapon-enhancement-selection-incomplete",
+          path: `${enhancementPath}.selections.${selection.key}`,
+          nodeId: enhancementNodeId,
+          message: `${text(enhancementDefinition?.name) || enhancement.enhancementKey} still needs ${selection.label.toLowerCase()}.`,
+        });
+      }
+    }
+  }
+
+  const slotUsage = computeTotalWeaponSlots(builder.weapons, weaponBases);
+  if (slotUsage > MAX_WEAPON_SLOTS) {
+    context.addDiagnostic({
+      code: "weapon-slot-capacity-exceeded",
+      path: "character.builder.weapons",
+      nodeId: "root:character",
+      message: `Weapons use ${slotUsage} slots, exceeding the capacity of ${MAX_WEAPON_SLOTS}.`,
     });
   }
+  const enhancementUsage = countPurchasedEnhancements(builder.weapons);
+  const enhancementCapacity = computeEnhancementCapacity(builder.weapons, grantedEnhancementSlots);
+  if (enhancementUsage > enhancementCapacity) {
+    context.addDiagnostic({
+      code: "weapon-enhancement-capacity-exceeded",
+      path: "character.builder.weapons",
+      nodeId: "root:character",
+      message: `Purchased enhancements use ${enhancementUsage} slots, exceeding the capacity of ${enhancementCapacity}.`,
+    });
+  }
+}
+
+function compileClassUtilitySkills(context, character, gameData, graph) {
+  const { builder } = character;
+  const utility = getClassUtilitySkillState(gameData, builder);
+  const classKey = utility.classKey;
+  const normalizedOptions = new Map(utility.options.map((option) => [option.key, option]));
+  builder.selectedClassUtilitySkills.forEach((skillKey, index) => {
+    const nodeId = `class-utility-skill:${skillKey}`;
+    const allowed = normalizedOptions.has(skillKey);
+    const withinCapacity = index < utility.expectedCount;
+    context.addTypedNode("class-utility-skill", {
+      id: nodeId,
+      key: skillKey,
+      label: skillKey,
+      state: allowed && withinCapacity ? "selected" : "invalid",
+      sourceOwnerId: classKey ? `class:${classKey}` : "root:character",
+      storageBinding: { path: "builder.selectedClassUtilitySkills", kind: "ordered-key-array" },
+      metadata: { classKey, skillKey, index, allowed, withinCapacity, expectedCount: utility.expectedCount },
+    }, `character.builder.selectedClassUtilitySkills.${index}`);
+    graph.addEdge({
+      kind: classKey ? "offers" : "owns",
+      from: classKey ? `class:${classKey}` : "root:character",
+      to: nodeId,
+    }, { path: `character.builder.selectedClassUtilitySkills.${index}` });
+  });
+}
+
+function skillNodeId(domain, key) {
+  return `skill:${domain}:${encodeURIComponent(String(key || "").toLowerCase())}`;
+}
+
+function compileSkills(context, character, gameData, graph) {
+  const allocation = getSkillAllocationState(gameData, character.builder);
+  const add = (record) => {
+    const id = skillNodeId(record.domain, record.key);
+    context.addTypedNode("skill", {
+      id,
+      key: record.key,
+      label: record.name,
+      state: record.rank <= record.cap ? (record.editable ? "selected" : "automatic") : "invalid",
+      sourceOwnerId: record.editable ? "root:character" : `class:${character.builder.classKey}`,
+      storageBinding: record.domain === "fixed"
+        ? { path: record.path, kind: "scalar" }
+        : { path: record.domain === "combat" ? "builder.sheet.repeatables.combatSkillsExtra" : "builder.sheet.repeatables.settingSkills", kind: "keyed-record", key: record.key },
+      metadata: { ...record, valid: record.rank <= record.cap },
+    }, `character.${record.path}`);
+    graph.addEdge({ kind: "owns", from: record.editable ? "root:character" : `class:${character.builder.classKey}`, to: id }, { path: `character.${record.path}` });
+  };
+  [...allocation.fixed, ...allocation.combat, ...allocation.setting].forEach(add);
+  for (const record of allocation.defense) {
+    const id = skillNodeId("defense", record.key);
+    context.addTypedNode("skill", {
+      id, key: record.key, label: record.name, state: "automatic",
+      sourceOwnerId: character.builder.classKey ? `class:${character.builder.classKey}` : "root:character",
+      storageBinding: { path: `builder.sheet.fields.${record.key}`, kind: "scalar" },
+      metadata: { domain: "defense", ...record, editable: false, valid: true },
+    }, `character.builder.sheet.fields.${record.key}`);
+  }
+  for (const record of [...allocation.grantedCombatSkills, ...allocation.grantedSettingSkills]) {
+    const name = record.skill;
+    const id = skillNodeId("granted", record.skillKey || name);
+    if (graph.hasNode(id)) continue;
+    context.addTypedNode("skill", {
+      id, key: record.skillKey || slug(name), label: name, state: "automatic",
+      sourceOwnerId: "root:character", storageBinding: null,
+      metadata: { domain: "granted", name, rank: Number(record.rank || 0), editable: false, valid: true, source: record.source },
+    }, "character.builder");
+  }
+  return allocation;
+}
+
+function compileBondsAndKeystones(context, character, graph) {
+  const specs = Array.from(context.activeBondGrants.values()).sort((left, right) => left.bondId.localeCompare(right.bondId));
+  const allocation = getBondAllocationState(character.builder, { sourceBondSpecs: specs });
+  const activeSpecs = new Map(specs.map((spec) => [spec.bondId, spec]));
+  for (const record of allocation.bonds) {
+    const sourceSpec = activeSpecs.get(record.bondId) || null;
+    const orphanedSource = record.sourceOwned && !sourceSpec;
+    const nodeId = `bond:${record.bondId}`;
+    const valid = !orphanedSource && record.withinCapacity && record.rankValid;
+    context.addTypedNode("bond", {
+      id: nodeId,
+      key: record.bondId,
+      label: record.name || sourceSpec?.targetName || "Bond",
+      state: valid ? (record.sourceOwned ? "automatic" : "selected") : "invalid",
+      sourceOwnerId: sourceSpec?.sourceOwnerId || "root:character",
+      storageBinding: { path: "builder.bonds", kind: "keyed-record", key: record.bondId },
+      metadata: {
+        sourceOwned: record.sourceOwned,
+        orphanedSource,
+        withinCapacity: record.withinCapacity,
+        rank: record.rank,
+        rankValid: record.rankValid,
+        rankCap: record.maximumRank,
+        grantedMinimum: record.grantedMinimum,
+        complete: record.complete,
+        index: record.index,
+      },
+    }, `character.builder.bonds.${record.index}`);
+    graph.addEdge({
+      kind: "owns",
+      from: sourceSpec?.sourceOwnerId || "root:character",
+      to: nodeId,
+    }, { path: `character.builder.bonds.${record.index}` });
+    if (sourceSpec) {
+      graph.addEdge({ kind: "materializes", from: `grant-bond:${record.bondId}`, to: nodeId }, { path: `character.builder.bonds.${record.index}` });
+    }
+    if (record.keystone) {
+      const keystoneId = `keystone:bond:${record.bondId}`;
+      context.addTypedNode("keystone", {
+        id: keystoneId,
+        key: record.bondId,
+        label: `${record.name || sourceSpec?.targetName || "Bond"} Keystone`,
+        state: "selected",
+        sourceOwnerId: nodeId,
+        storageBinding: { path: "builder.bonds", kind: "keyed-record", key: record.bondId },
+        metadata: { keystoneType: "bond", bondId: record.bondId },
+      }, `character.builder.bonds.${record.index}.keystone`);
+      graph.addEdge({ kind: "owns", from: nodeId, to: keystoneId }, { path: `character.builder.bonds.${record.index}.keystone` });
+    }
+  }
+  character.builder.backgroundKeystones.forEach((keystone, index) => {
+    const nodeId = `keystone:background:${index === 0 ? "first" : "second"}`;
+    context.addTypedNode("keystone", {
+      id: nodeId,
+      key: index === 0 ? "first" : "second",
+      label: `Background Keystone ${index + 1}`,
+      state: "selected",
+      sourceOwnerId: "root:character",
+      storageBinding: { path: `builder.backgroundKeystones.${index}`, kind: "scalar" },
+      metadata: { keystoneType: "background", slot: index + 1 },
+    }, `character.builder.backgroundKeystones.${index}`);
+    graph.addEdge({ kind: "owns", from: "root:character", to: nodeId }, { path: `character.builder.backgroundKeystones.${index}` });
+  });
+  return allocation;
 }
 
 function evidenceNodeId(prerequisite, character) {
@@ -313,7 +846,7 @@ function evidenceNodeId(prerequisite, character) {
   if (type === "resource") return `resource:${slug(prerequisite?.resourceKey)}`;
   if (type === "feat") {
     const key = values(prerequisite?.key || prerequisite?.name)[0];
-    return key ? `fact:selected-feat:${slug(key)}` : "";
+    return key ? `feat-selection:${stableKey(key) || slug(key)}` : "";
   }
   return `fact:prerequisite:${type}:${slug(
     prerequisite?.choiceRef
@@ -324,13 +857,18 @@ function evidenceNodeId(prerequisite, character) {
   )}`;
 }
 
-function createCompilerContext({ character, gameData, registry, graph, classesByKey, techniquesByKey }) {
+function createCompilerContext({ character, gameData, registry, graph, classesByKey, techniquesByKey, weaponBasesByKey }) {
   const activeChoices = new Map();
+  const activeBondGrants = new Map();
   const automaticTechniqueKeys = new Set();
   const selectedClassOptionKeys = new Set(character.builder.selectedClassFeatureOptions);
+  const selectedFeatKeys = new Set(character.builder.selectedFeats);
+  const selectedFeatOptionKeys = new Set(character.builder.selectedFeatOptions);
   const offeredClassOptionKeys = new Set();
+  const offeredFeatOptionKeys = new Set();
   const classOptionNodeIds = new Map();
   const activeSources = [];
+  const activeFeatSlots = [];
 
   const addDiagnostic = (diagnostic) => graph.addDiagnostic(diagnostic);
 
@@ -469,6 +1007,7 @@ function createCompilerContext({ character, gameData, registry, graph, classesBy
           sourceOwnerId: source.nodeId,
           sourceName: source.label,
           techniquesByKey,
+          weaponBasesByKey,
           classesByKey,
           character,
           gameData,
@@ -478,7 +1017,9 @@ function createCompilerContext({ character, gameData, registry, graph, classesBy
           addDiagnostic,
           compileRequirements,
           activeChoices,
+          activeBondGrants,
           automaticTechniqueKeys,
+          activeFeatSlots,
           path,
         });
       } catch (error) {
@@ -493,12 +1034,18 @@ function createCompilerContext({ character, gameData, registry, graph, classesBy
   };
 
   return {
+    gameData,
     activeChoices,
+    activeBondGrants,
     automaticTechniqueKeys,
     selectedClassOptionKeys,
+    selectedFeatKeys,
+    selectedFeatOptionKeys,
     offeredClassOptionKeys,
+    offeredFeatOptionKeys,
     classOptionNodeIds,
     activeSources,
+    activeFeatSlots,
     addDiagnostic,
     addTypedNode,
     compileRequirements,
@@ -509,6 +1056,11 @@ function createCompilerContext({ character, gameData, registry, graph, classesBy
 function compileRootFacts(context, character) {
   const { addTypedNode } = context;
   const builder = character.builder;
+  const attributeAllocation = getAttributeAllocationState({
+    level: builder.level,
+    primaryAttribute: builder.primaryAttribute,
+    attributes: builder.attributes,
+  });
   addTypedNode("root", {
     id: "root:character",
     key: character.ownerUid,
@@ -528,6 +1080,7 @@ function compileRootFacts(context, character) {
     metadata: { value: builder.level },
   }, "character.builder.level");
   for (const [attributeKey, value] of Object.entries(builder.attributes)) {
+    const { minimum, cap: maximum } = attributeAllocation.limits[attributeKey];
     addTypedNode("fact", {
       id: `fact:attribute:${attributeKey}`,
       key: attributeKey,
@@ -535,7 +1088,7 @@ function compileRootFacts(context, character) {
       state: "automatic",
       sourceOwnerId: "root:character",
       storageBinding: { path: `builder.attributes.${attributeKey}`, kind: "scalar" },
-      metadata: { value },
+      metadata: { value, minimum, maximum, valid: value >= minimum && value <= maximum },
     }, `character.builder.attributes.${attributeKey}`);
   }
   for (const [resourceKey, resource] of Object.entries(builder.resources)) {
@@ -555,6 +1108,9 @@ function compileClassAndOrigin(context, character, classesByKey, originsByKey, g
   const builder = character.builder;
   if (builder.classKey) {
     const cls = classesByKey.get(builder.classKey);
+    const allowedPrimaryAttributes = cls
+      ? [coerceAttrKey(cls.primaryAttributeA), coerceAttrKey(cls.primaryAttributeB)].filter(Boolean)
+      : [];
     context.addTypedNode("class", {
       id: `class:${builder.classKey}`,
       key: builder.classKey,
@@ -562,7 +1118,12 @@ function compileClassAndOrigin(context, character, classesByKey, originsByKey, g
       state: cls ? "selected" : "invalid",
       sourceOwnerId: "root:character",
       storageBinding: { path: "builder.classKey", kind: "scalar" },
-      metadata: { exists: !!cls, selectable: cls ? cls.selectable !== false : false },
+      metadata: {
+        exists: !!cls,
+        selectable: cls ? cls.selectable !== false : false,
+        allowedPrimaryAttributes,
+        primaryAttributeValid: !builder.primaryAttribute || allowedPrimaryAttributes.includes(builder.primaryAttribute),
+      },
     }, "character.builder.classKey");
     graph.addEdge({ kind: "owns", from: "root:character", to: `class:${builder.classKey}` }, { path: "character.builder.classKey" });
     if (!cls) {
@@ -583,25 +1144,45 @@ function compileClassAndOrigin(context, character, classesByKey, originsByKey, g
   }
   if (builder.originKey) {
     const origin = originsByKey.get(builder.originKey);
+    const selectable = getOriginSelectionState(context.gameData, builder).selected?.selectable === true;
     context.addTypedNode("origin", {
       id: `origin:${builder.originKey}`,
       key: builder.originKey,
       label: sourceLabel(origin, builder.originKey),
-      state: origin ? "selected" : "invalid",
+      state: selectable ? "selected" : "invalid",
       sourceOwnerId: "root:character",
       storageBinding: { path: "builder.originKey", kind: "scalar" },
-      metadata: { exists: !!origin },
+      metadata: { exists: !!origin, selectable },
     }, "character.builder.originKey");
     graph.addEdge({ kind: "owns", from: "root:character", to: `origin:${builder.originKey}` }, { path: "character.builder.originKey" });
-    if (!origin) {
-      context.addDiagnostic({
-        code: "dangling-origin-reference",
-        path: "character.builder.originKey",
-        nodeId: `origin:${builder.originKey}`,
-        message: `Selected origin "${builder.originKey}" does not exist in normalized game data.`,
-      });
-    }
+    if (selectable) context.activeSources.push({ nodeId: `origin:${builder.originKey}`, entry: origin, label: sourceLabel(origin, builder.originKey), path: `gameData.origins.${builder.originKey}` });
   }
+  if (builder.originKeystone) {
+    context.addTypedNode("fact", {
+      id: "fact:origin-keystone", key: "origin-keystone", label: "Origin Keystone", state: "selected",
+      sourceOwnerId: builder.originKey ? `origin:${builder.originKey}` : "root:character",
+      storageBinding: { path: "builder.originKeystone", kind: "scalar" },
+      metadata: { value: builder.originKeystone },
+    }, "character.builder.originKeystone");
+  }
+}
+
+function compileOriginFeatures(context, character, originsByKey, graph) {
+  const originKey = character.builder.originKey;
+  const origin = originsByKey.get(originKey);
+  if (!origin || getOriginSelectionState(context.gameData, character.builder).selected?.selectable !== true) return;
+  (Array.isArray(origin.features) ? origin.features : []).forEach((feature, index) => {
+    const featureKey = `${index}:${slug(feature?.name || "feature")}`;
+    const nodeId = `origin-feature:${originKey}:${featureKey}`;
+    const path = `gameData.origins.${originKey}.features.${index}`;
+    context.addTypedNode("origin-feature", {
+      id: nodeId, key: featureKey, label: sourceLabel(feature, featureKey), state: "automatic",
+      sourceOwnerId: `origin:${originKey}`, storageBinding: null,
+      metadata: { originKey, featureKey, description: text(feature?.description), abilityName: `Origin Feature - ${sourceLabel(feature, featureKey)}` },
+    }, path);
+    graph.addEdge({ kind: "owns", from: `origin:${originKey}`, to: nodeId }, { path });
+    context.activeSources.push({ nodeId, entry: feature, label: sourceLabel(feature, featureKey), path });
+  });
 }
 
 function featureKind(entry) {
@@ -660,7 +1241,11 @@ function compileClassFeatures(context, character, gameData, graph) {
       state: selected ? "selected" : "available",
       sourceOwnerId: groupNodeId,
       storageBinding: { path: "builder.selectedClassFeatureOptions", kind: "ordered-key-array" },
-      metadata: { selected, classKey, featureKey: key },
+      metadata: {
+        selected, classKey, featureKey: key,
+        description: text(entry?.description),
+        abilityName: `Class Feature - ${sourceLabel(entry, key)}`,
+      },
     }, path);
     graph.addEdge({ kind: "offers", from: groupNodeId, to: nodeId }, { path });
     if (!selected) return;
@@ -721,7 +1306,11 @@ function compileClassFeatures(context, character, gameData, graph) {
       state: "automatic",
       sourceOwnerId: `class:${classKey}`,
       storageBinding: null,
-      metadata: { classKey, featureKey: key, level: entryLevel(entry) },
+      metadata: {
+        classKey, featureKey: key, level: entryLevel(entry),
+        description: text(entry?.description),
+        abilityName: `Class Feature - ${sourceLabel(entry, key)}`,
+      },
     }, path);
     graph.addEdge({ kind: "owns", from: `class:${classKey}`, to: nodeId }, { path });
     const requirements = context.compileRequirements(nodeId, entry?.prerequisites, `${path}.prerequisites`);
@@ -750,7 +1339,177 @@ function compileClassFeatures(context, character, gameData, graph) {
   }
 }
 
-function compileGrantAnswers(context, character, techniquesByKey, graph) {
+function compileFeats(context, character, featsByKey, graph) {
+  const builder = character.builder;
+  const optionOwners = new Map();
+  const allocation = allocateFeatsToExplicitSlots({
+    slots: context.activeFeatSlots,
+    feats: Array.from(featsByKey.values()),
+    selectedFeatKeys: builder.selectedFeats,
+  });
+  const assignmentByFeatKey = new Map(
+    allocation.assignments.map((assignment) => [assignment.featKey, assignment]),
+  );
+
+  for (const feat of featsByKey.values()) {
+    const featKey = stableKey(feat?.featKey);
+    const options = Array.isArray(feat?.options) ? feat.options : [];
+    for (const option of options) {
+      const optionKey = stableKey(option?.featKey);
+      if (!optionKey) continue;
+      if (optionOwners.has(optionKey)) {
+        context.addDiagnostic({
+          code: "duplicate-feat-option-identity",
+          path: `gameData.feats.${featKey}.options`,
+          nodeId: `feat-option:${optionKey}`,
+          message: `Feat option identity "${optionKey}" is owned by more than one feat.`,
+        });
+      } else {
+        optionOwners.set(optionKey, { feat, featKey, option });
+      }
+    }
+  }
+
+  for (const [index, featKey] of builder.selectedFeats.entries()) {
+    const feat = featsByKey.get(featKey);
+    const nodeId = `feat-selection:${featKey}`;
+    const path = `character.builder.selectedFeats.${index}`;
+    if (!feat) {
+      context.addTypedNode("feat-selection", {
+        id: nodeId,
+        key: featKey,
+        label: featKey,
+        state: "invalid",
+        sourceOwnerId: "root:character",
+        storageBinding: { path: "builder.selectedFeats", kind: "ordered-key-array" },
+        metadata: { featKey, index, exists: false, selected: true },
+      }, path);
+      graph.addEdge({ kind: "owns", from: "root:character", to: nodeId }, { path });
+      context.addDiagnostic({
+        code: "dangling-feat-reference",
+        path,
+        nodeId,
+        message: `Selected feat "${featKey}" does not exist in normalized game data.`,
+      });
+      continue;
+    }
+
+    const assignment = assignmentByFeatKey.get(featKey);
+    const featOwnerId = assignment?.slotId || "root:character";
+    context.addTypedNode("feat-selection", {
+      id: nodeId,
+      key: featKey,
+      label: sourceLabel(feat, featKey),
+      state: assignment ? "selected" : "invalid",
+      sourceOwnerId: featOwnerId,
+      storageBinding: { path: "builder.selectedFeats", kind: "ordered-key-array" },
+      metadata: {
+        featKey, index, exists: true, selected: true,
+        slotMatched: Boolean(assignment),
+        featSlotId: assignment?.slotId || "",
+        featSlotSourceId: assignment?.slot?.sourceId || "",
+        featSlotSourceLabel: assignment?.slot?.sourceLabel || "",
+        description: text(feat?.description),
+        abilityName: `Feat - ${sourceLabel(feat, featKey)}`,
+      },
+    }, path);
+    graph.addEdge({ kind: "owns", from: featOwnerId, to: nodeId }, { path });
+    const requirements = context.compileRequirements(nodeId, feat.prerequisites, `gameData.feats.${featKey}.prerequisites`);
+    if (assignment && requirements.every((result) => result.ok || result.manual)) {
+      context.activeSources.push({
+        nodeId,
+        entry: feat,
+        label: sourceLabel(feat, featKey),
+        path: `gameData.feats.${featKey}`,
+      });
+    }
+
+    const options = Array.isArray(feat.options) ? feat.options : [];
+    if (!options.length) continue;
+    const expectedCount = Math.max(1, Number.parseInt(String(feat.chooseCount ?? 1), 10) || 1);
+    const selectedCount = options.filter((option) => (
+      context.selectedFeatOptionKeys.has(stableKey(option?.featKey))
+    )).length;
+    const groupNodeId = `feat-choice-group:${featKey}`;
+    context.addTypedNode("feat-choice-group", {
+      id: groupNodeId,
+      key: featKey,
+      label: sourceLabel(feat, featKey),
+      state: selectedCount === expectedCount ? "available" : "incomplete",
+      sourceOwnerId: nodeId,
+      storageBinding: { path: "builder.selectedFeatOptions", kind: "ordered-key-array" },
+      metadata: { featKey, selectedCount, expectedCount },
+    }, `gameData.feats.${featKey}.options`);
+    graph.addEdge({ kind: "offers", from: nodeId, to: groupNodeId }, { path: `gameData.feats.${featKey}.options` });
+
+    for (const option of options) {
+      const optionKey = stableKey(option?.featKey);
+      if (!optionKey) {
+        context.addDiagnostic({
+          code: "invalid-feat-option-identity",
+          path: `gameData.feats.${featKey}.options`,
+          message: `Feat "${featKey}" has an option without a stable featKey.`,
+        });
+        continue;
+      }
+      context.offeredFeatOptionKeys.add(optionKey);
+      const selected = context.selectedFeatOptionKeys.has(optionKey);
+      const optionNodeId = `feat-option:${optionKey}`;
+      context.addTypedNode("feat-option", {
+        id: optionNodeId,
+        key: optionKey,
+        label: sourceLabel(option, optionKey),
+        state: selected ? "selected" : "available",
+        sourceOwnerId: nodeId,
+        storageBinding: { path: "builder.selectedFeatOptions", kind: "ordered-key-array" },
+        metadata: {
+          featKey, optionKey, selected, orphaned: false,
+          description: text(option?.description),
+          abilityName: `Feat Option - ${sourceLabel(option, optionKey)}`,
+        },
+      }, `gameData.feats.${featKey}.options`);
+      graph.addEdge({ kind: "offers", from: groupNodeId, to: optionNodeId }, { path: `gameData.feats.${featKey}.options` });
+      if (!selected) continue;
+      graph.addEdge({ kind: "owns", from: nodeId, to: optionNodeId }, { path: `character.builder.selectedFeatOptions` });
+      const optionRequirements = context.compileRequirements(
+        optionNodeId,
+        option.prerequisites,
+        `gameData.feats.${featKey}.options.${optionKey}.prerequisites`,
+      );
+      if (optionRequirements.every((result) => result.ok || result.manual)) {
+        context.activeSources.push({
+          nodeId: optionNodeId,
+          entry: option,
+          label: sourceLabel(option, optionKey),
+          path: `gameData.feats.${featKey}.options.${optionKey}`,
+        });
+      }
+    }
+  }
+
+  for (const selectedOptionKey of context.selectedFeatOptionKeys) {
+    if (context.offeredFeatOptionKeys.has(selectedOptionKey)) continue;
+    const owner = optionOwners.get(selectedOptionKey);
+    const ownerId = owner ? `feat-selection:${owner.featKey}` : "root:character";
+    context.addTypedNode("feat-option", {
+      id: `feat-option:${selectedOptionKey}`,
+      key: selectedOptionKey,
+      label: sourceLabel(owner?.option, selectedOptionKey),
+      state: "invalid",
+      sourceOwnerId: ownerId,
+      storageBinding: { path: "builder.selectedFeatOptions", kind: "ordered-key-array" },
+      metadata: {
+        featKey: owner?.featKey || "",
+        optionKey: selectedOptionKey,
+        selected: true,
+        orphaned: true,
+      },
+    }, "character.builder.selectedFeatOptions");
+  }
+  return allocation;
+}
+
+function compileGrantAnswers(context, character, techniquesByKey, weaponBasesByKey, graph) {
   const answers = character.builder.grantChoices;
   const claimed = new Set();
 
@@ -759,6 +1518,58 @@ function compileGrantAnswers(context, character, techniquesByKey, graph) {
     if (!answer) continue;
     claimed.add(choiceId);
     const answerNodeId = `grant-answer:${choiceId}`;
+    if (choiceSpec.answerType === "weapon") {
+      const weaponKey = stableKey(answer.weaponKey);
+      const weapon = weaponKey ? weaponBasesByKey.get(weaponKey) : null;
+      const ownerMatches = answer.sourceId === choiceSpec.sourceOwnerId;
+      const requiredRank = Number.parseInt(String(choiceSpec.grant?.rank ?? 1), 10) || 1;
+      let valid = true;
+      let reason = "";
+      if (answer.type !== "weapon") {
+        valid = false;
+        reason = `Weapon choice "${choiceId}" contains unsupported answer type "${answer.type}".`;
+      } else if (!ownerMatches) {
+        valid = false;
+        reason = `Answer owner "${answer.sourceId}" does not match active source "${choiceSpec.sourceOwnerId}".`;
+      } else if (!weaponKey) {
+        valid = false;
+        reason = "The source-owned weapon answer is incomplete.";
+      } else if (!weapon) {
+        context.addDiagnostic({
+          code: "dangling-grant-answer-reference",
+          path: `character.builder.grantChoices.${choiceId}.weaponKey`,
+          nodeId: answerNodeId,
+          message: `Source-owned answer references missing weapon "${weaponKey}".`,
+        });
+        valid = false;
+        reason = `Weapon "${weaponKey}" does not exist.`;
+      } else if (!isGameDataRecordSelectable(weapon, { allowGrantedOnly: true })) {
+        valid = false;
+        reason = `Weapon "${weaponKey}" is unavailable to grants.`;
+      } else if (Number(answer.rank) !== requiredRank) {
+        valid = false;
+        reason = `Weapon choice "${choiceId}" requires rank ${requiredRank}.`;
+      }
+      context.addTypedNode("grant-answer", {
+        id: answerNodeId,
+        key: choiceId,
+        label: sourceLabel(weapon, weaponKey || choiceId),
+        state: valid ? "selected" : weaponKey ? "invalid" : "incomplete",
+        sourceOwnerId: choiceSpec.sourceOwnerId,
+        storageBinding: { path: "builder.grantChoices", kind: "keyed-record", key: choiceId },
+        metadata: {
+          choiceId,
+          answerType: "weapon",
+          weaponKey,
+          valid,
+          reason,
+          orphaned: false,
+        },
+      }, `character.builder.grantChoices.${choiceId}`);
+      graph.addEdge({ kind: "owns", from: choiceSpec.sourceOwnerId, to: answerNodeId }, { path: `character.builder.grantChoices.${choiceId}` });
+      graph.addEdge({ kind: "satisfies", from: answerNodeId, to: choiceSpec.choiceNodeId }, { path: `character.builder.grantChoices.${choiceId}` });
+      continue;
+    }
     const techniqueKey = stableKey(answer.techniqueKey);
     const technique = techniqueKey ? techniquesByKey.get(techniqueKey) : null;
     const ownerMatches = answer.sourceId === choiceSpec.sourceOwnerId;
@@ -859,6 +1670,13 @@ function unmetRequirementNodeIds(graphResult, sourceNodeId) {
 }
 
 function compileSelectedTechniques(context, character, techniquesByKey, graph) {
+  if (character.builder.selectedTechniques.length === 0) return;
+  const known = computeKnownCombatSkillsAndGrants(context.gameData, character.builder);
+  const granted = computeGrantedSkillsState(context.gameData, character.builder);
+  const rankBySkill = new Map(
+    (Array.isArray(granted?.grantedCombatSkills) ? granted.grantedCombatSkills : [])
+      .map((entry) => [text(entry?.skill).toLowerCase(), Number.parseInt(String(entry?.rank ?? 0), 10) || 0]),
+  );
   for (const [index, techniqueKey] of character.builder.selectedTechniques.entries()) {
     const nodeId = `technique-selection:${techniqueKey}`;
     const technique = techniquesByKey.get(techniqueKey);
@@ -883,6 +1701,10 @@ function compileSelectedTechniques(context, character, techniquesByKey, graph) {
     }
     const selectable = isGameDataRecordSelectable(technique);
     const automatic = context.automaticTechniqueKeys.has(techniqueKey);
+    const skillName = text(technique.skill);
+    const knownSkill = !skillName || known.knownCombatSkills.has(skillName);
+    const requiredRank = Number.parseInt(String(technique.rank ?? 0), 10) || 0;
+    const skillRank = skillName ? (rankBySkill.get(skillName.toLowerCase()) ?? 0) : requiredRank;
     context.addTypedNode("technique-selection", {
       id: nodeId,
       key: techniqueKey,
@@ -896,6 +1718,10 @@ function compileSelectedTechniques(context, character, techniquesByKey, graph) {
         exists: true,
         selectable,
         duplicateAutomatic: automatic,
+        skillName,
+        knownSkill,
+        requiredRank,
+        skillRank,
       },
     }, `character.builder.selectedTechniques.${index}`);
     graph.addEdge({ kind: "owns", from: "root:character", to: nodeId }, { path: `character.builder.selectedTechniques.${index}` });
@@ -932,7 +1758,16 @@ export function compileCharacterGraph({ character, gameData, registry = createDe
   const activeRegistry = registry instanceof GraphHandlerRegistry ? registry : new GraphHandlerRegistry();
   const classesByKey = indexRecords(gameData?.classes, "classKey", "Class", graph, "gameData.classes");
   const originsByKey = indexRecords(gameData?.origins, "originKey", "Origin", graph, "gameData.origins");
+  const featsByKey = indexRecords(gameData?.feats, "featKey", "Feat", graph, "gameData.feats");
   const techniquesByKey = indexRecords(gameData?.techniques, "techniqueKey", "Technique", graph, "gameData.techniques");
+  const weaponBasesByKey = indexRecords(gameData?.weaponBases, "weaponKey", "Weapon", graph, "gameData.weaponBases");
+  const weaponEnhancementsByKey = indexRecords(
+    gameData?.weaponEnhancements,
+    "enhancementKey",
+    "Weapon enhancement",
+    graph,
+    "gameData.weaponEnhancements",
+  );
   const context = createCompilerContext({
     character: decoded.value,
     gameData: isPlainObject(gameData) ? gameData : {},
@@ -940,30 +1775,65 @@ export function compileCharacterGraph({ character, gameData, registry = createDe
     graph,
     classesByKey,
     techniquesByKey,
+    weaponBasesByKey,
   });
 
-  unsupportedCharacterDomains(decoded.value, graph);
   compileRootFacts(context, decoded.value);
   compileClassAndOrigin(context, decoded.value, classesByKey, originsByKey, graph);
+  compileOriginFeatures(context, decoded.value, originsByKey, graph);
+  compileClassUtilitySkills(context, decoded.value, gameData, graph);
+  const skillAllocation = compileSkills(context, decoded.value, gameData, graph);
   compileClassFeatures(context, decoded.value, gameData, graph);
-  for (const source of context.activeSources.sort((left, right) => left.nodeId.localeCompare(right.nodeId))) {
+  const compiledGrantSourceIds = new Set();
+  for (const source of context.activeSources.slice().sort((left, right) => left.nodeId.localeCompare(right.nodeId))) {
     context.compileGrants(source);
+    compiledGrantSourceIds.add(source.nodeId);
   }
-  compileGrantAnswers(context, decoded.value, techniquesByKey, graph);
+  const featAllocation = compileFeats(context, decoded.value, featsByKey, graph);
+  for (const source of context.activeSources.slice().sort((left, right) => left.nodeId.localeCompare(right.nodeId))) {
+    if (compiledGrantSourceIds.has(source.nodeId)) continue;
+    context.compileGrants(source);
+    compiledGrantSourceIds.add(source.nodeId);
+  }
+  const bondAllocation = compileBondsAndKeystones(context, decoded.value, graph);
+  compileGrantAnswers(context, decoded.value, techniquesByKey, weaponBasesByKey, graph);
+  compileEquipment(context, decoded.value, weaponBasesByKey, weaponEnhancementsByKey, graph);
   compileSelectedTechniques(context, decoded.value, techniquesByKey, graph);
 
   const { primaryAttrKey, slots } = computeTechniqueSlots(
     decoded.value.builder.primaryAttribute,
     decoded.value.builder.attributes,
   );
+  const attributeAllocation = getAttributeAllocationState({
+    level: decoded.value.builder.level,
+    primaryAttribute: decoded.value.builder.primaryAttribute,
+    attributes: decoded.value.builder.attributes,
+  });
   const finalized = graph.finalize({
     metadata: {
       compilerVersion: 1,
       registry: activeRegistry.describe(),
       primaryAttribute: primaryAttrKey,
+      attributePointCapacity: attributeAllocation.capacity,
+      attributePointUsage: attributeAllocation.usage,
+      skillPointCapacity: skillAllocation.total,
+      skillPointUsage: skillAllocation.spent,
+      skillRankCap: skillAllocation.baseRankCap,
+      classUtilitySkillExpectedCount: skillAllocation.utility.expectedCount,
       techniqueCapacity: slots,
+      featCapacity: context.activeFeatSlots.length,
+      featSlotIds: context.activeFeatSlots.map((slot) => slot.slotId),
+      unmatchedFeatKeys: featAllocation.unmatchedFeatKeys,
+      unfilledFeatSlotIds: featAllocation.unfilledSlots.map((slot) => slot.slotId),
+      weaponSlotCapacity: MAX_WEAPON_SLOTS,
+      weaponSlotUsage: computeTotalWeaponSlots(decoded.value.builder.weapons, Array.from(weaponBasesByKey.values())),
       automaticTechniqueKeys: Array.from(context.automaticTechniqueKeys).sort(),
       activeChoiceIds: Array.from(context.activeChoices.keys()).sort(),
+      bondRankCap: bondAllocation.rankCap,
+      userBondCapacity: bondAllocation.userBondCapacity,
+      userBondUsage: bondAllocation.userBondCount,
+      sourceBondCount: bondAllocation.sourceBondCount,
+      backgroundKeystoneCapacity: bondAllocation.backgroundKeystoneCapacity,
     },
   });
 

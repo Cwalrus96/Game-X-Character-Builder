@@ -1,24 +1,27 @@
 import {
   computeTechniqueSlots,
   labelForAttrKey,
-} from "../../core/character-rules.js";
+} from "../../core/character-rules.js?v=wpe1";
 import { getChoiceCountState } from "../../core/choice-capacity.js";
+import { SetTechniqueSelection } from "../../core/character-commands.js?v=wpe1";
 import { sanitizeNamedSkillList, sanitizeText } from "../../core/data-sanitization.js";
 import {
   createCharacterGrantCollection,
-  computeGrantedSkillsState,
-  computeKnownCombatSkillsAndGrants,
-  getGrantName,
   getGameXTechniques,
-  isGameDataRecordSelectable,
   resolveTechniqueRef,
-} from "../../core/game-data.js";
+} from "../../core/game-data.js?v=wpe1";
+import { computeGrantedSkillsState, computeKnownCombatSkillsAndGrants } from "../../core/skill-rules.js";
+import { isGameDataRecordSelectable } from "../../core/selection-rules.js";
 import { meetsPrerequisites } from "../../core/prerequisites.js";
 import { renderTechniqueProfileHtml } from "../../core/technique-utils.js";
 import { BuilderWidget } from "./builder-widget.js";
 
 function techniqueName(technique) {
   return sanitizeText(technique?.techniqueName || "", { maxLen: 200, collapse: true });
+}
+
+function techniqueKey(technique) {
+  return sanitizeText(technique?.techniqueKey || "", { maxLen: 128, collapse: true });
 }
 
 function techniqueRank(technique) {
@@ -35,7 +38,7 @@ function countForGrant(grant) {
   return Number.isFinite(count) ? Math.max(0, count) : 1;
 }
 
-function getSourceOwnedTechniqueAnswerCounts(builder = {}) {
+function getSourceOwnedTechniqueAnswerCounts(builder = {}, gameData = {}) {
   const choices = (builder?.grantChoices && typeof builder.grantChoices === "object" && !Array.isArray(builder.grantChoices))
     ? builder.grantChoices
     : {};
@@ -43,9 +46,9 @@ function getSourceOwnedTechniqueAnswerCounts(builder = {}) {
 
   for (const choice of Object.values(choices)) {
     if (choice?.type !== "technique") continue;
-    const technique = sanitizeText(choice?.techniqueName || choice?.value, { maxLen: 200, collapse: true });
-    const skill = sanitizeText(choice?.skill, { maxLen: 96, collapse: true }).toLowerCase();
-    if (!technique || !skill) continue;
+    const technique = getGameXTechniques(gameData).find((entry) => techniqueKey(entry) === choice?.techniqueKey);
+    const skill = sanitizeText(choice?.skillKey || technique?.skill, { maxLen: 96, collapse: true }).toLowerCase();
+    if (!choice?.techniqueKey || !skill) continue;
     counts.set(skill, (counts.get(skill) || 0) + 1);
   }
 
@@ -60,7 +63,7 @@ function getSourceOwnedTechniqueDetails(builder = {}) {
 
   for (const choice of Object.values(choices)) {
     if (choice?.type !== "technique") continue;
-    const technique = sanitizeText(choice?.techniqueName || choice?.value, { maxLen: 200, collapse: true });
+    const technique = sanitizeText(choice?.techniqueKey, { maxLen: 128, collapse: true });
     if (!technique) continue;
     const sourceLabel = sanitizeText(choice?.sourceLabel, { maxLen: 200, collapse: true });
     details.set(technique, {
@@ -76,7 +79,7 @@ function getGrantedTechniqueDetails(gameData, builder = {}) {
   const details = new Map();
   const collection = createCharacterGrantCollection(gameData, builder);
   for (const grant of collection.techniqueGrants || []) {
-    const technique = getGrantName(grant);
+    const technique = sanitizeText(grant?.key, { maxLen: 128, collapse: true });
     if (!technique) continue;
     const sourceLabel = sanitizeText(grant?.source?.name || grant?.source?.featureName || grant?.source?.featKey, {
       maxLen: 200,
@@ -188,13 +191,13 @@ export class TechniquesWidget extends BuilderWidget {
       primaryAttrKey,
       slots,
       knownCombatSkills: knownAndGrants.knownCombatSkills || new Set(),
-      grantedTechniqueNames: knownAndGrants.grantedTechniqueNames || new Set(),
+      grantedTechniqueNames: new Set(grantedTechniqueDetails.keys()),
       grantedTechniqueDetails,
       sourceOwnedTechniqueNames: new Set(sourceOwnedTechniqueDetails.keys()),
       sourceOwnedTechniqueDetails,
       techniqueChoiceGrants: getRemainingTechniqueChoiceGrants(
         Array.isArray(knownAndGrants.techniqueChoiceGrants) ? knownAndGrants.techniqueChoiceGrants : [],
-        getSourceOwnedTechniqueAnswerCounts(b),
+        getSourceOwnedTechniqueAnswerCounts(b, gameData),
       ),
       grantedSkillState: computeGrantedSkillsState(gameData, b),
     };
@@ -202,6 +205,7 @@ export class TechniquesWidget extends BuilderWidget {
 
   resolveRef(ref, gameData = this.getGameData()) {
     const res = resolveTechniqueRef(ref, this.getTechniqueIndexes() || {
+      byKey: new Map(getGameXTechniques(gameData).map((technique) => [techniqueKey(technique), technique])),
       byName: new Map(getGameXTechniques(gameData).map((technique) => [techniqueName(technique), technique])),
       byNorm: new Map(),
     });
@@ -293,17 +297,17 @@ export class TechniquesWidget extends BuilderWidget {
     return this.countExtraTechniqueAssignments(selected, context, gameData) >= extraNeeded;
   }
 
-  canAddTechnique(name, context) {
-    if (this.selectedTechniques().has(name)) return true;
+  canAddTechnique(key, context) {
+    if (this.selectedTechniques().has(key)) return true;
     const next = this.getNormalSelectedTechniques(this.selectedTechniques(), context);
-    next.add(name);
+    next.add(key);
     return this.selectedTechniquesFitSlots(next, context);
   }
 
-  isFreeTechniqueName(name, context) {
-    return !!name && (
-      context.grantedTechniqueNames?.has(name)
-      || context.sourceOwnedTechniqueNames?.has(name)
+  isFreeTechniqueName(key, context) {
+    return !!key && (
+      context.grantedTechniqueNames?.has(key)
+      || context.sourceOwnedTechniqueNames?.has(key)
     );
   }
 
@@ -458,9 +462,9 @@ export class TechniquesWidget extends BuilderWidget {
   }
 
   passesKnownSkillFilter(technique, context, gameData = this.getGameData()) {
-    const name = techniqueName(technique);
-    if (name && context.grantedTechniqueNames.has(name)) return true;
-    if (name && context.sourceOwnedTechniqueNames?.has(name)) return true;
+    const key = techniqueKey(technique);
+    if (key && context.grantedTechniqueNames.has(key)) return true;
+    if (key && context.sourceOwnedTechniqueNames?.has(key)) return true;
     if (!this.passesTechniquePrerequisites(technique, context, gameData)) return false;
     if (!this.filterKnownSkills) return true;
     const skill = techniqueSkill(technique);
@@ -475,7 +479,7 @@ export class TechniquesWidget extends BuilderWidget {
     const visible = getGameXTechniques(gameData)
       .filter((technique) => !!techniqueName(technique))
       .filter((technique) => isGameDataRecordSelectable(technique, {
-        allowGrantedOnly: this.isFreeTechniqueName(techniqueName(technique), context),
+        allowGrantedOnly: this.isFreeTechniqueName(techniqueKey(technique), context),
       }))
       .filter((technique) => this.passesSearch(technique))
       .filter((technique) => this.passesKnownSkillFilter(technique, context, gameData));
@@ -585,19 +589,20 @@ export class TechniquesWidget extends BuilderWidget {
 
   renderSelectableTechniqueRow(technique, context) {
     const name = techniqueName(technique);
-    if (!name) return null;
+    const key = techniqueKey(technique);
+    if (!name || !key) return null;
 
     const row = document.createElement("div");
     row.className = "optionRow";
 
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
-    const isGranted = context.grantedTechniqueNames.has(name);
-    const isSourceOwned = context.sourceOwnedTechniqueNames?.has(name);
-    const freeDetail = context.sourceOwnedTechniqueDetails?.get(name) || context.grantedTechniqueDetails?.get(name) || null;
+    const isGranted = context.grantedTechniqueNames.has(key);
+    const isSourceOwned = context.sourceOwnedTechniqueNames?.has(key);
+    const freeDetail = context.sourceOwnedTechniqueDetails?.get(key) || context.grantedTechniqueDetails?.get(key) || null;
     const skillRank = this.getTechniqueSkillRank(technique, context);
-    checkbox.checked = isGranted || isSourceOwned || this.selectedTechniques().has(name);
-    const atCap = !this.canAddTechnique(name, context);
+    checkbox.checked = isGranted || isSourceOwned || this.selectedTechniques().has(key);
+    const atCap = !this.canAddTechnique(key, context);
     const normalSelected = this.getNormalSelectedTechniques(this.selectedTechniques(), context);
     const countState = getChoiceCountState({
       selectedCount: normalSelected.size,
@@ -614,27 +619,31 @@ export class TechniquesWidget extends BuilderWidget {
       const previousChecked = !checkbox.checked;
       const selected = new Set(this.selectedTechniques());
       if (checkbox.checked) {
-        if (!this.canAddTechnique(name, context)) {
+        if (!this.canAddTechnique(key, context)) {
           checkbox.checked = false;
           this.setStatus?.("No technique slots remaining.");
           return;
         }
-        selected.add(name);
+        selected.add(key);
       } else {
-        selected.delete(name);
+        selected.delete(key);
       }
-      const result = await this.page?.requestChoiceChange?.(this, {
-        "builder.selectedTechniques": this.buildSortedSelectedArray(this.getNormalSelectedTechniques(selected, context)),
-      }, {
-        applyWidgetChange: () => {
+      const result = await this.page?.requestCharacterCommand?.(
+        this,
+        SetTechniqueSelection(this.buildSortedSelectedArray(this.getNormalSelectedTechniques(selected, context))),
+        {
+        applyWidgetChange: (proposal) => {
+          const accepted = proposal?.reconciled?.builder?.selectedTechniques;
+          this.setSelectedTechniques(new Set(Array.isArray(accepted) ? accepted : selected));
           this.render();
         },
-      });
+        },
+      );
       if (result && !result.ok) {
         checkbox.checked = previousChecked;
         return;
       }
-      if (!result) {
+      if (!this.page?.requestCharacterCommand) {
         this.setSelectedTechniques(selected);
         this.render();
       }

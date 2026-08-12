@@ -61,12 +61,13 @@ If an implementation decision changes a contract, update the relevant living doc
 The target dependency direction is:
 
 ```text
-Pages / Widgets -> CharacterSession
-Pages / Widgets -> pure Rules
-CharacterSession -> GraphCompiler -> GraphReconciler
-GraphCompiler -> pure Rules
-GraphReconciler -> pure Rules
-CharacterSession -> database reader/writer -> Firebase
+Pages -> portable Widgets
+Pages / Widgets -> CharacterSession commands and projections
+Pages / Widgets -> pure Rules for display
+CharacterSession -> Character Dependency Graph subsystem
+Character Dependency Graph subsystem -> GraphCompiler + reconciliation operation
+Character Dependency Graph subsystem -> pure Rules
+Pages -> database reader/writer -> Firebase
 database reader/writer -> CharacterCodec
 database reader/writer -> CharacterMigrations
 
@@ -76,12 +77,15 @@ Google Sheet -> acquisition -> adaptation -> normalization -> validation
 
 Key ownership rules:
 
-- Pages coordinate widgets and submit typed commands. They do not own capacity, prerequisite, or dependency-removal policy.
-- Widgets render/edit one choice type and produce commands or proposed patches. They are not dependency truth.
+- Pages coordinate portable widgets, session proposals, persistence, and navigation. They do not own capacity, prerequisite, or dependency-removal policy.
+- Widgets are portable UI components for one choice type. They own DOM rendering, accessibility, local input parsing/errors, typed-command production, and structured-impact presentation through injected state/actions. They do not own dependency truth, a second character model, or Firebase access.
 - Rules are pure and shared by widgets and graph code. Rules never depend on DOM or live widgets.
-- The graph is authoritative for what exists, what breaks, and what is removed. It does not depend on live widgets.
+- Pure Rules modules are the only home for game-mechanic formulas, limits, eligibility, capacity, and derived allocation projections. Graph compilation and widgets must import the same Rules API and must not reconstruct that arithmetic or policy locally; reconciliation applies and reports Rules results rather than redefining them.
+- The Character Dependency Graph is one subsystem and the sole authority for what exists, what breaks, and what is removed. Compilation and fixed-point reconciliation are separate internal operations, not competing sources of truth, and neither depends on live widgets.
 - `CharacterSession` will own persisted, working, proposed, and reconciled in-memory states.
 - The existing database reader/writer jointly own character persistence as one boundary; do not add a duplicate repository implementation. Codecs and sequential migrations isolate stored Firebase formats.
+- Pages coordinate `CharacterSession.createSaveSnapshot()` with the database writer and acknowledge the returned revision. The session never writes Firebase itself.
+- `CharacterCodec` is the only whole-character structural validator. Command decoders, widget-local input checks, pure game rules, graph integrity diagnostics, and persistence envelope/revision checks stay narrow and must not reimplement whole-character validation.
 - Database format knowledge stays in reader/writer/codec/migration modules.
 - Game-data source acquisition, adaptation, normalization, validation, artifact writing, and publishing are separate phases.
 

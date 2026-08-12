@@ -1,12 +1,22 @@
 import { getChoiceCountState } from "../../core/choice-capacity.js";
+import { SetClassFeatureOptions, SetFeatOptions } from "../../core/character-commands.js?v=wpe1";
 import { buildGroupId, buildOptionKey, sanitizeText } from "../../core/data-sanitization.js";
 import { formatPrerequisites } from "../../core/prerequisites.js";
 import {
-  deleteSelectedDescendants,
   isOptionGroup,
-  selectedCountForGroup,
 } from "../../core/option-groups.js";
 import { BuilderWidget } from "./builder-widget.js";
+
+export function getOptionStorageKey(group, option) {
+  const stableKey = sanitizeText(option?.featureKey || option?.featKey || "", { maxLen: 128, collapse: true });
+  return stableKey || buildOptionKey(group, option);
+}
+
+function selectedCountForPortableGroup(group, selectedKeys) {
+  return (Array.isArray(group?.options) ? group.options : [])
+    .filter((option) => selectedKeys.has(getOptionStorageKey(group, option)))
+    .length;
+}
 
 export class OptionGroupWidget extends BuilderWidget {
   constructor(page, {
@@ -87,7 +97,7 @@ export class OptionGroupWidget extends BuilderWidget {
       trackUnavailable: this.trackUnavailable,
       createGrantWidgets: this.createGrantWidgets,
       setStatus: this.setStatus,
-      isActive: (context = {}) => this.getSelectedKeysForContext(context).has(buildOptionKey(this.group, option)),
+      isActive: (context = {}) => this.getSelectedKeysForContext(context).has(getOptionStorageKey(this.group, option)),
       scope: this.scope,
     }).element;
   }
@@ -111,7 +121,7 @@ export class OptionGroupWidget extends BuilderWidget {
     headerBtn.setAttribute("aria-expanded", String(!isCollapsed));
 
     const countState = getChoiceCountState({
-      selectedCount: selectedCountForGroup(group, this.selectedKeys),
+      selectedCount: selectedCountForPortableGroup(group, this.selectedKeys),
       expectedCount: chooseCount,
     });
     const groupName = document.createElement("span");
@@ -146,7 +156,7 @@ export class OptionGroupWidget extends BuilderWidget {
     const limitReached = chooseCount > 1 && countState.isAtCapacity;
 
     for (const option of opts) {
-      const key = buildOptionKey(group, option);
+      const key = getOptionStorageKey(group, option);
       const checked = this.selectedKeys.has(key);
       const prereqCheck = this.checkEntryPrerequisites(option);
       const prereqText = formatPrerequisites(option?.prerequisites);
@@ -183,11 +193,10 @@ export class OptionGroupWidget extends BuilderWidget {
           }
           if (chooseCount === 1) {
             for (const sibling of opts) {
-              nextKeys.delete(buildOptionKey(group, sibling));
-              deleteSelectedDescendants(sibling, nextKeys);
+              nextKeys.delete(getOptionStorageKey(group, sibling));
             }
           } else if (chooseCount > 1 && getChoiceCountState({
-            selectedCount: selectedCountForGroup(group, nextKeys),
+            selectedCount: selectedCountForPortableGroup(group, nextKeys),
             expectedCount: chooseCount,
           }).isAtCapacity) {
             cb.checked = false;
@@ -196,11 +205,17 @@ export class OptionGroupWidget extends BuilderWidget {
           nextKeys.add(key);
         } else {
           nextKeys.delete(key);
-          deleteSelectedDescendants(option, nextKeys);
         }
-        const patch = this.storagePath ? { [this.storagePath]: Array.from(nextKeys) } : {};
-        const result = await this.page?.requestChoiceChange?.(this, patch, {
-          applyWidgetChange: () => {
+        const command = this.storagePath === "builder.selectedFeatOptions"
+          ? SetFeatOptions(Array.from(nextKeys))
+          : SetClassFeatureOptions(Array.from(nextKeys));
+        const result = await this.page?.requestCharacterCommand?.(this, command, {
+          applyWidgetChange: (proposal) => {
+            const reconciled = proposal?.reconciled?.builder || {};
+            const acceptedKeys = this.storagePath === "builder.selectedFeatOptions"
+              ? reconciled.selectedFeatOptions
+              : reconciled.selectedClassFeatureOptions;
+            this.replaceSelectedKeys(Array.isArray(acceptedKeys) ? new Set(acceptedKeys) : nextKeys);
             this.onChange?.();
           },
         });
@@ -208,7 +223,7 @@ export class OptionGroupWidget extends BuilderWidget {
           cb.checked = previousChecked;
           return;
         }
-        if (!result) {
+        if (!this.page?.requestCharacterCommand) {
           this.replaceSelectedKeys(nextKeys);
           this.onChange?.();
         }

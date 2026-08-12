@@ -2,8 +2,12 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-import { SetClass } from "../public/js/core/character-commands.js";
+import { createDefaultCharacter } from "../public/js/core/character-codec.js";
+import { SetAttributeValue, SetClass, SetLevel, UpdateWeapon } from "../public/js/core/character-commands.js";
+import { coerceAttrKey } from "../public/js/core/character-rules.js";
 import { CharacterSession } from "../public/js/core/character-session.js";
+import { isGameDataRecordSelectable } from "../public/js/core/selection-rules.js";
+import { getWeaponSkillNames } from "../public/js/core/weapon-utils.js";
 import {
   collectAffectedNodeIds,
 } from "../public/js/core/graph-core.js";
@@ -20,6 +24,7 @@ import {
   GRAPH_GAME_DATA,
   makeGraphCharacter,
   makeTechniqueGrantAnswer,
+  makeWeaponGrantAnswer,
 } from "./fixtures/graph-core.mjs";
 
 function node(graph, nodeId) {
@@ -29,6 +34,86 @@ function node(graph, nodeId) {
 function edge(graph, kind, from, to) {
   return graph.edges.find((item) => item.kind === kind && item.from === from && item.to === to);
 }
+
+test("published selectable classes reconcile against the production runtime artifact", async () => {
+  const gameData = JSON.parse(await readFile(
+    new URL("../public/data/game-x/game-x-data.json", import.meta.url),
+    "utf8",
+  ));
+  const selectableClasses = gameData.classes.filter((entry) => isGameDataRecordSelectable(entry));
+  assert.ok(selectableClasses.length > 0);
+  for (const cls of selectableClasses) {
+    const character = createDefaultCharacter({ ownerUid: "user_123" });
+    character.builder.classKey = cls.classKey;
+    character.builder.primaryAttribute = coerceAttrKey(cls.primaryAttributes?.[0] || cls.primaryAttributeA);
+    const result = reconcileCharacterGraph({
+      character,
+      previousCharacter: character,
+      gameData,
+    });
+    assert.equal(result.ok, true, `${cls.classKey}: ${JSON.stringify(result.impacts)}`);
+    assert.equal(result.converged, true, cls.classKey);
+  }
+});
+
+test("published selectable weapon bases compile through the equipment graph", async () => {
+  const gameData = JSON.parse(await readFile(
+    new URL("../public/data/game-x/game-x-data.json", import.meta.url),
+    "utf8",
+  ));
+  const selectableWeapons = gameData.weaponBases.filter((entry) => isGameDataRecordSelectable(entry));
+  assert.ok(selectableWeapons.length > 0);
+  for (const weapon of selectableWeapons) {
+    const character = createDefaultCharacter({ ownerUid: "user_123" });
+    const rank = Number(weapon.minRank || 0);
+    character.builder.weapons.push({
+      id: `weapon:${weapon.weaponKey}`,
+      choiceId: "",
+      sourceChoiceId: "",
+      generated: false,
+      weaponKey: weapon.weaponKey,
+      rank,
+      customName: "",
+      enhancements: [],
+    });
+    for (const skill of getWeaponSkillNames(weapon).filter((name) => ["Melee Weapons", "Targeting"].includes(name))) {
+      character.builder.sheet.repeatables.combatSkillsExtra.push({ skill, rank: String(rank) });
+    }
+    const result = reconcileCharacterGraph({ character, previousCharacter: character, gameData });
+    assert.equal(result.ok, true, `${weapon.weaponKey}: ${JSON.stringify(result.impacts)}`);
+    assert(node(result.graph, `weapon:weapon:${weapon.weaponKey}`), weapon.weaponKey);
+  }
+});
+
+test("published attribute allocations reconcile at every supported level", async () => {
+  const gameData = JSON.parse(await readFile(
+    new URL("../public/data/game-x/game-x-data.json", import.meta.url),
+    "utf8",
+  ));
+  const cls = gameData.classes.find((entry) => isGameDataRecordSelectable(entry));
+  assert.ok(cls);
+  const primary = coerceAttrKey(cls.primaryAttributes?.[0] || cls.primaryAttributeA);
+  for (let level = 1; level <= 12; level += 1) {
+    const character = createDefaultCharacter({ ownerUid: "user_123" });
+    character.builder.classKey = cls.classKey;
+    character.builder.level = level;
+    character.builder.primaryAttribute = primary;
+    character.builder.attributes[primary] = 1;
+    let remaining = 12 + (3 * (level - 1));
+    for (const key of Object.keys(character.builder.attributes)) {
+      const cap = 4 + Math.floor(level / 2) - (level <= 2 && key !== primary ? 1 : 0);
+      const available = cap - (key === primary ? 1 : 0);
+      const assigned = Math.min(remaining, available);
+      character.builder.attributes[key] += assigned;
+      remaining -= assigned;
+    }
+    assert.equal(remaining, 0, `level ${level}`);
+    const result = reconcileCharacterGraph({ character, previousCharacter: character, gameData });
+    assert.equal(result.ok, true, `level ${level}: ${JSON.stringify(result.impacts)}`);
+    assert.equal(result.graph.metadata.attributePointUsage, result.graph.metadata.attributePointCapacity);
+    assert.equal(result.impacts.some((impact) => impact.code === "attribute-point-budget-applied"), false);
+  }
+});
 
 test("GraphCompiler produces byte-deterministic typed nodes, ownership, bindings, and edges", () => {
   const character = makeGraphCharacter({
@@ -63,6 +148,15 @@ test("GraphCompiler produces byte-deterministic typed nodes, ownership, bindings
   });
   assert(edge(first, "requires", selected.id, `requirement:${selected.id}:0:class`));
   assert(node(first, "automatic-technique:class-feature:ninja:shadow-training:stalk-prey:0"));
+  const agility = node(first, "fact:attribute:agility");
+  assert.deepEqual(agility.storageBinding, {
+    path: "builder.attributes.agility",
+    kind: "scalar",
+  });
+  assert.deepEqual(
+    { minimum: agility.metadata.minimum, maximum: agility.metadata.maximum, valid: agility.metadata.valid },
+    { minimum: 1, maximum: 5, valid: true },
+  );
   assert.equal(Object.isFrozen(first.nodes), true);
   assert.equal(Object.isFrozen(first.nodes[0].metadata), true);
 });
@@ -137,13 +231,312 @@ test("duplicate identities, dangling selections, and missing handlers fail with 
   assert(displayNameGrant.diagnostics.some((item) => item.code === "display-name-technique-grant"));
 
   const unhandledCharacter = makeGraphCharacter();
-  unhandledCharacter.builder.selectedFeats = ["unmigrated-feat"];
+  unhandledCharacter.builder.bonds = [{ bondId: "bond:one", name: "Ally", rank: "1", keystone: "" }];
   const unhandled = compileCharacterGraph({
     character: unhandledCharacter,
     gameData: GRAPH_GAME_DATA,
   });
-  assert.equal(unhandled.ok, false);
-  assert(unhandled.diagnostics.some((item) => item.code === "unhandled-character-domain"));
+  assert.equal(unhandled.ok, true);
+  assert(unhandled.nodes.some((item) => item.id === "bond:bond:one" && item.storageBinding?.key === "bond:one"));
+});
+
+test("feat selections and options have stable ownership and reconcile through capacity and prerequisites", () => {
+  const character = makeGraphCharacter({
+    level: 2,
+    selectedFeats: ["shadow-adept", "moon-initiate"],
+    selectedFeatOptions: ["moon-initiate-prison"],
+  });
+  const result = reconcileCharacterGraph({ character, gameData: GRAPH_GAME_DATA });
+
+  assert.equal(result.ok, true, JSON.stringify(result.impacts));
+  assert.deepEqual(result.character.builder.selectedFeats, ["shadow-adept"]);
+  assert.deepEqual(result.character.builder.selectedFeatOptions, []);
+  assert(result.impacts.some((item) => item.code === "feat-slot-removed"));
+  assert(result.impacts.some((item) => item.code === "feat-option-prerequisite-removed"));
+  assert(result.graph.nodes.some((item) => (
+    item.id === "feat-selection:shadow-adept"
+      && item.storageBinding?.path === "builder.selectedFeats"
+      && item.sourceOwnerId.startsWith("feat-slot:")
+  )));
+  assert(result.graph.nodes.some((item) => item.type === "feat-slot" && item.sourceOwnerId === "class-feature:ninja:ninja-feat"));
+  assert.equal(result.graph.diagnostics.some((item) => item.code === "deferred-grant-domain" && item.message.includes("feat")), false);
+  assert(result.graph.nodes.some((item) => item.id.startsWith("automatic-technique:feat-selection:shadow-adept")));
+
+  const repeated = reconcileCharacterGraph({ character: result.character, gameData: GRAPH_GAME_DATA });
+  assert.equal(repeated.ok, true);
+  assert.deepEqual(repeated.character, result.character);
+  assert.equal(repeated.impacts.some((item) => item.category === "confirmation-required"), false);
+});
+
+test("removing an explicit feat-grant source requires confirmation and cancellation preserves the feat", () => {
+  const character = makeGraphCharacter({ level: 2, selectedFeats: ["shadow-adept"] });
+  const session = new CharacterSession({
+    character,
+    reconcileCharacter: createCharacterSessionGraphReconciler({ gameData: GRAPH_GAME_DATA }),
+  });
+  const before = JSON.stringify(session.getState().working);
+  const proposal = session.propose(SetLevel(1));
+  assert.equal(proposal.ok, true);
+  assert.equal(proposal.requiresConfirmation, true);
+  assert.deepEqual(proposal.reconciled.builder.selectedFeats, []);
+  assert(proposal.impacts.some((item) => item.code === "feat-slot-removed"));
+  session.cancelProposal(proposal.proposalId);
+  assert.equal(JSON.stringify(session.getState().working), before);
+});
+
+test("class-owned weapon answers materialize and disappear with their source", () => {
+  const character = makeGraphCharacter({
+    classKey: "guardian",
+    grantChoices: { "guardian-armament": makeWeaponGrantAnswer() },
+  });
+  character.builder.primaryAttribute = "willpower";
+  character.builder.attributes.agility = 0;
+  character.builder.attributes.willpower = 1;
+  const materialized = reconcileCharacterGraph({ character, gameData: GRAPH_GAME_DATA });
+  assert.equal(materialized.ok, true, JSON.stringify(materialized.impacts));
+  assert.equal(materialized.character.builder.weapons.length, 1);
+  assert.equal(materialized.character.builder.weapons[0].weaponKey, "longsword");
+  assert.equal(materialized.character.builder.weapons[0].sourceChoiceId, "guardian-armament");
+  assert.deepEqual(materialized.character.builder.resources.resolve, {
+    resourceKey: "resolve", name: "Resolve", capacity: 2, current: 2,
+  });
+
+  const changed = structuredClone(materialized.character);
+  changed.builder.classKey = "ninja";
+  const removed = reconcileCharacterGraph({
+    character: changed,
+    previousCharacter: materialized.character,
+    gameData: GRAPH_GAME_DATA,
+  });
+  assert.equal(removed.ok, true, JSON.stringify(removed.impacts));
+  assert.deepEqual(removed.character.builder.grantChoices, {});
+  assert.deepEqual(removed.character.builder.weapons, []);
+  assert.deepEqual(removed.character.builder.resources, {});
+  assert(removed.impacts.some((item) => item.code === "orphaned-grant-answer-removed"));
+  assert(removed.impacts.some((item) => item.code === "source-owned-weapon-removed"));
+  assert(removed.impacts.some((item) => item.code === "source-owned-resource-removed"));
+});
+
+test("equipment compiles stable weapon and enhancement ownership with shared capacity rules", () => {
+  const gameData = structuredClone(GRAPH_GAME_DATA);
+  gameData.weaponBases = [{
+    weaponKey: "longsword",
+    name: "Longsword",
+    status: "playable",
+    selectable: true,
+    minRank: 1,
+    tags: ["Versatile"],
+    profiles: [{ profileType: "basicAttack", skill: "Melee Weapons" }],
+  }];
+  gameData.weaponEnhancements = [{
+    enhancementKey: "basic_elemental_infusion",
+    name: "Elemental Infusion",
+    minRank: 1,
+    prerequisites: [],
+  }];
+  const character = makeGraphCharacter();
+  character.builder.sheet.repeatables.combatSkillsExtra.push({
+    skill: "Melee Weapons",
+    rank: "2",
+  });
+  character.builder.weapons.push({
+    id: "weapon:test",
+    choiceId: "",
+    sourceChoiceId: "",
+    generated: false,
+    weaponKey: "longsword",
+    rank: 1,
+    customName: "Oathblade",
+    enhancements: [{
+      id: "enhancement:test",
+      enhancementKey: "basic_elemental_infusion",
+      rank: 1,
+      selections: {},
+      granted: false,
+    }],
+  });
+
+  const result = reconcileCharacterGraph({ character, gameData });
+  assert.equal(result.ok, true, JSON.stringify(result.impacts));
+  assert.equal(node(result.graph, "weapon:weapon:test").sourceOwnerId, "root:character");
+  assert.equal(node(result.graph, "weapon:weapon:test").storageBinding.key, "weapon:test");
+  assert.equal(node(result.graph, "weapon-enhancement:weapon:test:enhancement:test").sourceOwnerId, "weapon:weapon:test");
+  assert(edge(result.graph, "owns", "weapon:weapon:test", "weapon-enhancement:weapon:test:enhancement:test"));
+  assert(result.impacts.some((item) => item.code === "weapon-enhancement-selection-incomplete"
+    && item.category === "informational"));
+  assert.equal(result.graph.metadata.weaponSlotUsage, 2);
+  assert.equal(result.graph.metadata.weaponSlotCapacity, 4);
+});
+
+test("equipment rule violations are blocking and cannot be confirmed away", () => {
+  const gameData = structuredClone(GRAPH_GAME_DATA);
+  gameData.weaponBases = [{
+    weaponKey: "greatsword",
+    name: "Greatsword",
+    status: "playable",
+    selectable: true,
+    minRank: 1,
+    tags: ["Heavy"],
+    profiles: [{ profileType: "basicAttack", skill: "Melee Weapons" }],
+  }];
+  const character = makeGraphCharacter();
+  character.builder.weapons.push({
+    id: "weapon:greatsword",
+    choiceId: "",
+    sourceChoiceId: "",
+    generated: false,
+    weaponKey: "greatsword",
+    rank: 1,
+    customName: "",
+    enhancements: [],
+  }, {
+    id: "weapon:second",
+    choiceId: "",
+    sourceChoiceId: "",
+    generated: false,
+    weaponKey: "greatsword",
+    rank: 1,
+    customName: "",
+    enhancements: [],
+  });
+
+  const result = reconcileCharacterGraph({ character, gameData });
+  assert.equal(result.ok, false);
+  assert(result.impacts.some((item) => item.code === "weapon-slot-capacity-exceeded" && item.category === "error"));
+  assert.equal(result.impacts.some((item) => item.category === "confirmation-required"), false);
+});
+
+test("generated weapons reject direct edits while cancellation preserves accepted state", () => {
+  const character = makeGraphCharacter({
+    classKey: "guardian",
+    grantChoices: { "guardian-armament": makeWeaponGrantAnswer() },
+  });
+  character.builder.primaryAttribute = "willpower";
+  character.builder.attributes.agility = 0;
+  character.builder.attributes.willpower = 1;
+  const materialized = reconcileCharacterGraph({ character, gameData: GRAPH_GAME_DATA }).character;
+  const session = new CharacterSession({
+    character: materialized,
+    reconcileCharacter: createCharacterSessionGraphReconciler({ gameData: GRAPH_GAME_DATA }),
+  });
+  const before = JSON.stringify(session.getState().working);
+  const proposal = session.propose(UpdateWeapon(materialized.builder.weapons[0].id, { customName: "Tampered" }));
+  assert.equal(proposal.ok, false);
+  assert(proposal.impacts.some((item) => item.code === "source-owned-weapon-edit-rejected"));
+  session.cancelProposal(proposal.proposalId);
+  assert.equal(JSON.stringify(session.getState().working), before);
+});
+
+test("equipment dependency changes require confirmation and cancellation is side-effect free", () => {
+  const gameData = structuredClone(GRAPH_GAME_DATA);
+  gameData.weaponBases = [{
+    weaponKey: "longsword",
+    name: "Longsword",
+    status: "playable",
+    selectable: true,
+    minRank: 1,
+    tags: ["Versatile"],
+    profiles: [{ profileType: "basicAttack", skill: "Melee Weapons" }],
+  }];
+  gameData.weaponEnhancements = [{ enhancementKey: "keen", name: "Keen", minRank: 1, prerequisites: [] }];
+  const character = makeGraphCharacter();
+  character.builder.sheet.repeatables.combatSkillsExtra.push({ skill: "Melee Weapons", rank: "2" });
+  character.builder.weapons.push({
+    id: "weapon:test",
+    choiceId: "",
+    sourceChoiceId: "",
+    generated: false,
+    weaponKey: "longsword",
+    rank: 2,
+    customName: "Oathblade",
+    enhancements: [{
+      id: "enhancement:keen",
+      enhancementKey: "keen",
+      rank: 2,
+      selections: {},
+      granted: false,
+    }],
+  });
+  const session = new CharacterSession({
+    character,
+    reconcileCharacter: createCharacterSessionGraphReconciler({ gameData }),
+  });
+  const before = JSON.stringify(session.getState().working);
+  const proposal = session.propose(UpdateWeapon("weapon:test", { rank: 1 }));
+  assert.equal(proposal.ok, true);
+  assert.equal(proposal.requiresConfirmation, true);
+  assert(proposal.impacts.some((item) => item.code === "weapon-enhancement-rank-reduced"));
+  assert.equal(proposal.reconciled.builder.weapons[0].enhancements[0].rank, 1);
+  session.cancelProposal(proposal.proposalId);
+  assert.equal(JSON.stringify(session.getState().working), before);
+});
+
+test("attribute budget reconciliation requires confirmation and cancellation is side-effect free", () => {
+  const character = makeGraphCharacter({ level: 1, agility: 4 });
+  Object.assign(character.builder.attributes, {
+    strength: 3,
+    intellect: 3,
+    willpower: 2,
+  });
+  const session = new CharacterSession({
+    character,
+    reconcileCharacter: createCharacterSessionGraphReconciler({ gameData: GRAPH_GAME_DATA }),
+  });
+  const before = JSON.stringify(session.getState().working);
+  const proposal = session.propose(SetAttributeValue("heart", 3));
+  assert.equal(proposal.ok, true);
+  assert.equal(proposal.requiresConfirmation, true);
+  assert.equal(proposal.reconciled.builder.attributes.heart, 3);
+  assert.equal(proposal.reconciled.builder.attributes.strength, 1);
+  assert(proposal.impacts.some((impact) => impact.code === "attribute-point-budget-applied"));
+  session.cancelProposal(proposal.proposalId);
+  assert.equal(JSON.stringify(session.getState().working), before);
+
+  const repeated = reconcileCharacterGraph({
+    character: proposal.reconciled,
+    previousCharacter: proposal.reconciled,
+    gameData: GRAPH_GAME_DATA,
+  });
+  assert.equal(repeated.ok, true);
+  assert.deepEqual(repeated.character, proposal.reconciled);
+  assert.equal(repeated.impacts.some((impact) => impact.category === "confirmation-required"), false);
+});
+
+test("lowering a primary attribute reconciles dependent technique capacity in the same proposal", () => {
+  const character = makeGraphCharacter({
+    level: 2,
+    agility: 3,
+    selectedTechniques: ["shadow-step", "smoke-bomb"],
+  });
+  const session = new CharacterSession({
+    character,
+    reconcileCharacter: createCharacterSessionGraphReconciler({ gameData: GRAPH_GAME_DATA }),
+  });
+  const proposal = session.propose(SetAttributeValue("agility", 1));
+  assert.equal(proposal.ok, true);
+  assert.equal(proposal.requiresConfirmation, true);
+  assert.deepEqual(proposal.reconciled.builder.selectedTechniques, ["shadow-step"]);
+  assert(proposal.impacts.some((impact) => impact.code === "technique-capacity-removed"));
+});
+
+test("class changes reconcile stable utility-skill ownership and projection snapshots", () => {
+  const previous = makeGraphCharacter({ classKey: "ninja", primaryAttribute: "agility" });
+  previous.builder.selectedClassUtilitySkills = ["athletics"];
+  previous.builder.grantedCoreSkillSnapshot = ["athletics"];
+  const proposed = structuredClone(previous);
+  proposed.builder.classKey = "guardian";
+  proposed.builder.primaryAttribute = "willpower";
+
+  const result = reconcileCharacterGraph({
+    character: proposed,
+    previousCharacter: previous,
+    gameData: GRAPH_GAME_DATA,
+  });
+
+  assert.equal(result.ok, true, JSON.stringify(result.impacts));
+  assert.deepEqual(result.character.builder.selectedClassUtilitySkills, []);
+  assert.deepEqual(result.character.builder.grantedCoreSkillSnapshot, []);
+  assert.ok(result.impacts.some((entry) => entry.code === "class-utility-skill-removed"));
 });
 
 test("custom handlers cannot hide cycles or dangling graph edges", () => {
@@ -247,7 +640,13 @@ test("incomplete but valid selections remain deterministic informational impacts
   const result = reconcileCharacterGraph({ character, gameData: GRAPH_GAME_DATA });
 
   assert.equal(result.ok, true);
-  assert.deepEqual(result.character, character);
+  assert.deepEqual(result.character.builder.selectedTechniques, character.builder.selectedTechniques);
+  assert.deepEqual(result.character.builder.selectedClassFeatureOptions, character.builder.selectedClassFeatureOptions);
+  assert.deepEqual(result.character.builder.autoAbilityNames, [
+    "Class Feature - Ninja Feat",
+    "Class Feature - Shadow Training",
+    "Class Feature - Moon Path",
+  ]);
   assert(result.impacts.some((item) => item.code === "technique-selection-incomplete"));
   assert(result.impacts.some((item) => item.code === "grant-choice-incomplete"));
   assert(result.impacts.every((item) => item.category === "informational"));
@@ -256,6 +655,51 @@ test("incomplete but valid selections remain deterministic informational impacts
     || left.code.localeCompare(right.code)
     || left.nodeId.localeCompare(right.nodeId)
   )));
+});
+
+test("derived ability display snapshots deduplicate labels without merging stable source records", () => {
+  const gameData = structuredClone(GRAPH_GAME_DATA);
+  gameData.classFeatures.ninja.push(
+    {
+      classKey: "ninja",
+      featureKey: "repeated-feat-slot-1",
+      level: 2,
+      name: "Repeated Feat Slot",
+      description: "First independently owned feat slot.",
+      type: "feature",
+      prerequisites: [],
+      grants: [],
+    },
+    {
+      classKey: "ninja",
+      featureKey: "repeated-feat-slot-2",
+      level: 4,
+      name: "Repeated Feat Slot",
+      description: "Second independently owned feat slot.",
+      type: "feature",
+      prerequisites: [],
+      grants: [],
+    },
+  );
+  const result = reconcileCharacterGraph({
+    character: makeGraphCharacter({ level: 4 }),
+    gameData,
+  });
+
+  assert.equal(result.ok, true, JSON.stringify(result.impacts));
+  assert.equal(
+    result.character.builder.autoAbilityNames.filter((name) => name === "Class Feature - Repeated Feat Slot").length,
+    1,
+  );
+  const repeatedAbilities = result.character.builder.sheet.repeatables.abilities
+    .filter((ability) => ability.name === "Class Feature - Repeated Feat Slot");
+  assert.equal(repeatedAbilities.length, 2);
+  assert.equal(new Set(repeatedAbilities.map((ability) => ability.abilityId)).size, 2);
+  assert.equal(new Set(repeatedAbilities.map((ability) => ability.sourceId)).size, 2);
+
+  const idempotent = reconcileCharacterGraph({ character: result.character, gameData });
+  assert.equal(idempotent.ok, true, JSON.stringify(idempotent.impacts));
+  assert.deepEqual(idempotent.character, result.character);
 });
 
 test("affected closure follows ownership, satisfaction, and transitive requirement edges", () => {

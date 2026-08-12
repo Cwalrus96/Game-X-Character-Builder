@@ -1,16 +1,20 @@
 import { getChoiceCountState } from "../../core/choice-capacity.js";
 import { escapeHtml, sanitizeNamedSkillList, sanitizeText } from "../../core/data-sanitization.js";
 import {
-  computeGrantedSkillsState,
   getGameXTechniques,
-  isGameDataRecordSelectable,
 } from "../../core/game-data.js";
+import { computeGrantedSkillsState } from "../../core/skill-rules.js";
+import { isGameDataRecordSelectable } from "../../core/selection-rules.js";
 import { meetsPrerequisites } from "../../core/prerequisites.js";
 import { renderTechniqueProfileHtml } from "../../core/technique-utils.js";
 import { BuilderWidget } from "./builder-widget.js";
 
 function techniqueName(technique) {
   return sanitizeText(technique?.techniqueName || "", { maxLen: 200, collapse: true });
+}
+
+function techniqueKey(technique) {
+  return sanitizeText(technique?.techniqueKey || "", { maxLen: 128, collapse: true });
 }
 
 function techniqueRank(technique) {
@@ -31,6 +35,34 @@ function compareTechniqueOptions(a, b) {
   const bRank = techniqueRank(b);
   if (aRank !== bRank) return aRank - bRank;
   return techniqueName(a).localeCompare(techniqueName(b));
+}
+
+export function getTechniqueChoiceSelectionKey(choice) {
+  return sanitizeText(choice?.techniqueKey || "", { maxLen: 128, collapse: true });
+}
+
+export function buildTechniqueChoicePatch(technique, {
+  sourceId = "",
+  sourceLabel = "",
+} = {}) {
+  const selectedKey = techniqueKey(technique);
+  const skillKey = sanitizeText(
+    Array.isArray(technique?.skillKeys) ? technique.skillKeys[0] : technique?.skillKey,
+    { maxLen: 128, collapse: true },
+  );
+  return {
+    type: "technique",
+    sourceId: selectedKey ? sanitizeText(sourceId, { maxLen: 260, collapse: true }) : "",
+    sourceLabel: selectedKey ? sanitizeText(sourceLabel, { maxLen: 200, collapse: true }) : "",
+    value: "",
+    techniqueKey: selectedKey,
+    skillKey: selectedKey ? skillKey : "",
+    weaponKey: "",
+    rank: 0,
+    customName: "",
+    enhancements: [],
+    tags: [],
+  };
 }
 
 export class TechniqueChoiceWidget extends BuilderWidget {
@@ -122,17 +154,14 @@ export class TechniqueChoiceWidget extends BuilderWidget {
   render() {
     const context = this.getContext();
     const options = this.getAvailableTechniques(context);
-    const selectedTechnique = sanitizeText(this.choice?.techniqueName || this.choice?.value, {
-      maxLen: 200,
-      collapse: true,
-    });
+    const selectedTechniqueKey = getTechniqueChoiceSelectionKey(this.choice);
     const skillLabel = sanitizeText(this.grant?.skill || this.grant?.name || "Technique", {
       maxLen: 96,
       collapse: true,
     });
     const count = Number.parseInt(String(this.grant?.count ?? 1), 10);
     const countState = getChoiceCountState({
-      selectedCount: selectedTechnique ? 1 : 0,
+      selectedCount: selectedTechniqueKey ? 1 : 0,
       expectedCount: Number.isFinite(count) ? Math.max(1, count) : 1,
       noun: "technique",
     });
@@ -149,31 +178,19 @@ export class TechniqueChoiceWidget extends BuilderWidget {
     select.innerHTML = `<option value="">Choose a technique...</option>` + options
       .map((technique) => {
         const name = techniqueName(technique);
+        const key = techniqueKey(technique);
         const rank = techniqueRank(technique);
-        const selected = selectedTechnique === name ? " selected" : "";
-        return `<option value="${escapeHtml(name)}"${selected}>${escapeHtml(name)} (Rank ${rank})</option>`;
+        const selected = selectedTechniqueKey === key ? " selected" : "";
+        return `<option value="${escapeHtml(key)}"${selected}>${escapeHtml(name)} (Rank ${rank})</option>`;
       })
       .join("");
     select.disabled = !this.choiceId || !options.length;
     select.addEventListener("change", () => {
-      const technique = sanitizeText(select.value, { maxLen: 200, collapse: true });
-      this.onChange?.(technique
-        ? {
-            type: "technique",
-            techniqueName: technique,
-            value: technique,
-            skill: skillLabel,
-            sourceId: this.sourceId,
-            sourceLabel: this.sourceLabel,
-          }
-        : {
-            type: "technique",
-            techniqueName: "",
-            value: "",
-            skill: "",
-            sourceId: "",
-            sourceLabel: "",
-          });
+      const selected = options.find((technique) => techniqueKey(technique) === select.value) || null;
+      this.onChange?.(buildTechniqueChoicePatch(selected, {
+        sourceId: this.sourceId,
+        sourceLabel: this.sourceLabel,
+      }));
     });
 
     field.append(label, select);
@@ -191,14 +208,14 @@ export class TechniqueChoiceWidget extends BuilderWidget {
     help.textContent = `Selected: ${countState.selectedCount}/${countState.expectedCount}`;
     field.append(help);
 
-    if (selectedTechnique) {
-      const technique = options.find((item) => techniqueName(item) === selectedTechnique);
+    if (selectedTechniqueKey) {
+      const technique = options.find((item) => techniqueKey(item) === selectedTechniqueKey);
       if (technique) {
         const detail = document.createElement("div");
         detail.className = "help";
         detail.innerHTML = renderTechniqueProfileHtml(technique, {
           rankValue: this.getTechniqueSkillRank(technique, context),
-          heading: selectedTechnique,
+          heading: techniqueName(technique),
           headingTag: "div",
           headingClass: "optionTitle",
           showRank: true,

@@ -1,4 +1,5 @@
 import { computeTechniqueSlots } from "./character-rules.js";
+import { getExplicitFeatSlots, getFeatSelectionState } from "./feat-rules.js?v=wpe10";
 import { getExpectedSelectionIssue } from "./choice-capacity.js";
 import {
   buildGrantChoiceNodeId,
@@ -12,15 +13,13 @@ import { reconcileSelectedOptionKeys, selectedSet, removeSelection } from "./cho
 import { buildOptionKey, sanitizeStringArray, sanitizeText, sanitizeWeaponList } from "./data-sanitization.js";
 import {
   buildTechniqueIndexes,
-  computeGrantedSkillsState,
-  computeKnownCombatSkillsAndGrants,
   getEntryGrants,
   getGameXClassFeatures,
-  getGameXFeatsForClass,
   getGameXTechniques,
-  isGameDataRecordSelectable,
   resolveTechniqueRef,
 } from "./game-data.js";
+import { computeGrantedSkillsState, computeKnownCombatSkillsAndGrants } from "./skill-rules.js";
+import { isGameDataRecordSelectable } from "./selection-rules.js";
 import { buildGeneratedWeaponsFromGrantChoices, isSourceOwnedWeapon } from "./grants.js";
 import { checkPrerequisites, meetsPrerequisites } from "./prerequisites.js";
 import {
@@ -126,10 +125,9 @@ function classFeatureEntries(gameData, builder) {
 }
 
 function availableFeatEntries(gameData, builder) {
-  const classKey = sanitizeText(builder?.classKey || "", { maxLen: 64, collapse: true });
   const level = Number.parseInt(String(builder?.level ?? 1), 10);
   const currentLevel = Number.isFinite(level) ? Math.max(1, Math.min(12, level)) : 1;
-  return getGameXFeatsForClass(gameData, classKey)
+  return getFeatSelectionState(gameData, { ...builder, selectedFeats: [] }).availableFeats
     .filter((feat) => getEntryRequiredLevel(feat) <= currentLevel);
 }
 
@@ -523,19 +521,34 @@ function reconcileFeatSelections(gameData, builder, changes) {
     }
   }
 
-  const maxSlots = Math.floor(Math.max(1, Math.min(12, Number(builder.level || 1))) / 2);
-  if (selectedFeats.size > maxSlots) {
-    for (const name of Array.from(selectedFeats).slice(maxSlots)) {
+  const selectedKeyByName = new Map(
+    Array.from(selectedFeats)
+      .map((name) => [name, visibleFeatByName.get(name)?.featKey || ""])
+      .filter(([, key]) => Boolean(key)),
+  );
+  const featSlots = getExplicitFeatSlots(gameData, builder);
+  const featAllocation = getFeatSelectionState(gameData, {
+    ...builder,
+    selectedFeats: Array.from(selectedKeyByName.values()),
+  }, { slots: featSlots });
+  const unmatchedNames = new Set(
+    featAllocation.unmatchedFeatKeys.map((key) => (
+      Array.from(selectedKeyByName.entries()).find(([, featKey]) => featKey === key)?.[0] || key
+    )),
+  );
+  if (unmatchedNames.size) {
+    for (const name of unmatchedNames) {
       const feat = visibleFeatByName.get(name);
       removeSelection(selectedFeats, name, changes, {
         storagePath: "builder.selectedFeats",
         nodeId: `choice:feat:${name}`,
         label: name,
-        reason: `Only ${maxSlots} feat slot${maxSlots === 1 ? "" : "s"} available at level ${builder.level}.`,
+        reason: "No active explicit feat-granting feature can own this selection.",
       });
       if (feat) deleteSelectedDescendants(feat, selectedFeatOptions);
     }
   }
+  const maxSlots = featSlots.length;
   validateSelectionCount(changes, {
     storagePath: "builder.selectedFeats",
     nodeId: "choice-group:builder.selectedFeats",

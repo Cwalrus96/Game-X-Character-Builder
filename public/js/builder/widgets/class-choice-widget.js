@@ -1,4 +1,5 @@
 import { escapeHtml, sanitizeText } from "../../core/data-sanitization.js";
+import { SetClass } from "../../core/character-commands.js?v=wpe1";
 import { BuilderWidget } from "./builder-widget.js";
 
 function compareClassNames(a, b) {
@@ -8,9 +9,6 @@ function compareClassNames(a, b) {
 export function buildClassChangePatch(nextClassKey) {
   return {
     "builder.classKey": sanitizeText(nextClassKey, { maxLen: 64, collapse: true }),
-    // Primary attributes are not graph-backed yet. Reset this direct
-    // class-owned value without pre-clearing graph-owned dependent choices.
-    "builder.primaryAttribute": "",
   };
 }
 
@@ -62,15 +60,16 @@ export class ClassChoiceWidget extends BuilderWidget {
     this.selectEl.addEventListener("change", async () => {
       const previousValue = sanitizeText(this.getValue(), { maxLen: 64, collapse: true });
       const nextValue = this.value();
-      const result = await this.page?.requestChoiceChange?.(this, this.getChangePatch(nextValue), {
-        applyWidgetChange: (preview) => {
-          this.setValue(nextValue);
-          if (this.selectEl) this.selectEl.value = nextValue;
-          this.onChange?.(nextValue, preview);
+      const result = await this.page?.requestCharacterCommand?.(this, SetClass(nextValue), {
+        applyWidgetChange: (proposal) => {
+          const acceptedValue = proposal?.reconciled?.builder?.classKey ?? nextValue;
+          this.setValue(acceptedValue);
+          if (this.selectEl) this.selectEl.value = acceptedValue;
+          this.onChange?.(acceptedValue, proposal);
         },
       });
       if (result && !result.ok && this.selectEl) this.selectEl.value = previousValue;
-      if (!result) {
+      if (!this.page?.requestCharacterCommand) {
         this.setValue(nextValue);
         this.onChange?.(nextValue);
       }

@@ -4,7 +4,7 @@ import {
   createDefaultCharacter,
   encodeCharacter,
 } from "./character-codec.js";
-import { migrateCharacterDocument } from "./character-migrations.js";
+import { migrateCharacterDocument } from "./character-migrations.js?v=wpe6";
 import { isSheetOwnedUpdatePath } from "./sheet-state.js";
 
 export const INITIAL_CHARACTER_REVISION = 1;

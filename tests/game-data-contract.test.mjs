@@ -13,7 +13,7 @@ import {
   SUPPORTED_STRUCTURED_PREREQUISITE_TYPES,
 } from "../public/js/core/game-data-contract.js";
 import { VALID_GRANT_TYPES } from "../public/js/core/grants.js";
-import { isGameDataRecordSelectable } from "../public/js/core/game-data.js";
+import { isGameDataRecordSelectable } from "../public/js/core/selection-rules.js";
 import { VALID_PREREQUISITE_TYPES } from "../public/js/core/prerequisites.js";
 
 test("runtime grant and prerequisite enums are derived from the shared typed registries", () => {

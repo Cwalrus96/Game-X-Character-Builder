@@ -101,19 +101,6 @@ export function buildConstrainedSkillRankOptionsHtml(selectedValue = "", { maxAl
     .join("");
 }
 
-export function getBondRulesState({ level, heart } = {}) {
-  const normalizedLevel = clampLevel(level ?? 1);
-  const normalizedHeart = toInt(heart ?? 0, { min: 0, max: 99 });
-  return {
-    level: normalizedLevel,
-    heart: normalizedHeart,
-    rankCap: Math.max(1, getStandardSkillRankCap(normalizedLevel)),
-    bondCountCap: normalizedHeart,
-  };
-}
-
-
-
 export function getStandardSkillRankCap(level) {
   const L = clampLevel(level);
   return Math.min(6, Math.floor((L + 1) / 2));
@@ -174,6 +161,93 @@ export function getAttributeEffectiveCap(level, attrKey, primaryAttrKey) {
   if (!a) return cap;
   if (L <= 2 && p && a !== p) return Math.max(0, cap - 1);
   return cap;
+}
+
+export function getAttributePointUsage(attributes, primaryAttrKey) {
+  const values = normalizeAttributes(attributes || {}, { min: 0, max: 10 });
+  const primary = coerceAttrKey(primaryAttrKey);
+  return ATTR_KEYS.reduce((total, key) => (
+    total + Math.max(0, values[key] - (key === primary ? 1 : 0))
+  ), 0);
+}
+
+// Complete read-only allocation policy for graph facts and UI limits. Consumers
+// render or compile this result; they do not reconstruct attribute arithmetic.
+export function getAttributeAllocationState({ level, primaryAttribute, attributes } = {}) {
+  const values = normalizeAttributes(attributes || {}, { min: 0, max: 10 });
+  const primary = coerceAttrKey(primaryAttribute);
+  const capacity = getAttributePointsToSpend(level);
+  const usage = getAttributePointUsage(values, primary);
+  const remaining = capacity - usage;
+  const limits = {};
+
+  for (const key of ATTR_KEYS) {
+    const isPrimary = key === primary;
+    const minimum = isPrimary ? 1 : 0;
+    const cap = getAttributeEffectiveCap(level, key, primary);
+    const freeBonus = isPrimary ? 1 : 0;
+    const currentBase = Math.max(0, values[key] - freeBonus);
+    const budgetMaximum = remaining >= 0
+      ? currentBase + remaining + freeBonus
+      : cap;
+    limits[key] = Object.freeze({
+      minimum,
+      cap,
+      maximumAssignable: Math.max(minimum, Math.min(cap, budgetMaximum)),
+    });
+  }
+
+  return Object.freeze({
+    level: clampLevel(level),
+    primaryAttribute: primary,
+    attributes: Object.freeze(values),
+    capacity,
+    usage,
+    remaining,
+    finalCap: getAttributeFinalCap(level),
+    limits: Object.freeze(limits),
+  });
+}
+
+// Deterministically removes overspent base points. Per-attribute caps and the
+// primary minimum come from getAttributeAllocationState; this helper owns the
+// shared total-point repair used by graph reconciliation.
+export function fitAttributesToPointBudget({ level, primaryAttribute, attributes } = {}) {
+  const values = normalizeAttributes(attributes || {}, { min: 0, max: 10 });
+  const primary = coerceAttrKey(primaryAttribute);
+  const allocation = getAttributeAllocationState({ level, primaryAttribute: primary, attributes: values });
+  const capacity = allocation.capacity;
+  const beforeUsage = allocation.usage;
+  let remainingReduction = Math.max(0, beforeUsage - capacity);
+  const reductions = [];
+
+  const baseValue = (key) => Math.max(0, values[key] - (key === primary ? 1 : 0));
+  const order = ATTR_KEYS
+    .map((key, index) => ({ key, index }))
+    .sort((left, right) => (
+      Number(left.key === primary) - Number(right.key === primary)
+      || baseValue(right.key) - baseValue(left.key)
+      || left.index - right.index
+    ));
+
+  for (const { key } of order) {
+    if (remainingReduction === 0) break;
+    const currentBase = baseValue(key);
+    const reduction = Math.min(currentBase, remainingReduction);
+    if (reduction === 0) continue;
+    const before = values[key];
+    values[key] -= reduction;
+    reductions.push(Object.freeze({ key, before, after: values[key], reduction }));
+    remainingReduction -= reduction;
+  }
+
+  return Object.freeze({
+    attributes: Object.freeze(values),
+    capacity,
+    beforeUsage,
+    usage: getAttributePointUsage(values, primary),
+    reductions: Object.freeze(reductions),
+  });
 }
 
 // ---- Derived sheet fields ----

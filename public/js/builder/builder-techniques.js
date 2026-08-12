@@ -3,9 +3,6 @@
 
 import {
   initBuilderAuth,
-  loadCharacterDoc,
-  saveCharacterPatch,
-  markStepVisited,
   openCharacterSheet,
   setStatus,
   showError,
@@ -16,10 +13,14 @@ import {
 } from "./builder-common.js";
 
 import { renderBuilderNavMounts } from "./builder-nav.js";
-import { BuilderPage } from "./builder-page.js";
-import { TechniquesWidget } from "./widgets/techniques-widget.js";
+import { getBuilderStepInformationalMessages } from "./builder-step-impacts.js?v=wpe11";
+import { CharacterSessionPage } from "./character-session-page.js?v=wpe10";
+import { TechniquesWidget } from "./widgets/techniques-widget.js?v=wpe1";
 
-import { reconcileBuilderChange } from "../core/builder-dependencies.js";
+import { SetTechniqueSelection, VisitBuilderStep } from "../core/character-commands.js?v=wpe1";
+import { readCharacter } from "../core/database-reader.js?v=wpe6";
+import { replaceCharacter } from "../core/database-writer.js?v=wpe1";
+import { reconcileCharacterGraph } from "../core/graph-reconciler.js?v=wpe10";
 import {
   loadGameXData,
   getGameXTechniques,
@@ -49,8 +50,6 @@ const saveAndOpenBtn = document.getElementById("saveAndOpenBtn");
 /** @type {any} */
 let ctx = null;
 /** @type {any} */
-let charRef = null;
-/** @type {any} */
 let currentDoc = null;
 /** @type {any} */
 let gameData = null;
@@ -61,27 +60,7 @@ let selectedTechniques = new Set();
 /** @type {TechniquesWidget | null} */
 let techniquesWidget = null;
 
-class TechniquesBuilderPage extends BuilderPage {}
-
-const techniquesPage = new TechniquesBuilderPage({
-  stepId: CURRENT_STEP_ID,
-  getGameData: () => gameData,
-  getBuilder: () => currentDoc?.builder || {},
-  onWorkingBuilderChange: (builder) => {
-    currentDoc = currentDoc || {};
-    currentDoc.builder = builder;
-    selectedTechniques = new Set(Array.isArray(builder?.selectedTechniques) ? builder.selectedTechniques : []);
-  },
-  applyReconciledBuilder: (builder) => {
-    if (Array.isArray(builder?.selectedTechniques)) {
-      selectedTechniques = new Set(builder.selectedTechniques);
-    }
-  },
-});
-
-function applyLocalBuilderPatch(patch) {
-  techniquesPage.applyPatchToWorkingBuilder(patch);
-}
+let techniquesPage = null;
 
 function renderNav() {
   renderBuilderNavMounts({
@@ -93,17 +72,31 @@ function renderNav() {
 }
 
 function getSaveIssues(reconciliation) {
-  const errors = Array.isArray(reconciliation?.errors) ? reconciliation.errors : [];
-  const warnings = Array.isArray(reconciliation?.warnings) ? reconciliation.warnings : [];
-  return { errors, warnings: Array.from(new Set(warnings)) };
+  const impacts = Array.isArray(reconciliation?.impacts) ? reconciliation.impacts : [];
+  return {
+    errors: impacts.filter((impact) => impact.category === "error").map((impact) => impact.message || impact.code),
+    warnings: getBuilderStepInformationalMessages(reconciliation, CURRENT_STEP_ID),
+  };
 }
 
 async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
   clearError(errorEl);
   setStatus(statusEl, "Saving...");
 
-  const widgetPatch = techniquesPage.getWidgetSavePatch({ currentDoc });
-  const reconciliation = reconcileBuilderChange(gameData, techniquesPage.getWorkingBuilder(), widgetPatch);
+  const refresh = await techniquesPage.requestCharacterCommand(
+    null,
+    SetTechniqueSelection([...selectedTechniques]),
+  );
+  if (!refresh.ok) {
+    showError(errorEl, refresh.errors?.join(" ") || "The technique selection could not be reconciled.");
+    setStatus(statusEl, "Not saved.");
+    return false;
+  }
+  const reconciliation = reconcileCharacterGraph({
+    character: techniquesPage.getCharacter(),
+    previousCharacter: techniquesPage.getCharacter(),
+    gameData,
+  });
   const { errors, warnings } = getSaveIssues(reconciliation);
 
   if (errors.length) {
@@ -125,25 +118,42 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
     }
   }
 
-  try {
-    await saveCharacterPatch(charRef, reconciliation.patch);
-    applyLocalBuilderPatch(reconciliation.patch);
-    techniquesWidget?.render();
-    setStatus(statusEl, "Saved.");
-    markBuilderNavigationClean();
-    if (openSheetAfter) openCharacterSheet(ctx);
-    return true;
-  } catch (e) {
-    console.error(e);
-    showError(errorEl, "Could not save.");
+  const visited = await techniquesPage.requestCharacterCommand(null, VisitBuilderStep(CURRENT_STEP_ID));
+  if (!visited.ok) {
+    showError(errorEl, visited.errors?.join(" ") || "The visited builder step could not be recorded.");
+    setStatus(statusEl, "Not saved.");
+    return false;
+  }
+
+  const saved = await techniquesPage.save((snapshot) => replaceCharacter({
+    ownerUid: ctx.editingUid,
+    characterId: ctx.charId,
+    character: snapshot.character,
+    expectedRevision: snapshot.expectedRevision,
+  }));
+  if (!saved.ok) {
+    console.error(saved.error);
+    showError(errorEl, saved.error?.code === "character-revision-conflict"
+      ? "This character changed in another tab. Reload before saving again."
+      : "Could not save.");
     setStatus(statusEl, "Error.");
     return false;
   }
+  currentDoc = saved.state.working;
+  selectedTechniques = new Set(currentDoc.builder.selectedTechniques);
+  techniquesWidget?.render();
+  setStatus(statusEl, "Saved.");
+  markBuilderNavigationClean();
+  if (openSheetAfter) openCharacterSheet(ctx);
+  return true;
 }
 
 function previewStoredTechniques() {
-  const widgetPatch = techniquesPage.getWidgetSavePatch({ currentDoc });
-  return techniquesPage.previewChoiceChange(widgetPatch);
+  return reconcileCharacterGraph({
+    character: techniquesPage.getCharacter(),
+    previousCharacter: techniquesPage.getCharacter(),
+    gameData,
+  });
 }
 
 async function main() {
@@ -160,11 +170,29 @@ async function main() {
     techIndexes = buildTechniqueIndexes(getGameXTechniques(gameData));
 
     setStatus(statusEl, "Loading character...");
-    const loaded = await loadCharacterDoc(ctx.editingUid, ctx.charId);
-    charRef = loaded.charRef;
-    currentDoc = loaded.characterDoc;
-    techniquesPage.hydrateBuilder(currentDoc?.builder || {});
-    await markStepVisited(charRef, CURRENT_STEP_ID);
+    const loaded = await readCharacter({
+      ownerUid: ctx.editingUid,
+      characterId: ctx.charId,
+      gameData,
+    });
+    currentDoc = loaded.character;
+    techniquesPage = new CharacterSessionPage({
+      character: loaded.character,
+      revision: loaded.revision,
+      metadata: loaded.metadata,
+      gameData,
+      confirmImpacts: async ({ messages }) => confirmSaveWarnings({
+        title: "Apply this change?",
+        warnings: messages,
+        okText: "Apply Change",
+        cancelText: "Cancel",
+      }),
+      onCommandRejected: ({ errors }) => showError(errorEl, errors.join(" ") || "That change is not valid."),
+      onStateChange: (state) => {
+        currentDoc = state.working;
+        selectedTechniques = new Set(currentDoc.builder.selectedTechniques);
+      },
+    });
 
     const stored = Array.isArray(currentDoc?.builder?.selectedTechniques) ? currentDoc.builder.selectedTechniques : [];
     selectedTechniques = new Set(stored.map((value) => String(value || "").trim()).filter(Boolean));
@@ -189,13 +217,13 @@ async function main() {
     });
 
     const initialPreview = previewStoredTechniques();
-    if (initialPreview.changes.some((change) => change?.type === "remove")) {
-      selectedTechniques = new Set(Array.isArray(initialPreview.reconciledBuilder?.selectedTechniques)
-        ? initialPreview.reconciledBuilder.selectedTechniques
-        : []);
+    if (initialPreview.impacts.some((impact) => impact?.category === "confirmation-required")) {
       showError(
         errorEl,
-        `Some stored technique selections were adjusted to match your current character. Please review and save. ${initialPreview.warnings.join(" ")}`
+        `Some stored technique selections need review before they can be saved. ${initialPreview.impacts
+          .filter((impact) => impact.category === "confirmation-required")
+          .map((impact) => impact.message || impact.code)
+          .join(" ")}`
       );
       setStatus(statusEl, "Review needed.");
     } else {

@@ -14,6 +14,8 @@ raw Firestore document -> CharacterMigrations -> CharacterCodec -> exact v5 stat
 
 Recognized historical documents migrate only in memory. A read never writes the migrated result to Firebase. Invalid, unresolved, future-version, owner-mismatched, or malformed documents fail with structured diagnostics instead of being defaulted or sanitized.
 
+Known v4 account-import envelopes are supported, including their obsolete import timestamps, duplicate derived ability-name snapshots, and source-owned class-option answers whose old display/composite identities can be proven against reviewed game data. Identity-bearing repeated records are preserved. The reader still fails closed for unknown fields, ambiguous owners, or references that cannot be proven.
+
 The returned canonical character contains only `schemaVersion`, `ownerUid`, and `builder`. `createdAt`, `updatedAt`, historical `lastVisitedAt`, and `revision` are returned separately as persistence metadata.
 
 ## Write contract
@@ -47,9 +49,9 @@ The Firebase SDK and database instance are injectable for emulator verification.
 
 ## Transitional deployment boundary
 
-The definitive v5 APIs are implemented in the existing reader/writer modules, but the deployed pages still call their clearly marked transitional v4 exports. Those callers cannot switch safely until reviewed runtime game data supplies stable `techniqueKey` values and the affected builder domains consume v5 stable-key state. The frozen production schema-v1 artifacts contain technique display names only.
+The definitive v5 APIs are implemented in the existing reader/writer modules, and every local-review builder domain now calls them. The production deployment and deletion of clearly marked transitional v4 exports remain blocked on focused signed-in acceptance. Reviewed runtime stable keys are already available; the remaining gate is behavioral acceptance, not data identity.
 
-Until that prerequisite is satisfied:
+Until that acceptance gate is satisfied:
 
 - do not stamp transitional partial writes as v5;
 - do not duplicate migration or compatibility logic in pages;

@@ -1,7 +1,8 @@
 import { getChoiceCountState } from "../../core/choice-capacity.js";
 import { sanitizeText } from "../../core/data-sanitization.js";
+import { getFeatSelectionState } from "../../core/feat-rules.js?v=wpe10";
 import { BuilderWidget } from "./builder-widget.js";
-import { FeatWidget } from "./feat-widget.js";
+import { FeatWidget } from "./feat-widget.js?v=wpe1";
 
 function setPrerequisiteNotice(el, unavailableCount, hiddenCount) {
   if (!el) return;
@@ -27,8 +28,8 @@ export class FeatsWidget extends BuilderWidget {
     setSelectedFeatNames = null,
     getSelectedFeatOptionKeys = null,
     setSelectedFeatOptionKeys = null,
-    getAvailableFeats = null,
-    getFeatSlots = null,
+    getGameData = null,
+    getBuilder = null,
     showUnavailable = null,
     checkEntryPrerequisites = null,
     renderOptionGroup = null,
@@ -46,8 +47,8 @@ export class FeatsWidget extends BuilderWidget {
     this.setSelectedFeatNames = typeof setSelectedFeatNames === "function" ? setSelectedFeatNames : () => {};
     this.getSelectedFeatOptionKeys = typeof getSelectedFeatOptionKeys === "function" ? getSelectedFeatOptionKeys : () => new Set();
     this.setSelectedFeatOptionKeys = typeof setSelectedFeatOptionKeys === "function" ? setSelectedFeatOptionKeys : () => {};
-    this.getAvailableFeats = typeof getAvailableFeats === "function" ? getAvailableFeats : () => [];
-    this.getFeatSlots = typeof getFeatSlots === "function" ? getFeatSlots : () => 0;
+    this.getGameData = typeof getGameData === "function" ? getGameData : () => ({});
+    this.getBuilder = typeof getBuilder === "function" ? getBuilder : () => ({});
     this.showUnavailable = typeof showUnavailable === "function" ? showUnavailable : () => true;
     this.checkEntryPrerequisites = typeof checkEntryPrerequisites === "function"
       ? checkEntryPrerequisites
@@ -80,7 +81,6 @@ export class FeatsWidget extends BuilderWidget {
     let unavailableCount = 0;
     const classKey = this.getClassKey();
     const level = this.getLevel();
-    const maxSlots = this.getFeatSlots(level);
     const selectedFeatNames = this.selectedFeatNames();
     const selectedFeatOptionKeys = this.selectedFeatOptionKeys();
 
@@ -91,22 +91,29 @@ export class FeatsWidget extends BuilderWidget {
       return this.containerEl;
     }
 
-    const visible = this.getAvailableFeats({ builder: { classKey, level } });
+    const featState = getFeatSelectionState(this.getGameData(), {
+      ...this.getBuilder(),
+      classKey,
+      level,
+      selectedFeats: Array.from(selectedFeatNames),
+    });
+    const maxSlots = featState.capacity;
+    const visible = featState.availableFeats;
     const countState = getChoiceCountState({
       selectedCount: selectedFeatNames.size,
       expectedCount: maxSlots,
       noun: "feat",
     });
-    if (this.hintEl) this.hintEl.textContent = `Slots: ${countState.selectedCount}/${countState.expectedCount}`;
+    if (this.hintEl) this.hintEl.textContent = `Explicit feat choices: ${countState.selectedCount}/${countState.expectedCount}`;
 
     if (maxSlots <= 0) {
-      this.containerEl.innerHTML = `<p class="muted">No feat slots at level ${level}. (First slot at level 2.)</p>`;
+      this.containerEl.innerHTML = `<p class="muted">No active feature currently grants a feat choice.</p>`;
       setPrerequisiteNotice(this.prereqNoticeEl, 0, 0);
       return this.containerEl;
     }
 
     if (!visible.length) {
-      this.containerEl.innerHTML = `<p class="muted">No feats available for this class at your level.</p>`;
+      this.containerEl.innerHTML = `<p class="muted">No published feats match the active explicit feat grants.</p>`;
       setPrerequisiteNotice(this.prereqNoticeEl, 0, 0);
       return this.containerEl;
     }

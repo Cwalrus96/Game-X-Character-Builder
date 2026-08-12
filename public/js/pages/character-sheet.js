@@ -29,9 +29,8 @@ import {
   getOriginByKey,
   buildTechniqueIndexes,
   resolveTechniqueRef,
-  computeKnownCombatSkillsAndGrants,
-  computeGrantedSkillsState,
 } from "../core/game-data.js";
+import { computeKnownCombatSkillsAndGrants, computeGrantedSkillsState } from "../core/skill-rules.js";
 import {
   computeWeaponSlotCost,
   getEffectiveTags,

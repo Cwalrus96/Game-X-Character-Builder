@@ -29,13 +29,13 @@ Every listed field is required. No additional builder fields are accepted.
 | `name`, `portraitPath` | Canonical user text and a canonical Storage path. Empty is allowed. |
 | `level` | Integer from 1 through 12. |
 | `classKey`, `originKey`, `primaryAttribute` | Stable game-data keys; empty while unanswered. `primaryAttribute`, when set, is one of the six attribute keys. |
-| `attributes` | Exact map of `strength`, `agility`, `intellect`, `willpower`, `attunement`, and `heart`; integer values obey the level and primary-attribute caps. |
+| `attributes` | Exact map of `strength`, `agility`, `intellect`, `willpower`, `attunement`, and `heart`; structurally each value is an integer from 0 through 10. Effective level caps and the primary-attribute minimum are game rules enforced by graph reconciliation before state is accepted. |
 | `originKeystone` | Optional user-facing text. |
 | `selectedClassFeatureOptions`, `selectedClassUtilitySkills`, `selectedFeats`, `selectedFeatOptions`, `selectedTechniques` | Duplicate-free arrays of stable game-data keys. Display names and schema-v4 composite option labels are migration inputs, not valid v5 references. |
 | `autoAbilityNames` | Transitional duplicate-free display-name snapshot retained so migrations and reconciliation can prove parity while source-owned ability IDs are introduced. It is not selection identity. |
 | `grantedCoreSkillSnapshot`, `grantedSkillSnapshot` | Transitional duplicate-free stable-key snapshots retained for migration and reconciliation parity. |
-| `bonds` | Ordered exact bond records. |
-| `backgroundKeystones` | At most two optional keystone texts. |
+| `bonds` | Ordered exact bond records. User-owned IDs are supplied by the interaction boundary; `grant-bond:*` is reserved for deterministic graph-materialized source-owned records. Source ownership is graph metadata derived from the active grant, not a duplicate stored field. |
+| `backgroundKeystones` | At most two optional canonical non-empty keystone texts; order represents the first and second displayed slots. |
 | `weapons` | Ordered exact weapon records. |
 | `grantChoices` | Map of exact source-owned answer records keyed by `choiceId`. |
 | `resources` | Map of exact resource state records keyed by `resourceKey`. |

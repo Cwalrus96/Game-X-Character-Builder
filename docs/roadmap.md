@@ -390,6 +390,8 @@ Evidence:
 
 Status: `active`
 
+Current checkpoint: the Class/Feat/Technique, Equipment, and Attributes implementations are available in the local review environment. Their focused signed-in browser scenarios remain pending, so their compatibility helpers are retained and Origin/Skills has not started.
+
 Prerequisite: `WPC-MIGRATIONS`
 
 The reviewed schema-v2 production release now supplies stable `techniqueKey` values, satisfying the data prerequisite. Switching the deployed persistence path still requires the affected Work Package E domain integration and its acceptance boundaries.
@@ -521,7 +523,9 @@ Evidence:
 
 ### `WPE-DOMAIN-MIGRATION`
 
-Status: `ready`
+Status: `active`
+
+Current checkpoint: all planned vertical slices now have automated implementations. Class/Feat/Technique, Equipment, Attributes, Origin/Skills, and Bonds/Keystones/derived abilities use the session/graph path in the local review environment, and the Boon registry adapter proves that a new automatic choice type can be added without a page-controller or graph-traversal branch. Signed-in browser acceptance resumed on 2026-08-30. Its first historical-character Class-page scenario exposed and repaired a v4 migration-coverage gap plus stable-key presentation bindings. Its first save attempt then exposed a graph-derived display snapshot that repeated the shared label of two independently owned class-feature abilities; reconciliation now keeps that non-identity snapshot duplicate-free while preserving both stable ability records. A subsequent save preview exposed that typed `feat` grants were still deferred while the page and compiler manufactured capacity from `floor(level / 2)`. The approved direction now makes explicit feature grants the only source of feat choices: shared pure Rules materialize filtered source-owned slots and both graph and widget consume that projection. Save-time incomplete notices are now scoped by exact current-page field ownership, so pages do not warn about untouched choices elsewhere in the builder; blocking errors and destructive proposal consequences remain global. Skills/Bonds acceptance then exposed locked class-granted utility ranks and widget-wide disabling that captured page Save/Keystone controls; shared Skill Rules now treat grants as free floors with paid increases, and portable widgets disable only their own controls. Focused browser re-acceptance is still pending, so no compatibility path has been removed and production deployment remains blocked.
 
 Prerequisite: `WPD-GRAPH-CORE`. Deployed class/feat/technique cutover also requires reviewed runtime stable keys and coordination with the active `WPC-REPOSITORY` page-integration boundary.
 
@@ -529,7 +533,11 @@ Goal: replace the transitional page/widget dependency policy with typed commands
 
 Plain-language overview: a **domain** is one related area of character building, including its screen controls, character fields, rules, dependencies, saving/loading behavior, and tests. A **vertical slice** means migrating that complete path from the browser control all the way through state management, dependency reconciliation, and Firebase persistence. It does not mean rewriting one technical layer for every feature at once.
 
-The application currently has two generations of architecture. The deployed builder pages still assemble mutable page/widget state and send broad patches through transitional dependency code. The new core already provides an exact schema-v5 character model, a `CharacterSession` that protects proposed versus accepted edits, a typed dependency graph, deterministic reconciliation, and revision-aware persistence. `WPE-DOMAIN-MIGRATION` connects those pieces to real pages while preserving existing behavior.
+The application currently has two generations of architecture. The deployed builder pages still assemble mutable page/widget state and send broad patches through transitional dependency code. The new core already provides an exact schema-v5 character model, a `CharacterSession` that protects proposed versus accepted edits, one Character Dependency Graph subsystem with separate compilation and fixed-point reconciliation operations, and revision-aware persistence. `WPE-DOMAIN-MIGRATION` connects those pieces to real pages while preserving existing behavior.
+
+Migrated widgets are portable interactive UI components, not data-only adapters: they own their DOM/accessibility/interaction behavior and emit typed intent through injected actions, but never own a second character model, dependency policy, or database writes. Pages coordinate exact session save snapshots with the separate database reader/writer. `CharacterCodec` remains the sole whole-character structural validator; every other validation boundary stays narrow to input, commands, game rules, graph integrity, or persistence.
+
+Pure Rules modules are the sole source of mechanic formulas, limits, eligibility, capacity, and allocation projections. Graph compilation records imported Rules results, reconciliation applies and reports them, and widgets render the same imported results. Compiler, reconciler, page, and widget code must not reconstruct those calculations independently; automated architecture tests enforce this boundary for each migrated domain.
 
 For the first class/feat/technique slice, a user action such as lowering a character from level 5 to level 3 will become a typed statement of intent. `CharacterSession` creates a protected proposal; the graph determines which feat, class option, or technique would become invalid or exceed capacity; the UI displays structured errors, confirmations, or informational notices; cancellation changes nothing; acceptance saves the exact reviewed reconciled state through the v5 reader/writer. Page and widget code will no longer independently decide what to delete or how many selections fit.
 
@@ -545,6 +553,19 @@ Each slice follows the same sequence:
 This incremental order limits risk: a migrated domain has one clear authority, while untouched domains continue on their documented compatibility path. The first slice is class/feat/technique because the graph already covers much of that behavior and the published schema-v2 game data now supplies the required stable keys. Fixture success alone does not authorize production cutover, Firebase data migration, game-data publishing, or removal of legacy code before browser acceptance.
 
 Migrate vertical domains in this order: current class/feat/technique slice; Equipment; Attributes; Origin/Skills; Bonds/Keystones/derived abilities; then Boons as the extensibility proof.
+
+Implemented evidence for the final slices:
+
+- class-granted utility skills now supply a free minimum rank while remaining editable up to the shared rank cap; core and named setting skills charge only ranks above the grant, preserve paid ranks through reconciliation, and cannot be repaired below the granted floor;
+- Skills and Bonds widgets restrict command-busy disabling to their own interactive controls, leaving page-owned Save actions outside widget authority and restoring both Background Keystone inputs after every command;
+- `builder-step-impacts.js` centrally maps each migrated builder step to the exact character paths it can edit. All migrated pages use that map to present only current-page informational save notices, without visit-history state and without hiding blocking errors or confirmation-required consequences;
+- `feat-rules.js` is the sole source of explicit feat-grant slots, filters/max levels, deterministic assignment, and widget availability; the level-derived automatic slot formula was removed from both replacement and compatibility paths;
+- the graph registers typed `feat` grants and stable `feat-slot` nodes, binds each selected feat to its answer-producing slot, and reviews source removal while preserving the existing ordered-key-array persistence contract;
+- `bond-rules.js` is the sole formula/projection source for Heart-based user Bond capacity, level rank caps, two Background Keystone slots, source-owned Bond identity, and deterministic fitting;
+- exact Bond and Background Keystone commands flow through the portable widget, `CharacterSession`, graph reconciliation, and revision-aware whole-character replacement;
+- the graph compiles stable Bond/Keystone nodes and `bond` grant effects, materializes Artifact/Patron Bonds outside user Heart capacity, keeps source rank authoritative, and reviews source-owned Bond plus derived-ability removal together;
+- the Boon proof uses graph and widget extension registries plus an isolated Rules adapter/widget; tests prove the generic compiler traversal and existing page controllers contain no Boon-specific branch;
+- automated unit acceptance covers limits, direct intent, stable bindings, source ownership, published Artifact/Patron grants, fixed-point idempotence, destructive cancellation, persistence independence, and the Boon extension seam.
 
 Acceptance:
 

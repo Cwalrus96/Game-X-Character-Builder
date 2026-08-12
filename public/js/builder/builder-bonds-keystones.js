@@ -1,282 +1,153 @@
 import {
+  clearError,
+  confirmSaveWarnings,
+  ensureBuilderShellUi,
   initBuilderAuth,
-  loadCharacterDoc,
-  saveCharacterPatch,
+  markBuilderNavigationClean,
   openCharacterSheet,
   setStatus,
   showError,
-  clearError,
-  markStepVisited,
-  confirmSaveWarnings,
-  ensureBuilderShellUi,
-  markBuilderNavigationClean,
 } from "./builder-common.js";
 import { renderBuilderNavMounts } from "./builder-nav.js";
-import { buildBondsKeystonesUpdatePatch } from "../core/database-writer.js";
-import { buildConstrainedSkillRankOptionsHtml, getBondRulesState } from "../core/character-rules.js";
-import { sanitizeBondList, sanitizeKeystoneList, sanitizeText } from "../core/data-sanitization.js";
+import { getBuilderStepInformationalMessages } from "./builder-step-impacts.js?v=wpe11";
+import { CharacterSessionPage } from "./character-session-page.js?v=wpe13";
+import { BondsKeystonesWidget } from "./widgets/bonds-keystones-widget.js?v=wpe13";
+import { VisitBuilderStep } from "../core/character-commands.js?v=wpe5";
+import { readCharacter } from "../core/database-reader.js?v=wpe6";
+import { replaceCharacter } from "../core/database-writer.js?v=wpe1";
+import { loadGameXData } from "../core/game-data.js";
+import { reconcileCharacterGraph } from "../core/graph-reconciler.js?v=wpe13";
 
-const CURRENT_STEP_ID = document.querySelector("[data-builder-step]")?.getAttribute("data-builder-step") || "bonds-keystones";
-
+const CURRENT_STEP_ID = "bonds-keystones";
 ensureBuilderShellUi();
 
-const signOutBtn = document.getElementById("signOutBtn");
-const gmHintEl = document.getElementById("gmHint");
-const statusEl = document.getElementById("status");
-const errorEl = document.getElementById("error");
-const levelValueEl = document.getElementById("levelValue");
-const heartValueEl = document.getElementById("heartValue");
-const bondRankCapValueEl = document.getElementById("bondRankCapValue");
-const bondCountValueEl = document.getElementById("bondCountValue");
-const bondStatusHintEl = document.getElementById("bondStatusHint");
-const bondRulesHelpEl = document.getElementById("bondRulesHelp");
-const bondCountHelpEl = document.getElementById("bondCountHelp");
+const elements = {
+  root: document.querySelector("main.builder"),
+  signOutBtn: document.getElementById("signOutBtn"),
+  gmHint: document.getElementById("gmHint"),
+  status: document.getElementById("status"),
+  error: document.getElementById("error"),
+  saveBtn: document.getElementById("saveBtn"),
+  saveAndOpenBtn: document.getElementById("saveAndOpenBtn"),
+  levelValue: document.getElementById("levelValue"),
+  heartValue: document.getElementById("heartValue"),
+  bondRankCapValue: document.getElementById("bondRankCapValue"),
+  bondCountValue: document.getElementById("bondCountValue"),
+  bondStatusHint: document.getElementById("bondStatusHint"),
+  bondRulesHelp: document.getElementById("bondRulesHelp"),
+  bondCountHelp: document.getElementById("bondCountHelp"),
+  addBondBtn: document.getElementById("addBondBtn"),
+  bondList: document.getElementById("bondList"),
+  bondRowTemplate: document.getElementById("bondRowTemplate"),
+  backgroundKeystone1: document.getElementById("backgroundKeystone1"),
+  backgroundKeystone2: document.getElementById("backgroundKeystone2"),
+};
 
-const addBondBtn = document.getElementById("addBondBtn");
-const bondListEl = document.getElementById("bondList");
-const bondRowTemplate = document.getElementById("bondRowTemplate");
+let ctx;
+let currentDoc;
+let gameData;
+let page;
+let widget;
 
-const backgroundKeystone1El = document.getElementById("backgroundKeystone1");
-const backgroundKeystone2El = document.getElementById("backgroundKeystone2");
-
-const saveBtn = document.getElementById("saveBtn");
-const saveAndOpenBtn = document.getElementById("saveAndOpenBtn");
-
-let ctx = null;
-let charRef = null;
-let currentDoc = null;
-let bonds = [];
-let backgroundKeystones = ["", ""];
-
-function currentBondRules() {
-  return getBondRulesState({
-    level: currentDoc?.builder?.level ?? 1,
-    heart: currentDoc?.builder?.attributes?.heart ?? 0,
-  });
+function bondIssues(reconciliation) {
+  const relevant = (impact) => impact.path.startsWith("builder.bonds")
+    || impact.path.startsWith("builder.backgroundKeystones")
+    || impact.code.includes("bond")
+    || impact.code.includes("keystone");
+  return {
+    errors: reconciliation.impacts.filter((item) => item.category === "error" && relevant(item)).map((item) => item.message || item.code),
+    warnings: getBuilderStepInformationalMessages(reconciliation, CURRENT_STEP_ID),
+    confirmations: reconciliation.impacts.filter((item) => item.category === "confirmation-required" && relevant(item)),
+  };
 }
 
-function syncBackgroundStateFromInputs() {
-  backgroundKeystones = sanitizeKeystoneList([
-    backgroundKeystone1El?.value || "",
-    backgroundKeystone2El?.value || "",
-  ], { maxItems: 2, maxLen: 400 });
-}
-
-function fillBackgroundInputs() {
-  const values = [...backgroundKeystones];
-  while (values.length < 2) values.push("");
-  if (backgroundKeystone1El) backgroundKeystone1El.value = values[0] || "";
-  if (backgroundKeystone2El) backgroundKeystone2El.value = values[1] || "";
-}
-
-function renderBondMeta() {
-  const { level, heart, rankCap, bondCountCap } = currentBondRules();
-  const limit = bondCountCap;
-  const countText = Number.isFinite(limit) ? `${bonds.length} / ${limit}` : String(bonds.length);
-
-  if (levelValueEl) levelValueEl.textContent = String(level);
-  if (heartValueEl) heartValueEl.textContent = String(heart);
-  if (bondRankCapValueEl) bondRankCapValueEl.textContent = String(rankCap);
-  if (bondCountValueEl) bondCountValueEl.textContent = countText;
-
-  if (bondStatusHintEl) bondStatusHintEl.textContent = `Up to ${heart} bond${heart === 1 ? "" : "s"}`;
-  if (bondRulesHelpEl) bondRulesHelpEl.textContent = `You can have up to ${heart} bond${heart === 1 ? "" : "s"}. Each bond starts at Rank 1, follows the normal rank cap (${rankCap} at level ${level}), and includes one Bond Keystone. You also get 2 Background Keystones.`;
-  if (bondCountHelpEl) bondCountHelpEl.textContent = "Bonds represent spiritual connections to other characters. Bond count is capped by Heart, and bond rank uses the same cap progression as skills.";
-
-  if (addBondBtn) {
-    addBondBtn.disabled = bonds.length >= limit;
-  }
-}
-
-function renderBonds() {
-  if (!bondListEl || !bondRowTemplate) return;
-  bondListEl.innerHTML = "";
-
-  const { heart, rankCap } = currentBondRules();
-
-  if (!bonds.length) {
-    const empty = document.createElement("div");
-    empty.className = "builderItem muted";
-    empty.textContent = `No bonds added yet. You can leave them blank for now, or add up to your Heart score (${heart}).`;
-    bondListEl.append(empty);
-    renderBondMeta();
-    return;
-  }
-
-  bonds.forEach((bond, index) => {
-    const frag = bondRowTemplate.content.cloneNode(true);
-    const row = frag.querySelector("[data-bond-row]");
-    const nameEl = frag.querySelector('[data-field="name"]');
-    const rankEl = frag.querySelector('[data-field="rank"]');
-    const keystoneEl = frag.querySelector('[data-field="keystone"]');
-    const removeBtn = frag.querySelector('[data-action="remove"]');
-
-    if (!row || !nameEl || !rankEl || !keystoneEl || !removeBtn) return;
-
-    rankEl.innerHTML = buildConstrainedSkillRankOptionsHtml(bond?.rank || "", { maxAllowed: rankCap });
-
-    const safeRank = sanitizeText(bond?.rank || "", { maxLen: 8, collapse: true });
-    nameEl.value = String(bond?.name || "");
-    rankEl.value = safeRank && Number.parseInt(safeRank, 10) <= rankCap ? safeRank : "";
-    keystoneEl.value = String(bond?.keystone || "");
-
-    nameEl.addEventListener("input", () => {
-      bonds[index].name = sanitizeText(nameEl.value || "", { maxLen: 96, collapse: true });
-    });
-    rankEl.addEventListener("change", () => {
-      const raw = sanitizeText(rankEl.value || "", { maxLen: 8, collapse: true });
-      bonds[index].rank = raw === "" ? "" : String(Math.max(1, Math.min(rankCap, Number.parseInt(raw, 10) || 1)));
-      if (rankEl.value !== bonds[index].rank) rankEl.value = bonds[index].rank;
-    });
-    keystoneEl.addEventListener("input", () => {
-      bonds[index].keystone = sanitizeText(keystoneEl.value || "", { maxLen: 400, collapse: true });
-    });
-
-    removeBtn.addEventListener("click", () => {
-      bonds.splice(index, 1);
-      renderBonds();
-    });
-
-    bondListEl.append(row);
-  });
-
-  renderBondMeta();
-}
-
-function addBond() {
-  clearError(errorEl);
-  const { bondCountCap: limit } = currentBondRules();
-  if (Number.isFinite(limit) && bonds.length >= limit) {
-    setStatus(statusEl, `You can only have up to ${limit} bond${limit === 1 ? "" : "s"}.`);
-    return;
-  }
-  bonds.push({ name: "", rank: "1", keystone: "" });
-  renderBonds();
-}
-
-function collectWarnings() {
-  const warnings = [];
-  const { level, heart, rankCap } = currentBondRules();
-
-  if (heart > 0 && bonds.length === 0) {
-    warnings.push(`No bonds are filled in. This character can have up to ${heart} bond${heart === 1 ? "" : "s"}.`);
-  }
-
-  bonds.forEach((bond, index) => {
-    const name = sanitizeText(bond?.name || "", { maxLen: 96, collapse: true });
-    const rank = sanitizeText(bond?.rank || "", { maxLen: 8, collapse: true });
-    const keystone = sanitizeText(bond?.keystone || "", { maxLen: 400, collapse: true });
-    const fieldsFilled = [name, rank, keystone].filter(Boolean).length;
-    if (fieldsFilled > 0 && fieldsFilled < 3) {
-      warnings.push(`Bond ${index + 1} is incomplete.`);
-    }
-    const numericRank = Number.parseInt(rank, 10);
-    if (rank && (!Number.isFinite(numericRank) || numericRank < 1 || numericRank > rankCap)) {
-      warnings.push(`Bond ${index + 1} has an invalid rank for level ${level}.`);
-    }
-  });
-
-  const backgroundValues = [backgroundKeystone1El?.value || "", backgroundKeystone2El?.value || ""];
-  backgroundValues.forEach((value, index) => {
-    if (!sanitizeText(value, { maxLen: 400, collapse: true })) {
-      warnings.push(`Background Keystone ${index + 1} is empty.`);
-    }
-  });
-
-  return warnings;
-}
-
-function collectPatch() {
-  syncBackgroundStateFromInputs();
-  return buildBondsKeystonesUpdatePatch({
-    bonds,
-    backgroundKeystones: backgroundKeystones,
+function renderNav() {
+  renderBuilderNavMounts({
+    currentStepId: CURRENT_STEP_ID,
+    characterDoc: currentDoc,
+    ctx: { charId: ctx.charId, requestedUid: ctx.requestedUid },
+    onBeforeNavigate: async () => saveBuilder({ intent: "navigate" }),
   });
 }
 
 async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
-  clearError(errorEl);
-  setStatus(statusEl, "Saving…");
-
-  const warnings = collectWarnings();
-  if (warnings.length) {
-    const ok = await confirmSaveWarnings({
-      title: "Save with warnings?",
-      warnings,
-      okText: intent === "navigate" ? "Save and Continue" : "Save",
-      cancelText: "Cancel",
-    });
-    if (!ok) {
-      setStatus(statusEl, "Not saved.");
-      return false;
-    }
-  }
-
-  try {
-    const patch = collectPatch();
-    await saveCharacterPatch(charRef, patch);
-
-    currentDoc = currentDoc || {};
-    currentDoc.builder = {
-      ...(currentDoc.builder || {}),
-      bonds: patch["builder.bonds"],
-      backgroundKeystones: patch["builder.backgroundKeystones"],
-    };
-
-    bonds = sanitizeBondList(currentDoc.builder.bonds, { maxItems: 50 });
-    backgroundKeystones = sanitizeKeystoneList(currentDoc.builder.backgroundKeystones, { maxItems: 2, maxLen: 400 });
-    fillBackgroundInputs();
-    renderBonds();
-
-    setStatus(statusEl, "Saved.");
-    markBuilderNavigationClean();
-
-    if (openSheetAfter) openCharacterSheet(ctx);
-
-    return true;
-  } catch (e) {
-    console.error(e);
-    showError(errorEl, "Could not save.");
-    setStatus(statusEl, "Error.");
+  clearError(elements.error);
+  setStatus(elements.status, "Saving...");
+  const visited = await page.requestCharacterCommand(null, VisitBuilderStep(CURRENT_STEP_ID));
+  if (!visited.ok) {
+    showError(elements.error, visited.errors.join(" ") || "The bond state could not be reconciled.");
+    setStatus(elements.status, "Not saved.");
     return false;
   }
+  const currentIssues = bondIssues(reconcileCharacterGraph({ character: page.getCharacter(), previousCharacter: page.getCharacter(), gameData }));
+  if (currentIssues.errors.length) {
+    showError(elements.error, currentIssues.errors.join(" "));
+    setStatus(elements.status, "Not saved.");
+    return false;
+  }
+  if (currentIssues.warnings.length && !await confirmSaveWarnings({
+    title: "Save with incomplete Bonds or Keystones?",
+    warnings: currentIssues.warnings,
+    okText: intent === "navigate" ? "Save and Continue" : "Save",
+    cancelText: "Cancel",
+  })) {
+    setStatus(elements.status, "Not saved.");
+    return false;
+  }
+  const saved = await page.save((snapshot) => replaceCharacter({
+    ownerUid: ctx.editingUid,
+    characterId: ctx.charId,
+    character: snapshot.character,
+    expectedRevision: snapshot.expectedRevision,
+  }));
+  if (!saved.ok) {
+    showError(elements.error, saved.error?.code === "character-revision-conflict"
+      ? "This character changed in another tab. Reload before saving again."
+      : "Could not save Bonds and Keystones.");
+    setStatus(elements.status, "Error.");
+    return false;
+  }
+  currentDoc = saved.state.working;
+  setStatus(elements.status, "Saved.");
+  markBuilderNavigationClean();
+  renderNav();
+  if (openSheetAfter) openCharacterSheet(ctx);
+  return true;
 }
 
 async function main() {
   try {
-    ctx = await initBuilderAuth({ signOutBtn, gmHintEl, statusEl, errorEl });
-    const loaded = await loadCharacterDoc(ctx.editingUid, ctx.charId);
-    charRef = loaded.charRef;
-    currentDoc = loaded.characterDoc;
-
-    bonds = sanitizeBondList(currentDoc?.builder?.bonds, { maxItems: 50 });
-    backgroundKeystones = sanitizeKeystoneList(currentDoc?.builder?.backgroundKeystones, { maxItems: 2, maxLen: 400 });
-    fillBackgroundInputs();
-    renderBonds();
-
-    await markStepVisited(charRef, CURRENT_STEP_ID);
-
-    if (addBondBtn) addBondBtn.addEventListener("click", addBond);
-    if (backgroundKeystone1El) backgroundKeystone1El.addEventListener("input", syncBackgroundStateFromInputs);
-    if (backgroundKeystone2El) backgroundKeystone2El.addEventListener("input", syncBackgroundStateFromInputs);
-
-    if (saveBtn) saveBtn.addEventListener("click", () => saveBuilder({ openSheetAfter: false, intent: "save" }));
-    if (saveAndOpenBtn) saveAndOpenBtn.addEventListener("click", () => saveBuilder({ openSheetAfter: true, intent: "save" }));
-
-    const navConfig = {
-      currentStepId: CURRENT_STEP_ID,
-      characterDoc: currentDoc,
-      ctx: { charId: ctx.charId, requestedUid: ctx.requestedUid },
-      onBeforeNavigate: async () => await saveBuilder({ openSheetAfter: false, intent: "navigate" }),
-    };
-
-    renderBuilderNavMounts(navConfig);
-
-    setStatus(statusEl, "Ready.");
-  } catch (e) {
-    console.error(e);
-    showError(errorEl, e?.message || "Could not load builder step.");
-    setStatus(statusEl, "Error.");
+    ctx = await initBuilderAuth({ signOutBtn: elements.signOutBtn, gmHintEl: elements.gmHint, statusEl: elements.status, errorEl: elements.error });
+    setStatus(elements.status, "Loading game data...");
+    gameData = await loadGameXData({ cache: "no-store" });
+    const loaded = await readCharacter({ ownerUid: ctx.editingUid, characterId: ctx.charId, gameData });
+    currentDoc = loaded.character;
+    page = new CharacterSessionPage({
+      character: loaded.character,
+      revision: loaded.revision,
+      metadata: loaded.metadata,
+      gameData,
+      confirmImpacts: ({ messages }) => confirmSaveWarnings({ title: "Apply this Bond change?", warnings: messages, okText: "Apply Change", cancelText: "Cancel" }),
+      onCommandRejected: ({ errors }) => { showError(elements.error, errors.join(" ") || "That Bond change is not valid."); setStatus(elements.status, "Change rejected."); },
+      onStateChange: (state) => { currentDoc = state.working; clearError(elements.error); setStatus(elements.status, "Unsaved changes."); },
+    });
+    await page.requestCharacterCommand(null, VisitBuilderStep(CURRENT_STEP_ID));
+    widget = new BondsKeystonesWidget(page, { elements, onRejected: () => widget.render() });
+    const preview = bondIssues(reconcileCharacterGraph({ character: currentDoc, previousCharacter: currentDoc, gameData }));
+    if (preview.errors.length) {
+      showError(elements.error, `Stored Bonds or Keystones need review. ${preview.errors.join(" ")}`);
+      setStatus(elements.status, "Review needed.");
+    } else if (preview.confirmations.length) {
+      showError(elements.error, "Stored Bonds exceed current limits. Edit or save to review the exact adjustments.");
+      setStatus(elements.status, "Review needed.");
+    } else setStatus(elements.status, page.getState().dirty ? "Ready. Unsaved changes." : "Ready.");
+    elements.saveBtn.addEventListener("click", () => saveBuilder());
+    elements.saveAndOpenBtn.addEventListener("click", () => saveBuilder({ openSheetAfter: true }));
+    renderNav();
+  } catch (error) {
+    console.error(error);
+    showError(elements.error, error?.message || "Could not load this step.");
+    setStatus(elements.status, "Error.");
   }
 }
 

@@ -1,9 +1,12 @@
 import { sanitizeText } from "../../core/data-sanitization.js";
 import { resolveGrantChoiceIds } from "../../core/choice-identity.js";
 import { getEffectiveTags } from "../../core/weapon-utils.js";
-import { TechniqueChoiceWidget } from "./technique-choice-widget.js";
+import { TechniqueChoiceWidget } from "./technique-choice-widget.js?v=wpe8";
 import { WeaponChoiceWidget } from "./weapon-choice-widget.js";
 import { WeaponEnhancementChoiceWidget } from "./weapon-enhancement-choice-widget.js";
+import { createDefaultGrantWidgetRegistry } from "./grant-widget-extensions.js";
+
+const DEFAULT_GRANT_WIDGET_REGISTRY = createDefaultGrantWidgetRegistry();
 
 function getForcedEnhancementsForChoice(choiceId, entries, getSelectedEntries) {
   const id = sanitizeText(choiceId, { maxLen: 96, collapse: true });
@@ -75,6 +78,7 @@ export function createGrantWidgets({
   onChange = null,
   sourceId = "",
   scope = "dynamic",
+  registry = DEFAULT_GRANT_WIDGET_REGISTRY,
 } = {}) {
   const grants = Array.isArray(entry?.grants) ? entry.grants : [];
   const widgets = [];
@@ -151,7 +155,18 @@ export function createGrantWidgets({
           onChange?.();
         },
       }));
+      continue;
     }
+
+    const handler = registry?.get?.(grant?.type);
+    if (!handler) continue;
+    const created = handler({
+      page, entry, grant, index, grantChoiceState, weaponBases, weaponEnhancements,
+      grantContextEntries, getSelectedEntries, prerequisiteContext, gameData,
+      getBuilder, getGrantChoices, getExistingWeapons, onChange, sourceId, scope,
+    });
+    if (Array.isArray(created)) widgets.push(...created.filter(Boolean));
+    else if (created) widgets.push(created);
   }
 
   return widgets;

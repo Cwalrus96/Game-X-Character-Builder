@@ -79,9 +79,25 @@ export function isSourceOwnedWeapon(weapon) {
   return !!weapon && (weapon.generated === true || !!sanitizeText(weapon.sourceChoiceId, { maxLen: 96, collapse: true }));
 }
 
-export function buildGeneratedWeaponsFromGrantChoices(grantChoices = {}, existingWeapons = []) {
+export function buildGeneratedWeaponsFromGrantChoices(grantChoices = {}, existingWeapons = [], { canonical = false } = {}) {
   const sanitizedExisting = sanitizeWeaponList(existingWeapons, { maxItems: 20 });
-  const kept = sanitizedExisting.filter((weapon) => !isSourceOwnedWeapon(weapon));
+  const keptSanitized = sanitizedExisting.filter((weapon) => !isSourceOwnedWeapon(weapon));
+  const kept = keptSanitized.map((weapon) => ({
+    id: weapon.id,
+    choiceId: weapon.choiceId || "",
+    sourceChoiceId: weapon.sourceChoiceId || "",
+    generated: false,
+    weaponKey: weapon.weaponKey,
+    rank: weapon.rank,
+    customName: weapon.customName,
+    enhancements: weapon.enhancements.map((enhancement) => ({
+      id: enhancement.id,
+      enhancementKey: enhancement.enhancementKey,
+      rank: enhancement.rank,
+      selections: enhancement.selections,
+      granted: enhancement.granted === true,
+    })),
+  }));
   const generated = [];
 
   for (const [rawChoiceId, choice] of Object.entries(grantChoices || {})) {
@@ -98,9 +114,20 @@ export function buildGeneratedWeaponsFromGrantChoices(grantChoices = {}, existin
       weaponKey,
       rank: Number.parseInt(String(choice?.rank ?? 1), 10) || 1,
       customName: sanitizeText(choice?.customName || "Soulbound Weapon", { maxLen: 120, collapse: true }),
-      enhancements: Array.isArray(choice?.enhancements) ? choice.enhancements : [],
+      enhancements: sanitizeWeaponList([{
+        id: "temporary",
+        weaponKey,
+        enhancements: Array.isArray(choice?.enhancements) ? choice.enhancements : [],
+      }], { maxItems: 1 })[0]?.enhancements.map((enhancement) => ({
+        id: enhancement.id,
+        enhancementKey: enhancement.enhancementKey,
+        rank: enhancement.rank,
+        selections: enhancement.selections,
+        granted: enhancement.granted === true,
+      })) || [],
     });
   }
 
-  return sanitizeWeaponList(kept.concat(generated), { maxItems: 20 });
+  if (!canonical) return sanitizeWeaponList(keptSanitized.concat(generated), { maxItems: 20 });
+  return kept.concat(generated).slice(0, 20);
 }

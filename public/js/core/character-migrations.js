@@ -15,12 +15,17 @@ import {
   sanitizeStoragePath,
   sanitizeText,
 } from "./data-sanitization.js";
+import {
+  resolveGrantChoiceAliases,
+  resolveGrantChoiceIds,
+} from "./choice-identity.js";
 
 export const LEGACY_UNVERSIONED_CHARACTER_SCHEMA = 0;
 export const RESERVED_CHARACTER_SCHEMA_VERSION = 2;
 export const SUPPORTED_CHARACTER_SCHEMA_VERSIONS = Object.freeze([0, 1, 3, 4, 5]);
 
 const STABLE_KEY_PATTERN = /^[a-z0-9](?:[a-z0-9_-]{0,127})$/;
+const STABLE_ID_PATTERN = /^[A-Za-z0-9](?:[A-Za-z0-9_.:/-]{0,259})$/;
 const BUILDER_STEP_IDS = new Set([
   "basics",
   "class",
@@ -219,14 +224,23 @@ function hasMeaningfulLegacyValue(value) {
   return true;
 }
 
-function canonicalStringArray(value, path, context, { maxItems, maxLen }) {
+function canonicalStringArray(value, path, context, { maxItems, maxLen, deduplicateDerivedSnapshot = false }) {
   const out = [];
   const seen = new Set();
   for (const [index, raw] of arrayValue(value, path, context).slice(0, maxItems).entries()) {
     const item = textValue(raw, `${path}[${index}]`, context, { maxLen, allowEmpty: false });
     if (!item) continue;
     if (seen.has(item)) {
-      addDiagnostic(context, "duplicate-legacy-value", `${path}[${index}]`, `Duplicate historical value "${item}".`);
+      if (deduplicateDerivedSnapshot) {
+        addReport(
+          context,
+          "removed",
+          `${path}[${index}]`,
+          `Removed duplicate derived display snapshot value "${item}"; identity-bearing ability records remain preserved.`,
+        );
+      } else {
+        addDiagnostic(context, "duplicate-legacy-value", `${path}[${index}]`, `Duplicate historical value "${item}".`);
+      }
       continue;
     }
     seen.add(item);
@@ -249,6 +263,13 @@ function referenceEntries(references, kind, value) {
   if (Array.isArray(entry)) return entry;
   if (typeof entry === "string" && entry) return [entry];
   return [];
+}
+
+function grantChoiceReferenceEntries(references, value) {
+  const table = references?.grantChoices;
+  if (!table || typeof table !== "object") return null;
+  const entry = table[referenceAlias(value)];
+  return Array.isArray(entry) ? entry : [];
 }
 
 function resolveReference(value, kind, path, context, { allowEmpty = true } = {}) {
@@ -791,6 +812,53 @@ function normalizeWeapons(value, path, context) {
   return out;
 }
 
+function resolveGrantChoiceMigrationReference(rawChoiceId, row, rowPath, context) {
+  const aliases = [rawChoiceId, row?.choiceId]
+    .map((value) => referenceAlias(value))
+    .filter((value, index, values) => value && values.indexOf(value) === index);
+  const matchesByIdentity = new Map();
+  let hasReferenceTable = false;
+  for (const alias of aliases) {
+    const matches = grantChoiceReferenceEntries(context.references, alias);
+    if (matches === null) continue;
+    hasReferenceTable = true;
+    for (const match of matches) {
+      if (!isPlainObject(match)) continue;
+      const key = `${match.choiceId}\u0000${match.sourceId}`;
+      matchesByIdentity.set(key, match);
+    }
+  }
+  if (!hasReferenceTable || matchesByIdentity.size === 0) return { ok: true, value: null };
+
+  const rawSourceId = referenceAlias(row?.sourceId);
+  let matches = [...matchesByIdentity.values()];
+  if (rawSourceId) {
+    const sourceMatches = matches.filter((match) => (
+      Array.isArray(match.sourceAliases) && match.sourceAliases.includes(rawSourceId)
+    ));
+    if (!sourceMatches.length) {
+      addDiagnostic(
+        context,
+        "unresolved-reference",
+        `${rowPath}.sourceId`,
+        `Historical grant-choice owner "${row.sourceId}" does not match the reviewed source for "${rawChoiceId}".`,
+      );
+      return { ok: false, value: null };
+    }
+    matches = sourceMatches;
+  }
+  if (matches.length !== 1) {
+    addDiagnostic(
+      context,
+      "ambiguous-reference",
+      `${rowPath}.choiceId`,
+      `Historical grant-choice identity "${rawChoiceId}" resolves to more than one reviewed source.`,
+    );
+    return { ok: false, value: null };
+  }
+  return { ok: true, value: matches[0] };
+}
+
 function normalizeGrantChoices(value, path, context) {
   const source = objectValue(value, path, context);
   if (Object.keys(source).length > 100) {
@@ -818,9 +886,24 @@ function normalizeGrantChoices(value, path, context) {
       rowPath,
       context,
     );
-    const choiceId = textValue(row.choiceId ?? rawChoiceId, `${rowPath}.choiceId`, context, { maxLen: 260, allowEmpty: false });
-    if (!choiceId) continue;
-    if (choiceId !== rawChoiceId) addDiagnostic(context, "stable-id-collision", `${rowPath}.choiceId`, "Grant choice ID does not match its map key.");
+    const suppliedChoiceId = textValue(row.choiceId ?? rawChoiceId, `${rowPath}.choiceId`, context, { maxLen: 260, allowEmpty: false });
+    if (!suppliedChoiceId) continue;
+    const migrationReference = resolveGrantChoiceMigrationReference(rawChoiceId, row, rowPath, context);
+    if (!migrationReference.ok) continue;
+    const choiceId = migrationReference.value?.choiceId || suppliedChoiceId;
+    if (!migrationReference.value && suppliedChoiceId !== rawChoiceId) {
+      addDiagnostic(context, "stable-id-collision", `${rowPath}.choiceId`, "Grant choice ID does not match its map key.");
+    }
+    if (migrationReference.value && choiceId !== suppliedChoiceId) {
+      addReport(context, "renamed", `${rowPath}.choiceId`, `Historical grant-choice identity "${suppliedChoiceId}" became stable ID "${choiceId}".`, {
+        from: suppliedChoiceId,
+        to: choiceId,
+      });
+    }
+    if (hasOwn(out, choiceId)) {
+      addDiagnostic(context, "stable-id-collision", `${rowPath}.choiceId`, `More than one historical grant choice resolves to "${choiceId}".`);
+      continue;
+    }
     const type = stableTokenValue(row.type, `${rowPath}.type`, context, { allowEmpty: false });
     const legacyTechnique = row.techniqueKey ?? row.techniqueName ?? (type === "technique" ? row.value : "");
     const legacySkill = row.skillKey ?? row.skill;
@@ -834,10 +917,18 @@ function normalizeGrantChoices(value, path, context) {
     const valueKey = row.value && row.value !== row.techniqueName
       ? stableTokenValue(row.value, `${rowPath}.value`, context)
       : "";
+    const suppliedSourceId = textValue(row.sourceId, `${rowPath}.sourceId`, context, { maxLen: 260, allowEmpty: false });
+    const sourceId = migrationReference.value?.sourceId || suppliedSourceId;
+    if (migrationReference.value && sourceId !== suppliedSourceId) {
+      addReport(context, "renamed", `${rowPath}.sourceId`, `Historical grant-choice owner "${suppliedSourceId}" became stable source ID "${sourceId}".`, {
+        from: suppliedSourceId,
+        to: sourceId,
+      });
+    }
     out[choiceId] = {
       choiceId,
       type,
-      sourceId: textValue(row.sourceId, `${rowPath}.sourceId`, context, { maxLen: 260, allowEmpty: false }),
+      sourceId,
       sourceLabel: textValue(row.sourceLabel, `${rowPath}.sourceLabel`, context, { maxLen: 200 }),
       value: valueKey,
       techniqueKey,
@@ -915,7 +1006,11 @@ function migrate4To5(input, context) {
   builder.selectedClassUtilitySkills = resolveReferenceArray(source.selectedClassUtilitySkills, "skills", "character.builder.selectedClassUtilitySkills", context, { maxItems: 50 });
   builder.selectedFeats = resolveReferenceArray(source.selectedFeats, "feats", "character.builder.selectedFeats", context, { maxItems: 200 });
   builder.selectedFeatOptions = resolveReferenceArray(source.selectedFeatOptions, "featOptions", "character.builder.selectedFeatOptions", context, { maxItems: 500 });
-  builder.autoAbilityNames = canonicalStringArray(source.autoAbilityNames, "character.builder.autoAbilityNames", context, { maxItems: 500, maxLen: 200 });
+  builder.autoAbilityNames = canonicalStringArray(source.autoAbilityNames, "character.builder.autoAbilityNames", context, {
+    maxItems: 500,
+    maxLen: 200,
+    deduplicateDerivedSnapshot: true,
+  });
   builder.grantedCoreSkillSnapshot = resolveReferenceArray(source.grantedCoreSkillSnapshot, "skills", "character.builder.grantedCoreSkillSnapshot", context, { maxItems: 50 });
   builder.grantedSkillSnapshot = resolveReferenceArray(source.grantedSkillSnapshot, "skills", "character.builder.grantedSkillSnapshot", context, { maxItems: 200 });
   builder.bonds = normalizeBonds(source.bonds, "character.builder.bonds", context);
@@ -934,7 +1029,21 @@ function migrate4To5(input, context) {
   for (const key of Object.keys(source).sort()) {
     if (!allowedBuilderKeys.has(key)) addDiagnostic(context, "unknown-legacy-field", `character.builder.${key}`, "Unknown historical builder field cannot be discarded safely.");
   }
-  const allowedRootKeys = new Set(["schemaVersion", "ownerUid", "builder", "createdAt", "updatedAt", "lastVisitedAt"]);
+  for (const key of ["migratedAt", "migratedFromUid"]) {
+    if (hasOwn(input, key)) {
+      addReport(context, "removed", `character.${key}`, `Removed obsolete account-import bookkeeping field "${key}" from canonical character state.`);
+    }
+  }
+  const allowedRootKeys = new Set([
+    "schemaVersion",
+    "ownerUid",
+    "builder",
+    "createdAt",
+    "updatedAt",
+    "lastVisitedAt",
+    "migratedAt",
+    "migratedFromUid",
+  ]);
   for (const key of Object.keys(input).sort()) {
     if (!allowedRootKeys.has(key)) addDiagnostic(context, "unknown-legacy-field", `character.${key}`, "Unknown historical root field cannot be discarded safely.");
   }
@@ -1082,6 +1191,26 @@ function addReference(work, kind, alias, stableKey) {
   table.set(normalizedAlias, values);
 }
 
+function addGrantChoiceReference(work, alias, { choiceId, sourceId, sourceAliases = [] } = {}) {
+  const normalizedAlias = referenceAlias(alias);
+  const normalizedChoiceId = sanitizeText(choiceId, { maxLen: 260, collapse: true });
+  const normalizedSourceId = sanitizeText(sourceId, { maxLen: 260, collapse: true });
+  if (!normalizedAlias || !STABLE_ID_PATTERN.test(normalizedChoiceId) || !STABLE_ID_PATTERN.test(normalizedSourceId)) return;
+  const normalizedSourceAliases = [normalizedSourceId, ...sourceAliases]
+    .map(referenceAlias)
+    .filter((value, index, values) => value && values.indexOf(value) === index)
+    .sort();
+  const descriptor = Object.freeze({
+    choiceId: normalizedChoiceId,
+    sourceId: normalizedSourceId,
+    sourceAliases: Object.freeze(normalizedSourceAliases),
+  });
+  const table = work.grantChoices;
+  const values = table.get(normalizedAlias) || new Map();
+  values.set(`${normalizedChoiceId}\u0000${normalizedSourceId}`, descriptor);
+  table.set(normalizedAlias, values);
+}
+
 function legacySlug(value) {
   return sanitizeText(value, { maxLen: 160, collapse: true })
     .toLowerCase()
@@ -1106,6 +1235,46 @@ function walkFeatureOptions(entries, ownerKey, work) {
       }
     }
     walkFeatureOptions(options, ownerKey, work);
+  }
+}
+
+function collectClassOptionGrantChoiceReferences(entries, ownerKey, work) {
+  for (const entry of Array.isArray(entries) ? entries : []) {
+    const options = Array.isArray(entry?.options) ? entry.options : [];
+    if (options.length) {
+      const level = Number.parseInt(String(entry?.level ?? entry?.minLevel ?? 0), 10) || 0;
+      const currentGroup = `${ownerKey}|L${level}|${entry?.name || ""}`;
+      const v1Group = `cfg:${ownerKey}:${level}:${legacySlug(entry?.name)}`;
+      for (const option of options) {
+        const optionKey = sanitizeText(option?.featureKey, { maxLen: 128, collapse: true });
+        if (!STABLE_KEY_PATTERN.test(optionKey)) continue;
+        const sourceId = `class-option:${ownerKey}:${optionKey}`;
+        const sourceAliases = [
+          sourceId,
+          `choice:builder.selectedClassFeatureOptions:${currentGroup}::${option?.name || ""}`,
+          `choice:builder.selectedClassFeatureOptions:${v1Group}::${option?.name || ""}`,
+          `choice:feature:${option?.name || ""}`,
+        ];
+        for (const [grantIndex, grant] of (Array.isArray(option?.grants) ? option.grants : []).entries()) {
+          if (!["technique-choice", "weapon"].includes(String(grant?.type || ""))) continue;
+          const choiceIds = resolveGrantChoiceIds(grant, { sourceId, index: grantIndex });
+          const choiceAliases = resolveGrantChoiceAliases(grant, { sourceId, index: grantIndex });
+          const semantic = sanitizeText(
+            grant?.skillKey || grant?.key || grant?.skill || grant?.name || "",
+            { maxLen: 128, collapse: true },
+          );
+          const labelAliases = [semantic, semantic.toLowerCase()]
+            .filter((value, index, values) => value && values.indexOf(value) === index)
+            .map((value) => `${option?.name || optionKey}:${grant.type}:${value}:${grantIndex}`);
+          for (const choiceId of choiceIds) {
+            for (const alias of [choiceId, ...choiceAliases, ...labelAliases]) {
+              addGrantChoiceReference(work, alias, { choiceId, sourceId, sourceAliases });
+            }
+          }
+        }
+      }
+    }
+    collectClassOptionGrantChoiceReferences(options, ownerKey, work);
   }
 }
 
@@ -1136,7 +1305,10 @@ function collectGrantSkillReferences(entry, work) {
 }
 
 export function createCharacterMigrationReferences(gameData = {}) {
-  const work = Object.fromEntries(REFERENCE_KINDS.map((kind) => [kind, new Map()]));
+  const work = {
+    ...Object.fromEntries(REFERENCE_KINDS.map((kind) => [kind, new Map()])),
+    grantChoices: new Map(),
+  };
   for (const skill of [...CORE_SKILL_FIELDS, ...DEFENSE_SKILL_FIELDS]) {
     const key = String(skill.key || "").replace(/^rank_/, "");
     addReference(work, "skills", key, key);
@@ -1160,6 +1332,7 @@ export function createCharacterMigrationReferences(gameData = {}) {
   const classFeatures = isPlainObject(gameData.classFeatures) ? gameData.classFeatures : {};
   for (const [classKey, entries] of Object.entries(classFeatures)) {
     walkFeatureOptions(entries, classKey, work);
+    collectClassOptionGrantChoiceReferences(entries, classKey, work);
     for (const entry of Array.isArray(entries) ? entries : []) collectGrantSkillReferences(entry, work);
   }
   walkFeats(gameData.feats, work);
@@ -1177,6 +1350,13 @@ export function createCharacterMigrationReferences(gameData = {}) {
         .map(([alias, values]) => [alias, Object.freeze([...values].sort())]),
     ));
   }
+  output.grantChoices = Object.freeze(Object.fromEntries(
+    [...work.grantChoices.entries()]
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([alias, values]) => [alias, Object.freeze([...values.values()].sort((left, right) => (
+        left.choiceId.localeCompare(right.choiceId) || left.sourceId.localeCompare(right.sourceId)
+      )))]),
+  ));
   return Object.freeze(output);
 }
 

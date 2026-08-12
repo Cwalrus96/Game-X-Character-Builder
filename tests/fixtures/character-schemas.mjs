@@ -1,11 +1,15 @@
 import { createDefaultCharacter } from "../../public/js/core/character-codec.js";
 
 export const MIGRATION_GAME_DATA = Object.freeze({
-  classes: Object.freeze([{ classKey: "ninja", name: "Ninja" }]),
+  classes: Object.freeze([
+    { classKey: "ninja", name: "Ninja" },
+    { classKey: "magical-guardian", name: "Magical Guardian" },
+  ]),
   origins: Object.freeze([{ originKey: "wanderer", name: "Wanderer", features: [] }]),
   classSkills: Object.freeze([
     { skillKey: "stealth", skillName: "Stealth" },
     { skillKey: "martial-arts", skillName: "Martial Arts" },
+    { skillKey: "spellcasting", skillName: "Spellcasting" },
   ]),
   classFeatures: Object.freeze({
     ninja: Object.freeze([{
@@ -22,6 +26,26 @@ export const MIGRATION_GAME_DATA = Object.freeze({
         featureKey: "shadow-step",
         name: "Shadow Step",
         grants: [],
+      }]),
+    }]),
+    "magical-guardian": Object.freeze([{
+      type: "optionGroup",
+      classKey: "magical-guardian",
+      level: 1,
+      featureKey: "guardian-accessory",
+      name: "Guardian Accessory",
+      grants: [],
+      options: Object.freeze([{
+        type: "option",
+        classKey: "magical-guardian",
+        level: 1,
+        featureKey: "dazzling-wand",
+        name: "Dazzling Wand",
+        grants: Object.freeze([{
+          type: "technique-choice",
+          skill: "Spellcasting",
+          count: 1,
+        }]),
       }]),
     }]),
   }),
@@ -41,10 +65,16 @@ export const MIGRATION_GAME_DATA = Object.freeze({
       grants: [],
     }]),
   }]),
-  techniques: Object.freeze([{
-    techniqueKey: "stalk-prey",
-    techniqueName: "Stalk Prey",
-  }]),
+  techniques: Object.freeze([
+    {
+      techniqueKey: "stalk-prey",
+      techniqueName: "Stalk Prey",
+    },
+    {
+      techniqueKey: "prismatic-burst",
+      techniqueName: "Prismatic Burst",
+    },
+  ]),
 });
 
 function legacySheet() {

@@ -1,16 +1,16 @@
 # Character graph contract
 
-Status: implemented pure Work Package D core. The initial fixture-driven slice covers class facts/features/options, normal and source-owned technique selections, typed technique grants, prerequisites, capacity, and incomplete selections. Reviewed schema-v2 runtime data is published; deployed-page and remaining-domain integration belongs to Work Package E.
+Status: Work Package D core is complete and Work Package E migration is active. The class/feat/technique, Equipment, Attributes, and Origin/Skills slices have typed commands, graph coverage, portable session-page controllers, and local page integration; signed-in focused browser acceptance is still pending before the replacements are accepted.
 
-Last updated: 2026-08-10.
+Last updated: 2026-08-30.
 
 ## Purpose and boundary
 
-The graph is the authoritative pure representation of character selection ownership and dependency effects. It accepts one exact schema-v5 character plus normalized runtime artifact schema-v2 game data and produces deterministic plain-data nodes, edges, diagnostics, and metadata.
+The Character Dependency Graph is one authoritative pure subsystem for character selection ownership and dependency effects. It accepts one exact schema-v5 character plus normalized runtime artifact schema-v2 game data and produces deterministic plain-data nodes, edges, diagnostics, metadata, and reconciled outcomes.
 
-`GraphCompiler` never reads Firebase, the DOM, pages, widgets, files, or the network. `GraphReconciler` repeatedly compiles and applies registered removal, prerequisite, capacity, and incomplete-selection policy until it reaches a deterministic fixed point. Neither component mutates caller-owned character or game-data values.
+`GraphCompiler` is the subsystem's snapshot-building operation. The reconciler is its fixed-point operation: it repeatedly compiles and applies registered removal, prerequisite, capacity, compatibility, and incomplete-selection policy until it reaches a deterministic fixed point. Keeping those internal operations separate makes snapshot construction independently testable and lets reconciliation recompile after each state change; it does not create two authorities. `CharacterSession` uses one graph reconciliation facade. Neither operation reads Firebase, the DOM, pages, widgets, files, or the network or mutates caller-owned values.
 
-The reviewed production game-data release is schema v2 and now supplies stable keys. The graph core remains fixture-integrated until Work Package E connects and accepts each page/domain slice; published data alone does not authorize switching deployed pages.
+The reviewed production game-data release is schema v2 and supplies stable keys. Work Package E tests the graph against both focused fixtures and the published combined runtime artifact. Production deployment remains a separate approval boundary.
 
 ## Node contract
 
@@ -27,9 +27,9 @@ Every node has exactly these graph-contract fields:
 | `storageBinding` | `null` or an exact scalar, ordered-key-array, or keyed-record character path. |
 | `metadata` | Typed domain details used by reconciliation; it must remain deterministic plain data. |
 
-The initial node registry includes root/fact, class/origin/resource, class feature and option group/answer, grant, automatic technique, source-owned grant choice/answer, normal technique selection, and prerequisite requirement nodes.
+The active registry includes root/fact, class/origin/origin-feature/resource, class feature and option group/answer, explicit feat slot and feat selection/group/option, class utility skill, fixed/custom/granted skill, grant/effect/resource/Bond, ordinary and source-owned Bonds, Bond/Background Keystones, automatic technique, source-owned grant choice/answer, normal technique selection, weapon, weapon-enhancement, prerequisite requirement, and extension-registered automatic Boon nodes.
 
-Every selected answer in the initial class/technique fixture slice has a stable ID, source owner, and storage binding. Populated selection domains not yet migratedâ€”including Feats, class utility skills, Bonds, and Weaponsâ€”fail with `unhandled-character-domain` rather than being omitted or guessed.
+Every selected answer in the builder has a stable ID, source owner, and storage binding. Each Attribute is a stable fact node with an exact scalar binding plus level-derived minimum and maximum metadata. Each user-owned skill is a typed node bound to its scalar field or case-insensitive named row; defense, common, class, and Origin-granted skills are automatic nodes. A `feat` grant materializes stable `feat-slot:*` nodes; each selected feat is owned by one matching slot rather than by the character root or an automatic level formula. Bond nodes bind by stable `bondId`; user Bonds are root-owned, while `grant-bond:*` records are owned and materialized by their active source. Keystones are typed child/slot nodes. Origin features are source-owned nodes whose grants and derived abilities disappear only through reviewed reconciliation. Missing handlers for an active grant or prerequisite remain blocking errors; the graph never silently discards an unknown active effect.
 
 ## Edge contract
 
@@ -53,13 +53,13 @@ Every edge endpoint must already resolve to a node. Dangling edges, conflicting 
 
 `GraphHandlerRegistry` has independent node, grant, and prerequisite registries. Compilation never switches over every domain in traversal code; it asks the registry for the current handler. A missing handler is a blocking diagnostic naming the handler class and exact source path.
 
-The default Work Package D registry provides:
+The default registry currently provides:
 
-- node handlers for the initial class/technique slice;
-- grant handlers for direct `technique` grants and filtered `technique`/`technique-choice` source-owned answers;
+- node handlers for class, Origin and Origin features, feat, technique, class-utility-skill, fixed/custom/granted skills, source-owned answers, derived resources, ordinary/generated weapons, and weapon enhancements in the migrated slices;
+- grant handlers for explicit filtered `feat` slots, direct `technique` grants, filtered `technique`/`technique-choice` answers, source-owned weapons, resources, and source-owned Bonds;
 - prerequisite handlers for the shared typed runtime prerequisite registry, delegating evaluation to the existing pure Rules boundary.
 
-Work Package E adds domain handlers and tests without adding page logic or editing graph traversal. Stubbed grant subsystems such as familiars, vehicles, gadgets, generic rank changes, and `choice-rebind` overlays remain explicit missing-handler boundaries until their vertical slice implements their storage and reconciliation contracts.
+Work Package E adds domain handlers and tests without adding dependency policy to pages or widgets. Representable grants scheduled for later slices compile as explicit deferred effects; malformed, custom, or unregistered handlers still fail closed. Familiar, vehicle, gadget, generic rank-change, and `choice-rebind` state remain later vertical-slice work.
 
 ## Compiler behavior
 
@@ -67,12 +67,12 @@ Work Package E adds domain handlers and tests without adding page logic or editi
 
 1. decode the character through the exact v5 codec;
 2. require normalized runtime artifact schema 2;
-3. index stable class, origin, feature, option, technique, choice, and answer identities;
+3. index stable class, origin, feat, feature, option, technique, weapon, choice, and answer identities;
 4. compile typed nodes and edges through the supplied registries;
 5. sort nodes, edges, diagnostics, and metadata deterministically;
 6. validate duplicates, handler coverage, edge endpoints, and cycles before reporting `ok`.
 
-Compilation is diagnostic-producing, not repairing. Missing game-data identities, malformed stable identities, duplicate records, unsupported populated domains, missing handlers, handler failures, dangling references, and cycles are errors. Manual-but-representable prerequisites are warnings and remain explicit incomplete requirements.
+Compilation is diagnostic-producing, not repairing. Missing game-data identities, malformed stable identities, duplicate records, missing handlers, handler failures, dangling references, and cycles are errors. Deferred later-slice effects and manual-but-representable prerequisites are warnings and remain explicit.
 
 ## Reconciliation behavior
 
@@ -80,11 +80,12 @@ Compilation is diagnostic-producing, not repairing. Missing game-data identities
 
 1. compile the current candidate;
 2. stop with error impacts and the unmodified proposed character if compilation fails;
-3. remove normal techniques that are unavailable, automatically granted, or no longer meet prerequisites;
-4. remove orphaned/invalid source-owned technique answers and unavailable class options;
-5. enforce normal technique capacity through shared Rules while source-owned and automatic techniques remain outside normal slots;
-6. recompile and repeat until no character field changes;
-7. emit deterministic informational impacts for unanswered source-owned choices and underfilled expected selections.
+3. remove normal techniques, feats, feat options, class options, class utility skills, Origins, or primary attributes that are unavailable, orphaned, incompatible, over capacity, or no longer meet prerequisites;
+4. remove orphaned/invalid source-owned answers and synchronize generated weapons, resources, and Bonds;
+5. enforce attribute minimum/cap/total-point, skill grant/rank-cap/total-point, Bond Heart/rank/source policy, explicit feat-slot filters/assignment, technique, weapon-slot, enhancement-slot, weapon-rank, and enhancement compatibility through shared Rules while source-owned state remains owned by its source node or grant answer;
+6. synchronize graph-derived abilities, granted-skill projections, generated weapons, and granted Bonds without overwriting user-owned state; the transitional `autoAbilityNames` display snapshot remains duplicate-free even when distinct stable sources intentionally produce same-named ability records;
+7. recompile and repeat until no character field changes;
+8. emit deterministic informational impacts for deferred effects, unanswered source-owned choices, unspent attribute/skill points, missing Origin/Keystone data, each unfilled explicit feat grant, and other underfilled expected selections.
 
 Every removal is represented in the reconciled character and reported as `confirmation-required`. Blocking diagnostics are always `error`; they are never converted into confirmable warnings. Incomplete but valid state is `informational` and does not block saving.
 
@@ -94,7 +95,7 @@ Running reconciliation again on its reconciled character is character-idempotent
 
 ## CharacterSession integration
 
-`createCharacterSessionGraphReconciler({ gameData, registry })` adapts the graph result to the existing synchronous session reconciliation contract:
+`createCharacterSessionGraphReconciler({ gameData, registry })` is the graph subsystem's single public integration facade for the existing synchronous session reconciliation contract:
 
 ```text
 { working, proposed, command } -> { character, impacts }
@@ -102,12 +103,22 @@ Running reconciliation again on its reconciled character is character-idempotent
 
 The session invokes that adapter exactly once for a proposal. Internal fixed-point iterations are part of that one graph operation. Acceptance commits the exact reconciled character already reviewed; cancellation leaves the working character byte-for-byte unchanged.
 
-The adapter is not installed on deployed pages yet. Work Package E first migrates the current class/feat/technique vertical slice, adds the remaining typed commands/handlers, and proves parity before removing the transitional `character-dependency-graph.js` path.
+The adapter is installed in the local-review class/feat, Attributes, Equipment, technique, Origin, and Skills pages through `CharacterSessionPage`. Those pages coordinate exact revision-aware save snapshots with the definitive reader/writer; widgets remain portable DOM/input components. The production site has not been redeployed, and the replacements are not accepted until the signed-in focused browser scenarios pass.
 
 ## Evidence
 
 - `public/js/core/graph-core.js`: typed graph builder, handler registry, contract validation, deterministic freezing, and affected closure;
-- `public/js/core/graph-compiler.js`: exact-v5/schema-v2 deterministic compiler and initial handlers;
-- `public/js/core/graph-reconciler.js`: bounded fixed-point policy, structured impacts, and session adapter;
-- `tests/fixtures/graph-core.mjs`: normalized schema-v2 class/technique fixture;
-- `tests/graph-core.test.mjs`: deterministic examples, generated cases, convergence/idempotence, transitive closure, cycle/dangling/duplicate/missing-handler/non-convergence failures, session exactness/cancellation, and dependency-purity checks.
+- `public/js/core/graph-compiler.js`: exact-v5/schema-v2 deterministic compiler and registered handlers;
+- `public/js/core/graph-reconciler.js`: bounded fixed-point policy, structured impacts, derived projections, and session adapter;
+- `public/js/core/skill-rules.js`: sole pure owner of skill progression, grants, caps, point budgets, utility capacity, allocation projections, and deterministic fitting;
+- `public/js/core/origin-rules.js`: shared pure Origin eligibility/presentation projection;
+- `public/js/core/selection-rules.js`: shared pure normal/granted-only/draft selection eligibility used by graph and widgets;
+- `public/js/core/feat-rules.js`: sole pure owner of explicit feat-grant slots, feat filters/max levels, deterministic assignment, and the shared graph/widget selection projection;
+- `public/js/core/character-skill-projection.js`: source-owned skill storage projection used by graph reconciliation;
+- `public/js/builder/character-session-page.js`: DOM- and Firebase-independent page/session interaction controller;
+- `public/js/builder/widgets/equipment-widget.js`: portable equipment rendering, accessibility/input handling, and typed-command production without persistence access;
+- `public/js/builder/widgets/attributes-widget.js`: portable attribute rendering/input handling using shared presentation math and exact scalar commands without persistence access;
+- `public/js/builder/widgets/origin-widget.js` and `skills-widget.js`: portable Origin/Skills interaction using shared Rules projections and exact typed commands without persistence access;
+- `tests/fixtures/graph-core.mjs`: normalized valid/invalid class, feat, technique, weapon, resource, and utility-skill fixtures;
+- `tests/graph-core.test.mjs`: published-data coverage, deterministic examples, generated cases, convergence/idempotence, transitive closure, failure policy, session exactness/cancellation, and dependency purity;
+- `tests/character-session-page.test.mjs`: structured confirmation, cancellation, exact save/revision/conflict behavior, concurrent-save handling, and page/widget independence.

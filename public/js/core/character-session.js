@@ -1,11 +1,11 @@
 import {
   assertCanonicalCharacter,
   decodeCharacter,
-} from "./character-codec.js";
+} from "./character-codec.js?v=wpe1";
 import {
   applyCharacterCommand,
   decodeCharacterCommand,
-} from "./character-commands.js";
+} from "./character-commands.js?v=wpe1";
 import {
   canonicalCharacterStatesEqual,
   diffCanonicalCharacterStates,

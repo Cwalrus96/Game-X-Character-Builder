@@ -72,7 +72,6 @@ test("choice count rules are shared for capacity and incomplete messages", () =>
 test("class change commands preserve graph-owned dependent state for reconciliation", () => {
   assert.deepEqual(buildClassChangePatch("ninja"), {
     "builder.classKey": "ninja",
-    "builder.primaryAttribute": "",
   });
 });
 
@@ -123,7 +122,7 @@ test("dependency graph preview reports incomplete option groups from selected fe
   )));
 });
 
-test("dependency graph preview reports incomplete feat slot selections", () => {
+test("dependency graph preview reports incomplete explicit feat-grant selections", () => {
   const preview = previewBuilderChange(gameData, {
     classKey: "magical-guardian",
     level: 5,
@@ -139,10 +138,10 @@ test("dependency graph preview reports incomplete feat slot selections", () => {
     change.type === "incomplete"
     && change.storagePath === "builder.selectedFeats"
     && change.label === "Feats"
-    && change.nextValue === 2
+    && change.nextValue === 3
     && change.previousValue === 1
   )));
-  assert(preview.warnings.some((warning) => warning.includes("Feats: Expected 2 feats, but 1 selected.")));
+  assert(preview.warnings.some((warning) => warning.includes("Feats: Expected 3 feats, but 1 selected.")));
 });
 
 test("builder page allows non-destructive incomplete notices without confirmation", async () => {

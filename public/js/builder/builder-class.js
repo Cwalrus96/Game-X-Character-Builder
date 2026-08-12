@@ -3,9 +3,6 @@
 
 import {
   initBuilderAuth,
-  loadCharacterDoc,
-  saveCharacterPatch,
-  markStepVisited,
   openCharacterSheet,
   setStatus,
   showError,
@@ -16,21 +13,25 @@ import {
 } from "./builder-common.js";
 
 import { renderBuilderNavMounts } from "./builder-nav.js";
-import { BuilderPage } from "./builder-page.js";
+import { getBuilderStepInformationalMessages } from "./builder-step-impacts.js?v=wpe11";
+import { CharacterSessionPage } from "./character-session-page.js?v=wpe10";
 import { GrantChoiceState } from "./grant-choice-state.js";
-import { ClassChoiceWidget } from "./widgets/class-choice-widget.js";
+import { ClassChoiceWidget } from "./widgets/class-choice-widget.js?v=wpe1";
 import { ClassFeaturesWidget } from "./widgets/class-features-widget.js";
-import { FeatsWidget } from "./widgets/feats-widget.js";
+import { FeatsWidget } from "./widgets/feats-widget.js?v=wpe10";
 import { GrantChoicesWidget } from "./widgets/grant-choices-widget.js";
-import { createGrantWidgets } from "./widgets/grant-widget-factory.js";
-import { LevelChoiceWidget } from "./widgets/level-choice-widget.js";
-import { OptionGroupWidget } from "./widgets/option-group-widget.js";
-import { PrimaryAttributeWidget } from "./widgets/primary-attribute-widget.js";
+import { createGrantWidgets } from "./widgets/grant-widget-factory.js?v=wpe8";
+import { LevelChoiceWidget } from "./widgets/level-choice-widget.js?v=wpe1";
+import { OptionGroupWidget } from "./widgets/option-group-widget.js?v=wpe7";
+import { PrimaryAttributeWidget } from "./widgets/primary-attribute-widget.js?v=wpe1";
 
-import { loadGameXData, getGameXClasses, getGameXClassFeatures, getGameXFeatsForClass, getGameXWeaponBases, getGameXWeaponEnhancements } from "../core/game-data.js";
+import { loadGameXData, getGameXClasses, getGameXClassFeatures, getGameXWeaponBases, getGameXWeaponEnhancements } from "../core/game-data.js?v=wpe1";
 
-import { ATTR_KEYS, clampLevel, coerceAttrKey, labelForAttrKey } from "../core/character-rules.js";
-import { buildBuilderWithPatch, reconcileBuilderChange, summarizeDependencyChanges, summarizeDependencyRemovals } from "../core/builder-dependencies.js";
+import { ATTR_KEYS, clampLevel, coerceAttrKey, labelForAttrKey } from "../core/character-rules.js?v=wpe1";
+import { SetClass, SetGrantChoices, VisitBuilderStep } from "../core/character-commands.js?v=wpe1";
+import { readCharacter } from "../core/database-reader.js?v=wpe6";
+import { replaceCharacter } from "../core/database-writer.js?v=wpe1";
+import { reconcileCharacterGraph } from "../core/graph-reconciler.js?v=wpe10";
 import { sanitizeText } from "../core/data-sanitization.js";
 import { checkPrerequisites } from "../core/prerequisites.js";
 import {
@@ -42,8 +43,6 @@ ensureBuilderShellUi();
 
 /** @type {any} */
 let ctx;
-/** @type {any} */
-let charRef;
 /** @type {any} */
 let currentDoc;
 
@@ -99,51 +98,16 @@ let primaryAttributeWidget = null;
 let classFeaturesWidget = null;
 let featsWidget = null;
 
-class ClassBuilderPage extends BuilderPage {}
-
-const classPage = new ClassBuilderPage({
-  stepId: CURRENT_STEP_ID,
-  getSaveContext: () => ({
-    currentDoc,
-    grantChoices,
-  }),
-  getGameData: () => gameData,
-  getBuilder: () => currentDoc?.builder || {},
-  onWorkingBuilderChange: (builder) => {
-    currentDoc = currentDoc || {};
-    currentDoc.builder = builder;
-    applyReconciledChoiceState(builder);
-  },
-  filterImmediateWarnings: (preview) => getImmediateDependencyWarnings(preview),
-  confirmDependencyPreview: async ({ warnings }) => {
-    if (!warnings.length) return true;
-    return await confirmSaveWarnings({
-      title: "Apply this change?",
-      warnings,
-      okText: "Apply Change",
-      cancelText: "Cancel",
-    });
-  },
-  applyReconciledBuilder: (builder) => {
-    applyReconciledChoiceState(builder);
-  },
-});
-new GrantChoicesWidget(classPage, {
-  getGrantChoices: () => grantChoices,
-  getExistingWeapons: () => currentDoc?.builder?.weapons || [],
-});
-new OptionGroupWidget(classPage, {
-  id: "feat-option-collection",
-  storagePath: "builder.selectedFeatOptions",
-  getSelectedKeys: () => selectedFeatOptionKeys,
-  scope: "page",
-});
+let classPage = null;
 const grantChoiceState = new GrantChoiceState({
   getChoices: () => grantChoices,
   setChoices: (next) => {
     grantChoices = next;
   },
-  onChange: () => {
+  onChange: async () => {
+    const acceptedChoices = classPage?.getCharacter()?.builder?.grantChoices || {};
+    const result = await classPage?.requestCharacterCommand?.(null, SetGrantChoices(grantChoices));
+    if (result && !result.ok) grantChoices = { ...acceptedChoices };
     renderFeatures();
     renderFeats();
   },
@@ -184,29 +148,15 @@ function getAllowedPrimaryAttributes(classObj) {
   return allowed.filter((k) => ATTR_KEYS.includes(/** @type {any} */ (k)));
 }
 
-function getFeatSlots(level) {
-  // Rule (temporary): 1 slot at every even level.
-  const L = clampLevel(level);
-  return Math.floor(L / 2);
-}
-
 function computeVisibleClassFeatures(classKey, level) {
   const all = getGameXClassFeatures(gameData, classKey);
   const L = clampLevel(level);
   return all.filter((f) => Number(f?.level || 0) <= L);
 }
 
-function computeVisibleFeats(classKey, level) {
-  const all = getGameXFeats(gameData);
-  const L = clampLevel(level);
-  return all
-    .filter((f) => String(f?.classKey || "") === String(classKey))
-    .filter((f) => Number(f?.minLevel || 0) <= L);
-}
-
 function getClassStepBuilderState() {
   return {
-    ...classPage.getWorkingBuilder(),
+    ...(classPage?.getCharacter()?.builder || currentDoc?.builder || {}),
     level: clampLevel(selectedLevel),
     classKey: selectedClassKey,
     primaryAttribute: selectedPrimary,
@@ -270,14 +220,6 @@ function getSaveIssues() {
   /** @type {string[]} */
   const warnings = [];
 
-  const prevClassKey = String(currentDoc?.builder?.classKey || "");
-  const classChanged = !!selectedClassKey && !!prevClassKey && prevClassKey !== selectedClassKey;
-
-  const prevLevelRaw = Number(currentDoc?.builder?.level || 1);
-  const prevLevel = clampLevel(prevLevelRaw);
-  const nextLevel = clampLevel(selectedLevel);
-  const levelDecreased = nextLevel < prevLevel;
-
   const cls = getClassByKey(selectedClassKey);
   if (!cls) {
     warnings.push("Choose a class.");
@@ -294,105 +236,18 @@ function getSaveIssues() {
 
   }
 
-  const previewPatch = classPage.getWidgetSavePatch({ currentDoc, grantChoices });
-  const preview = classPage.previewChoiceChange(previewPatch);
-  const dependencyWarnings = getPageDependencyWarnings(preview, previewPatch);
-  warnings.push(...dependencyWarnings);
-  errors.push(...preview.errors);
-
-  if (classChanged && levelDecreased && !dependencyWarnings.length) {
-    warnings.push(`Changing class and reducing level may require reviewing later builder choices.`);
-  }
+  const reconciliation = reconcileCharacterGraph({
+    character: classPage.getCharacter(),
+    previousCharacter: classPage.getCharacter(),
+    gameData,
+  });
+  errors.push(...reconciliation.impacts
+    .filter((impact) => impact.category === "error")
+    .map((impact) => impact.message || impact.code));
+  warnings.push(...getBuilderStepInformationalMessages(reconciliation, CURRENT_STEP_ID));
 
   return { errors, warnings };
 }
-
-function getImmediateDependencyWarnings(preview) {
-  return summarizeDependencyRemovals(preview?.changes);
-}
-
-function getPageDependencyWarnings(preview, pagePatch = {}) {
-  const pagePaths = new Set(Object.keys(pagePatch || {}));
-  const changes = Array.isArray(preview?.changes) ? preview.changes : [];
-  return summarizeDependencyChanges(changes.filter((change) => {
-    if (change?.type !== "incomplete") return true;
-    return pagePaths.has(change.storagePath);
-  }));
-}
-
-function buildAutoAbilities(builderState = null) {
-  /** @type {{name: string, text: string}[]} */
-  const out = [];
-  const state = builderState && typeof builderState === "object" ? builderState : getClassStepBuilderState();
-  const classKey = String(state.classKey || "");
-  const level = clampLevel(state.level || 1);
-  const featureOptionKeys = new Set(Array.isArray(state.selectedClassFeatureOptions) ? state.selectedClassFeatureOptions : []);
-  const featNames = new Set(Array.isArray(state.selectedFeats) ? state.selectedFeats : []);
-  const featOptionKeys = new Set(Array.isArray(state.selectedFeatOptions) ? state.selectedFeatOptions : []);
-
-  if (!classKey) return out;
-
-  const visible = computeVisibleClassFeatures(classKey, level);
-
-  for (const f of visible) {
-    if (String(f?.type) !== "feature") continue;
-    const n = String(f?.name || "").trim();
-    if (!n) continue;
-    out.push({
-      name: `Class Feature - ${n}`,
-      text: String(f?.description || "").trim(),
-    });
-  }
-
-  for (const option of collectSelectedEntries(visible, featureOptionKeys)) {
-    const n = String(option?.name || "").trim();
-    if (!n) continue;
-    out.push({
-      name: `Class Feature - ${n}`,
-      text: String(option?.description || "").trim(),
-    });
-  }
-
-  const visibleFeats = computeVisibleFeats(classKey, level);
-  const featByName = new Map(visibleFeats.map((f) => [String(f?.name || "").trim(), f]));
-
-  for (const name of Array.from(featNames)) {
-    const feat = featByName.get(name);
-    if (!feat) continue;
-    out.push({
-      name: `Feat - ${name}`,
-      text: String(feat?.description || "").trim(),
-    });
-  }
-
-  const selectedFeats = Array.from(featNames)
-    .map((name) => featByName.get(name))
-    .filter(Boolean);
-  for (const option of collectSelectedEntries(selectedFeats, featOptionKeys)) {
-    const n = String(option?.name || "").trim();
-    if (!n) continue;
-    out.push({
-      name: `Feat Option - ${n}`,
-      text: String(option?.description || "").trim(),
-    });
-  }
-
-  return out;
-}
-function mergeAbilities(existingAbilities, oldAutoNames, newAutoAbilities) {
-  const oldSet = new Set(Array.isArray(oldAutoNames) ? oldAutoNames : []);
-  const kept = (Array.isArray(existingAbilities) ? existingAbilities : [])
-    .filter((it) => it && typeof it === "object")
-    .filter((it) => {
-      const n = String(it.name || "").trim();
-      return !oldSet.has(n);
-    })
-    .map((it) => ({ name: String(it.name || ""), text: String(it.text || "") }));
-
-  const merged = kept.concat(newAutoAbilities);
-  return merged;
-}
-
 
 function renderPrimaryOptions() {
   if (primaryAttributeWidget) {
@@ -477,15 +332,15 @@ function inferGrantWidgetSourceId(entry, {
   optionKey = "",
 } = {}) {
   const provided = sanitizeText(sourceId, { maxLen: 260, collapse: true });
-  if (provided) return provided;
   const key = sanitizeText(optionKey, { maxLen: 240, collapse: true });
-  if (storagePath && key) return `choice:${storagePath}:${key}`;
   if (scope === "feat") {
-    const featName = sanitizeText(entry?.name || "", { maxLen: 160, collapse: true });
-    return featName ? `feat:${featName}` : "";
+    if (key) return `feat-option:${key}`;
+    const featKey = sanitizeText(entry?.featKey || "", { maxLen: 128, collapse: true });
+    return featKey ? `feat-selection:${featKey}` : provided;
   }
+  if (key) return `class-option:${selectedClassKey}:${key}`;
   const featureKey = sanitizeText(entry?.featureKey || entry?.name || "", { maxLen: 240, collapse: true });
-  return featureKey ? `classFeature:${featureKey}` : "";
+  return featureKey ? `class-feature:${selectedClassKey}:${featureKey}` : provided;
 }
 
 function createGrantChoiceWidgets(entry, options = {}) {
@@ -542,7 +397,7 @@ function createOptionGroupElement(group, selectedKeys, onChange, depth = 0, {
       if (context !== "feat") return true;
       const builder = dependencyContext.reconciledBuilder || dependencyContext.proposedBuilder || getClassStepBuilderState();
       const selectedFeats = Array.isArray(builder.selectedFeats) ? builder.selectedFeats : [];
-      return selectedFeats.includes(String(group?.name || "").trim());
+      return selectedFeats.includes(String(group?.featKey || "").trim());
     },
     scope: context,
   }).element;
@@ -581,6 +436,16 @@ async function saveClassStep({ openSheetAfter = false, intent = "save" } = {}) {
   clearError(errorEl);
   setStatus(statusEl, "Saving…");
 
+  const refresh = await classPage.requestCharacterCommand(
+    null,
+    SetClass(classPage.getCharacter().builder.classKey),
+  );
+  if (!refresh.ok) {
+    showError(errorEl, refresh.errors?.join(" ") || "The character could not be reconciled.");
+    setStatus(statusEl, "Not saved.");
+    return false;
+  }
+
   const { errors, warnings } = getSaveIssues();
   if (errors.length) {
     showError(errorEl, errors.join(" "));
@@ -591,7 +456,7 @@ async function saveClassStep({ openSheetAfter = false, intent = "save" } = {}) {
   if (warnings.length) {
     const ok = await confirmSaveWarnings({
       title: "Some information is incomplete",
-      warnings,
+      warnings: Array.from(new Set(warnings)),
       okText: intent === "navigate" ? "Save and Continue" : "Save",
       cancelText: "Cancel",
     });
@@ -601,52 +466,34 @@ async function saveClassStep({ openSheetAfter = false, intent = "save" } = {}) {
     }
   }
 
-  try {
-    const widgetPatch = classPage.getWidgetSavePatch({ currentDoc, grantChoices });
-    const reconciliation = reconcileBuilderChange(gameData, classPage.getWorkingBuilder(), widgetPatch);
-    const autoAbilities = buildAutoAbilities(reconciliation.reconciledBuilder);
-    const autoNames = autoAbilities.map((a) => a.name);
-    const oldAutoNames = currentDoc?.builder?.autoAbilityNames || [];
-    const existingAbilities = currentDoc?.builder?.sheet?.repeatables?.abilities || [];
-    const existingRepeatables = (currentDoc?.builder?.sheet?.repeatables && typeof currentDoc.builder.sheet.repeatables === "object")
-      ? currentDoc.builder.sheet.repeatables
-      : {};
-    const dependencyRepeatables = (reconciliation.patch["builder.sheet.repeatables"] && typeof reconciliation.patch["builder.sheet.repeatables"] === "object")
-      ? reconciliation.patch["builder.sheet.repeatables"]
-      : existingRepeatables;
-    const mergedAbilities = mergeAbilities(existingAbilities, oldAutoNames, autoAbilities);
-    const staticPatch = {
-      "builder.autoAbilityNames": autoNames,
-      "builder.sheet.repeatables": {
-        ...dependencyRepeatables,
-        abilities: mergedAbilities,
-      },
-    };
-    const patch = { ...reconciliation.patch, ...staticPatch };
+  const visited = await classPage.requestCharacterCommand(null, VisitBuilderStep(CURRENT_STEP_ID));
+  if (!visited.ok) {
+    showError(errorEl, visited.errors?.join(" ") || "The visited builder step could not be recorded.");
+    setStatus(statusEl, "Not saved.");
+    return false;
+  }
 
-    await saveCharacterPatch(charRef, patch);
-    await markStepVisited(charRef, CURRENT_STEP_ID);
-
-    // Update local cache
-    const prevBuilder = classPage.getWorkingBuilder();
-    classPage.setWorkingBuilder(buildBuilderWithPatch(prevBuilder, patch));
-    selectedFeatureOptionKeys = new Set(Array.isArray(currentDoc.builder.selectedClassFeatureOptions) ? currentDoc.builder.selectedClassFeatureOptions : []);
-    selectedFeatNames = new Set(Array.isArray(currentDoc.builder.selectedFeats) ? currentDoc.builder.selectedFeats : []);
-    selectedFeatOptionKeys = new Set(Array.isArray(currentDoc.builder.selectedFeatOptions) ? currentDoc.builder.selectedFeatOptions : []);
-    grantChoices = (currentDoc.builder.grantChoices && typeof currentDoc.builder.grantChoices === "object") ? { ...currentDoc.builder.grantChoices } : {};
-
-    setStatus(statusEl, "Saved.");
-    markBuilderNavigationClean();
-
-    if (openSheetAfter) openCharacterSheet(ctx);
-
-    return true;
-  } catch (e) {
-    console.error(e);
-    showError(errorEl, "Could not save.");
+  const saved = await classPage.save((snapshot) => replaceCharacter({
+    ownerUid: ctx.editingUid,
+    characterId: ctx.charId,
+    character: snapshot.character,
+    expectedRevision: snapshot.expectedRevision,
+  }));
+  if (!saved.ok) {
+    console.error(saved.error);
+    showError(errorEl, saved.error?.code === "character-revision-conflict"
+      ? "This character changed in another tab. Reload before saving again."
+      : "Could not save.");
     setStatus(statusEl, "Error.");
     return false;
   }
+
+  currentDoc = saved.state.working;
+  applyReconciledChoiceState(currentDoc.builder);
+  setStatus(statusEl, "Saved.");
+  markBuilderNavigationClean();
+  if (openSheetAfter) openCharacterSheet(ctx);
+  return true;
 }
 
 function renderNav() {
@@ -673,14 +520,42 @@ async function main() {
       errorEl,
     });
 
-    const loaded = await loadCharacterDoc(ctx.editingUid, ctx.charId);
-    charRef = loaded.charRef;
-    currentDoc = loaded.characterDoc;
-
     gameData = await loadGameXData();
     weaponBases = getGameXWeaponBases(gameData).slice().sort(compareByName);
     weaponEnhancements = getGameXWeaponEnhancements(gameData).slice().sort(compareByName);
-    classPage.hydrateBuilder(currentDoc?.builder || {});
+    const loaded = await readCharacter({
+      ownerUid: ctx.editingUid,
+      characterId: ctx.charId,
+      gameData,
+    });
+    currentDoc = loaded.character;
+    classPage = new CharacterSessionPage({
+      character: loaded.character,
+      revision: loaded.revision,
+      metadata: loaded.metadata,
+      gameData,
+      confirmImpacts: async ({ messages }) => confirmSaveWarnings({
+        title: "Apply this change?",
+        warnings: messages,
+        okText: "Apply Change",
+        cancelText: "Cancel",
+      }),
+      onCommandRejected: ({ errors }) => showError(errorEl, errors.join(" ") || "That change is not valid."),
+      onStateChange: (state) => {
+        currentDoc = state.working;
+        applyReconciledChoiceState(currentDoc.builder);
+      },
+    });
+    new GrantChoicesWidget(classPage, {
+      getGrantChoices: () => grantChoices,
+      getExistingWeapons: () => currentDoc?.builder?.weapons || [],
+    });
+    new OptionGroupWidget(classPage, {
+      id: "feat-option-collection",
+      storagePath: "builder.selectedFeatOptions",
+      getSelectedKeys: () => selectedFeatOptionKeys,
+      scope: "page",
+    });
 
     // Hydrate state from doc
     selectedLevel = clampLevel(currentDoc?.builder?.level || 1);
@@ -725,7 +600,7 @@ async function main() {
       getOptionLabel: (key) => labelForAttrKey(key) || (String(key).charAt(0).toUpperCase() + String(key).slice(1)),
       getValue: () => {
         const allowed = getAllowedPrimaryAttributes(getClassByKey(selectedClassKey));
-        return selectedPrimary && allowed.includes(/** @type {any} */ (selectedPrimary)) ? selectedPrimary : (allowed[0] || "");
+        return selectedPrimary && allowed.includes(/** @type {any} */ (selectedPrimary)) ? selectedPrimary : "";
       },
       setValue: (value) => {
         selectedPrimary = String(value || "");
@@ -769,14 +644,8 @@ async function main() {
       setSelectedFeatOptionKeys: (next) => {
         selectedFeatOptionKeys = next instanceof Set ? next : new Set(next || []);
       },
-      getAvailableFeats: ({ gameData: data = gameData, builder = {} } = {}) => {
-        const classKey = builder.classKey ?? selectedClassKey;
-        const level = builder.level ?? selectedLevel;
-        const L = clampLevel(level);
-        return getGameXFeatsForClass(data || gameData, classKey)
-          .filter((feat) => Number(feat?.minLevel || 0) <= L);
-      },
-      getFeatSlots,
+      getGameData: () => gameData,
+      getBuilder: getClassStepBuilderState,
       showUnavailable: showUnavailableFeats,
       checkEntryPrerequisites,
       renderOptionGroup: (group) => createOptionGroupElement(group, selectedFeatOptionKeys, renderFeats, 1, { context: "feat" }),

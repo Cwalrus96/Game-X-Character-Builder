@@ -1,7 +1,7 @@
 import { getChoiceCountState } from "../../core/choice-capacity.js";
+import { SetFeatSelection } from "../../core/character-commands.js?v=wpe1";
 import { formatPrerequisites } from "../../core/prerequisites.js";
 import {
-  deleteSelectedDescendants,
   isOptionGroup,
 } from "../../core/option-groups.js";
 import { BuilderWidget } from "./builder-widget.js";
@@ -21,9 +21,11 @@ export class FeatWidget extends BuilderWidget {
     scope = "feat",
   } = {}) {
     const name = String(feat?.name || "").trim();
-    super(page, { id: `feat:${name}`, scope });
+    const key = String(feat?.featKey || "").trim();
+    super(page, { id: `feat:${key}`, scope });
     this.feat = feat || {};
     this.name = name;
+    this.key = key;
     this.selectedFeatNames = selectedFeatNames || new Set();
     this.selectedFeatOptionKeys = selectedFeatOptionKeys || new Set();
     this.maxSlots = Number(maxSlots || 0);
@@ -39,9 +41,9 @@ export class FeatWidget extends BuilderWidget {
   }
 
   render() {
-    if (!this.name) return null;
+    if (!this.name || !this.key) return null;
 
-    const checked = this.selectedFeatNames.has(this.name);
+    const checked = this.selectedFeatNames.has(this.key);
     const countState = getChoiceCountState({
       selectedCount: this.selectedFeatNames.size,
       expectedCount: this.maxSlots,
@@ -89,17 +91,16 @@ export class FeatWidget extends BuilderWidget {
           cb.checked = false;
           return;
         }
-        nextFeatNames.add(this.name);
+        nextFeatNames.add(this.key);
       } else {
-        nextFeatNames.delete(this.name);
-        deleteSelectedDescendants(this.feat, nextFeatOptionKeys);
+        nextFeatNames.delete(this.key);
       }
-      const result = await this.page?.requestChoiceChange?.(this, {
-        "builder.selectedFeats": Array.from(nextFeatNames),
-        "builder.selectedFeatOptions": Array.from(nextFeatOptionKeys),
-      }, {
-        applyWidgetChange: (preview) => {
-          const reconciled = preview?.reconciledBuilder || {};
+      const result = await this.page?.requestCharacterCommand?.(
+        this,
+        SetFeatSelection(Array.from(nextFeatNames)),
+        {
+        applyWidgetChange: (proposal) => {
+          const reconciled = proposal?.reconciled?.builder || {};
           const selectedFeats = Array.isArray(reconciled.selectedFeats)
             ? reconciled.selectedFeats
             : Array.from(nextFeatNames);
@@ -112,12 +113,13 @@ export class FeatWidget extends BuilderWidget {
           for (const key of selectedFeatOptions) this.selectedFeatOptionKeys.add(key);
           this.onChange?.();
         },
-      });
+        },
+      );
       if (result && !result.ok) {
         cb.checked = previousChecked;
         return;
       }
-      if (!result) {
+      if (!this.page?.requestCharacterCommand) {
         this.selectedFeatNames.clear();
         for (const name of nextFeatNames) this.selectedFeatNames.add(name);
         this.selectedFeatOptionKeys.clear();

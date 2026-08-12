@@ -2,7 +2,7 @@
 
 `CharacterMigrations` is the only target-v5 module that understands historical saved-character formats. Its job is to accept a recognized old Firestore document, preserve repository timestamps separately, explain every conversion it makes, and return an exact schema-v5 character accepted by `CharacterCodec`.
 
-This boundary keeps backward compatibility out of pages, widgets, rules, graph code, sessions, and the repository's canonical-state logic. Those consumers operate only on v5. Transitional v4 reader/writer and dependency paths still serve the deployed application until repository and page integration; those old compatibility branches must be deleted as their callers switch, and no new compatibility logic may be added outside this module.
+This boundary keeps backward compatibility out of pages, widgets, rules, graph code, sessions, and the repository's canonical-state logic. Those consumers operate only on v5. The definitive reader applies this registry before exposing character state; old compatibility branches must be deleted as their remaining callers switch, and no new compatibility logic may be added outside this module.
 
 ## Evidence-backed version history
 
@@ -41,6 +41,9 @@ The registry is pure. It does not read Firebase, load files, access the DOM, fet
 - V1 attributes are treated as base values. The historical primary-attribute bonus is restored before v5 level caps are applied.
 - Missing required v5 fields receive their documented canonical defaults and are listed in the report.
 - Historical bonds, abilities, weapons, and enhancements that lacked IDs receive deterministic IDs derived from their content and position. Duplicate final identities fail.
+- Historical class-option grant answers are rebound to stable choice and owner IDs only when the reviewed game-data reference index proves one unambiguous match. This includes the display/composite identities emitted by the v4 Dazzling Wand picker; the selected technique is retained as its stable technique key.
+- Duplicate entries in `autoAbilityNames` are removed because that field is a derived display snapshot, not identity-bearing state. Repeated ability records remain distinct and receive distinct deterministic IDs, so two same-named feat abilities are not collapsed.
+- `migratedAt` and `migratedFromUid` are recognized as obsolete account-import bookkeeping fields and reported as removed. They are not canonical character state.
 - Known sheet mirrors and derived values are removed because canonical builder/rules state owns them; the report names each removal.
 - Firestore timestamps are returned as repository metadata and never passed into the v5 codec.
 - Unknown fields fail instead of being silently dropped.

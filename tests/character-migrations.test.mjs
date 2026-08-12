@@ -66,6 +66,60 @@ test("v1 base attributes restore the primary bonus and legacy selections become 
   assert.equal(result.value.builder.sheet.repeatables.abilities[0].abilityId.startsWith("legacy-ability:"), true);
 });
 
+test("deployed v4 account imports preserve repeated abilities and remap legacy Dazzling Wand ownership", () => {
+  const fixture = makeV4Character();
+  fixture.migratedAt = "account-imported-at";
+  fixture.migratedFromUid = "previous-user-id";
+  fixture.builder.classKey = "magical-guardian";
+  fixture.builder.primaryAttribute = "attunement";
+  fixture.builder.selectedClassFeatureOptions = ["magical-guardian|L1|Guardian Accessory::Dazzling Wand"];
+  fixture.builder.autoAbilityNames = [
+    "Class Feature - Magical Guardian Feat",
+    "Class Feature - Magical Guardian Feat",
+    "Class Feature - Dazzling Wand",
+  ];
+  fixture.builder.sheet.repeatables.abilities = [
+    { name: "Class Feature - Magical Guardian Feat", text: "First feat selection." },
+    { name: "Class Feature - Magical Guardian Feat", text: "Second feat selection." },
+  ];
+  const legacyChoiceId = "Dazzling Wand:technique-choice:spellcasting:0";
+  fixture.builder.grantChoices = {
+    [legacyChoiceId]: {
+      choiceId: legacyChoiceId,
+      sourceId: "choice:builder.selectedClassFeatureOptions:magical-guardian|L1|Guardian Accessory::Dazzling Wand",
+      sourceLabel: "Dazzling Wand",
+      type: "technique",
+      techniqueName: "Prismatic Burst",
+      skill: "spellcasting",
+    },
+  };
+  const original = structuredClone(fixture);
+
+  const result = migrateCharacterDocument(fixture, { references });
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics, null, 2));
+  assert.deepEqual(fixture, original, "migration must not mutate account-imported v4 input");
+  assert.deepEqual(result.value.builder.selectedClassFeatureOptions, ["dazzling-wand"]);
+  assert.deepEqual(result.value.builder.autoAbilityNames, [
+    "Class Feature - Magical Guardian Feat",
+    "Class Feature - Dazzling Wand",
+  ]);
+  assert.equal(result.value.builder.sheet.repeatables.abilities.length, 2);
+  assert.notEqual(
+    result.value.builder.sheet.repeatables.abilities[0].abilityId,
+    result.value.builder.sheet.repeatables.abilities[1].abilityId,
+  );
+  const canonicalChoiceId = "dazzling-wand:technique-choice:spellcasting:0";
+  assert.deepEqual(Object.keys(result.value.builder.grantChoices), [canonicalChoiceId]);
+  assert.equal(result.value.builder.grantChoices[canonicalChoiceId].choiceId, canonicalChoiceId);
+  assert.equal(
+    result.value.builder.grantChoices[canonicalChoiceId].sourceId,
+    "class-option:magical-guardian:dazzling-wand",
+  );
+  assert.equal(result.value.builder.grantChoices[canonicalChoiceId].techniqueKey, "prismatic-burst");
+  assert(result.report.some((item) => item.kind === "removed" && item.path === "character.migratedAt"));
+  assert(result.report.some((item) => item.kind === "removed" && item.path === "character.migratedFromUid"));
+});
+
 test("metadata is preserved outside canonical state", () => {
   const result = migrateCharacterDocument(makeV3Character(), { references });
   assert.equal(result.ok, true, JSON.stringify(result.diagnostics, null, 2));

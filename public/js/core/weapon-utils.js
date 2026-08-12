@@ -2,6 +2,58 @@ import { sanitizeText, safeHtmlText } from "./data-sanitization.js";
 import { getEntryPrerequisites, meetsPrerequisites } from "./prerequisites.js";
 import { renderTagChipsHtml, renderTechniqueProfileHtml } from "./technique-utils.js";
 
+export const MAX_WEAPON_SLOTS = 4;
+
+export const ENHANCEMENT_SELECTION_SPECS = Object.freeze({
+  basic_elemental_infusion: Object.freeze([
+    Object.freeze({ key: "element", label: "Element", type: "select", options: Object.freeze(["Water", "Fire", "Earth", "Wind"]) }),
+  ]),
+  bane_weapon: Object.freeze([
+    Object.freeze({ key: "trait", label: "Bane Trait", type: "text", placeholder: "Spirit, Monster, Fire, etc." }),
+  ]),
+  swiss_army_weapon: Object.freeze([
+    Object.freeze({ key: "skill", label: "Utility Skill", type: "text", placeholder: "Technology, Medicine, Crafting, etc." }),
+  ]),
+});
+
+export function getEnhancementSelectionSpecs(enhancementKey) {
+  return ENHANCEMENT_SELECTION_SPECS[String(enhancementKey || "")] || [];
+}
+
+export function countPurchasedEnhancements(weapons) {
+  return (Array.isArray(weapons) ? weapons : []).reduce((total, weapon) => (
+    total + (Array.isArray(weapon?.enhancements) ? weapon.enhancements : [])
+      .filter((enhancement) => enhancement?.granted !== true).length
+  ), 0);
+}
+
+export function computeEnhancementCapacity(weapons, grantedSlots = 0) {
+  return (Array.isArray(weapons) ? weapons : [])
+    .reduce((total, weapon) => total + Math.max(0, Number(weapon?.rank || 0)), 0)
+    + Math.max(0, Number(grantedSlots || 0));
+}
+
+export function getWeaponSkillRanks(builder, grantedSkillState) {
+  const ranks = { "Melee Weapons": 0, Targeting: 0 };
+  const rows = [
+    ...(Array.isArray(grantedSkillState?.grantedCombatSkills) ? grantedSkillState.grantedCombatSkills : []),
+    ...(Array.isArray(builder?.sheet?.repeatables?.combatSkillsExtra) ? builder.sheet.repeatables.combatSkillsExtra : []),
+  ];
+  for (const row of rows) {
+    const skill = sanitizeText(row?.skill, { maxLen: 96, collapse: true });
+    const rank = Number.parseInt(String(row?.rank || "0"), 10);
+    if (!Object.prototype.hasOwnProperty.call(ranks, skill) || !Number.isFinite(rank)) continue;
+    ranks[skill] = Math.max(ranks[skill], Math.max(0, rank));
+  }
+  return ranks;
+}
+
+export function getWeaponSkillRankCap(weaponDef, skillRanks) {
+  const relevantSkills = getWeaponSkillNames(weaponDef);
+  if (!relevantSkills.length) return 0;
+  return relevantSkills.reduce((maximum, skillName) => Math.max(maximum, Number(skillRanks?.[skillName] || 0)), 0);
+}
+
 export function getWeaponDef(weaponBases, weaponKey) {
   const list = Array.isArray(weaponBases) ? weaponBases : [];
   return list.find((weapon) => String(weapon?.weaponKey || "") === String(weaponKey || "")) || null;

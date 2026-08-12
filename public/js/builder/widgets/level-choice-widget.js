@@ -1,4 +1,5 @@
 import { clampLevel } from "../../core/character-rules.js";
+import { SetLevel } from "../../core/character-commands.js?v=wpe1";
 import { BuilderWidget } from "./builder-widget.js";
 
 export class LevelChoiceWidget extends BuilderWidget {
@@ -40,12 +41,11 @@ export class LevelChoiceWidget extends BuilderWidget {
       const nextValue = this.value();
       if (nextValue === previousValue) return;
 
-      const result = await this.page?.requestChoiceChange?.(this, {
-        "builder.level": nextValue,
-      }, {
-        applyWidgetChange: (preview) => {
-          this.setValue(nextValue);
-          this.onChange?.(nextValue, preview);
+      const result = await this.page?.requestCharacterCommand?.(this, SetLevel(nextValue), {
+        applyWidgetChange: (proposal) => {
+          const acceptedValue = proposal?.reconciled?.builder?.level ?? nextValue;
+          this.setValue(acceptedValue);
+          this.onChange?.(acceptedValue, proposal);
         },
       });
 
