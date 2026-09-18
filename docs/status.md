@@ -1,6 +1,6 @@
 # Current implementation status
 
-Last updated: 2026-08-30
+Last updated: 2026-09-18
 
 Current branch at update: `codex/work-package-b-data-contract`
 
@@ -26,7 +26,8 @@ This is the only frequently updated project-status document. Historical audits a
 - The `WPC-REPOSITORY` checkpoint is `44ada92`, titled `Implement definitive character persistence boundary`; it strengthens the existing database reader/writer rather than adding a duplicate repository implementation.
 - The current Work Package C session checkpoint is `WPC-SESSION`, titled `Add canonical character session lifecycle`; it remains pure and does not switch deployed pages.
 - The current Work Package D graph checkpoint is `WPD-GRAPH-CORE`, titled `Add deterministic character graph core`; it remains fixture-integrated and does not switch deployed pages or publish data.
-- The current Work Package E implementation checkpoint is the current top commit, titled `Migrate builder domains to character session graph`; focused signed-in acceptance remains deferred, so this commit does not remove compatibility paths or deploy production.
+- The current Work Package E implementation checkpoint is `d035a40`, titled `Migrate builder domains to character session graph`; focused signed-in acceptance remains deferred, so this commit does not remove compatibility paths or deploy production.
+- The 2026-09-18 handbook formatting repair cleared linked-table formatting overrides using **Match spreadsheet data and formatting**. All 85 techniques now follow the display Sheet's rich-text title/access/body formatting. Three subsequent ordinary refreshes, including paragraph-count changes, passed; source values, formats, and rich-text runs were restored exactly. The preventive workflow is recorded in [data-pipeline.md](data-pipeline.md#handbook-display-and-linked-table-formatting). No application code or production data changed; the Work Package E acceptance boundary is unchanged.
 - Agent guidance now requires automatic human-readable briefings before every named roadmap step and self-contained plain-language outcome summaries afterward; filenames, test lists, and jargon cannot substitute for those explanations.
 - At the beginning of the schema-v4 synchronization work, the Work Package B branch was clean and two commits ahead of `master`.
 

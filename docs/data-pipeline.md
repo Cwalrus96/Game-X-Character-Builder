@@ -2,7 +2,7 @@
 
 Status: living operational design. Read-only acquisition, schema-v4 read/validate/stage/diff, authenticated live acceptance, exact reviewed publishing, and rollback are implemented.
 
-Last updated: 2026-08-08.
+Last updated: 2026-09-18.
 
 ## Goals
 
@@ -19,6 +19,16 @@ The source is [game-x-class-data](https://docs.google.com/spreadsheets/d/1TEdxuu
 `npm run fetch:data` uses Google Drive `files.get` and `files.export` to acquire the entire native Sheet as XLSX. XLSX remains the transport boundary so spreadsheet formulas/tab structure are captured consistently with the old manual workflow.
 
 The Drive API limits native-file exports to 10 MB. The acquisition module enforces the same limit, opens the XLSX structurally, verifies every tab named in `contracts/game-data-source.json`, and checks the workbook's `Metadata` schema/syntax versions and canonical workbook ID before writing anything.
+
+## Handbook display and linked-table formatting
+
+The handbook's technique table follows a separate display path: the canonical Sheet feeds [Game-X-Data-Display](https://docs.google.com/spreadsheets/d/106wXA3w52aubp0zCYqieHJME02C0bu4jdho9b_eBA8U/edit), whose `Techniques_Formatted!A1:A85` is linked into the [Player Handbook's Tags, Traits, Techniques tab](https://docs.google.com/document/d/1cuwDpTwqG2LHulyXm0okgD-4Rj3ZNwZufEFjL777jss/edit?tab=t.yz4ctfxm1pnu). This does not publish runtime JSON.
+
+Maintain linked-cell typography in the display Sheet's rich-text formatting: bold technique title, italic Access line, and explicitly nonbold body text. Apply future typography changes there and refresh the linked table; do not maintain a second set of title/body styles directly in Docs.
+
+If a refresh produces incorrect formatting despite correct source rich-text runs, use the linked-table menu's **Match spreadsheet data and formatting** action to clear Docs formatting overrides for the whole linked table. Then use ordinary **Update Table** for source changes. This action matches source typography and table formatting, so review the resulting layout as well as the text. It is a repair action, not a documented persistent setting.
+
+On 2026-09-18, four techniques had entirely bold, 14-point text in Docs while every source cell had explicit nonbold body runs. Matching the table to the spreadsheet repaired all four without individual Docs cell edits. Three subsequent ordinary refreshes, including temporary paragraph-break changes, preserved mixed formatting. Final verification covered all 85 entries, with bold titles and no bold body runs; temporary source changes were restored exactly. When changing this workflow, verify both the source rich-text runs and the rendered handbook after a changed-cell refresh, including a change in paragraph count.
 
 ## Authentication
 
