@@ -1,6 +1,6 @@
 # Current implementation status
 
-Last updated: 2026-09-18
+Last updated: 2026-09-19
 
 Current branch at update: `codex/work-package-b-data-contract`
 
@@ -10,7 +10,7 @@ Next implementation step: `WPE-DOMAIN-MIGRATION`
 
 Parallel blocked character step: deployed-page completion of `WPC-REPOSITORY`, pending affected Work Package E domain integration; the reviewed stable-technique-key data prerequisite is now satisfied
 
-Parallel game-data step: Work Package B is complete through `WPB-PUBLISH`; no game-data manual action is pending
+Parallel game-data step: Work Package B is complete through the prior `WPB-PUBLISH`; the 2026-09-18 source/handbook updates are unpublished, with live-source compatibility findings to resolve before a new release candidate
 
 This is the only frequently updated project-status document. Historical audits and completion records must not be edited to look current.
 
@@ -27,7 +27,9 @@ This is the only frequently updated project-status document. Historical audits a
 - The current Work Package C session checkpoint is `WPC-SESSION`, titled `Add canonical character session lifecycle`; it remains pure and does not switch deployed pages.
 - The current Work Package D graph checkpoint is `WPD-GRAPH-CORE`, titled `Add deterministic character graph core`; it remains fixture-integrated and does not switch deployed pages or publish data.
 - The current Work Package E implementation checkpoint is `d035a40`, titled `Migrate builder domains to character session graph`; focused signed-in acceptance remains deferred, so this commit does not remove compatibility paths or deploy production.
-- The 2026-09-18 handbook formatting repair cleared linked-table formatting overrides using **Match spreadsheet data and formatting**. All 85 techniques now follow the display Sheet's rich-text title/access/body formatting. Three subsequent ordinary refreshes, including paragraph-count changes, passed; source values, formats, and rich-text runs were restored exactly. The preventive workflow is recorded in [data-pipeline.md](data-pipeline.md#handbook-display-and-linked-table-formatting). No application code or production data changed; the Work Package E acceptance boundary is unchanged.
+- The earlier 2026-09-18 handbook formatting repair cleared linked-table formatting overrides using **Match spreadsheet data and formatting**. All 85 then-existing techniques followed the display Sheet's rich-text title/access/body formatting. Three subsequent ordinary refreshes, including paragraph-count changes, passed; source values, formats, and rich-text runs were restored exactly.
+- The later 2026-09-18 operational checkpoint migrated 12 complete handbook techniques into canonical source, preserved 16 editorial weapon records in `TechniqueDrafts`, linked the Rank 0 and new technique excerpts, and repaired feat display imports and native handbook links. The catalogue now contains 97 techniques; verified feat tables contain 19 class feats and 43 archetype memberships. The workflow is recorded in [data-pipeline.md](data-pipeline.md#handbook-display-and-linked-table-formatting). No application code or production data changed; the active Work Package E acceptance boundary is unchanged.
+- The 2026-09-19 follow-up removed imported minimum row heights and redundant archetype prerequisite lines, normalized stray grant prefixes, and repaired accidental list/formatting overrides in linked handbook tables. The ordinary-refresh regression and final handbook audit passed: all 62 feat/archetype entries match display text and bold styling, and all 21 relevant tables have zero positive row minima. This changes display/handbook formatting only; the canonical source and active Work Package E boundary are unchanged.
 - Agent guidance now requires automatic human-readable briefings before every named roadmap step and self-contained plain-language outcome summaries afterward; filenames, test lists, and jargon cannot substitute for those explanations.
 - At the beginning of the schema-v4 synchronization work, the Work Package B branch was clean and two commits ahead of `master`.
 
@@ -132,8 +134,9 @@ Evidence: [work-package-a-completion.md](work-package-a-completion.md) and [mile
 |---|---|
 | Source Sheet | [game-x-class-data](https://docs.google.com/spreadsheets/d/1TEdxuufglP8lFRNk8QD4N_351-0ihAUFLG2743ESjoI/edit) |
 | Drive file ID | `1TEdxuufglP8lFRNk8QD4N_351-0ihAUFLG2743ESjoI` |
-| Drive version | `647` |
-| Drive modified time | `2026-08-09T02:27:03.310Z` |
+| Published release Drive version | `647` |
+| Published release Drive modified time | `2026-08-09T02:27:03.310Z` |
+| Current source checkpoint | 2026-09-18 handbook migration; 97 techniques, newer than the published release |
 | Source schema | `4` |
 | Grant syntax | `2` |
 | Prerequisite syntax | `2` |
@@ -150,7 +153,7 @@ The repository's old `data/game-x-class-data.xlsx` is a June 29 snapshot and is 
 - Runtime stable technique keys are available. The remaining Work Package E gate is behavioral browser acceptance, not domain implementation or data identity.
 - Familiar, vehicle, and gadget expressions are preserved with explicit runtime-stub status until their future subsystem slices; they are no longer rejected or discarded by data loading.
 - The graph core requires normalized runtime artifact schema 2, which is now published, but remains fixture-integrated until the corresponding Work Package E page/domain slice authorizes a deployed-page cutover.
-- The live Handbook import script was not run after spreadsheet normalization because its bound script source/staging target was inaccessible. The Handbook remains untouched.
+- During the earlier spreadsheet-normalization checkpoint, the Handbook remained untouched because its bound import script was inaccessible. The 2026-09-18 work subsequently regenerated native display outputs and updated the handbook's linked tables; that historical restriction no longer describes the current handbook.
 
 ## Deferred acceptance and blockers
 
@@ -162,6 +165,7 @@ The repository's old `data/game-x-class-data.xlsx` is a June 29 snapshot and is 
 ### Production data publishing
 
 - No publishing blocker remains for candidate `20260809T022801911Z-51956`; it was approved and promoted through the exact-byte publisher.
+- The current live source has pre-existing compatibility findings: `Feats` column order differs from the runtime adapter contract, archetype DSL is unsupported by the current registry, and `ArchetypeFeats` has no runtime adapter. These findings block preparation of a new publishable candidate; the handbook display repair does not resolve them. They were identified by source/code inspection, not a new live staging run.
 - Future source changes require a new immutable run, zero-error validation, complete semantic diff review, an exact release contract, and separate publish approval. The generic production export freeze remains active.
 
 ### Automated source acquisition
@@ -174,6 +178,24 @@ The repository's old `data/game-x-class-data.xlsx` is a June 29 snapshot and is 
 See [data-pipeline.md](data-pipeline.md) for exact commands and security guidance.
 
 ## Last verification
+
+Handbook spacing and duplicate-prerequisite follow-up on 2026-09-19:
+
+- Preflight passed on Node.js `v22.22.1`: all 238 unit tests, nine frozen artifacts, and 14 HTML files passed. The starting worktree was clean at `80c34de` (`Document linked handbook feat and technique migration`).
+- Range expansion had added positive row-height minima to new rows while original rows retained zero minima. All 51 affected rows across nine tables were reset in bulk; the largest minimum was 982.5 points for a short Dark Witch entry. All 21 relevant tables currently have zero minima after ten affected native refreshes and source-format matching.
+- Nine display formula anchors (`_Feats!A1`, `Feats_Display!A2`, and `Archetypes_Display!A1:G1`) now resolve referenced prerequisite groups, suppress only matching duplicate metadata, and normalize stray single-line grant prefixes. A native pilot verified 62 records with zero errors: exactly 19 intended text changes (seven duplicate lines and 12 grant prefixes), with the other 43 unchanged apart from concurrent user edits to Ghostwalker and Warden Soul, which were preserved.
+- Accidental native bullets were removed from 118 paragraphs in 12 feat cells and their indentation reset to zero. The two Celestial Knight literal choice bullets and 109 other native bullet paragraphs were preserved. An ordinary refresh initially made those 12 cells entirely bold through inherited Docs overrides; **Match spreadsheet data and formatting** cleared those overrides.
+- The controlled Weaponsmith ordinary-refresh regression added one temporary newline before Grants, preserving bold title, regular body, no native bullets, and zero row minimum. Exact restoration of the Sheet value, format, and rich-text runs passed JSON equality and was applied with ordinary **Update Table**. Native visual review confirmed correct typography and a compact row. Evidence: `.staging/handbook-compact-2026-09-19/refresh-regression.json`.
+- The final handbook audit passed: all 62 feat/archetype entries match current formatted display text and every non-whitespace character's bold flag; all titles are bold and the 12 affected bodies are regular. Those 12 cells have no native bullets, while the other 109 native bullet paragraphs retain exact text and bullet metadata and both Celestial Knight literal choice bullets remain. All 21 relevant feat/technique tables have zero positive row minima, including the nine repaired tables. Evidence: `.staging/handbook-compact-2026-09-19/final-handbook-qa.json`, including the source snapshot hash and final document revision. No canonical source edit, runtime publish, application change, or deployment was performed; `WPE-DOMAIN-MIGRATION` remains the next application step.
+
+Source/handbook migration and display repair on 2026-09-18:
+
+- Preflight passed on Node.js `v22.22.1`: `npm test` ran 238 tests with zero failures; `npm run baseline:data` matched all nine frozen artifacts; `npm run validate:assets` passed all 14 HTML files.
+- The 12 prepared technique rows passed the source adapter and model validator with zero diagnostics in a fixture-backed check. An additional editorial `TechniqueDrafts` tab left the runtime technique count unchanged. A blank rank on an actual runtime draft technique was separately confirmed to fail validation, so unknown ranks were preserved editorially rather than invented.
+- Canonical `Techniques!A87:AI98` now contains the 12 authored additions. A final read compared every field of the original 85 records: all 2,975 comparisons matched. The 97-record source snapshot SHA-256 is `5ea33fb1f2104f3a8d535a4938d3912307de0199d52adc4966ac2a375aefd6a9`; the source modified time is `2026-09-18T20:17:38.284Z`. The connector did not expose the current Drive version.
+- Independent handbook verification matched all 97 catalogue rows to display text after whitespace normalization, with bold titles and zero bold body characters. All 31 new helper rows (three Rank 0, 12 migrated techniques, 16 editorial entries) also matched their display outputs with the intended title/body styling. The catalogue retained its 468-point width within the stored 6.5-inch content area.
+- The repaired feat pipeline and refreshed native links matched all 62 handbook rows: 19 class feats, including the migrated Fairy Transformation, and 43 archetype memberships. Titles were bold and body text nonbold; membership consistency was verified.
+- Local evidence is retained under `.staging/technique-migration-2026-09-18/`, including source snapshots, exact migration plans, and handbook checks. No live staging run, runtime publish, application change, or deployment was performed. Live-source publishing findings above remain unresolved; `WPE-DOMAIN-MIGRATION` remains the next application step.
 
 Work Package E historical-character acceptance repair verification on 2026-08-30:
 

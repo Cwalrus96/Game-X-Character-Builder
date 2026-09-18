@@ -2,7 +2,7 @@
 
 Status: living operational design. Read-only acquisition, schema-v4 read/validate/stage/diff, authenticated live acceptance, exact reviewed publishing, and rollback are implemented.
 
-Last updated: 2026-09-18.
+Last updated: 2026-09-19.
 
 ## Goals
 
@@ -22,13 +22,33 @@ The Drive API limits native-file exports to 10 MB. The acquisition module enforc
 
 ## Handbook display and linked-table formatting
 
-The handbook's technique table follows a separate display path: the canonical Sheet feeds [Game-X-Data-Display](https://docs.google.com/spreadsheets/d/106wXA3w52aubp0zCYqieHJME02C0bu4jdho9b_eBA8U/edit), whose `Techniques_Formatted!A1:A85` is linked into the [Player Handbook's Tags, Traits, Techniques tab](https://docs.google.com/document/d/1cuwDpTwqG2LHulyXm0okgD-4Rj3ZNwZufEFjL777jss/edit?tab=t.yz4ctfxm1pnu). This does not publish runtime JSON.
+The handbook follows a separate display path: the canonical Sheet feeds [Game-X-Data-Display](https://docs.google.com/spreadsheets/d/106wXA3w52aubp0zCYqieHJME02C0bu4jdho9b_eBA8U/edit), whose rich-text outputs are linked into the [Player Handbook](https://docs.google.com/document/d/1cuwDpTwqG2LHulyXm0okgD-4Rj3ZNwZufEFjL777jss/edit). The shared technique catalogue currently links `Techniques_Formatted!A1:A97`. This does not publish runtime JSON.
+
+The technique display formula emits `**title**` and `*Access*` markup for the workbook's native **Format Sheet** generator. Regenerate the rich-text output after changing source/display formulas, then refresh the native Docs links. Preserve `rankNotes` and other authored higher-rank benefits in that display flow. The following helper ranges in `Techniques_Formatted` provide linked excerpts without maintaining duplicate source mechanics:
+
+| Range | Handbook content |
+|---|---|
+| `D1:D3` | Rank 0 Unarmed Strike, Shove, and Grapple, resolved by stable technique keys |
+| `F1` | Rank 1 Telepathic Link |
+| `H1:H9` | Nine migrated Rank 2 techniques |
+| `J1:J2` | Two migrated Rank 3 techniques |
+| `L1:L16` | Editorial weapon drafts, including a reference to the existing Deflect Projectile technique |
+
+The canonical `Techniques!A87:AI98` holds the 12 complete migrated techniques. `TechniqueDrafts` holds 16 editorial records separately from runtime `Techniques`, preserving unresolved ranks, questions, and original prose. It is not a runtime-source tab and must not be added to runtime `Schema` declarations. Deflect Projectile references its existing canonical key instead of creating a second technique. Rank 0 excerpts follow current canonical damage and pumping rules.
+
+For feats, `_Feats!A1` normalizes the imported columns by header name; `Feats_Display!A2` compacts class-feat rows before formatting. `Feats_Display` became empty because its consumers interpreted the reordered source columns by position. Maintain the header lookup rather than restoring positional assumptions. Native handbook links now cover 19 class feats, including Fairy Transformation, and 43 archetype memberships. Refresh those links when their source ranges grow.
+
+Archetype prerequisite display resolves the group referenced by the prerequisite, rather than assuming the feat's own group. `Archetypes_Display!A1:G1` suppresses the separate previous-feat metadata line only when a uniquely named prerequisite group and its required count match that membership. Other prerequisites remain visible. The class and archetype display formulas also normalize the formatter's stray single-line `Grants:   * ` prefix; preserve genuine lists and choice bullets.
 
 Maintain linked-cell typography in the display Sheet's rich-text formatting: bold technique title, italic Access line, and explicitly nonbold body text. Apply future typography changes there and refresh the linked table; do not maintain a second set of title/body styles directly in Docs.
 
 If a refresh produces incorrect formatting despite correct source rich-text runs, use the linked-table menu's **Match spreadsheet data and formatting** action to clear Docs formatting overrides for the whole linked table. Then use ordinary **Update Table** for source changes. This action matches source typography and table formatting, so review the resulting layout as well as the text. It is a repair action, not a documented persistent setting.
 
+Keep handbook table row minimum heights at zero so content determines the height. Native range expansion can import source-sized minimum heights into added rows while original rows remain at zero. After expanding ranges or matching spreadsheet formatting, inspect the affected tables and bulk-reset positive `minRowHeight` values to zero. Inspect paragraph bullets and indentation separately; remove accidental list formatting only from confirmed affected cells, preserving genuine lists. The 2026-09-19 repair reset 51 rows across nine tables, including a short Dark Witch entry with a 982.5-point (13.65-inch) minimum. Final verification found zero positive minima across all 21 relevant tables. A controlled Weaponsmith ordinary-refresh test changed the paragraph count and preserved bold title, regular body, no native bullets, and zero row minimum; exact source value/format/rich-text runs were restored and refreshed. All 62 feat/archetype entries matched current display text and non-whitespace character bold flags; genuine list text and metadata were preserved.
+
 On 2026-09-18, four techniques had entirely bold, 14-point text in Docs while every source cell had explicit nonbold body runs. Matching the table to the spreadsheet repaired all four without individual Docs cell edits. Three subsequent ordinary refreshes, including temporary paragraph-break changes, preserved mixed formatting. Final verification covered all 85 entries, with bold titles and no bold body runs; temporary source changes were restored exactly. When changing this workflow, verify both the source rich-text runs and the rendered handbook after a changed-cell refresh, including a change in paragraph count.
+
+The later 2026-09-18 migration verified all 97 catalogue rows, all 31 technique-helper rows, and all 62 class/archetype feat rows against the display outputs, with bold titles and nonbold body text. The original 85 canonical technique records were unchanged across all 2,975 fields. The catalogue retained its 468-point width, matching the document's stored 6.5-inch content area. These are source/display/handbook checks; they do not establish runtime release readiness.
 
 ## Authentication
 
@@ -145,7 +165,9 @@ This fetches the canonical Sheet, reads and validates schema v4, constructs dete
 
 Unique run directories prevent a failed attempt from being confused with stale artifacts from an earlier attempt.
 
-The reader, adapters, validator, schema-v2 artifact builder, runtime-load acceptance, atomic staging writer, and structural/semantic diff are fixture-verified. Authenticated acceptance still awaits `WPB-SOURCE-ACCESS`; until that succeeds, a fixture run is implementation evidence rather than a releasable current-source candidate. Do not weaken validation, skip rows, or add coercions just to make a live command green.
+The reader, adapters, validator, schema-v2 artifact builder, runtime-load acceptance, atomic staging writer, and structural/semantic diff are fixture-verified. `WPB-SOURCE-ACCESS` and authenticated staging completed for the prior published release; each subsequent source revision still needs its own successful immutable run. Do not weaken validation, skip rows, or add coercions just to make a live command green.
+
+Read-only inspection during the 2026-09-18 handbook migration found pre-existing live-source publishing blockers: `Feats` headers no longer match the adapter's required order, archetype DSL is unsupported by the current runtime registry, and `ArchetypeFeats` has no runtime adapter. The display header repair does not resolve these runtime contracts. No live `stage:data` run was performed for that migration; resolve these findings before preparing a new release candidate.
 
 ### Verify frozen production
 
