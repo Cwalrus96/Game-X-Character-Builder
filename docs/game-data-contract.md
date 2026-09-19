@@ -2,7 +2,7 @@
 
 Status: living source/runtime contract. Schema-v4 acquisition, adaptation, validation, deterministic schema-v2 staging, reviewed publishing, and rollback are implemented and accepted.
 
-Last updated: 2026-08-09.
+Last updated: 2026-09-19.
 
 ## Canonical source and versions
 
@@ -11,8 +11,9 @@ The canonical editable source is the native Google Sheet [game-x-class-data](htt
 | Property | Current value |
 |---|---|
 | Drive file ID | `1TEdxuufglP8lFRNk8QD4N_351-0ihAUFLG2743ESjoI` |
-| Observed Drive version | `647` |
-| Observed Drive modified time | `2026-08-09T02:27:03.310Z` |
+| Published release Drive version | `647` |
+| Published release Drive modified time | `2026-08-09T02:27:03.310Z` |
+| Current authoring checkpoint | September 19 migration; 112 techniques and 73 feat/option rows, not runtime release validated |
 | Source schema | `4` |
 | Grant syntax | `2` |
 | Prerequisite syntax | `2` |
@@ -57,7 +58,15 @@ The Google Sheet is editable source. Any XLSX file is only a point-in-time trans
 | `WeaponProfiles` | documented composite identity pending a future `profileKey` decision | 33 |
 | `WeaponEnhancements` | `enhancementKey` | 31 |
 
-The `Schema` tab is the exhaustive field list. This document records cross-field meaning and runtime adaptation rather than duplicating all 152 field rows.
+The counts above describe the reviewed release's source snapshot, not the current authoring workbook. The `Schema` tab is the authoring field list; the current runtime adapter still requires its accepted 152-field contract.
+
+### Current authoring extension (export integration deferred)
+
+The user approved the September 19 migration even if it does not export. All archetype feats now live in `Feats`, with `archetypeKey` on each top-level member and `archetypeName` once on the entry feat. Nested OPTION rows inherit the parent membership. Class/category and `featType` retain their existing meanings. Prior-feat counts have a single authored representation in `prerequisites`: `archetype | <archetypeKey> | numFeats=N`; no same-group condition means zero. The canonical `ArchetypeFeats` tab was removed; the display workbook generates its compatibility view directly from Feats.
+
+All unfinished techniques live in `Techniques`, with `selectionMode=draft`, blank unknown ranks/skills/costs, `energyCostKind=unassigned`, and preserved original wording/provenance. The canonical `TechniqueDrafts` tab was removed. There are 112 distinct technique keys, including 15 newly migrated incomplete techniques; Deflect Projectile was reused rather than duplicated. The handbook displays incomplete mechanics explicitly and does not infer rank zero or a free energy cost.
+
+These are intentional authoring/display extensions. New Feats fields/order, archetype prerequisites, and blank technique ranks/skills remain incompatible with parts of the existing exporter/runtime contract. No adapter, validator, generated artifact, or release contract was changed. The next runtime-data release requires separate compatibility work, successful staging, and publish approval. See [data-pipeline.md](data-pipeline.md#handbook-display-and-linked-table-formatting) for the authoring and linked-table workflow.
 
 ### Canonical adapter model
 

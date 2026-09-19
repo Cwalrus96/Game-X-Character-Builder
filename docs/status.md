@@ -10,7 +10,7 @@ Next implementation step: `WPE-DOMAIN-MIGRATION`
 
 Parallel blocked character step: deployed-page completion of `WPC-REPOSITORY`, pending affected Work Package E domain integration; the reviewed stable-technique-key data prerequisite is now satisfied
 
-Parallel game-data step: Work Package B is complete through the prior `WPB-PUBLISH`; the 2026-09-18 source/handbook updates are unpublished, with live-source compatibility findings to resolve before a new release candidate
+Parallel game-data step: Work Package B is complete through the prior `WPB-PUBLISH`; the September 18–19 source/handbook updates are unpublished, with live-source compatibility findings to resolve before a new release candidate
 
 This is the only frequently updated project-status document. Historical audits and completion records must not be edited to look current.
 
@@ -31,6 +31,7 @@ This is the only frequently updated project-status document. Historical audits a
 - The later 2026-09-18 operational checkpoint migrated 12 complete handbook techniques into canonical source, preserved 16 editorial weapon records in `TechniqueDrafts`, linked the Rank 0 and new technique excerpts, and repaired feat display imports and native handbook links. The catalogue now contains 97 techniques; verified feat tables contain 19 class feats and 43 archetype memberships. The workflow is recorded in [data-pipeline.md](data-pipeline.md#handbook-display-and-linked-table-formatting). No application code or production data changed; the active Work Package E acceptance boundary is unchanged.
 - The 2026-09-19 follow-up removed imported minimum row heights and redundant archetype prerequisite lines, normalized stray grant prefixes, and repaired accidental list/formatting overrides in linked handbook tables. The ordinary-refresh regression and final handbook audit passed: all 62 feat/archetype entries match display text and bold styling, and all 21 relevant tables have zero positive row minima. This changes display/handbook formatting only; the canonical source and active Work Package E boundary are unchanged.
 - Agent guidance now requires automatic human-readable briefings before every named roadmap step and self-contained plain-language outcome summaries afterward; filenames, test lists, and jargon cannot substitute for those explanations.
+- The 2026-09-19 authoring consolidation moved archetype membership into `Feats.archetypeKey`/`archetypeName`, included all 49 top-level archetype feats, and migrated 15 unfinished weapon techniques into `Techniques` without duplicating Deflect Projectile. The obsolete canonical `ArchetypeFeats` and `TechniqueDrafts` tabs were removed after readback and dependency verification. Existing display tab IDs and excerpt columns were retained. The handbook links now cover all 112 techniques, 22 class feats, and 49 archetype feats. The user explicitly approved deferring exporter compatibility; no runtime data, application code, or deployment boundary changed.
 - At the beginning of the schema-v4 synchronization work, the Work Package B branch was clean and two commits ahead of `master`.
 
 Always verify these statements with `git status` and `git log`; update this section after each checkpoint commit.
@@ -136,7 +137,7 @@ Evidence: [work-package-a-completion.md](work-package-a-completion.md) and [mile
 | Drive file ID | `1TEdxuufglP8lFRNk8QD4N_351-0ihAUFLG2743ESjoI` |
 | Published release Drive version | `647` |
 | Published release Drive modified time | `2026-08-09T02:27:03.310Z` |
-| Current source checkpoint | 2026-09-18 handbook migration; 97 techniques, newer than the published release |
+| Current source checkpoint | 2026-09-19 authoring consolidation; 112 techniques, 73 feat/option rows and 49 archetype members; exporter compatibility explicitly deferred |
 | Source schema | `4` |
 | Grant syntax | `2` |
 | Prerequisite syntax | `2` |
@@ -165,7 +166,7 @@ The repository's old `data/game-x-class-data.xlsx` is a June 29 snapshot and is 
 ### Production data publishing
 
 - No publishing blocker remains for candidate `20260809T022801911Z-51956`; it was approved and promoted through the exact-byte publisher.
-- The current live source has pre-existing compatibility findings: `Feats` column order differs from the runtime adapter contract, archetype DSL is unsupported by the current registry, and `ArchetypeFeats` has no runtime adapter. These findings block preparation of a new publishable candidate; the handbook display repair does not resolve them. They were identified by source/code inspection, not a new live staging run.
+- The current live source has compatibility findings: `Feats` column order and its new archetype fields differ from the runtime adapter contract, archetype DSL is unsupported by the current registry, and incomplete techniques retain blank ranks/skills. The user explicitly approved the September 19 authoring consolidation with exporter compatibility deferred. These findings block preparation of a new publishable candidate; source/display migration does not resolve them. They were identified by source/code inspection, not a new live staging run.
 - Future source changes require a new immutable run, zero-error validation, complete semantic diff review, an exact release contract, and separate publish approval. The generic production export freeze remains active.
 
 ### Automated source acquisition
@@ -178,6 +179,14 @@ The repository's old `data/game-x-class-data.xlsx` is a June 29 snapshot and is 
 See [data-pipeline.md](data-pipeline.md) for exact commands and security guidance.
 
 ## Last verification
+
+Authoring consolidation on 2026-09-19:
+
+- All 73 existing feat/option rows retain their original fields except 13 prerequisite key corrections to the preserved archetype identities; membership/label fields were added in N:O. The 97 existing technique records retain every mechanic; only Deflect Projectile's notes/provenance gained its original handbook reference. All 97 pre-existing catalogue display entries are byte-identical. Fifteen new draft records preserve their original body text, unresolved questions, stable keys, and provenance; there are 112 unique technique keys.
+- Derived membership covers all 49 top-level archetype feats, including the six previously omitted Weapon Master feats. Nested options inherit membership. All six formatted pairs regenerated successfully, retaining every existing output sheet ID and D/F/H/J/L technique excerpt. Updated stale fixed-count checks to compare catalogue/display/formatted coverage; all 24 Function_Tests checks pass.
+- Expanded native handbook links to `Techniques_Formatted!A1:A112`, `Archetypes_Formatted!E1:E9`, and `Feats_Formatted!E2:E8`, and refreshed the 16-entry weapon excerpt. All 214 technique/catalogue/excerpt/class-feat/archetype output entries match handbook text and non-whitespace bold/italic flags. A whole-table **Match spreadsheet data and formatting** cleared two all-bold Docs overrides introduced/exposed during range expansion; no individual-cell typography patches were used.
+- Final layout audit: 45 tables, 442 rows, and 1,190 cells; zero positive row minima; normal 468-point total widths; left-aligned paragraphs; alternating grey/white rows; 0.75-point light-grey borders. All 109 genuine native-list paragraphs remain. Most formatting writes used required-revision guards; one table-only retry used Google's target-revision merge after repeated revision conflicts, followed by full content/style verification.
+- Preflight passed all 247 unit tests and the frozen nine-artifact production baseline. No exporter, generated runtime artifact, or application code changed, so there was no live staging, runtime publishing, or website deployment. Recovery snapshots, installed formulas, source modification time, and SHA-256 manifests are ignored under `.staging/authoring-migration-2026-09-19/`; installed formula definitions are maintained in `scripts/display/authoring-formulas.json`. The next roadmap boundary remains `WPE-DOMAIN-MIGRATION` focused browser acceptance, independent of these authoring changes.
 
 Bulk display-sheet formatting on 2026-09-19:
 
