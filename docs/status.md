@@ -179,6 +179,13 @@ See [data-pipeline.md](data-pipeline.md) for exact commands and security guidanc
 
 ## Last verification
 
+Uniform handbook table formatting on 2026-09-19:
+
+- Added the bound formatter source, manifest, setup notes, and six focused tests under `scripts/handbook/` and `tests/handbook-formatter.test.mjs`. The saved cloud code matches the prepared local source. The existing handbook is already formatted; activating the Docs advanced service and the installable open trigger still requires the pending Google terms approval and authorization. No clock trigger is planned or installed, and Google exposes no native linked-table-refresh event.
+- The same request planner was exercised through direct connector writes, first on one table and then on all 45 tables across four tabs. Readback verified 418 rows and 1,166 cells: 468-point table widths, preserved column proportions, alternating `#f2f2f2`/white rows, zero borders and row minima, 3-point vertical/4-point horizontal padding, and left-aligned paragraphs. Native Table options verified effective top alignment. All 3,896 table paragraphs retained their text/emphasis, including 109 native list paragraphs and their hierarchy/indentation. Evidence: `.staging/handbook-uniform-2026-09-19/final-style-audit.json` and the trusted before snapshot.
+- The subsequent approved border adjustment replaces the zero borders with 1px-equivalent (0.75-point) `#e0e0e0` borders in all 45 tables and the saved bound formatter. Readback verified all 4,664 cell edges and exact preservation of all non-border content/styles; native visual review passed. Evidence: `.staging/handbook-uniform-2026-09-19/border-style-audit.json`. The six formatter tests passed after this adjustment, and preflight again passed all 244 unit tests, nine frozen artifacts, and 14 HTML asset checks. Automatic activation remains pending the same Google service-terms approval and authorization.
+- `npm test` passed all 244 tests; the six new checks cover width/proportion calculation, target/tab handling, content/list preservation, revision-safe writes and lock release, failure-safe installation, and duplicate-free on-open installation. Preflight also passed the nine frozen data artifacts and all 14 HTML asset checks. No canonical Sheet, runtime JSON, website code, or deployment changed. `WPE-DOMAIN-MIGRATION` remains the application boundary.
+
 Handbook spacing and duplicate-prerequisite follow-up on 2026-09-19:
 
 - Preflight passed on Node.js `v22.22.1`: all 238 unit tests, nine frozen artifacts, and 14 HTML files passed. The starting worktree was clean at `80c34de` (`Document linked handbook feat and technique migration`).

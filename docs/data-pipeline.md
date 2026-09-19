@@ -50,6 +50,10 @@ On 2026-09-18, four techniques had entirely bold, 14-point text in Docs while ev
 
 The later 2026-09-18 migration verified all 97 catalogue rows, all 31 technique-helper rows, and all 62 class/archetype feat rows against the display outputs, with bold titles and nonbold body text. The original 85 canonical technique records were unchanged across all 2,975 fields. The catalogue retained its 468-point width, matching the document's stored 6.5-inch content area. These are source/display/handbook checks; they do not establish runtime release readiness.
 
+The 2026-09-19 uniform-layout follow-up adds a bound handbook formatter, maintained in [scripts/handbook](../scripts/handbook/README.md). It sets all table widths to the normal text width while preserving column proportions, left-aligns text, top-aligns cells, applies 1px-equivalent (0.75-point) light-grey `#e0e0e0` borders, clears row minima, applies alternating light-grey/white rows, and uses compact 3-point vertical/4-point horizontal padding. It preserves text, emphasis, native links, and genuine list indentation. The public Docs API is necessary because the basic Apps Script border setter leaves explicit cell-border overrides behind. Exact field masks and a required revision guard constrain every write.
+
+The current 45 tables are formatted and verified. The bound project code and **Handbook → Format tables** menu are saved, but API activation and the installable on-open trigger remain pending Google service-terms approval and authorization. There is no timed job. After activation, opening the handbook as an editor applies the style automatically; after native **Update all**, the menu command reapplies it on demand. Google exposes no linked-table-refresh event. Do not describe this automation as active until both automatic-open and menu executions have been verified.
+
 ## Authentication
 
 The command uses Google Application Default Credentials (ADC). It never uses browser/Firebase login state or Codex connector credentials.
