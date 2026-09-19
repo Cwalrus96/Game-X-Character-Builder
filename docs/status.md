@@ -179,6 +179,13 @@ See [data-pipeline.md](data-pipeline.md) for exact commands and security guidanc
 
 ## Last verification
 
+Bulk display-sheet formatting on 2026-09-19:
+
+- Added **Format Sheet → Update all Display → Formatted tabs** to the existing Game-X-Data-Display bound project, preserving both individual-tab commands and the existing markdown parser. The maintained extension is [scripts/display/DisplayBatch.gs](../scripts/display/DisplayBatch.gs), with installation/operation notes beside it. No new API service, scope, or trigger was needed.
+- A native menu execution completed all six pairs: Classes, ClassFeatures (hidden), Techniques, Feats, Origins, and Archetypes. It created hidden `ClassFeatures_Formatted` (sheet ID `2044388241`) and visible `Origins_Formatted` (`234578775`); all four existing output IDs were retained. Readback matched all 502 nonempty output cells to converted source text, with no formula errors, source-cell changes, or lost technique excerpt columns. Current class-feat output has 22 entries. Native visual review covered all five visible outputs; hidden output content/styles were checked through the connector. The completion dialog reported all six destinations, and the original active tab was restored.
+- `npm test` passed all 247 tests, including three new checks for complete discovery, existing-output reuse, hidden output handling, internal blank/excerpt preservation, failure before writes on source errors, and accurate partial-failure reporting. Saved cloud extension code matches the checked-in source. Evidence is ignored under `.staging/display-batch-2026-09-19/audit.json`.
+- The command consumes current calculated values and does not force `IMPORTRANGE` refreshes. Native handbook links still require **Update all** in Google Docs. The separate handbook on-open formatter activation remains pending its earlier Google terms approval and authorization. No canonical source, runtime JSON, or website changed; the application boundary remains `WPE-DOMAIN-MIGRATION`.
+
 Uniform handbook table formatting on 2026-09-19:
 
 - Added the bound formatter source, manifest, setup notes, and six focused tests under `scripts/handbook/` and `tests/handbook-formatter.test.mjs`. The saved cloud code matches the prepared local source. The existing handbook is already formatted; activating the Docs advanced service and the installable open trigger still requires the pending Google terms approval and authorization. No clock trigger is planned or installed, and Google exposes no native linked-table-refresh event.
