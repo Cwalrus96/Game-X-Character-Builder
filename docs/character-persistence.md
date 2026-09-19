@@ -18,6 +18,17 @@ Known v4 account-import envelopes are supported, including their obsolete import
 
 The returned canonical character contains only `schemaVersion`, `ownerUid`, and `builder`. `createdAt`, `updatedAt`, historical `lastVisitedAt`, and `revision` are returned separately as persistence metadata.
 
+## Ranged Weapons naming compatibility
+
+Ranged Weapons is the current display name and `ranged-weapons` is its current skill key. The pure `skill-identity.js` boundary recognizes the former Targeting label and `targeting` key when Rules and UI consume existing saved state or reviewed older game data. This rename does not change the schema-v5 character shape or trigger a Firebase write on read.
+
+- Historical reference indexes resolve the old label/key to `ranged-weapons`. Current v5 answers may retain their stored `targeting` skill key; consumers accept that alias, and newly authored technique-choice patches use the current key.
+- Existing `combatSkillsExtra` rows retain their stored name and rank until an explicit edit/save changes them. Projections display Ranged Weapons and apply the same effective rank to weapon caps, techniques, and prerequisites; the rename must not remove a trained rank or a selected technique.
+- Only the exact `targeting` persisted skill key is remapped. Comparison normalization is separate from storage identity: `custom_skill`, `custom-skill`, and other unrelated keys remain distinct and unchanged in migrations, snapshots, and choice patches.
+- Feature, feat, weapon, and enhancement keys are unchanged. Explicit choice IDs are unchanged. For an existing choice whose ID is derived from its granting skill, `choice-identity.js` retains the historical `targeting` token and accepts historical display-case aliases, preserving the selected answer and its generated weapon owner.
+
+Compatibility projections do not alter the reviewed JSON artifacts. They also do not rename separate aiming concepts such as Enhanced Targeting. The regression coverage in `tests/skill-identity.test.mjs` proves rank preservation, retained source-owned Rifle answers, historical reference resolution, and preservation of unrelated skill keys.
+
 ## Write contract
 
 The writer exposes narrow operations:

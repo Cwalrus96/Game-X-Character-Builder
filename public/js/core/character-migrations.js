@@ -19,6 +19,7 @@ import {
   resolveGrantChoiceAliases,
   resolveGrantChoiceIds,
 } from "./choice-identity.js";
+import { canonicalStoredSkillKey, renameSkillText } from "./skill-identity.js";
 
 export const LEGACY_UNVERSIONED_CHARACTER_SCHEMA = 0;
 export const RESERVED_CHARACTER_SCHEMA_VERSION = 2;
@@ -1183,12 +1184,17 @@ export function migrateCharacterDocument(value, { references = null } = {}) {
 
 function addReference(work, kind, alias, stableKey) {
   const normalizedAlias = referenceAlias(alias);
-  const normalizedKey = sanitizeText(stableKey, { maxLen: 128, collapse: true });
+  const sourceKey = sanitizeText(stableKey, { maxLen: 128, collapse: true });
+  const normalizedKey = kind === "skills" ? canonicalStoredSkillKey(sourceKey) : sourceKey;
   if (!normalizedAlias || !STABLE_KEY_PATTERN.test(normalizedKey)) return;
   const table = work[kind];
-  const values = table.get(normalizedAlias) || new Set();
-  values.add(normalizedKey);
-  table.set(normalizedAlias, values);
+  const aliases = [normalizedAlias, referenceAlias(renameSkillText(alias)), referenceAlias(String(alias).replace(/Ranged Weapons/g, "Targeting"))];
+  if (kind === "skills" && normalizedKey === "ranged-weapons") aliases.push("targeting", "ranged weapons", "ranged-weapons");
+  for (const entry of aliases) {
+    const values = table.get(entry) || new Set();
+    values.add(normalizedKey);
+    table.set(entry, values);
+  }
 }
 
 function addGrantChoiceReference(work, alias, { choiceId, sourceId, sourceAliases = [] } = {}) {

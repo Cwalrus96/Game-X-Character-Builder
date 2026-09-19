@@ -1,5 +1,6 @@
 import { ATTR_KEYS, CORE_SKILL_FIELDS, DEFENSE_SKILL_FIELDS, normalizeAttributes } from "./character-rules.js";
 import { sanitizeText, sanitizeStringArray } from "./data-sanitization.js";
+import { canonicalSkillName } from "./skill-identity.js";
 import { RUNTIME_PREREQUISITE_TYPES } from "./game-data-contract.js";
 import {
   formatExpressionDiagnostic,
@@ -120,7 +121,7 @@ for (const { key, label } of [...CORE_SKILL_FIELDS, ...DEFENSE_SKILL_FIELDS]) {
 }
 
 function addSkillRank(target, name, rank) {
-  const skillName = sanitizeText(name, { maxLen: 120, collapse: true });
+  const skillName = canonicalSkillName(sanitizeText(name, { maxLen: 120, collapse: true }));
   if (!skillName) return;
   const nextRank = toRank(rank);
   const refs = new Set([normalizeRef(skillName), normalizeKey(skillName)]);
@@ -399,7 +400,7 @@ export function evaluatePrerequisite(prerequisite, context = {}) {
   if (prereq.type === "skill") {
     const required = getRequiredNumber(prereq, ["rank", "minRank"]) ?? 0;
     const names = valuesFor(prereq.name || prereq.key);
-    const ok = names.some((name) => toRank(ctx.skillRanks.get(normalizeRef(name)) ?? ctx.skillRanks.get(normalizeKey(name))) >= required);
+    const ok = names.some((name) => toRank(ctx.skillRanks.get(normalizeRef(canonicalSkillName(name))) ?? ctx.skillRanks.get(normalizeKey(canonicalSkillName(name)))) >= required);
     return { ok, prerequisite: prereq, label, reason: `Requires ${joinValue(prereq.name || prereq.key)} rank ${required}.` };
   }
   if (prereq.type === "tag") {

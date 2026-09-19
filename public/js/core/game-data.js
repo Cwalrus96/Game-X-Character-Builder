@@ -4,6 +4,7 @@
 // All consumers should load via this module (no per-page fetch duplication).
 
 import { sanitizeText, sanitizeStringArray } from "./data-sanitization.js";
+import { projectSkillNames } from "./skill-identity.js";
 import { getEntryRequiredLevel, collectSelectedEntries } from "./option-groups.js";
 import {
   getEntryGrants,
@@ -21,7 +22,7 @@ export async function loadGameXData({ cache = "default" } = {}) {
     const dataUrl = new URL("../../data/game-x/game-x-data.json", import.meta.url);
     const res = await fetch(dataUrl, { cache });
     if (!res.ok) throw new Error(`Could not load game-x-data.json (${res.status})`);
-    return await res.json();
+    return projectSkillNames(await res.json());
   })();
 
   try {

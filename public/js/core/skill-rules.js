@@ -23,6 +23,7 @@ import {
 } from "./game-data.js";
 import { getGrantName, getGrantNotes, normalizeSkillProgression } from "./grants.js";
 import { collectSelectedEntries } from "./option-groups.js";
+import { canonicalSkillName, RANGED_WEAPONS_SKILL } from "./skill-identity.js";
 
 export const CLASS_UTILITY_SKILL_CHOICE_COUNT = 2;
 
@@ -89,7 +90,7 @@ export function getSkillProgressionRank(progression, level) {
 function normalizeCombatSkillName(raw) {
   const source = sanitizeText(raw, { maxLen: 96, collapse: true });
   const value = sanitizeText(source.split(":")[0].split("(")[0], { maxLen: 96, collapse: true });
-  return /^(?:fast|medium|slow)$/i.test(value) ? "" : value;
+  return /^(?:fast|medium|slow)$/i.test(value) ? "" : canonicalSkillName(value);
 }
 
 function splitCombatSkillNames(raw) {
@@ -124,7 +125,7 @@ function resolveClassCombatSkillEntries(cls, primaryAttribute) {
 }
 
 function pushGrantedSkill(target, skillName, rank, source) {
-  const skill = sanitizeText(skillName, { maxLen: 96, collapse: true });
+  const skill = canonicalSkillName(sanitizeText(skillName, { maxLen: 96, collapse: true }));
   if (!skill) return;
   const next = { skill, rank: sanitizeText(rank, { maxLen: 8, collapse: true }), source: sanitizeText(source, { maxLen: 96, collapse: true }) || "Granted" };
   const previous = target.get(skill);
@@ -145,7 +146,7 @@ export function computeKnownCombatSkillsAndGrants(gameData, builder) {
   const data = gameData && typeof gameData === "object" ? gameData : {};
   const state = builder && typeof builder === "object" ? builder : {};
   const collection = skillGrantCollection(data, state);
-  const knownCombatSkills = new Set(["Martial Arts", "Melee Weapons", "Targeting"]);
+  const knownCombatSkills = new Set(["Martial Arts", "Melee Weapons", RANGED_WEAPONS_SKILL]);
   const grantedTechniqueNames = new Set();
   const cls = getGameXClasses(data).find((entry) => entry?.classKey === state.classKey);
   if (cls) {
@@ -166,7 +167,7 @@ export function computeGrantedSkillsState(gameData, builder) {
   const fixedRanks = { rank_physdef: "", rank_mentdef: "", rank_spiritdef: "" };
   const grantedSkillNames = new Set();
   const grantedCombatSkills = new Map();
-  ["Martial Arts", "Melee Weapons", "Targeting"].forEach((name) => pushGrantedSkill(grantedCombatSkills, name, "0", "Common"));
+  ["Martial Arts", "Melee Weapons", RANGED_WEAPONS_SKILL].forEach((name) => pushGrantedSkill(grantedCombatSkills, name, "0", "Common"));
 
   const cls = getGameXClasses(data).find((entry) => entry?.classKey === state.classKey);
   if (cls) {
@@ -201,6 +202,16 @@ export function computeGrantedSkillsState(gameData, builder) {
     else pushGrantedSkill(grantedCombatSkills, skillName, rank, sourceName);
   }
   return { fixedRanks, grantedSkillNames, grantedCombatSkills: [...grantedCombatSkills.values()].sort((a, b) => a.skill.localeCompare(b.skill)) };
+}
+
+export function getCombatSkillRanks(gameData, builder) {
+  const granted = computeGrantedSkillsState(gameData, builder);
+  const ranks = new Map();
+  for (const row of [...granted.grantedCombatSkills, ...(builder?.sheet?.repeatables?.combatSkillsExtra || [])]) {
+    const name = canonicalSkillName(row.skill).toLowerCase();
+    ranks.set(name, Math.max(ranks.get(name) || 0, numericRank(row.rank)));
+  }
+  return ranks;
 }
 
 export function getClassUtilitySkillState(gameData, builder) {
@@ -274,7 +285,7 @@ function allocationRecords(gameData, builder) {
     const rank = Math.max(grantedRank, numericRank(fields[key]));
     return { domain: "fixed", key, name: label, rank, storedRank: normalizeSkillRank(fields[key], { allowBlank: true }), grantedRank, editable: true, cap: capFor(label), path: `builder.sheet.fields.${key}` };
   });
-  const combat = sanitizeNamedSkillList(repeatables.combatSkillsExtra, { maxItems: 50 }).map((row, index) => ({ domain: "combat", key: row.skill.toLowerCase(), name: row.skill, rank: numericRank(row.rank), storedRank: normalizeSkillRank(row.rank, { allowBlank: true }), grantedRank: 0, editable: true, cap: capFor(row.skill), path: `builder.sheet.repeatables.combatSkillsExtra.${index}.rank`, index }));
+  const combat = sanitizeNamedSkillList(repeatables.combatSkillsExtra, { maxItems: 50 }).map((row, index) => ({ domain: "combat", key: row.skill.toLowerCase(), name: canonicalSkillName(row.skill), rank: numericRank(row.rank), storedRank: normalizeSkillRank(row.rank, { allowBlank: true }), grantedRank: 0, editable: true, cap: capFor(row.skill), path: `builder.sheet.repeatables.combatSkillsExtra.${index}.rank`, index }));
   const utilityOptionByKey = new Map(utility.options.map((option) => [option.key, option]));
   const nonCoreUtilityKeys = new Set(utility.selected.filter((key) => !CORE_FIELD_BY_SKILL_KEY.has(key)));
   const representedUtilityKeys = new Set();

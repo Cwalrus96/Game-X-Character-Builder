@@ -2,7 +2,7 @@
 
 Status: living current-and-target architecture.
 
-Last updated: 2026-08-08.
+Last updated: 2026-09-19.
 Execution status and named steps live in [status.md](status.md) and [roadmap.md](roadmap.md).
 
 ## Product shape
@@ -136,6 +136,8 @@ Feat capacity is never inferred directly from character level. A feat choice exi
 
 Current shared modules include `character-rules.js`, `choice-capacity.js`, `choice-identity.js`, and related core helpers. These are transitional and will be consolidated behind typed contracts rather than duplicated in pages.
 
+`skill-identity.js` owns the current Ranged Weapons name and its legacy Targeting aliases. This is a game-data naming boundary shared by current v5 state and reviewed older runtime data; it does not interpret historical character document formats. Rules, graph consumers, and widgets import the same helpers instead of maintaining separate alias lists. `getCombatSkillRanks` in Skill Rules combines granted ranks and stored extra combat-skill ranks, so a technique retains the effective rank of an existing Targeting row after its displayed skill becomes Ranged Weapons. Comparison normalization must never be used to rewrite persisted keys: only the exact `targeting` skill key becomes `ranged-weapons`; unrelated keys such as `custom_skill` retain their identity.
+
 ### Character Dependency Graph subsystem: compilation
 
 The compiler converts one complete character state plus normalized game data into typed nodes and edges. Compilation is deterministic and has no UI or persistence side effects.
@@ -208,6 +210,8 @@ Target phases:
 8. Promote the exact reviewed staged bytes in a separate explicit operation.
 
 The canonical workbook's `Metadata`, `Schema`, and `Enums` tabs participate in validation. `ClassSkills` is the normalized mechanical relationship table. Display-workbook compatibility adapters and Handbook formatting are downstream presentation systems, not runtime source contracts.
+
+While the reviewed runtime artifacts still contain the former skill name, `loadGameXData` applies the pure `projectSkillNames` projection in memory. It updates explicit skill fields, exact skill option labels, and skill-context prose without changing generated artifact bytes or performing a data publish. Unrelated entity keys and explicit choice IDs remain unchanged. Aiming names such as Enhanced Targeting and Targeting Computer, and ordinary targeting prose, retain their meaning. Saved skill and source-owned choice compatibility is defined in [character-persistence.md](character-persistence.md#ranged-weapons-naming-compatibility).
 
 See [game-data-contract.md](game-data-contract.md) and [data-pipeline.md](data-pipeline.md).
 

@@ -19,6 +19,7 @@ import {
   resolveTechniqueRef,
 } from "./game-data.js";
 import { computeGrantedSkillsState, computeKnownCombatSkillsAndGrants } from "./skill-rules.js";
+import { canonicalSkillName } from "./skill-identity.js";
 import { isGameDataRecordSelectable } from "./selection-rules.js";
 import { buildGeneratedWeaponsFromGrantChoices, isSourceOwnedWeapon } from "./grants.js";
 import { checkPrerequisites, meetsPrerequisites } from "./prerequisites.js";
@@ -590,7 +591,7 @@ function techniqueRank(technique) {
 }
 
 function techniqueSkill(technique) {
-  return sanitizeText(technique?.skill, { maxLen: 96, collapse: true });
+  return canonicalSkillName(sanitizeText(technique?.skill, { maxLen: 96, collapse: true }));
 }
 
 function techniqueSkillRank(technique, context) {
@@ -599,7 +600,7 @@ function techniqueSkillRank(technique, context) {
   let rank = 0;
   const grantedCombat = Array.isArray(context.grantedSkillState?.grantedCombatSkills) ? context.grantedSkillState.grantedCombatSkills : [];
   for (const row of grantedCombat) {
-    if (sanitizeText(row?.skill, { maxLen: 96, collapse: true }) !== skillName) continue;
+    if (canonicalSkillName(sanitizeText(row?.skill, { maxLen: 96, collapse: true })) !== skillName) continue;
     const value = Number.parseInt(String(row?.rank || "0"), 10);
     if (Number.isFinite(value)) rank = Math.max(rank, value);
   }
@@ -607,7 +608,7 @@ function techniqueSkillRank(technique, context) {
     ? context.builder.sheet.repeatables.combatSkillsExtra
     : [];
   for (const row of extra) {
-    if (sanitizeText(row?.skill, { maxLen: 96, collapse: true }) !== skillName) continue;
+    if (canonicalSkillName(sanitizeText(row?.skill, { maxLen: 96, collapse: true })) !== skillName) continue;
     const value = Number.parseInt(String(row?.rank || "0"), 10);
     if (Number.isFinite(value)) rank = Math.max(rank, value);
   }
@@ -627,7 +628,7 @@ function countForGrant(grant) {
 }
 
 function grantMatchesTechniqueChoice(grant, technique, context) {
-  const grantSkill = sanitizeText(grant?.skill || grant?.name || grant?.key, { maxLen: 96, collapse: true }).toLowerCase();
+  const grantSkill = canonicalSkillName(sanitizeText(grant?.skill || grant?.name || grant?.key, { maxLen: 96, collapse: true })).toLowerCase();
   if (!grantSkill) return false;
   if (grantSkill !== techniqueSkill(technique).toLowerCase()) return false;
   return techniqueSkillRank(technique, context) >= techniqueRank(technique);
@@ -636,7 +637,7 @@ function grantMatchesTechniqueChoice(grant, technique, context) {
 function countExtraTechniqueAssignments(refs, indexes, context) {
   const remainingBySkill = new Map();
   for (const grant of context.techniqueChoiceGrants) {
-    const skill = sanitizeText(grant?.skill || grant?.name || grant?.key, { maxLen: 96, collapse: true }).toLowerCase();
+    const skill = canonicalSkillName(sanitizeText(grant?.skill || grant?.name || grant?.key, { maxLen: 96, collapse: true })).toLowerCase();
     if (!skill) continue;
     const count = Number.parseInt(String(grant?.count ?? 1), 10);
     remainingBySkill.set(skill, (remainingBySkill.get(skill) || 0) + (Number.isFinite(count) ? Math.max(0, count) : 1));
@@ -667,7 +668,7 @@ function getRemainingTechniqueChoiceGrants(grants, sourceOwnedAnswerCounts = new
   const out = [];
 
   for (const grant of Array.isArray(grants) ? grants : []) {
-    const skill = sanitizeText(grant?.skill || grant?.name || grant?.key, { maxLen: 96, collapse: true }).toLowerCase();
+    const skill = canonicalSkillName(sanitizeText(grant?.skill || grant?.name || grant?.key, { maxLen: 96, collapse: true })).toLowerCase();
     const total = countForGrant(grant);
     if (!skill || total <= 0) continue;
 
@@ -745,7 +746,7 @@ function reconcileTechniqueGrantChoices(gameData, builder, activeGrantChoices, c
       continue;
     }
 
-    const skill = sanitizeText(grant?.skill || techniqueSkill(technique), { maxLen: 96, collapse: true }).toLowerCase();
+    const skill = canonicalSkillName(sanitizeText(grant?.skill || techniqueSkill(technique), { maxLen: 96, collapse: true })).toLowerCase();
     if (skill) answerCounts.set(skill, (answerCounts.get(skill) || 0) + 1);
     answerNames.add(selectedTechnique);
   }

@@ -13,7 +13,7 @@ The canonical editable source is the native Google Sheet [game-x-class-data](htt
 | Drive file ID | `1TEdxuufglP8lFRNk8QD4N_351-0ihAUFLG2743ESjoI` |
 | Published release Drive version | `647` |
 | Published release Drive modified time | `2026-08-09T02:27:03.310Z` |
-| Current authoring checkpoint | September 19 migration; 112 techniques and 73 feat/option rows, not runtime release validated |
+| Current authoring checkpoint | September 19 weapon migration/refinement verified; 139 source techniques observed, 31 base-specific actions, 108 main catalogue entries, and full technique blocks in weapon cards; not runtime release validated |
 | Source schema | `4` |
 | Grant syntax | `2` |
 | Prerequisite syntax | `2` |
@@ -64,9 +64,17 @@ The counts above describe the reviewed release's source snapshot, not the curren
 
 The user approved the September 19 migration even if it does not export. All archetype feats now live in `Feats`, with `archetypeKey` on each top-level member and `archetypeName` once on the entry feat. Nested OPTION rows inherit the parent membership. Class/category and `featType` retain their existing meanings. Prior-feat counts have a single authored representation in `prerequisites`: `archetype | <archetypeKey> | numFeats=N`; no same-group condition means zero. The canonical `ArchetypeFeats` tab was removed; the display workbook generates its compatibility view directly from Feats.
 
-All unfinished techniques live in `Techniques`, with `selectionMode=draft`, blank unknown ranks/skills/costs, `energyCostKind=unassigned`, and preserved original wording/provenance. The canonical `TechniqueDrafts` tab was removed. There are 112 distinct technique keys, including 15 newly migrated incomplete techniques; Deflect Projectile was reused rather than duplicated. The handbook displays incomplete mechanics explicitly and does not infer rank zero or a free energy cost.
+All unfinished techniques live in `Techniques`, with `selectionMode=draft`, blank unknown ranks/skills/costs, `energyCostKind=unassigned` for an unknown Energy cost, and preserved original wording/provenance. The canonical `TechniqueDrafts` tab was removed. The earlier authoring migration reached 112 technique keys; subsequent user edits removed `brutal-strength` and `bullet-spray`, leaving 110 before the weapon migration. Those removals and the user's intervening feat/ClassSkills insertions are preserved. Deflect Projectile is reused rather than duplicated. The handbook must display incomplete mechanics explicitly and must not infer rank zero or a free Energy cost.
 
-These are intentional authoring/display extensions. New Feats fields/order, archetype prerequisites, and blank technique ranks/skills remain incompatible with parts of the existing exporter/runtime contract. No adapter, validator, generated artifact, or release contract was changed. The next runtime-data release requires separate compatibility work, successful staging, and publish approval. See [data-pipeline.md](data-pipeline.md#handbook-display-and-linked-table-formatting) for the authoring and linked-table workflow.
+The approved weapon migration adds 31 uniquely named techniques, initially bringing the catalogue to 141: 19 basic attacks and four alternatives from canonical profiles use `selectionMode=granted-only`; four Rank 2 basics and four alternatives omitted from the canonical profiles are restored from the current handbook as `draft`. The user's subsequent removal of `snap-kick` and `crooked-cobra` leaves 139 techniques, with all 31 weapon additions intact. Nine former critical profiles become `onCriticalSuccess` riders. Iaijutsu remains a Katana trait. All 33 former `WeaponProfiles!A2:AE34` records are retired after migration readback; the exact header and hidden tab remain as an empty acquisition-compatibility placeholder, and their Schema declarations are deprecated. The source no longer maintains editable copies of the same attacks in both tabs.
+
+`WeaponBases` appends column I `techniqueKeys` and column J `traitsText`. The 22 populated base relationships contain 32 technique references: the 31 new techniques plus Machine Gun's existing `covering-fire` draft. The four previously empty Rank 2 base tag lists are filled from the handbook; source provenance is retained. The intended acquisition rule is automatic access while wielding the corresponding weapon, without spending ordinary technique choices. Draft records remain incomplete and unavailable for runtime grants until their mechanics are resolved.
+
+The completed follow-up presentation separates the main alphabetical catalogue from weapon-base actions without removing source records. The 31 base-specific techniques remain in canonical Techniques and the shared `_TechniqueBlocks` display pool, but are excluded from the main catalogue. At the observed 139-record source checkpoint this produces 108 main catalogue entries; regenerate counts from fresh source after further user edits. All 31 WeaponBases cards embed the complete formatted blocks for their ordered technique references, resolving all 32 references through that same pool; Machine Gun's generic Covering Fire remains in the main catalogue as well as its base card. A technique is excluded from the main catalogue only when it has the exact weapon-specific prerequisite `weapon | key=<base> | wielded=true` and is referenced by that base's `techniqueKeys`. The approved damage/pumping update was read back across 73 cells on 23 basics, preserving the user's concurrent Deflect Energy skill/rank edits. Display/handbook checks passed for all 153 linked base/main/excerpt entries in text and non-whitespace bold/italic styling; the superseded Weapon Damage table was removed after verification. This authoring acceptance does not establish runtime release readiness.
+
+The combat skill is now **Ranged Weapons**, with canonical skill key `ranged-weapons`, replacing the former Targeting label/key across authored skill values and references. This skill migration does not rename unrelated stable technique, feat, weapon, or enhancement identities merely because their keys contain the same word. Published data and saved characters may still contain the legacy skill identity and require the separately maintained compatibility path.
+
+These are intentional authoring/display extensions. New Feats fields/order, archetype prerequisites, blank technique ranks/skills, and the WeaponBases technique/trait relationships remain outside parts of the accepted exporter/runtime contract. The weapon source migration does not establish runtime support for automatic weapon techniques. Exporter integration and runtime-data publishing are deferred; all nine frozen production JSON files and the release contract remain unchanged. The next runtime-data release requires separate compatibility work, successful staging, and publish approval. See [data-pipeline.md](data-pipeline.md#handbook-display-and-linked-table-formatting) for the authoring and linked-table workflow.
 
 ### Canonical adapter model
 
@@ -133,7 +141,7 @@ All 19 classes export; the seven currently playable classes are Ninja, Magical G
 
 Legacy `Classes.combatTechniqueSkill`, `combatSkills`, and `utilitySkillOptions` remain only for display compatibility. Runtime adaptation must use `ClassSkills` once schema-v4 export is enabled.
 
-Weapon Master receives both Melee Weapons and Targeting. Strength makes Melee fast and Targeting medium; Agility makes Melee medium and Targeting fast.
+Weapon Master receives both Melee Weapons and Ranged Weapons. Strength makes Melee fast and Ranged medium; Agility makes Melee medium and Ranged fast. The published release's older skill identity is compatibility input, not the current authoring label.
 
 ### ClassFeatures, Feats, and OriginFeatures
 
@@ -172,6 +180,16 @@ Legacy `-1`, `N`, blank-means-zero, and `0 or 3` sentinels are not allowed in ca
 
 `prerequisites` is structured mechanical data. `prerequisiteText` is optional human-readable display text; runtime code must not parse it into rules.
 
+#### Compact damage and pumping
+
+The current authoring default expresses linear damage growth once in `damage` and leaves `damageByRank` blank. State the starting damage, increment, and exact rank basis/minimum. Do not repeat that rule as a per-rank damage enumeration or explanatory `rankNotes`; retain an explicit `damageByRank` map for irregular progression.
+
+Canonical compact examples are Spirit Blast's `3 + Hits; +3 damage per Martial Arts rank above 1.` and Spacium Ray's `2 + Hits; +2 damage per Henshin Arts rank above 1.`. Both leave `damageByRank` blank. Their pumping maps retain all source rank/value entries: Spirit Blast renders Ranks 1–2 at +1 damage/Energy, 3–4 at +2, and 5–6 at +3; Spacium Ray renders Ranks 1–3 at +1, 4–5 at +2, and 6 at +3. These are different schedules, not a universal pumping formula.
+
+The shared renderer groups only adjacent ranks with equal pumping coefficients and matching units. Do not bridge rank gaps, merge nonconsecutive equal runs, or replace armor/ward units with damage. Preserve authored higher-rank benefits and meaningful `rankNotes`, including Spirit Blast's minimum 1 Energy; remove only explanations duplicated by the compact damage/pumping rules. The compact-format rollout has separate source/display/handbook verification from the earlier weapon refinement checkpoint.
+
+Full technique blocks omit the repetitive provider/availability line, including intended availability for drafts. Weapon-base cards also omit their automatic-availability sentence. This is a presentation rule: retain source provider relationships, selection modes, prerequisites, costs, the skill Access line, and explicit `Incomplete technique` and missing-mechanic notices.
+
 ### Origins
 
 `originKey` is stable identity and source row order is canonical unless a future explicit sort field is added. `questions`, `futureUpgradesText`, and `examplesText` are the current source fields; obsolete exporter aliases such as `roleplayQuestionsText` are adapter concerns only.
@@ -179,11 +197,32 @@ Legacy `-1`, `N`, blank-means-zero, and `0 or 3` sentinels are not allowed in ca
 ### Weapons
 
 - Weapon-base and enhancement keys retain established snake_case identity.
-- Every profile's `weaponKey` must resolve to a base.
+- In the published legacy format, every profile's `weaponKey` must resolve to a base. In current authoring, `WeaponProfiles` is a hidden header-only compatibility tab; attacks are Techniques.
+- `WeaponBases.techniqueKeys` is an ordered comma-separated list of stable technique keys automatically provided while the weapon is wielded. It records the source relationship; it is not a second copy of attack mechanics or permission to offer granted-only techniques in ordinary selectors.
+- `WeaponBases.traitsText` is player-facing multiline text for non-action traits. Iaijutsu belongs here, while Machine Gun also records its existing Covering Fire relationship. Editorial `notes` remain separate.
+- New weapon techniques require `weapon | key=<weaponKey> | wielded=true`, with human-readable `prerequisiteText` of `Wielding <base name>.`. Existing base minimum ranks and canonical attack ranks are preserved.
+- Basic-attack damage scales automatically with weapon rank under the approved growth rule below. Optional pumping is a separate addition. Both use the weapon's rank, never the character's combat-skill rank.
+- Critical profiles are normal `onCriticalSuccess` riders. A basic attack with an alternative may deal normal damage and apply the named alternative's effect instead of multiplying damage. Shuriken Distracting Attack retains its own Distracted 3 critical result.
 - `tagKeys` provides normalized mechanical tags while `tags` preserves display text.
 - A weapon grant's tag fields filter which weapon may be chosen; they do not add those tags to the selected weapon.
 - `choiceId` owns the selected answer and `choiceRef` connects later grants/enhancements to that answer.
 - Granted-only enhancements are acquisition mode, not prose prerequisites.
+
+The initial migration preserved the original damage/pump tables: seventeen basics had variable pumping, and the four formerly blank free Shuriken/Shield basic/alternative action costs became explicit fixed zero. The approved follow-up supersedes that basic-attack treatment for all 23 basics. It preserves each attack's current damage at its base's minimum rank and adds the following amount automatically for every weapon rank above that minimum, through Rank 6:
+
+| Damage growth per weapon rank | Basic attacks | Count |
+|---|---|---:|
+| +3 | Baseball Bat, Kitchen Knife, Rock / Brick, Broomstick, Longsword, Katana, Pistol, Spear, Rifle, Axe, Shotgun, Gunblade, Machine Gun | 13 |
+| +2 | Bow, Daggers / Kunai Melee, Daggers / Kunai Thrown, Shuriken, Shield, Staff, Chain Sword, Grenade Launcher | 8 |
+| +4 | Greatsword, Warhammer | 2 |
+
+The rule is `starting damage + growth × (weapon rank − base minimum rank)`, plus the attack's existing Hits term and any optional pumping. Author all 23 linear basics as a compact `damage` line anchored at the base minimum rank, with blank `damageByRank`; retain the starting damage and growth amounts above. This replaces the former special Rank 6 jump; it does not change Grenade Launcher's separate 6 splash damage or Chain Sword's +2 damage per sustained round.
+
+Every basic attack costs 0 Energy before optional pumping. All 23 therefore use `energyCostKind=variable` with blank numeric `energyCost`; omit the redundant zero-Energy sentence from the printed block. Pumping remains unavailable at Rank 0, adds +1 damage per Energy at Ranks 1–2, +2 at Ranks 3–4, and +3 at Ranks 5–6. Apply this existing pumping rule to the six basics previously missing it: Shuriken, Shield, and the four Rank 2 basics. A blank numeric cost is the variable-cost representation, not a general blank-means-zero rule.
+
+For these basics, remove only the exact redundant sentence `0 Energy before optional pumping.` from `rankNotes`. Preserve the four Rank 0 no-pumping notes and all other meaningful notes. Keep all pumping map values; the shared renderer supplies the grouped rank ranges without duplicating that schedule in notes.
+
+Alternative-use outcomes and costs are unchanged by this refinement. Shuriken Distracting Attack and Shield Bash retain fixed zero Energy; Pistol Bullet Spray and Shotgun Buckshot Blast retain 2 Energy. Pistol Bullet Spray's missing damage/effect remains unresolved. All eight added Rank 2 techniques remain draft: the four basics receive the approved damage and optional-pumping rules but retain unknown action costs and other unresolved fields; the four alternatives keep their existing costs, including Machine Gun Bullet Spray's 2 Actions and 4 Energy. The other unknown alternative Energy/action fields remain unassigned. Timed Explosion's free detonation reaction does not assign a cost to its unspecified initial launch. Referencing draft Covering Fire from Machine Gun does not make that technique complete.
 
 ## Grant expression contract v2
 
@@ -245,10 +284,12 @@ Canonical structured source types currently include:
 - `feat`: stable `featKey`;
 - `familiar`: count/rank requirements such as `minCount`;
 - `choice`: properties of the source-owned answer referenced by `choiceRef`;
-- `weapon`: one weapon satisfying `tag`, `tagAll`, `tagAny`, `tagNot`, and/or `minReach` predicates;
+- `weapon`: one weapon satisfying a stable `key` and/or `tag`, `tagAll`, `tagAny`, `tagNot`, `minReach`, and `wielded` predicates;
 - `weapon-set`: an explicit `count` of wielded weapons satisfying the same tag/reach predicates.
 
 `PREREQUISITE_EXPRESSION_REGISTRY` also preserves existing runtime types such as origin, attribute, skill, tag, resource, and explicit legacy text. Weapon and weapon-set tag/reach predicates are executable against normalized character weapons. Familiar prerequisites remain typed but explicitly stubbed. Unstructured legacy text is preserved as a manual rule with a diagnostic; it is never mistaken for executable structured data. `selectionMode=granted-only` must never be encoded as prerequisite prose.
+
+For example, `weapon | key=longsword | wielded=true` requires the corresponding wielded base. The expression parser accepts this existing grammar; that fact alone does not implement the new `WeaponBases.techniqueKeys` acquisition relationship in the exporter or runtime graph.
 
 Separate nonblank lines are ordered AND conditions. Within registry fields marked as references, `A OR B` normalizes to an ordered array. Parsing returns `{ ok, value/values, diagnostics }`; diagnostics retain caller-provided sheet/row/column/cell context. Unknown types, type-specific unknown fields, duplicate aliases, missing requirements, and invalid scalars are errors. The pure parser performs no file I/O and never exits the process.
 

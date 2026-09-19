@@ -118,6 +118,13 @@ See [docs/architecture.md](docs/architecture.md) for current-versus-target detai
 - Validate and produce a complete staged diff before publishing.
 - Every data run records the Drive file ID, source modification time/version when available, export time, and SHA-256 hash.
 
+#### Compact technique authoring
+
+- Express linear damage growth once in `damage`, with starting damage, the increment, and its rank basis/minimum; leave `damageByRank` blank. Do not enumerate every rank or repeat the same rule in `rankNotes`. Use an explicit `damageByRank` map when damage progression is irregular.
+- Retain every authored pumping rank/value in the source map. The shared technique renderer groups only adjacent ranks with equal coefficients and matching units; preserve gaps, separate nonconsecutive runs, and units such as armor or ward.
+- Preserve distinct higher-rank benefits, minimum Energy costs, and other meaningful notes. Omit the redundant zero-Energy sentence from weapon-basic `rankNotes`, while retaining the Rank 0 no-pumping restriction where applicable. See [the technique contract](docs/game-data-contract.md#techniques) for canonical examples.
+- Omit repeated automatic-availability statements from weapon-base cards and provider/availability lines from full technique blocks, including draft intended-availability lines. Keep the underlying source relationships, prerequisites, and costs, the skill Access line, and explicit `Incomplete technique` and missing-mechanic notices.
+
 ### Security and operations
 
 - Never store credentials anywhere inside the repository, including ignored paths.

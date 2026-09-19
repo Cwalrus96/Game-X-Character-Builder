@@ -6,6 +6,7 @@ import {
   sanitizeText,
 } from "./data-sanitization.js";
 import { computeGrantedSkillsState, getClassUtilitySkillState } from "./skill-rules.js?v=wpe13";
+import { canonicalSkillName, canonicalStoredSkillKey } from "./skill-identity.js";
 
 const DEFENSE_FIELD_KEYS = new Set(DEFENSE_SKILL_FIELDS.map(({ key }) => key));
 const CORE_FIELD_BY_SKILL_KEY = new Map(CORE_SKILL_FIELDS.map(({ key, label }) => [
@@ -18,7 +19,7 @@ function isPlainObject(value) {
 }
 
 function normalizeSkillName(value) {
-  return sanitizeText(value, { maxLen: 96, collapse: true });
+  return canonicalSkillName(sanitizeText(value, { maxLen: 96, collapse: true }));
 }
 
 function sanitizeSelectedClassUtilitySkills(gameData, builder, { preserveLegacyLabels = false } = {}) {
@@ -60,7 +61,7 @@ function stableSkillKey(gameData, skillName) {
   const normalizedName = normalizeSkillName(skillName).toLowerCase();
   const match = (Array.isArray(gameData?.classSkills) ? gameData.classSkills : [])
     .find((entry) => normalizeSkillName(entry?.skillName).toLowerCase() === normalizedName);
-  if (match?.skillKey) return match.skillKey;
+  if (match?.skillKey) return canonicalStoredSkillKey(match.skillKey);
   return normalizedName.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
 

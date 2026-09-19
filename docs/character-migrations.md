@@ -2,7 +2,7 @@
 
 `CharacterMigrations` is the only target-v5 module that understands historical saved-character formats. Its job is to accept a recognized old Firestore document, preserve repository timestamps separately, explain every conversion it makes, and return an exact schema-v5 character accepted by `CharacterCodec`.
 
-This boundary keeps backward compatibility out of pages, widgets, rules, graph code, sessions, and the repository's canonical-state logic. Those consumers operate only on v5. The definitive reader applies this registry before exposing character state; old compatibility branches must be deleted as their remaining callers switch, and no new compatibility logic may be added outside this module.
+This boundary keeps historical document-format compatibility out of pages, widgets, rules, graph code, sessions, and the repository's canonical-state logic. Those consumers operate only on v5. The definitive reader applies this registry before exposing character state; old format-compatibility branches must be deleted as their remaining callers switch, and no new historical document-format compatibility logic may be added outside this module. Game-data naming aliases shared by current v5 characters are a separate pure identity concern; the Ranged Weapons/Targeting policy is defined in [character-persistence.md](character-persistence.md#ranged-weapons-naming-compatibility).
 
 ## Evidence-backed version history
 

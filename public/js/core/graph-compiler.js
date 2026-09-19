@@ -20,9 +20,11 @@ import {
   createCharacterGrantCollection,
 } from "./game-data.js?v=wpe1";
 import { isGameDataRecordSelectable } from "./selection-rules.js";
+import { canonicalSkillName, canonicalSkillKey } from "./skill-identity.js";
 import {
   computeGrantedSkillsState,
   computeKnownCombatSkillsAndGrants,
+  getCombatSkillRanks,
   getClassUtilitySkillState,
   getSkillAllocationState,
 } from "./skill-rules.js?v=wpe13";
@@ -573,7 +575,7 @@ function compileEquipment(context, character, weaponBasesByKey, weaponEnhancemen
     const sourceActive = !sourceOwned || context.activeChoices.has(weapon.sourceChoiceId || weapon.choiceId);
     const skillRankCap = definition ? getWeaponSkillRankCap(definition, skillRanks) : 0;
     const hasRankedSkill = definition ? definition.profiles?.some((profile) => (
-      profile?.profileType === "basicAttack" && Object.prototype.hasOwnProperty.call(skillRanks, profile?.skill)
+      profile?.profileType === "basicAttack" && Object.prototype.hasOwnProperty.call(skillRanks, canonicalSkillName(profile?.skill))
     )) : false;
     const minimumRank = Number(definition?.minRank || 0);
     let valid = !!definition && selectable;
@@ -1597,10 +1599,10 @@ function compileGrantAnswers(context, character, techniquesByKey, weaponBasesByK
       valid = false;
       reason = `Technique "${techniqueKey}" is unavailable to grants.`;
     } else {
-      const skillFilters = choiceSpec.choiceNodeId ? values(choiceSpec.grant?.skill) : [];
+      const skillFilters = choiceSpec.choiceNodeId ? values(choiceSpec.grant?.skill).map(canonicalSkillKey) : [];
       const tagFilters = choiceSpec.choiceNodeId ? values(choiceSpec.grant?.tag) : [];
       const keyFilters = choiceSpec.choiceNodeId ? values(choiceSpec.grant?.key) : [];
-      const techniqueSkills = values(technique.skillKeys || technique.skill);
+      const techniqueSkills = values(technique.skillKeys || technique.skill).map(canonicalSkillKey);
       const techniqueTags = values(technique.tagKeys || technique.tags);
       if (keyFilters.length && !keyFilters.includes(techniqueKey)) {
         valid = false;
@@ -1672,11 +1674,7 @@ function unmetRequirementNodeIds(graphResult, sourceNodeId) {
 function compileSelectedTechniques(context, character, techniquesByKey, graph) {
   if (character.builder.selectedTechniques.length === 0) return;
   const known = computeKnownCombatSkillsAndGrants(context.gameData, character.builder);
-  const granted = computeGrantedSkillsState(context.gameData, character.builder);
-  const rankBySkill = new Map(
-    (Array.isArray(granted?.grantedCombatSkills) ? granted.grantedCombatSkills : [])
-      .map((entry) => [text(entry?.skill).toLowerCase(), Number.parseInt(String(entry?.rank ?? 0), 10) || 0]),
-  );
+  const rankBySkill = getCombatSkillRanks(context.gameData, character.builder);
   for (const [index, techniqueKey] of character.builder.selectedTechniques.entries()) {
     const nodeId = `technique-selection:${techniqueKey}`;
     const technique = techniquesByKey.get(techniqueKey);
@@ -1701,7 +1699,7 @@ function compileSelectedTechniques(context, character, techniquesByKey, graph) {
     }
     const selectable = isGameDataRecordSelectable(technique);
     const automatic = context.automaticTechniqueKeys.has(techniqueKey);
-    const skillName = text(technique.skill);
+    const skillName = canonicalSkillName(text(technique.skill));
     const knownSkill = !skillName || known.knownCombatSkills.has(skillName);
     const requiredRank = Number.parseInt(String(technique.rank ?? 0), 10) || 0;
     const skillRank = skillName ? (rankBySkill.get(skillName.toLowerCase()) ?? 0) : requiredRank;

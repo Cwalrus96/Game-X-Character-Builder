@@ -1,6 +1,7 @@
 import { sanitizeText, safeHtmlText } from "./data-sanitization.js";
 import { getEntryPrerequisites, meetsPrerequisites } from "./prerequisites.js";
 import { renderTagChipsHtml, renderTechniqueProfileHtml } from "./technique-utils.js";
+import { canonicalSkillName, RANGED_WEAPONS_SKILL } from "./skill-identity.js";
 
 export const MAX_WEAPON_SLOTS = 4;
 
@@ -34,13 +35,13 @@ export function computeEnhancementCapacity(weapons, grantedSlots = 0) {
 }
 
 export function getWeaponSkillRanks(builder, grantedSkillState) {
-  const ranks = { "Melee Weapons": 0, Targeting: 0 };
+  const ranks = { "Melee Weapons": 0, [RANGED_WEAPONS_SKILL]: 0 };
   const rows = [
     ...(Array.isArray(grantedSkillState?.grantedCombatSkills) ? grantedSkillState.grantedCombatSkills : []),
     ...(Array.isArray(builder?.sheet?.repeatables?.combatSkillsExtra) ? builder.sheet.repeatables.combatSkillsExtra : []),
   ];
   for (const row of rows) {
-    const skill = sanitizeText(row?.skill, { maxLen: 96, collapse: true });
+    const skill = canonicalSkillName(sanitizeText(row?.skill, { maxLen: 96, collapse: true }));
     const rank = Number.parseInt(String(row?.rank || "0"), 10);
     if (!Object.prototype.hasOwnProperty.call(ranks, skill) || !Number.isFinite(rank)) continue;
     ranks[skill] = Math.max(ranks[skill], Math.max(0, rank));
@@ -51,7 +52,8 @@ export function getWeaponSkillRanks(builder, grantedSkillState) {
 export function getWeaponSkillRankCap(weaponDef, skillRanks) {
   const relevantSkills = getWeaponSkillNames(weaponDef);
   if (!relevantSkills.length) return 0;
-  return relevantSkills.reduce((maximum, skillName) => Math.max(maximum, Number(skillRanks?.[skillName] || 0)), 0);
+  return relevantSkills.reduce((maximum, skillName) => Math.max(maximum, ...Object.entries(skillRanks || {})
+    .filter(([name]) => canonicalSkillName(name) === skillName).map(([, rank]) => Number(rank || 0))), 0);
 }
 
 export function getWeaponDef(weaponBases, weaponKey) {
@@ -72,7 +74,7 @@ export function getBasicAttackProfiles(weaponDef) {
 export function getWeaponSkillNames(weaponDef) {
   const skills = new Set();
   for (const profile of getBasicAttackProfiles(weaponDef)) {
-    const skill = sanitizeText(profile?.skill, { maxLen: 96, collapse: true });
+    const skill = canonicalSkillName(sanitizeText(profile?.skill, { maxLen: 96, collapse: true }));
     if (skill) skills.add(skill);
   }
   return Array.from(skills);
@@ -148,7 +150,7 @@ export function isEnhancementCompatible(enhancementDef, weapon, weaponBases, pre
   const tags = getEffectiveTags(weapon, weaponBases);
   const basicProfiles = getBasicAttackProfiles(weaponDef);
   const hasMeleeProfile = basicProfiles.some((profile) => String(profile?.skill || "") === "Melee Weapons");
-  const hasRangedProfile = basicProfiles.some((profile) => String(profile?.skill || "") === "Targeting");
+  const hasRangedProfile = basicProfiles.some((profile) => canonicalSkillName(profile?.skill) === RANGED_WEAPONS_SKILL);
 
   for (const prereq of prerequisites) {
     if (prereq.type !== "text" && !meetsPrerequisites([prereq], { ...prerequisiteContext, tags })) return false;
@@ -168,7 +170,7 @@ export function isEnhancementCompatible(enhancementDef, weapon, weaponBases, pre
 export function formatAttackLine(profile, weaponRank) {
   if (!profile) return "";
   const attribute = sanitizeText(profile?.attribute, { maxLen: 48, collapse: true });
-  const skill = sanitizeText(profile?.skill, { maxLen: 96, collapse: true });
+  const skill = canonicalSkillName(sanitizeText(profile?.skill, { maxLen: 96, collapse: true }));
   const defense = sanitizeText(profile?.defense, { maxLen: 48, collapse: true });
   const range = sanitizeText(profile?.range, { maxLen: 96, collapse: true });
   const targets = sanitizeText(profile?.targets, { maxLen: 96, collapse: true });

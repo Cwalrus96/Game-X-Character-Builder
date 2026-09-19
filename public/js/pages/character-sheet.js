@@ -31,6 +31,7 @@ import {
   resolveTechniqueRef,
 } from "../core/game-data.js";
 import { computeKnownCombatSkillsAndGrants, computeGrantedSkillsState } from "../core/skill-rules.js";
+import { canonicalSkillName } from "../core/skill-identity.js";
 import {
   computeWeaponSlotCost,
   getEffectiveTags,
@@ -287,7 +288,8 @@ import {
     grantedCombatSkills = [],
   } = {}) {
     const mergedFields = sanitizeSkillFields(fields, { allowedKeys: READ_ONLY_SKILL_FIELD_KEYS });
-    const combatSkillsExtra = sanitizeNamedSkillList(repeatables?.combatSkillsExtra, { maxItems: 50 });
+    const combatSkillsExtra = sanitizeNamedSkillList(repeatables?.combatSkillsExtra, { maxItems: 50 })
+      .map((row) => ({ ...row, skill: canonicalSkillName(row.skill) }));
     const settingSkills = sanitizeNamedSkillList(repeatables?.settingSkills, { maxItems: 50 });
 
     for (const [fieldKey, rawRank] of Object.entries((grantedFixedRanks && typeof grantedFixedRanks === 'object') ? grantedFixedRanks : {})) {
@@ -525,20 +527,20 @@ async function renderBuilderTechniquesReadOnly(builder) {
     const extraCombatSkills = sanitizeNamedSkillList(repeatables.combatSkillsExtra, { maxItems: 50 });
 
     function getTechniqueSkillRank(technique) {
-      const skillName = sanitizeText(technique?.skill, { maxLen: 96, collapse: true });
+      const skillName = canonicalSkillName(sanitizeText(technique?.skill, { maxLen: 96, collapse: true }));
       if (!skillName) return Number(technique?.rank || 0);
 
       let rank = 0;
       const grantedCombat = Array.isArray(grantedSkillState?.grantedCombatSkills) ? grantedSkillState.grantedCombatSkills : [];
       for (const row of grantedCombat) {
-        const skill = sanitizeText(row?.skill, { maxLen: 96, collapse: true });
+        const skill = canonicalSkillName(sanitizeText(row?.skill, { maxLen: 96, collapse: true }));
         if (skill !== skillName) continue;
         const value = Number.parseInt(String(row?.rank || "0"), 10);
         if (Number.isFinite(value)) rank = Math.max(rank, value);
       }
 
       for (const row of extraCombatSkills) {
-        const skill = sanitizeText(row?.skill, { maxLen: 96, collapse: true });
+        const skill = canonicalSkillName(sanitizeText(row?.skill, { maxLen: 96, collapse: true }));
         if (skill !== skillName) continue;
         const value = Number.parseInt(String(row?.rank || "0"), 10);
         if (Number.isFinite(value)) rank = Math.max(rank, value);

@@ -1,4 +1,5 @@
 import { escapeHtml, sanitizeText, safeHtmlText } from "./data-sanitization.js";
+import { canonicalSkillName } from "./skill-identity.js";
 
 export function renderTagChipsHtml(tags, chipClass = "tagChip") {
   if (!Array.isArray(tags) || !tags.length) return "—";
@@ -43,7 +44,7 @@ function formatAdditionalEnergyText(pump) {
 function formatRollLine(profile) {
   if (!profile || profile?.rollRequired === false) return "";
   const attribute = sanitizeText(profile?.attribute, { maxLen: 48, collapse: true });
-  const skill = sanitizeText(profile?.skill, { maxLen: 96, collapse: true });
+  const skill = canonicalSkillName(sanitizeText(profile?.skill, { maxLen: 96, collapse: true }));
   const defense = formatDefenseLabel(profile?.defense);
   const parts = [];
   const attackParts = [];

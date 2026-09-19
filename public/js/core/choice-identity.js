@@ -1,4 +1,5 @@
 import { sanitizeText } from "./data-sanitization.js";
+import { legacySkillIdentity } from "./skill-identity.js";
 
 const CHOICE_CREATING_GRANT_TYPES = new Set([
   "technique-choice",
@@ -28,8 +29,8 @@ function resolveLegacyGrantChoiceId(grant, { sourceId = "", index = 0, normalize
 
   const source = normalizeChoiceId(sourceId || "source");
   const type = normalizeDerivedIdentity(grant?.type || "choice");
-  const rawSkill = grant?.skillKey || grant?.key || grant?.skill || grant?.name || "";
-  const skill = normalizeSemantic ? normalizeDerivedIdentity(rawSkill) : normalizeChoiceId(rawSkill);
+  const rawSkill = legacySkillIdentity(grant?.skillKey || grant?.key || grant?.skill || grant?.name || "");
+  const skill = normalizeSemantic ? normalizeDerivedIdentity(rawSkill) : normalizeChoiceId(rawSkill === "targeting" ? "Targeting" : rawSkill);
   return normalizeChoiceId([source, type, skill, String(index)].filter(Boolean).join(":"));
 }
 
@@ -48,7 +49,7 @@ export function resolveGrantChoiceId(grant, { sourceId = "", index = 0 } = {}) {
   if (!grantCreatesChoice(grant)) return "";
 
   const type = normalizeDerivedIdentity(grant?.type || "choice");
-  const skill = normalizeDerivedIdentity(grant?.skillKey || grant?.key || grant?.skill || grant?.name || "");
+  const skill = normalizeDerivedIdentity(legacySkillIdentity(grant?.skillKey || grant?.key || grant?.skill || grant?.name || ""));
   const rawSource = sanitizeText(sourceId || "source", { maxLen: 260, collapse: true });
   const raw = [rawSource, type, skill, String(index)].filter(Boolean).join(":");
   const sourceSlug = normalizeChoiceId(rawSource.split(":").filter(Boolean).pop() || rawSource || "source");

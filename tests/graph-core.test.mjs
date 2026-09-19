@@ -76,7 +76,7 @@ test("published selectable weapon bases compile through the equipment graph", as
       customName: "",
       enhancements: [],
     });
-    for (const skill of getWeaponSkillNames(weapon).filter((name) => ["Melee Weapons", "Targeting"].includes(name))) {
+    for (const skill of getWeaponSkillNames(weapon).filter((name) => ["Melee Weapons", "Ranged Weapons"].includes(name))) {
       character.builder.sheet.repeatables.combatSkillsExtra.push({ skill, rank: String(rank) });
     }
     const result = reconcileCharacterGraph({ character, previousCharacter: character, gameData });

@@ -11,6 +11,7 @@ import {
   resolveTechniqueRef,
 } from "../../core/game-data.js?v=wpe1";
 import { computeGrantedSkillsState, computeKnownCombatSkillsAndGrants } from "../../core/skill-rules.js";
+import { canonicalSkillName } from "../../core/skill-identity.js";
 import { isGameDataRecordSelectable } from "../../core/selection-rules.js";
 import { meetsPrerequisites } from "../../core/prerequisites.js";
 import { renderTechniqueProfileHtml } from "../../core/technique-utils.js";
@@ -30,7 +31,7 @@ function techniqueRank(technique) {
 }
 
 function techniqueSkill(technique) {
-  return sanitizeText(technique?.skill, { maxLen: 96, collapse: true });
+  return canonicalSkillName(sanitizeText(technique?.skill, { maxLen: 96, collapse: true }));
 }
 
 function countForGrant(grant) {
@@ -47,7 +48,7 @@ function getSourceOwnedTechniqueAnswerCounts(builder = {}, gameData = {}) {
   for (const choice of Object.values(choices)) {
     if (choice?.type !== "technique") continue;
     const technique = getGameXTechniques(gameData).find((entry) => techniqueKey(entry) === choice?.techniqueKey);
-    const skill = sanitizeText(choice?.skillKey || technique?.skill, { maxLen: 96, collapse: true }).toLowerCase();
+    const skill = canonicalSkillName(sanitizeText(choice?.skillKey || technique?.skill, { maxLen: 96, collapse: true })).toLowerCase();
     if (!choice?.techniqueKey || !skill) continue;
     counts.set(skill, (counts.get(skill) || 0) + 1);
   }
@@ -98,7 +99,7 @@ function getRemainingTechniqueChoiceGrants(grants, sourceOwnedAnswerCounts = new
   const out = [];
 
   for (const grant of Array.isArray(grants) ? grants : []) {
-    const skill = sanitizeText(grant?.skill || grant?.name || grant?.key, { maxLen: 96, collapse: true }).toLowerCase();
+    const skill = canonicalSkillName(sanitizeText(grant?.skill || grant?.name || grant?.key, { maxLen: 96, collapse: true })).toLowerCase();
     const total = countForGrant(grant);
     if (!skill || total <= 0) continue;
 
@@ -237,7 +238,7 @@ export class TechniquesWidget extends BuilderWidget {
       ? context.grantedSkillState.grantedCombatSkills
       : [];
     for (const row of grantedCombat) {
-      const skill = sanitizeText(row?.skill, { maxLen: 96, collapse: true });
+      const skill = canonicalSkillName(sanitizeText(row?.skill, { maxLen: 96, collapse: true }));
       if (skill !== skillName) continue;
       const value = Number.parseInt(String(row?.rank || "0"), 10);
       if (Number.isFinite(value)) rank = Math.max(rank, value);
@@ -246,7 +247,7 @@ export class TechniquesWidget extends BuilderWidget {
     const repeatables = context.builder?.sheet?.repeatables;
     const extraCombatSkills = sanitizeNamedSkillList(repeatables?.combatSkillsExtra, { maxItems: 50 });
     for (const row of extraCombatSkills) {
-      const skill = sanitizeText(row?.skill, { maxLen: 96, collapse: true });
+      const skill = canonicalSkillName(sanitizeText(row?.skill, { maxLen: 96, collapse: true }));
       if (skill !== skillName) continue;
       const value = Number.parseInt(String(row?.rank || "0"), 10);
       if (Number.isFinite(value)) rank = Math.max(rank, value);
@@ -256,7 +257,7 @@ export class TechniquesWidget extends BuilderWidget {
   }
 
   grantMatchesTechniqueChoice(grant, technique, context) {
-    const grantSkill = sanitizeText(grant?.skill || grant?.name || grant?.key, { maxLen: 96, collapse: true }).toLowerCase();
+    const grantSkill = canonicalSkillName(sanitizeText(grant?.skill || grant?.name || grant?.key, { maxLen: 96, collapse: true })).toLowerCase();
     if (!grantSkill) return false;
     const skill = techniqueSkill(technique).toLowerCase();
     if (grantSkill !== skill) return false;
@@ -270,7 +271,7 @@ export class TechniquesWidget extends BuilderWidget {
     const remainingBySkill = new Map();
 
     for (const grant of context.techniqueChoiceGrants) {
-      const skill = sanitizeText(grant?.skill || grant?.name || grant?.key, { maxLen: 96, collapse: true }).toLowerCase();
+      const skill = canonicalSkillName(sanitizeText(grant?.skill || grant?.name || grant?.key, { maxLen: 96, collapse: true })).toLowerCase();
       if (!skill) continue;
       const count = Number.parseInt(String(grant?.count ?? 1), 10);
       remainingBySkill.set(skill, (remainingBySkill.get(skill) || 0) + (Number.isFinite(count) ? Math.max(0, count) : 1));

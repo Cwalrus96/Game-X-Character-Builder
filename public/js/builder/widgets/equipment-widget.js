@@ -194,7 +194,7 @@ export class EquipmentWidget {
     elements.slotUsageValue.textContent = `${slots} / ${MAX_WEAPON_SLOTS}`;
     elements.slotUsagePill.classList.toggle("danger", slots > MAX_WEAPON_SLOTS);
     elements.meleeSkillRankValue.textContent = String(this.skillRanks["Melee Weapons"] || 0);
-    elements.targetingSkillRankValue.textContent = String(this.skillRanks.Targeting || 0);
+    elements.rangedWeaponsSkillRankValue.textContent = String(this.skillRanks["Ranged Weapons"] || 0);
     elements.equipmentStatusHint.textContent = this.weapons.length ? "Ready." : "No weapons selected.";
     const visible = this.#visibleWeapons().sort((a, b) => String(a.name).localeCompare(String(b.name)));
     elements.weaponBaseSelect.innerHTML = option("", "Select a weapon...")

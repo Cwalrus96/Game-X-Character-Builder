@@ -33,7 +33,7 @@ const elements = {
   slotUsagePill: document.getElementById("slotUsagePill"),
   slotUsageValue: document.getElementById("slotUsageValue"),
   meleeSkillRankValue: document.getElementById("meleeSkillRankValue"),
-  targetingSkillRankValue: document.getElementById("targetingSkillRankValue"),
+  rangedWeaponsSkillRankValue: document.getElementById("rangedWeaponsSkillRankValue"),
   weaponBaseSelect: document.getElementById("weaponBaseSelect"),
   addWeaponBtn: document.getElementById("addWeaponBtn"),
   weaponList: document.getElementById("weaponList"),

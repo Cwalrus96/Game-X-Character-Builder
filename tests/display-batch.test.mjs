@@ -46,21 +46,31 @@ function harness(entries, failure) {
 }
 
 test('bulk conversion includes hidden/case-insensitive sources, preserves IDs and excerpt columns, and restores the active tab', () => {
+  const techniqueRow = Array.from({length: 14}, (_, column) => column === 0 ? 'Main' : column === 13 ? 'Weapon attack excerpt' : '');
+  const techniqueBlock = '**Rifle Basic Attack ( Rank 1)**\n*Access: Ranged Weapons*\nDamage: Canonical damage text\nCritical Success: Canonical rider';
+  const weaponCard = '**Rifle (Rank 1)**\n*Tags: Ranged*\n\n**Weapon techniques:**\n\n' + techniqueBlock;
+  const weaponRow = Array.from({length: 13}, (_, column) => column === 0 || column === 4 ? weaponCard : column % 2 === 0 ? `Rank ${column / 2 - 1} excerpt` : '');
   const h = harness([
     ['README', [['Read me']]],
-    ['Techniques_Display', [['Main', '', '', 'Excerpt', ''], ['', '', '', '', '']]],
+    ['Techniques_Display', [techniqueRow, Array(14).fill('')]],
     ['Techniques_Formatted', [['Old']]],
     ['Hidden_display', [['Hidden content']], true],
+    ['WeaponBases_Display', [weaponRow]],
+    ['_TechniqueBlocks', [['rifle-basic-attack', 'rifle', techniqueBlock]], true],
   ]);
   const original = h.ss.getActiveSheet();
   const existing = h.sheets[2];
   h.api.generateAllFormattedOutputTabs();
   assert.equal(h.sheets[2], existing);
-  assert.deepEqual(JSON.parse(JSON.stringify(existing.values)), [['Main', '', '', 'Excerpt']]);
+  assert.deepEqual(JSON.parse(JSON.stringify(existing.values)), [techniqueRow]);
+  const weaponOutput = h.sheets.find(s => s.getName() === 'WeaponBases_Formatted');
+  assert.deepEqual(JSON.parse(JSON.stringify(weaponOutput.values)), [weaponRow]);
+  assert.equal(h.sheets.some(s => s.getName() === '_TechniqueBlocks_Formatted'), false);
   assert.equal(h.sheets.find(s => s.getName() === 'Hidden_Formatted').hidden, true);
   assert.equal(h.ss.getActiveSheet(), original);
   h.api.generateAllFormattedOutputTabs();
-  assert.equal(h.sheets.filter(s => /_formatted$/i.test(s.getName())).length, 2);
+  assert.equal(h.sheets.filter(s => /_formatted$/i.test(s.getName())).length, 3);
+  assert.equal(h.sheets.find(s => s.getName() === 'WeaponBases_Formatted'), weaponOutput);
   assert.equal(h.events.filter(e => e[0] === 'unlock').length, 2);
 });
 
