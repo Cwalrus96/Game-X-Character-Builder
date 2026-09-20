@@ -168,28 +168,28 @@ Do not restore obsolete `classKey`, `minLevel`, or `review` source columns. If f
 
 A Trait represents a passive benefit or capability, usually a physical component. Its provider determines who receives it, when it is active, and how it is chosen. A Trait may refer to associated techniques; the action's cost, roll, targeting, and outcome belong to its canonical Technique record. Formatting a feature as a Trait does not itself make that feature universally selectable or authorize conversion of every other passive class feature.
 
-`Traits!A:L` has the following ordered authoring fields:
+`Traits!A:H` has eight core authoring fields. The user removed the former editorial metadata columns during consolidation; their absence must not break rendering.
 
 | Field | Meaning |
 |---|---|
 | `traitKey` | Unique stable identity; display names and source variants may overlap. |
 | `name` | Player-facing Trait name. |
-| `rank` | Authored base rank; blank means unknown, never Rank 0. |
+| `rank` | Minimum acquisition rank; blank means unknown, never Rank 0. A granted Trait scales with its provider-specified associated skill, or Familiar rank for a Familiar. |
 | `prerequisites` | Authored player-facing requirements; currently prose, not a new executable prerequisite DSL. |
 | `tags` | Authored tags only; blank does not justify inventing a classification. |
 | `description` | Unlabeled benefit text, choices, limits, and ordinary prose naming associated techniques. |
 | `rankNotes` | Preserved higher-rank benefits written as `Rank N+` lines. |
 | `techniqueKeys` | Ordered comma-separated stable references to canonical associated Techniques. |
-| `selectionMode` | Authoring readiness; unresolved records remain `draft`. |
-| `duplicateGroup` | Editorial group for possible overlap; blank when no shared review group remains. |
-| `reviewNotes` | Concise visible review notes, including source-variant identification or unresolved mechanics. |
-| `sourceNote` | Internal source provenance, omitted from the player-facing block. |
+
+The legacy `selectionMode`, `duplicateGroup`, `reviewNotes`, and `sourceNote` columns are optional. Missing columns supply blank metadata, with an array matching the source row count. Present metadata retains its existing meaning and formatting. A missing optional header is different from a broken required key or technique reference; the latter must still fail validation. Missing metadata does not certify runtime readiness or grant access.
 
 The book block has a bold `Name - Rank N` title, separate lines with bold `Prerequisites:` and `Tags:` labels, one blank line, and the authored body and rank notes. Do not add Benefit, Choice, Scaling, or Techniques subsection labels. Blank prerequisites render `None`; blank tags render an em dash; unknown rank renders `Rank ?`. Draft or unknown-rank records retain an italic `Incomplete Trait` notice. Possible-duplicate labels and review notes are italic. Associated techniques are named in ordinary Trait prose and rendered in the existing Technique catalogue, without copying full action blocks into the Trait.
 
 `ClassFeatures` and `OriginFeatures` append column N `traitKeys`, an ordered comma-separated list of stable references. This relationship identifies the provider's available or supplied Traits; it does not mean every listed Trait is automatically granted. The provider's prose retains counts, permitted selections, recipients, activation costs, duration, form switching, and other source-specific rules. Likewise, a Trait `techniqueKeys` relationship does not override any higher-rank access condition in its description or rank notes.
 
-The migration preserves all 77 identities and mechanics without merging any overlap. Source rank bases, choices, drawbacks, and parameter options remain explicit; unknown values stay unknown. Duplicate groups do not establish stacking, replacement, equivalence, or a universal scaling rule. Broader feature-family conversions, including Fighting Styles, require their own consistent scope and approval. WeaponBases `traitsText` remains its existing authoring field until a separately approved integration addresses it.
+The granting feature defines the associated skill whenever a Trait needs one. Trait rank always scales with that skill. Familiar Traits instead use Familiar rank, including benefits phrased in terms of associated skill rank; Familiar rank progresses separately. Origin Traits should grant benefits without requiring a skill; fixed-rank grants can preserve a particular benefit (for example, Wall Crawler grants Rank 2 Climber). The minimum rank of a Trait-granted Technique equals the lowest minimum rank among its granting Traits. A tag prerequisite can establish eligibility without automatically granting the Technique.
+
+The initial migration retained 77 variants for review. The user's subsequent consolidation supersedes those identities: providers must reference current keys, deduplicate merged choices, and preserve their activation and selection rules. Quadrupedal is retired; Slime Physiology maps to Inorganic Nature. Broader feature-family conversions, including Fighting Styles, require their own consistent scope and approval. WeaponBases `traitsText` remains its existing authoring field until a separately approved integration addresses it.
 
 Trait source/display acceptance is distinct from runtime support. The accepted adapter does not yet normalize Traits or `traitKeys`; the typed grant/prerequisite registries have no Trait type, and character schema v5 has no dedicated Trait/Familiar/Mech/form state. Future integration must define provider and recipient ownership, selection/rank rules, stable reference validation, codec/migration implications, and graph reconciliation through the existing shared Rules/session architecture. Do not use display prose as executable rules, silently drop the new records, or mark them runtime-ready because the display renders them.
 
