@@ -2,7 +2,7 @@
 
 Status: living source/runtime contract. Schema-v4 acquisition, adaptation, validation, deterministic schema-v2 staging, reviewed publishing, and rollback are implemented and accepted.
 
-Last updated: 2026-09-19.
+Last updated: 2026-09-20.
 
 ## Canonical source and versions
 
@@ -13,7 +13,7 @@ The canonical editable source is the native Google Sheet [game-x-class-data](htt
 | Drive file ID | `1TEdxuufglP8lFRNk8QD4N_351-0ihAUFLG2743ESjoI` |
 | Published release Drive version | `647` |
 | Published release Drive modified time | `2026-08-09T02:27:03.310Z` |
-| Current authoring checkpoint | September 19 weapon migration/refinement verified; 139 source techniques observed, 31 base-specific actions, 108 main catalogue entries, and full technique blocks in weapon cards; not runtime release validated |
+| Current authoring checkpoint | September 20 Trait source/display migration: 77 distinct Traits, 151 observed Techniques, and 120 main catalogue entries; authoring extensions remain outside runtime release acceptance |
 | Source schema | `4` |
 | Grant syntax | `2` |
 | Prerequisite syntax | `2` |
@@ -74,7 +74,9 @@ The completed follow-up presentation separates the main alphabetical catalogue f
 
 The combat skill is now **Ranged Weapons**, with canonical skill key `ranged-weapons`, replacing the former Targeting label/key across authored skill values and references. This skill migration does not rename unrelated stable technique, feat, weapon, or enhancement identities merely because their keys contain the same word. Published data and saved characters may still contain the legacy skill identity and require the separately maintained compatibility path.
 
-These are intentional authoring/display extensions. New Feats fields/order, archetype prerequisites, blank technique ranks/skills, and the WeaponBases technique/trait relationships remain outside parts of the accepted exporter/runtime contract. The weapon source migration does not establish runtime support for automatic weapon techniques. Exporter integration and runtime-data publishing are deferred; all nine frozen production JSON files and the release contract remain unchanged. The next runtime-data release requires separate compatibility work, successful staging, and publish approval. See [data-pipeline.md](data-pipeline.md#handbook-display-and-linked-table-formatting) for the authoring and linked-table workflow.
+The September 20 Trait migration adds a canonical `Traits` tab with 77 distinct records: 25 existing Monster/Familiar Traits, 25 Mech upgrades, 19 Metamorphic adaptations, and eight approved Origin features. Overlapping mechanics remain separate pending review; 16 populated duplicate groups identify candidates without merging their effects, prerequisites, ranks, or drawbacks. Fourteen associated actions were appended to canonical `Techniques`, preserving the 137 records in the fresh prewrite snapshot and producing 151 observed Techniques, of which 120 are in the main catalogue. These counts are checkpoints rather than assumptions for future work. Eleven existing ClassFeatures/OriginFeatures provider rows now reference the Trait records, retaining their activation and selection rules. The universal format and relationships are specified under [Traits](#traits-authoring-extension).
+
+These are intentional authoring/display extensions. New Feats fields/order, archetype prerequisites, blank technique ranks/skills, WeaponBases technique/trait relationships, the `Traits` table, and provider `traitKeys` remain outside parts of the accepted exporter/runtime contract. Neither source migration establishes executable Trait grants, Familiar/Mech/form state, or automatic weapon techniques. Exporter integration and runtime-data publishing are deferred; all nine frozen production JSON files and the release contract remain unchanged. The next runtime-data release requires separate compatibility work, successful staging, and publish approval. See [data-pipeline.md](data-pipeline.md#handbook-display-and-linked-table-formatting) for the authoring and linked-table workflow.
 
 ### Canonical adapter model
 
@@ -161,6 +163,35 @@ Feats use:
 - `chooseCount` and `parentKey` for nested options.
 
 Do not restore obsolete `classKey`, `minLevel`, or `review` source columns. If future behavior needs another classification, extend `featType`/Enums deliberately.
+
+### Traits (authoring extension)
+
+A Trait represents a passive benefit or capability, usually a physical component. Its provider determines who receives it, when it is active, and how it is chosen. A Trait may refer to associated techniques; the action's cost, roll, targeting, and outcome belong to its canonical Technique record. Formatting a feature as a Trait does not itself make that feature universally selectable or authorize conversion of every other passive class feature.
+
+`Traits!A:L` has the following ordered authoring fields:
+
+| Field | Meaning |
+|---|---|
+| `traitKey` | Unique stable identity; display names and source variants may overlap. |
+| `name` | Player-facing Trait name. |
+| `rank` | Authored base rank; blank means unknown, never Rank 0. |
+| `prerequisites` | Authored player-facing requirements; currently prose, not a new executable prerequisite DSL. |
+| `tags` | Authored tags only; blank does not justify inventing a classification. |
+| `description` | Unlabeled benefit text, choices, limits, and ordinary prose naming associated techniques. |
+| `rankNotes` | Preserved higher-rank benefits written as `Rank N+` lines. |
+| `techniqueKeys` | Ordered comma-separated stable references to canonical associated Techniques. |
+| `selectionMode` | Authoring readiness; unresolved records remain `draft`. |
+| `duplicateGroup` | Editorial group for possible overlap; blank when no shared review group remains. |
+| `reviewNotes` | Concise visible review notes, including source-variant identification or unresolved mechanics. |
+| `sourceNote` | Internal source provenance, omitted from the player-facing block. |
+
+The book block has a bold `Name - Rank N` title, separate lines with bold `Prerequisites:` and `Tags:` labels, one blank line, and the authored body and rank notes. Do not add Benefit, Choice, Scaling, or Techniques subsection labels. Blank prerequisites render `None`; blank tags render an em dash; unknown rank renders `Rank ?`. Draft or unknown-rank records retain an italic `Incomplete Trait` notice. Possible-duplicate labels and review notes are italic. Associated techniques are named in ordinary Trait prose and rendered in the existing Technique catalogue, without copying full action blocks into the Trait.
+
+`ClassFeatures` and `OriginFeatures` append column N `traitKeys`, an ordered comma-separated list of stable references. This relationship identifies the provider's available or supplied Traits; it does not mean every listed Trait is automatically granted. The provider's prose retains counts, permitted selections, recipients, activation costs, duration, form switching, and other source-specific rules. Likewise, a Trait `techniqueKeys` relationship does not override any higher-rank access condition in its description or rank notes.
+
+The migration preserves all 77 identities and mechanics without merging any overlap. Source rank bases, choices, drawbacks, and parameter options remain explicit; unknown values stay unknown. Duplicate groups do not establish stacking, replacement, equivalence, or a universal scaling rule. Broader feature-family conversions, including Fighting Styles, require their own consistent scope and approval. WeaponBases `traitsText` remains its existing authoring field until a separately approved integration addresses it.
+
+Trait source/display acceptance is distinct from runtime support. The accepted adapter does not yet normalize Traits or `traitKeys`; the typed grant/prerequisite registries have no Trait type, and character schema v5 has no dedicated Trait/Familiar/Mech/form state. Future integration must define provider and recipient ownership, selection/rank rules, stable reference validation, codec/migration implications, and graph reconciliation through the existing shared Rules/session architecture. Do not use display prose as executable rules, silently drop the new records, or mark them runtime-ready because the display renders them.
 
 ### Techniques
 
