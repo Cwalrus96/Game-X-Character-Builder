@@ -1,6 +1,6 @@
 # Current implementation status
 
-Last updated: 2026-09-19
+Last updated: 2026-09-20
 
 Current branch at update: `codex/work-package-b-data-contract`
 
@@ -15,6 +15,8 @@ Parallel game-data step: Work Package B is complete through the prior `WPB-PUBLI
 This is the only frequently updated project-status document. Historical audits and completion records must not be edited to look current.
 
 ## Checkpoint
+
+- The handbook formatter is active as of September 20. The missing Docs advanced service was enabled after explicit terms approval; installer errors from calling the document UI in the script editor and comparing internal trigger IDs with Drive IDs were fixed. Setup retains one document-open formatter trigger and preserves unrelated triggers. Both automatic-open and manual menu executions completed successfully for all 50 observed tables. Source cells, runtime artifacts, and the Work Package E release boundaries are unchanged.
 
 - The wording cleanup is verified across source, display, and handbook. Repeated base availability, technique provider/availability (including draft intended availability), and zero-Energy lines are absent. Exactly 23 basic-attack `rankNotes` cells changed: 19 are blank and four retain the Rank 0 no-pumping restriction; all other source cells across 139 techniques are unchanged. All 13 remaining nonempty rank notes render intact, alongside skill Access lines, `Incomplete technique`, and missing-mechanic notices. All 32 native display checks pass, and all 153 linked handbook entries match current text and bold/italic styling. Standard preflight passed 256 unit tests, nine frozen artifact checks, and 14 HTML asset checks.
 - The preceding September 19 compact-format correction was verified across source, display, and handbook. Exactly 69 cells across 23 weapon basics express linear damage growth once, leave `damageByRank` blank, and initially retained concise Energy/Rank 0 notes. Every old damage-map value was proved equal before clearing; pumping maps and all other source cells across the 139 observed technique records were unchanged. Shared rendering groups adjacent equal pumping coefficients with their original units and preserves distinct higher-rank benefits and minimum Energy costs. All 32 native display checks passed, and all 153 linked handbook entries matched text and bold/italic styling at that checkpoint.
@@ -188,6 +190,13 @@ The repository's old `data/game-x-class-data.xlsx` is a June 29 snapshot and is 
 See [data-pipeline.md](data-pipeline.md) for exact commands and security guidance.
 
 ## Last verification
+
+Handbook formatter activation and setup repair on 2026-09-20:
+
+- Preflight passed **256 unit tests**, **9 frozen artifact checks**, and **14 HTML asset checks**. Final verification passed **7 focused formatter tests** and **257 repository unit tests**, including editor execution without document UI, opaque Docs trigger source IDs, duplicate cleanup, unrelated-trigger preservation, and busy-installation refusal.
+- The bound project's **Docs v1** service is saved. The corrected installer completed at **12:03:49 America/New_York**; the trigger page showed exactly **one** `onHandbookOpen` document-open trigger, no timer, and a **0%** error rate. Automatic-open execution completed in **56.514 seconds**, and the manual **Handbook → Format tables** execution completed in **64.98 seconds**, including its success dialog.
+- Final readback at **2026-09-20T16:06:12.403Z** verified **50 tables**, **459 rows**, **1,167 cells**, and **4,557 table paragraphs** across four tabs. All widths, row minima, alignment, stripes, padding, and four border edges passed. Table text, emphasis, hyperlinks, list metadata (37 native list paragraphs), dimensions, and indexes matched the pre-run snapshot exactly. Evidence is ignored under `.staging/handbook-activation-2026-09-20/`.
+- No source edit, runtime-data publication, or website deployment was needed. Concurrent Trait/display authoring changes were preserved outside this fix. The next named step remains **`WPE-DOMAIN-MIGRATION`** focused signed-in acceptance: verify saving/reloading, dependency-change confirmation/cancellation, and conflict/focus handling before clearing the existing production-deployment boundary.
 
 Repeated availability and zero-Energy wording cleanup on 2026-09-19:
 

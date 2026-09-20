@@ -90,19 +90,24 @@ test('installation leaves no automatic trigger when Docs API access fails', () =
   assert.equal(created, false);
 });
 
-test('installation creates one document-open trigger and never a clock trigger', () => {
+test('editor installation needs no document UI and creates exactly one open trigger', () => {
   const triggers = [];
-  const menu = { addItem() { return this; }, addToUi() {} };
   const doc = { getId: () => documentId };
   const api = load({
-    DocumentApp: { getActiveDocument: () => doc, getUi: () => ({ createMenu: () => menu }) },
+    DocumentApp: { getActiveDocument: () => doc, getUi() {
+      throw new Error('Cannot call DocumentApp.getUi() from this context.');
+    } },
     LockService: { getDocumentLock: () => ({ tryLock: () => true, releaseLock() {} }) },
     Docs: { Documents: { get: () => fixture(), batchUpdate() {} } },
-    ScriptApp: { EventType: { ON_OPEN: 'OPEN' }, getProjectTriggers: () => triggers,
+    ScriptApp: { EventType: { ON_OPEN: 'OPEN' }, getUserTriggers(target) {
+      assert.equal(target, doc);
+      return triggers;
+    },
+      deleteTrigger(trigger) { triggers.splice(triggers.indexOf(trigger), 1); },
       newTrigger(handler) { return { forDocument(target) {
         assert.equal(target, doc);
         return { onOpen() { return { create() {
-          triggers.push({ getHandlerFunction: () => handler, getEventType: () => 'OPEN', getTriggerSourceId: () => documentId });
+          triggers.push({ getHandlerFunction: () => handler, getEventType: () => 'OPEN', getTriggerSourceId: () => 'opaque-docs-source-id' });
         } }; } };
       } }; },
     },
@@ -110,4 +115,19 @@ test('installation creates one document-open trigger and never a clock trigger',
   api.installHandbookFormatting();
   api.installHandbookFormatting();
   assert.equal(triggers.length, 1);
+  const keeper = triggers[0];
+  const unrelated = { getHandlerFunction: () => 'anotherHandler', getEventType: () => 'OPEN' };
+  const otherEvent = { getHandlerFunction: () => 'onHandbookOpen', getEventType: () => 'OTHER' };
+  triggers.push({ ...keeper }, unrelated, otherEvent);
+  api.installHandbookFormatting();
+  assert.deepEqual(triggers, [keeper, unrelated, otherEvent]);
+});
+
+test('installation does not change triggers while formatting is busy', () => {
+  const api = load({
+    DocumentApp: { getActiveDocument: () => ({ getId: () => documentId }) },
+    LockService: { getDocumentLock: () => ({ tryLock: () => false }) },
+    ScriptApp: { getUserTriggers() { assert.fail('Busy installation must not inspect or modify triggers'); } },
+  });
+  assert.throws(() => api.installHandbookFormatting(), /already running/);
 });

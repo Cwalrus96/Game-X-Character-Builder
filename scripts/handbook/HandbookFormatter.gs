@@ -17,12 +17,14 @@ function installHandbookFormatting() {
   const doc = handbookDocument_();
   // Prove API access and formatting before installing an automatic trigger.
   const result = formatHandbookTables_();
-  const exists = ScriptApp.getProjectTriggers().some(trigger =>
+  if (result.busy) throw new Error('Table formatting is already running. Retry installation when it finishes.');
+  // Docs trigger source IDs can differ from Drive document IDs. Scope through the document API.
+  const triggers = ScriptApp.getUserTriggers(doc).filter(trigger =>
     trigger.getHandlerFunction() === 'onHandbookOpen' &&
-    trigger.getEventType() === ScriptApp.EventType.ON_OPEN &&
-    trigger.getTriggerSourceId() === doc.getId());
-  if (!exists) ScriptApp.newTrigger('onHandbookOpen').forDocument(doc).onOpen().create();
-  onOpen();
+    trigger.getEventType() === ScriptApp.EventType.ON_OPEN);
+  triggers.slice(1).forEach(trigger => ScriptApp.deleteTrigger(trigger));
+  if (!triggers.length) ScriptApp.newTrigger('onHandbookOpen').forDocument(doc).onOpen().create();
+  // The document's simple onOpen creates the menu; editor runs have no document UI.
   console.log(JSON.stringify({installed: true, timer: false, ...result}));
 }
 
