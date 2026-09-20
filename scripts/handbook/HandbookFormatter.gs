@@ -9,7 +9,7 @@ const HANDBOOK_STYLE = Object.freeze({
 
 function onOpen() {
   DocumentApp.getUi().createMenu('Handbook')
-    .addItem('Format tables', 'formatHandbookTables')
+    .addItem('Refresh tables', 'refreshHandbookTables')
     .addToUi();
 }
 
@@ -29,15 +29,12 @@ function installHandbookFormatting() {
 }
 
 function onHandbookOpen() {
-  formatHandbookTables_();
+  refreshHandbookTables_();
 }
 
 function formatHandbookTables() {
-  const result = formatHandbookTables_();
-  DocumentApp.getUi().alert('Handbook tables', result.busy
-    ? 'Table formatting is already running.'
-    : 'Formatted ' + result.tables + ' tables across ' + result.tabs + ' tabs.',
-  DocumentApp.getUi().ButtonSet.OK);
+  // Keep already-open menus working after the command is renamed.
+  return refreshHandbookTables();
 }
 
 function handbookDocument_() {
@@ -151,17 +148,31 @@ function buildHandbookRequests_(doc) {
 function formatHandbookTables_() {
   const lock = LockService.getDocumentLock();
   if (!lock.tryLock(1000)) return {busy: true};
-  const started = Date.now();
   try {
     const id = handbookDocument_().getId();
-    const doc = Docs.Documents.get(id, {includeTabsContent: true});
-    const plan = buildHandbookRequests_(doc);
-    if (plan.requests.length) Docs.Documents.batchUpdate({
-      requests: plan.requests, writeControl: {requiredRevisionId: doc.revisionId},
-    }, id);
-    console.log(JSON.stringify({...plan.counts, elapsedMs: Date.now() - started}));
-    return plan.counts;
+    return formatHandbookTablesWithRetry_(id);
   } finally {
     lock.releaseLock();
+  }
+}
+
+function formatHandbookTablesWithRetry_(id, sources) {
+  const started = Date.now();
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    const doc = Docs.Documents.get(id, {includeTabsContent: true});
+    const plan = buildHandbookRequests_(doc);
+    if (sources) plan.requests.push(...buildSourceTypographyRequests_(doc, sources));
+    try {
+      if (plan.requests.length) Docs.Documents.batchUpdate({
+        requests: plan.requests, writeControl: {requiredRevisionId: doc.revisionId},
+      }, id);
+    } catch (error) {
+      if (!/required revision ID.*does not match the latest revision/i.test(String(error))) throw error;
+      if (attempt === 3) throw new Error('The handbook is still changing. Wait for edits or linked-table updates to finish, then run Handbook > Refresh tables again.');
+      // The rejected batch made no changes. Re-read and rebuild every index before retrying.
+      continue;
+    }
+    console.log(JSON.stringify({...plan.counts, attempts: attempt, elapsedMs: Date.now() - started}));
+    return plan.counts;
   }
 }

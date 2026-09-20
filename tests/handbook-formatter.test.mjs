@@ -90,6 +90,51 @@ test('installation leaves no automatic trigger when Docs API access fails', () =
   assert.equal(created, false);
 });
 
+test('revision conflicts re-read and rebuild table locations before retrying', () => {
+  let reads = 0;
+  let writes = 0;
+  let released = false;
+  const api = load({
+    DocumentApp: { getActiveDocument: () => ({ getId: () => documentId }) },
+    LockService: { getDocumentLock: () => ({ tryLock: () => true, releaseLock() { released = true; } }) },
+    Docs: { Documents: {
+      get() {
+        const doc = fixture();
+        reads++;
+        doc.revisionId = 'revision-' + reads;
+        doc.tabs[0].documentTab.body.content[0].startIndex = 10 * reads;
+        return doc;
+      },
+      batchUpdate(body) {
+        writes++;
+        assert.equal(body.writeControl.requiredRevisionId, 'revision-' + writes);
+        assert.equal(body.requests[0].updateTableColumnProperties.tableStartLocation.index, 10 * writes);
+        if (writes === 1) throw new Error("The required revision ID 'old' does not match the latest revision.");
+      },
+    } },
+  });
+  assert.equal(api.formatHandbookTables_().tables, 1);
+  assert.equal(reads, 2);
+  assert.equal(writes, 2);
+  assert.equal(released, true);
+});
+
+test('repeated revision conflicts stop after three guarded attempts and release the lock', () => {
+  let reads = 0;
+  let released = false;
+  const api = load({
+    DocumentApp: { getActiveDocument: () => ({ getId: () => documentId }) },
+    LockService: { getDocumentLock: () => ({ tryLock: () => true, releaseLock() { released = true; } }) },
+    Docs: { Documents: {
+      get() { reads++; return fixture(); },
+      batchUpdate() { throw new Error("The required revision ID 'old' does not match the latest revision."); },
+    } },
+  });
+  assert.throws(() => api.formatHandbookTables_(), /handbook is still changing/);
+  assert.equal(reads, 3);
+  assert.equal(released, true);
+});
+
 test('editor installation needs no document UI and creates exactly one open trigger', () => {
   const triggers = [];
   const doc = { getId: () => documentId };
