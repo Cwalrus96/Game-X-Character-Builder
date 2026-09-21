@@ -1,6 +1,6 @@
 # Implementation roadmap
 
-Last updated: 2026-08-10
+Last updated: 2026-09-21
 
 This is the living execution plan derived from the dated architecture audit. Step IDs are stable API-like identifiers for humans and agents: never rename or renumber an existing ID. Add a new ID if scope changes materially.
 
@@ -299,6 +299,40 @@ Prerequisite: `WPB-DIFF-REVIEW`
 Remove or change the production freeze only in an explicit reviewed change. Publish the approved staged bytes, update the release baseline/provenance, run the full test suite and browser data-loading smoke test, and document rollback.
 
 Acceptance evidence: `npm run publish:data -- --confirm 20260809T022801911Z-51956` promoted only the approved hashes, removed the stale runtime `export-report.json`, installed `class-skills.json`, and transactionally refreshed the release baseline. Injected-failure tests prove production and baseline rollback. `npm run test:all` passes 174 unit tests, 16 Firebase emulator tests, and all 14 HTML entry points; `npm run baseline:data` verifies the nine published artifacts. Local browser loading exercised the schema-v2 class builder with stable technique keys and no console errors. Release and rollback details are in [game-data-release-2026-08-09.md](game-data-release-2026-08-09.md).
+
+### `WPB-AUTHORING-V5` — simplify source authoring and repair display dependencies
+
+Status: `complete`
+
+This separately approved September 21 authoring step follows the published v4 contract. It preserves all three Classes skill fields, retires redundant Technique fields and redundant source tabs, separates acquisition from readiness, generalizes pumping effects, and derives display wording from formal prerequisites. It does not change the runtime importer or published data.
+
+Acceptance:
+
+- reviewed source readback matches the migration plan, including all 147 Technique identities, 36 pumping maps, and 78 class-skill relationships;
+- optional display columns become blank compatibility fields; entity and parent references resolve by stable key, including duplicate labels;
+- native display regression checks pass, formatted outputs are regenerated, and managed handbook content is compared with its formatted source;
+- living contracts distinguish authoring schema v5/syntax v3 from implemented runtime v4/v2, with recovery snapshots and preservation evidence recorded in status.md;
+- production artifact baseline and relevant repository checks pass.
+
+Evidence: `scripts/authoring/schema-cleanup.mjs`, `scripts/display/update-authoring-formulas.mjs`, their focused tests, and the September 21 checkpoint in [status.md](status.md). Native screenshot capture is unavailable in the current zero-width browser surface; calculation, content, and native styling readbacks provide the recorded acceptance evidence.
+
+### `WPB-SCHEMA-V5-INTEGRATION` — import the accepted authoring schema
+
+Status: `ready`
+
+Prerequisite: `WPB-AUTHORING-V5`. This is the next game-data implementation boundary; it does not replace the parallel Work Package E acceptance work.
+
+Goal: let the application acquire and understand the simplified source without requiring duplicate authoring fields. Extend acquisition and source adaptation together, derive class-skill relationships from Classes, normalize skill/tag names centrally, and support selection/status, associated skills, pumping effects, Traits, provider relationships, and formal prerequisites. Keep all stable entity keys and saved-state compatibility. Advance the machine-readable source version only when these implementations and their validation fixtures exist.
+
+Acceptance:
+
+- valid and invalid v5 fixtures prove acquisition, adaptation, normalization, and precise missing-identity/reference diagnostics;
+- all previously authored class-skill conditions, Technique effects/costs, selection restrictions, and source-owned grants survive normalization and runtime loading;
+- existing saved characters remain compatible, and unsupported or incomplete mechanics cannot silently become eligible;
+- a fresh read-only source acquisition produces a complete staged report and diff, with unresolved source findings retained rather than skipped;
+- applicable full-suite checks pass and the production baseline remains unchanged.
+
+The two incomplete Chimaera feat identities and unresolved draft mechanics still require authoring resolution before a publishable source candidate. This step produces an integration and staged review result. Reviewing/publishing candidate bytes and deploying the website remain separate boundaries.
 
 ## Work Package C — character schema and session skeleton
 

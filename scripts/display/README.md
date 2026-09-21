@@ -1,10 +1,79 @@
-# Display spreadsheet bulk formatter
+# Authoring display and bulk formatter
 
-The later September 20 consolidation uses eight core Trait columns. The renderer supplies correctly sized blank arrays for missing `selectionMode`, `duplicateGroup`, and `reviewNotes` columns, while retaining their behavior when present. Missing required keys or Technique references still fail. Native Function_Tests rows 41–43 exercise both metadata cases and a genuinely broken reference; row 44 checks minimum Technique ranks against all current granting Traits. Row 40 uses the current reference list instead of the deleted migration records. These native formula tests belong in `authoring-formulas.json`; local formatter tests do not evaluate Google Sheets formulas.
+## Current configuration: source schema v5, September 21, 2026
 
-Current Trait rank follows the granting feature's associated skill, or Familiar rank. Source `rank` is the minimum tier. Origin Traits can grant a fixed benefit without a skill. Keep the user-consolidated source and current provider references; do not restore earlier counts or removed form options. The managed handbook refresh now reads populated formatted rows automatically. The original native-link acceptance below is historical.
+The canonical [game-x-class-data](https://docs.google.com/spreadsheets/d/1TEdxuufglP8lFRNk8QD4N_351-0ihAUFLG2743ESjoI/edit) workbook owns the simplified authoring format. The [Game-X-Data-Display](https://docs.google.com/spreadsheets/d/106wXA3w52aubp0zCYqieHJME02C0bu4jdho9b_eBA8U/edit) workbook adapts that format for its existing display tabs and handbook bindings. This is an authoring/display migration; runtime import support and the frozen production release remain separate work.
 
-September 20 Trait acceptance verified the native pipeline end to end: 77 formatted Trait cards and 120 general Techniques match their linked Handbook entries in visible text and bold/italic emphasis. All 39 native checks pass, including Trait relationships, the 35-field Technique compatibility order, and missing-mechanic notices for 14 new drafts. The two book tables retain native links, 468-point widths, and zero minimum row heights; both affected contents tables are refreshed. Source mechanics and duplicate variants remain separate. See `docs/status.md` for provenance, preservation evidence, and deferred runtime boundaries.
+The September 21 source readback contains 147 Techniques with 30 columns, 55 Traits with nine columns, and 19 Classes. All 43 existing native checks and the 16 new native cleanup fixtures passed after installation, and the bulk formatter completed successfully. These are checkpoint counts, not required future table sizes. See [the current status](../../docs/status.md) for final provenance, preservation evidence, unresolved boundaries, and later verification. Historical handbook acceptance below does not establish a new handbook refresh for this source revision.
+
+`authoring-formulas.json` records cell formulas, fixture labels/expected values, required helper-sheet identities, and 13 named-function definitions. Generate it from the checked-in formula builders:
+
+```powershell
+node scripts/display/update-authoring-formulas.mjs
+```
+
+This command updates the local operational manifest only. It does not write either workbook, publish runtime data, or refresh the handbook. `technique-display-formulas.mjs` generates the Technique adapter, keyed renderer, prerequisite/pumping text, eight Technique named-function patches, and native fixtures. `schema-display-adapters.mjs` supplies the other adapters and five shared/option-group named-function patches. Native Sheets calculation remains the acceptance check; Node tests validate generator structure and local adapter behavior, not the Sheets calculation engine.
+
+### Source fields and compatibility columns
+
+The 30 authored Technique columns are independent of the 36 columns in `_Techniques!A1:AJ1000`. The adapter reads source headers by name and supplies correctly sized blank arrays for removed or absent optional fields. It preserves downstream positions, including name in A, selection in the historical `skill` slot C, rank in D, rank notes in AA, stable key in AC, and `associatedSkill` in AJ. The first 35 header labels remain historical compatibility labels; Function_Tests row 39 verifies those positions. They are not 35 required source headers.
+
+| Canonical authoring field | Display compatibility slot | Meaning |
+| --- | --- | --- |
+| `selection` | `skill` | Skill alternatives, `granted`, `tag=…`, or `weaponTag=…` determine access. |
+| `status` | `selectionMode` | `playable`, `draft`, or `incomplete` records readiness independently of access. |
+| `pumpingByRank` | `pumpDamageByRank` | Explicit rank/effect maps can grant damage, healing, wards, armor, or multiple effects. |
+| `associatedSkill` | `associatedSkill` | Overrides the roll skill; a blank uses the selected skill or the provider's associated skill. |
+| `prerequisites` | `prerequisites` | Formal source DSL is retained and rendered into readable text. |
+| Removed fields | Empty historical slots | `damageByRank`, `notes`, `sourceNote`, `prerequisiteText`, `skillKeys`, and `tagKeys` are not authored again. |
+
+Damage, including irregular progression, is authored in `damage`. Keep independent higher-rank benefits and restrictions in `rankNotes`. `strainCost` and `onCriticalFailure` remain supported. Mechanical content from removed notes belongs in descriptions or outcomes; the display does not recover mechanics from archived editorial notes.
+
+Costs retain their source meanings. `energyCostKind` distinguishes fixed, variable, conditional, and unassigned costs; `energyCostOptions` preserves conditional option labels and values. No `-1` or `N` compatibility sentinel stands in for a cost. Zero is present data, while blank or unassigned costs remain explicitly unassigned. Unknown rank/action data also stays unknown, with an `Incomplete technique` notice where appropriate.
+
+The three Class skill fields retain their separate meanings in canonical `Classes`: `combatTechniqueSkill`, `combatSkills`, and `utilitySkillOptions`. Display adapters preserve their independent positions and do not derive their source from `ClassSkills`. Other adapters retain removed optional fields such as `grantNotes` as blank compatibility columns. `WeaponBases` retains a ten-column display view, including an empty historical `tagKeys` slot, without requiring that duplicate source column. The retired `WeaponProfiles` display helper is header-only.
+
+### Stable-key rendering and formal prerequisites
+
+Every Technique is rendered once in hidden `_TechniqueBlocks` (sheet ID `919260002`). Column A holds stable keys, B holds a specific weapon owner or blank, and C holds complete markdown blocks in source order. F:G projects the key and unchanged formal prerequisites from `_Techniques`; it no longer performs an independent canonical import. The helper does not end in `_Display`, so the formatter creates no separate output tab for it.
+
+The renderer finds the source row by `techniqueKey`, then reads its name and all other fields from that row. Duplicate display names are valid. Missing or duplicate Technique references produce an explicit diagnostic for that record rather than breaking valid neighboring Technique blocks. An absent optional header produces blanks; unresolved identity is not treated as missing optional content.
+
+The eight Technique named functions retain historical argument names, but an argument named `name` now carries a stable **key**. `TECHNIQUE_BLOCK` reads the independently generated pool. Cost, metadata, and cantrip/pumping helpers extract their corresponding lines from that shared block rather than maintaining a second prerequisite or pumping implementation. The usage helper reads keyed fields and honors `associatedSkill`. `TECHNIQUE_BLOCKS_BY_SKILL` maps keys, and its catalogue wrapper retains historical grouping behavior. The actual main catalogue uses the explicit filtering described below.
+
+Formal prerequisites generate display text for weapon tags and alternatives, exclusions, reach, counts, wielding and separate-hand requirements; character tags; stable Technique, Trait, feat, class, and archetype references; and authored `text | text=…` requirements. Weapon and character tags remain different conditions. Unknown clauses retain their wording in an explicit diagnostic. Referenced entity names come from keyed source rows. Skills and tags use readable authored vocabulary without a second maintained slug column; entity relationships still use stable keys.
+
+### Pumping and catalogue layout
+
+Write every pumping rank/value once with explicit effects. For example, `1=+1 healing per Energy;2=+1 healing per Energy;4=+2 healing per Energy` renders as `Pump (healing per energy): +1 at ranks 1–2; +2 at rank 4.` Only consecutive ranks with equal coefficients and matching units form a run. Gaps and later repetitions remain separate. Mixed-unit or simultaneous effects use a generic `Pumping:` line and retain the whole effect. Ward/wards spelling is normalized for grouping. The display never assumes an unlabelled value is damage or reconstructs omitted ranks. Base-specific techniques label pumping with weapon ranks.
+
+`Techniques_Display!A1` alphabetically sorts pool records whose owner in B is blank. A Technique is base-specific only when its formal prerequisites contain `weapon | key=<weaponKey> | wielded=true` and that base's `techniqueKeys` includes it. `selection=granted` alone does not exclude an entry. The existing 31 base-specific attacks/alternatives remain outside the main catalogue; generic techniques such as Covering Fire remain in it even when also provided by a base.
+
+Excerpt columns D/F/H/J/L resolve keys against the complete pool, and N contains the base-specific excerpt. Weapon cards embed complete blocks from that same pool; their six rank excerpts derive from the card catalogue. Keep these columns and output sheet IDs because handbook bindings use them. Blocks retain the bold title, italic Access line, metadata, known roll, costs/trigger, targeting, description, outcomes, pumping, and rank notes. Granted/tag routes show an inherited `Associated skill` roll label when no override is authored. Cards omit repeated automatic-availability paragraphs while preserving restrictions and meaningful mechanics.
+
+### Traits
+
+The nine canonical Trait columns are `traitKey`, `name`, `rank`, `prerequisites`, `tags`, `description`, `rankNotes`, `techniqueKeys`, and `grants`. The existing 12-column hidden import grid may remain wider than the source; its width is not a source requirement. Optional historical metadata still renders if supplied and otherwise becomes blank arrays.
+
+Trait `tags` classify the Trait. Structured `grants` identify tags acquired by its recipient and their minimum ranks, for example `tag | tag=Wings | minRank=1` and `tag | tag=Flight | minRank=2`. They do not add a duplicate benefit paragraph to the display. Trait rank follows the granting feature's associated skill or Familiar rank; source `rank` is the minimum tier. Origin Traits may grant fixed benefits without a skill.
+
+Cards retain the bold title, bold Prerequisites/Tags labels, blank line, description, and rank notes. Formal prerequisites use the same formatter as Techniques. Blank prerequisites display `None`; blank tags display an em dash. Blank rank or draft metadata retains the incomplete notice. Each `techniqueKeys` reference must resolve uniquely. Duplicate Trait identities or dangling associated Technique references still fail the Trait renderer and stop formatting; Technique per-record diagnostics do not weaken this separate validation boundary. The description names associated actions in prose without another Techniques list or embedded blocks. Keep source ordering, provider relationships, and `Traits_Formatted` sheet ID `920260004`.
+
+### Installation and verification
+
+1. Regenerate and review the local manifest. Source edits require their separately approved exact scope; display installation does not authorize source mechanic changes.
+2. Install adapters before consumers: `_Techniques!A1`, pool F1/A1, B1/C1, keyed named-function patches, then dependent formulas. Preserve helper/output IDs and excerpt columns. The archetype import stays independent of `_Feats` to avoid a cycle.
+3. Wait for imports/recalculation. Check all 43 existing Function_Tests and the 16 native fixtures in K2:N17. Fixtures cover optional-header dimensions, duplicate names, key failures and valid neighbors, pumping gaps/units/simultaneous effects, formal prerequisites, unknown mechanics, inherited skills, strain, and critical failure. Review the identity diagnostic area as well as PASS counts.
+4. Run **Update all Display → Formatted tabs**, then compare calculated text with formatted text and rich-text emphasis. Native fixture success alone does not verify formatting or linked handbook content.
+5. When refreshing the handbook, use the managed populated-row workflow or update affected native links while preserving identities and formatting. Historical fixed ranges must not truncate added rows. Compare text and non-whitespace bold/italic styling; use **Match spreadsheet data and formatting** when a native linked table has Docs overrides.
+
+`DisplayBatch.gs` uses the existing Apps Script menu, markdown/rich-text, sizing, and width helpers. It discovers all `_Display` tabs, including hidden ones; flushes changes; and stops before output mutation if source cells contain formula errors or loading indicators. This does not force `IMPORTRANGE` refresh. It reuses output IDs, preserves internal gaps/excerpts and relevant formats, and uses a document lock. It introduces no service, permission scope, timed trigger, or source write. Handbook links need their own subsequent refresh.
+
+## Historical September 18–20 implementation and acceptance notes
+
+Everything below describes earlier source versions and checkpoints. In particular, the old 12/eight-column Trait formats, required 35-header Technique import, cost sentinels, `damageByRank`/`pumpDamageByRank` authoring instructions, and editorial-note rendering have been superseded by schema v5 above. Historical counts and linked-handbook acceptance do not verify later source changes.
+
+The later September 20 consolidation used eight core Trait columns, with blank arrays for missing optional metadata and native missing-header/reference fixtures. An earlier September 20 checkpoint verified 77 formatted Trait cards and 120 general Techniques against linked handbook text and emphasis, with all 39 then-current checks passing. The nine-column source and 43-plus-16 verification above are the current checkpoint.
 
 `DisplayBatch.gs` extends the existing bound [Game X project](https://script.google.com/u/0/home/projects/1RfzvZR0z7ytWstW5e6EnXEpP90dqu8muhSz5Kojv4k1mRBvrTRBgrht2/edit) for [Game-X-Data-Display](https://docs.google.com/spreadsheets/d/106wXA3w52aubp0zCYqieHJME02C0bu4jdho9b_eBA8U/edit).
 

@@ -110,18 +110,20 @@ See [docs/architecture.md](docs/architecture.md) for current-versus-target detai
 - The native Google Sheet is the editable source. A local XLSX is only an ignored fetched snapshot.
 - Never edit the canonical Google Sheet through a connector, API, script, or browser automation unless the user explicitly approves the exact edit scope. Permission to inspect, diagnose, or proceed with a roadmap step is not permission to write source cells.
 - Never hand-edit generated JSON to repair source or exporter defects.
-- Export all records; normal selectors admit only records whose `status` or `selectionMode` allows direct selection.
-- Stable keys, not display names, identify persisted and cross-referenced entities.
-- Workbook schema v4 `Metadata`, `Schema`, and `Enums` are contract inputs, not editorial tabs.
-- `ClassSkills` is the normalized mechanical source. Legacy class skill columns remain compatibility-only.
+- Export all records. In the accepted authoring schema, Technique `status` controls readiness and `selection` controls acquisition; draft/incomplete records cannot be selected or granted. Published runtime data still uses its existing `status`/`selectionMode` contract until a separately validated migration.
+- Stable keys, not display names, identify persisted and cross-referenced entities. Duplicate display names are legal. Author skill and tag names once; derive internal identities centrally rather than maintaining duplicate authored key columns, preserving saved-state compatibility.
+- Authoring schema v5/syntax v3 `Metadata`, `Schema`, and `Enums` are contract inputs, not editorial tabs. The current runtime importer still accepts schema v4/syntax v2; source/display acceptance does not establish runtime compatibility or authorize publishing.
+- `Classes.combatTechniqueSkill`, `combatSkills`, and `utilitySkillOptions` are the three authoritative class skill fields. Preserve their separate meanings and conditional progressions. `ClassSkills` is retired from authoring after relationship-preservation verification; future software derives normalized relationships from Classes.
+- Classification tags do not automatically become character tags. Traits grant recipient tags explicitly through `grants`, including minimum Trait-rank conditions; formal `tag` and weapon-tag requirements must remain distinct.
 - Never write beneath `public/data/game-x` while the production export status is `frozen`.
 - Validate and produce a complete staged diff before publishing.
 - Every data run records the Drive file ID, source modification time/version when available, export time, and SHA-256 hash.
 
 #### Compact technique authoring
 
-- Express linear damage growth once in `damage`, with starting damage, the increment, and its rank basis/minimum; leave `damageByRank` blank. Do not enumerate every rank or repeat the same rule in `rankNotes`. Use an explicit `damageByRank` map when damage progression is irregular.
-- Retain every authored pumping rank/value in the source map. The shared technique renderer groups only adjacent ranks with equal coefficients and matching units; preserve gaps, separate nonconsecutive runs, and units such as armor or ward.
+- Express damage and its growth once in `damage`, with the starting amount and exact rank basis/minimum; `damageByRank` is retired from authoring. Preserve genuinely irregular progression explicitly in `damage` rather than reintroducing a second damage column or duplicating it in `rankNotes`.
+- Use `pumpingByRank` for every pumping effect, including damage, healing, armor, and ward. Each rank entry states its effect and per-Energy basis. Preserve every authored rank/value, gaps, separate nonconsecutive runs, and multi-effect values; group only adjacent equal effects in display.
+- Technique `selection` contains skill access, `granted`, `tag=Name`, or `weaponTag=Name` routes; `associatedSkill` supplies an override or retains provider-defined roll/scaling context. Formal `prerequisites` are additional requirements and generate their own readable text; do not restore duplicate `prerequisiteText`.
 - Preserve distinct higher-rank benefits, minimum Energy costs, and other meaningful notes. Omit the redundant zero-Energy sentence from weapon-basic `rankNotes`, while retaining the Rank 0 no-pumping restriction where applicable. See [the technique contract](docs/game-data-contract.md#techniques) for canonical examples.
 - Omit repeated automatic-availability statements from weapon-base cards and provider/availability lines from full technique blocks, including draft intended-availability lines. Keep the underlying source relationships, prerequisites, and costs, the skill Access line, and explicit `Incomplete technique` and missing-mechanic notices.
 
