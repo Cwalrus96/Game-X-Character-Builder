@@ -109,6 +109,8 @@ function resolveClassCombatSkillEntries(cls, primaryAttribute) {
   const output = [];
   let pendingSkillName = "";
   for (const entry of Array.isArray(cls?.combatSkills) ? cls.combatSkills : []) {
+    if (cls.expressionSyntaxVersion === 3 && entry?.whenPrimaryAttribute
+      && String(entry.whenPrimaryAttribute).toLowerCase() !== String(primaryAttribute || "").toLowerCase()) continue;
     const rawName = sanitizeText(entry?.name, { maxLen: 160, collapse: true });
     const explicitProgression = normalizeSkillProgression(entry?.progression);
     if (!rawName && !explicitProgression) continue;

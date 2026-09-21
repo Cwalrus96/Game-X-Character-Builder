@@ -8,6 +8,20 @@ export function renderTagChipsHtml(tags, chipClass = "tagChip") {
 
 function formatCostLine(profile) {
   if (!profile) return "";
+  if (profile.expressionSyntaxVersion === 3) {
+    const types = { ActionOrReaction: "Action or Reaction", ActionOrFreeReaction: "Action or Free Reaction" };
+    const actionType = types[profile.actionType] || profile.actionType;
+    const actions = profile.actions;
+    const parts = [actions === null || actions === undefined || !actionType
+      ? "Actions: Unassigned" : `${actions === 0 ? "Free" : actions} ${actionType}`];
+    if (profile.energyCostKind === "variable") parts.push("Variable Energy");
+    else if (profile.energyCostKind === "fixed" && Number.isFinite(profile.energyCost)) parts.push(`${profile.energyCost} Energy`);
+    else if (profile.energyCostKind === "conditional") parts.push((profile.energyCostOptions || []).map((option) => `${option.condition || option.key || option.label || "Condition"}: ${option.cost ?? option.value ?? "?"} Energy`).join("; ") || "Energy: Unassigned");
+    else parts.push("Energy: Unassigned");
+    if (profile.strainCost !== null && Number(profile.strainCost) > 0) parts.push(`${profile.strainCost} Strain`);
+    if (profile.sustained) parts.push("Sustained");
+    return `( ${parts.join(" + ")} )`;
+  }
   const parts = [];
   const actions = Number.parseInt(String(profile?.actions ?? ""), 10);
   const rawActionType = sanitizeText(profile?.actionType, { maxLen: 32, collapse: true }) || "Action";
@@ -67,13 +81,26 @@ function formatRangeTargetsLine(profile) {
 function getProfileDamageParts(profile, rankValue = 0) {
   const rankKey = String(Math.max(0, Math.min(6, Number(rankValue || 0))));
   const damageByRank = (profile?.damageByRank && typeof profile.damageByRank === "object") ? profile.damageByRank : null;
-  const pumpDamageByRank = (profile?.pumpDamageByRank && typeof profile.pumpDamageByRank === "object") ? profile.pumpDamageByRank : null;
+  const pumping = profile?.expressionSyntaxVersion === 3 ? profile.pumpingByRank : profile?.pumpDamageByRank;
+  const pumpDamageByRank = pumping && typeof pumping === "object" ? pumping : null;
   const damage = sanitizeText(damageByRank?.[rankKey] || profile?.damage || "", { maxLen: 160, collapse: true });
   const additional = formatAdditionalEnergyText(pumpDamageByRank?.[rankKey] || "");
   return { damage, additional };
 }
 
-export function renderTechniqueProfileHtml(profile, { rankValue = 0, heading = "", headingTag = "div", headingClass = "combat-profile-title", showRank = false } = {}) {
+function formatBasicAttack(clauses, gameData) {
+  const format = (clause) => {
+    if (clause.type === "any") return clause.alternatives.map(format).join(" or ");
+    const references = (gameData?.techniques || []).filter((technique) => technique.techniqueKey === clause.key);
+    const label = clause.type === "weapon" ? "Weapon basic attack"
+      : references.length === 1 ? references[0].techniqueName : `Technique: ${clause.key}`;
+    const modifiers = [clause.attribute ? `attribute: ${clause.attribute}` : "", clause.defense ? `vs ${formatDefenseLabel(clause.defense)}` : ""].filter(Boolean);
+    return `${label}${modifiers.length ? ` (${modifiers.join("; ")})` : ""}`;
+  };
+  return (clauses || []).map(format).join("; ");
+}
+
+export function renderTechniqueProfileHtml(profile, { rankValue = 0, heading = "", headingTag = "div", headingClass = "combat-profile-title", showRank = false, gameData = null } = {}) {
   if (!profile) return "";
   const titleText = sanitizeText(heading || profile?.techniqueName || profile?.profileName || "", { maxLen: 160, collapse: true });
   const rank = Number.parseInt(String(profile?.rank ?? rankValue ?? 0), 10) || 0;
@@ -96,6 +123,7 @@ export function renderTechniqueProfileHtml(profile, { rankValue = 0, heading = "
   if (costLine) rows.push(`<div class="combat-profile-line combat-profile-cost">${safeHtmlText(costLine, 240)}</div>`);
   if (trigger) rows.push(`<div class="combat-profile-line"><strong>Trigger:</strong> ${safeHtmlText(trigger, 320)}</div>`);
   if (rollLine) rows.push(`<div class="combat-profile-line">${safeHtmlText(rollLine, 320)}</div>`);
+  if (profile.expressionSyntaxVersion === 3 && profile.basicAttack?.length) rows.push(`<div class="combat-profile-line"><strong>Basic attack:</strong> ${safeHtmlText(formatBasicAttack(profile.basicAttack, gameData), 2000)}</div>`);
   if (rangeTargetsLine) rows.push(`<div class="combat-profile-line">${safeHtmlText(rangeTargetsLine, 320)}</div>`);
   if (description) rows.push(`<div class="combat-profile-line">${safeHtmlText(description, 1200)}</div>`);
   if (dmg.damage) {
@@ -110,5 +138,6 @@ export function renderTechniqueProfileHtml(profile, { rankValue = 0, heading = "
   if (onCritFailure) rows.push(`<div class="combat-profile-line"><strong>Critical Failure:</strong> ${safeHtmlText(onCritFailure, 500)}</div>`);
   if (bondEffect) rows.push(`<div class="combat-profile-line"><strong>Bond Effect:</strong> ${safeHtmlText(bondEffect, 500)}</div>`);
   if (notes) rows.push(`<div class="combat-profile-line">${safeHtmlText(notes, 1200)}</div>`);
+  if (profile.expressionSyntaxVersion === 3 && profile.rankNotes) rows.push(`<div class="combat-profile-line">${safeHtmlText(profile.rankNotes, 4000)}</div>`);
   return `<div class="combat-profile">${title ? `<${headingTag} class="${headingClass}">${safeHtmlText(title, 200)}</${headingTag}>` : ""}${rows.join("")}</div>`;
 }

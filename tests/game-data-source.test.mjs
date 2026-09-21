@@ -83,7 +83,13 @@ function binaryResponse(bytes, status = 200) {
 test("canonical game-data source descriptor is strict and resolves to ignored staging", () => {
   assert.equal(config.contractVersion, 1);
   assert.equal(config.provider, "google-drive");
-  assert.equal(config.sourceSchemaVersion, 4);
+  assert.equal(config.sourceSchemaVersion, 5);
+  assert.equal(config.grantSyntaxVersion, 3);
+  assert.equal(config.prerequisiteSyntaxVersion, 3);
+  assert.equal(config.requiredSheets.length, 13);
+  assert(config.requiredSheets.includes("Traits"));
+  assert(!config.requiredSheets.includes("ClassSkills"));
+  assert(!config.requiredSheets.includes("WeaponProfiles"));
   assert.equal(config.fileId, "1TEdxuufglP8lFRNk8QD4N_351-0ihAUFLG2743ESjoI");
   const paths = getDefaultSourcePaths(config);
   assert.match(path.relative(REPOSITORY_ROOT, paths.workbookPath), /^\.staging[\\/]game-data[\\/]source/);
@@ -199,8 +205,8 @@ test("workbook validation opens XLSX and verifies required tabs and Metadata con
     /not a structurally readable XLSX/,
   );
   assert.throws(
-    () => validateExportedWorkbook(buildWorkbookBytes({ omittedSheet: "ClassSkills" }), { config }),
-    /missing required sheet.*ClassSkills/,
+    () => validateExportedWorkbook(buildWorkbookBytes({ omittedSheet: "Traits" }), { config }),
+    /missing required sheet.*Traits/,
   );
   assert.throws(
     () => validateExportedWorkbook(buildWorkbookBytes({
@@ -224,9 +230,9 @@ test("workbook validation opens XLSX and verifies required tabs and Metadata con
   });
   assert.equal(provenance.fileId, config.fileId);
   assert.equal(provenance.driveVersion, metadata.version);
-  assert.equal(provenance.sourceSchemaVersion, 4);
-  assert.equal(provenance.grantSyntaxVersion, 2);
-  assert.equal(provenance.prerequisiteSyntaxVersion, 2);
+  assert.equal(provenance.sourceSchemaVersion, 5);
+  assert.equal(provenance.grantSyntaxVersion, 3);
+  assert.equal(provenance.prerequisiteSyntaxVersion, 3);
   assert.equal(provenance.byteLength, xlsxBytes.byteLength);
   assert.match(provenance.xlsxSha256, /^[a-f0-9]{64}$/);
 });

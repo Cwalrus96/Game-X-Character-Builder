@@ -318,9 +318,9 @@ Evidence: `scripts/authoring/schema-cleanup.mjs`, `scripts/display/update-author
 
 ### `WPB-SCHEMA-V5-INTEGRATION` — import the accepted authoring schema
 
-Status: `ready`
+Status: `complete`
 
-Prerequisite: `WPB-AUTHORING-V5`. This is the next game-data implementation boundary; it does not replace the parallel Work Package E acceptance work.
+Prerequisite: `WPB-AUTHORING-V5`. This game-data implementation does not replace the parallel Work Package E acceptance work.
 
 Goal: let the application acquire and understand the simplified source without requiring duplicate authoring fields. Extend acquisition and source adaptation together, derive class-skill relationships from Classes, normalize skill/tag names centrally, and support selection/status, associated skills, pumping effects, Traits, provider relationships, and formal prerequisites. Keep all stable entity keys and saved-state compatibility. Advance the machine-readable source version only when these implementations and their validation fixtures exist.
 
@@ -333,6 +333,25 @@ Acceptance:
 - applicable full-suite checks pass and the production baseline remains unchanged.
 
 The September 21 decisions are recorded in [the content review](source-content-review-2026-09-21.md). Integration must include basic-attack references and their underlying-roll overrides, typed prerequisite alternatives and known-option counts, generic Keystone choices, recipient-owned Artifact skills, and repeated feature references with distinct ownership. Monster Evolution's conditional execution and broader unfinished class systems remain held. Retain incomplete content and precise unsupported-mechanic diagnostics without requiring completion of the game to migrate its format. Preserve candidate-weapon enhancement prerequisites, stable identity aliases, and concurrent authoring changes. This step produces an integration and staged review result. Reviewing/publishing candidate bytes and deploying the website remain separate boundaries.
+
+Acceptance evidence: versioned source adapters and exact Schema/Enums fixtures support v5/syntax v3 while preserving v4 artifact bytes. Runtime schema v3 retains all source values, typed relationships, unknowns, and execution findings without changing character schema v5. Fresh connector-native snapshot run `20260921T183411964Z-31844` produces ten artifacts with zero errors, 300 warnings, runtime acceptance, and a complete semantic diff. Independent comparison verifies all 951 entity rows / 13,901 cells and repeatable artifact hashes. The default CLI's external Drive-access failure remains explicit; verified snapshot mode checks the exact canonical bytes/provenance without borrowing connector credentials. Full verification passes 348 unit tests, 16 emulator rule tests, 14 HTML asset checks, nine unchanged production artifacts, and diff checks. Local review was restarted; signed-in acceptance is not claimed. Removed source identities and schema-v3 publishing are the next named review boundary below.
+
+### `WPB-V5-RELEASE-REVIEW` — review the imported data for release
+
+Status: `pending`
+
+Prerequisite: `WPB-SCHEMA-V5-INTEGRATION` and a complete immutable staged run.
+
+Goal: decide how the new source affects existing characters and prepare an exact, reviewable schema-v3 release. Review every removed stable identity and retired weapon profile, identify which deferred mechanics are acceptable for the release, and implement any agreed compatibility handling. Do not infer replacement keys from display names or require unfinished classes to be designed.
+
+Acceptance:
+
+- the semantic diff and saved-character impacts have explicit dispositions, including removed Technique, Feat, and ClassFeature keys;
+- a reviewed release contract and publisher support the exact ten-file schema-v3 candidate, with hash/approval rejection and transactional rollback fixtures; the previous nine-file release remains supported;
+- a fresh candidate passes validation, runtime loading, full applicable tests, and local review;
+- exact candidate bytes receive separate diff-review and publishing approval before promotion; website deployment remains blocked by the existing Work Package E manual acceptance boundary unless the user explicitly overrides it.
+
+This step makes release consequences concrete; completing an import does not authorize publishing or executing deferred systems. The parallel `WPE-DOMAIN-MIGRATION` step verifies signed-in save/reload, dependency confirmation/cancellation, and conflict/focus behavior before application release.
 
 ## Work Package C — character schema and session skeleton
 

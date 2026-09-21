@@ -27,15 +27,29 @@ function normalizedType(value) {
   return text(value).toLowerCase();
 }
 
+function filterValues(value) {
+  return (Array.isArray(value) ? value : [value]).map(text).filter(Boolean);
+}
+
+function normalizeFilter(value, normalize = text) {
+  return Array.isArray(value) ? Object.freeze(value.map(normalize).filter(Boolean)) : normalize(value);
+}
+
+function matchesFilter(value, filter) {
+  const alternatives = filterValues(filter);
+  return alternatives.length === 0 || alternatives.includes(value);
+}
+
 function directFeatKeys(grant) {
   const source = Array.isArray(grant?.key) ? grant.key : [grant?.key];
   return source.map(text).filter(Boolean);
 }
 
 function classPrerequisiteLevel(feat, classKey = "") {
+  const classKeys = filterValues(classKey);
   const levels = (Array.isArray(feat?.prerequisites) ? feat.prerequisites : [])
     .filter((item) => normalizedType(item?.type) === "class")
-    .filter((item) => !classKey || text(item?.key) === classKey)
+    .filter((item) => !classKeys.length || filterValues(item?.key).some((key) => classKeys.includes(key)))
     .map((item) => positiveInteger(item?.level, 0))
     .filter((level) => level > 0);
   return levels.length ? Math.max(...levels) : 0;
@@ -60,9 +74,9 @@ export function createFeatGrantSlots(grant, {
       grantId: resolvedGrantId,
       grantIndex,
       slotIndex,
-      filterType: normalizedType(grant?.filterType),
-      category: text(grant?.category),
-      classKey: text(grant?.classKey),
+      filterType: normalizeFilter(grant?.filterType, normalizedType),
+      category: normalizeFilter(grant?.category),
+      classKey: normalizeFilter(grant?.classKey),
       maxLevel: positiveInteger(grant?.level, 0),
       featKeys: Object.freeze(directFeatKeys(grant)),
       featName: text(grant?.name),
@@ -103,19 +117,20 @@ export function getFeatRequiredLevel(feat, { classKey = "" } = {}) {
 export function featMatchesExplicitSlot(feat, slot) {
   const featKey = text(feat?.featKey);
   if (!featKey || !slot) return false;
+  if (feat.expressionSyntaxVersion === 3 && !isGameDataRecordSelectable(feat)) return false;
   if (slot.featKeys?.length && !slot.featKeys.includes(featKey)) return false;
   if (slot.featName && text(feat?.name) !== slot.featName) return false;
 
   const featType = normalizedType(feat?.featType || feat?.type);
-  if (slot.filterType && featType !== slot.filterType) return false;
-  if (slot.category && text(feat?.category) !== slot.category) return false;
+  if (!matchesFilter(featType, slot.filterType)) return false;
+  if (!matchesFilter(text(feat?.category), slot.category)) return false;
 
   const requiredClassKey = slot.classKey || slot.category;
-  if (slot.classKey) {
+  if (filterValues(slot.classKey).length) {
     const classKeys = (Array.isArray(feat?.prerequisites) ? feat.prerequisites : [])
       .filter((item) => normalizedType(item?.type) === "class")
-      .map((item) => text(item?.key));
-    if (text(feat?.category) !== slot.classKey && !classKeys.includes(slot.classKey)) return false;
+      .flatMap((item) => filterValues(item?.key));
+    if (!filterValues(slot.classKey).some((key) => text(feat?.category) === key || classKeys.includes(key))) return false;
   }
   if (slot.maxLevel > 0 && getFeatRequiredLevel(feat, { classKey: requiredClassKey }) > slot.maxLevel) {
     return false;
@@ -182,6 +197,7 @@ export function getFeatSelectionState(gameData, builder = {}, { slots = null } =
   const availableFeats = feats.filter((feat) => {
     const featKey = text(feat?.featKey);
     if (!featKey) return false;
+    if (feat.expressionSyntaxVersion === 3 && !isGameDataRecordSelectable(feat)) return false;
     if (selectedSet.has(featKey)) return true;
     if (!isGameDataRecordSelectable(feat)) return false;
     if (!explicitSlots.some((slot) => featMatchesExplicitSlot(feat, slot))) return false;

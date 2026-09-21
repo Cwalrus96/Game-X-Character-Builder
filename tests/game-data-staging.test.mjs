@@ -215,3 +215,16 @@ test("semantic diff explicitly bridges legacy technique names and identifies wea
   assert.match(weaponDiff.identityPolicy, /weaponKey\/profileType\/profileName\/rank/);
   assert(weaponDiff.changed.some((record) => record.id === "blade/basic/Slash/0"));
 });
+
+test("semantic diff keeps separate class skill roles and conditions and identifies Traits by key", () => {
+  const rows = [
+    { classKey: "warrior", skillKey: "martial-arts", role: "combat-technique", whenPrimaryAttribute: "Strength", progression: "fast" },
+    { classKey: "warrior", skillKey: "martial-arts", role: "combat", whenPrimaryAttribute: "Agility", progression: "slow" },
+  ];
+  const next = rows.map(row => ({ ...row })); next[0].progression = "medium";
+  const diff = buildArtifactDiff([parseArtifactFile("class-skills.json", JSON.stringify(next))], [parseArtifactFile("class-skills.json", JSON.stringify(rows))]);
+  assert.equal(diff.files[0].semantic.changed.length, 1);
+  assert.equal(diff.files[0].semantic.changed[0].id, "warrior/martial-arts/combat-technique/Strength/");
+  const traits = buildArtifactDiff([parseArtifactFile("traits.json", '[{"traitKey":"wings","name":"Wings"}]')], []);
+  assert.deepEqual(traits.files[0].semantic.added, ["wings"]);
+});

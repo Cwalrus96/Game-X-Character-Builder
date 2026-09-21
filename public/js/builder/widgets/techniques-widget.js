@@ -10,10 +10,10 @@ import {
   getGameXTechniques,
   resolveTechniqueRef,
 } from "../../core/game-data.js?v=wpe1";
-import { computeGrantedSkillsState, computeKnownCombatSkillsAndGrants } from "../../core/skill-rules.js";
+import { computeGrantedSkillsState, computeKnownCombatSkillsAndGrants, getCombatSkillRanks } from "../../core/skill-rules.js";
 import { canonicalSkillName } from "../../core/skill-identity.js";
-import { isGameDataRecordSelectable } from "../../core/selection-rules.js";
-import { meetsPrerequisites } from "../../core/prerequisites.js";
+import { getTechniqueSelectionState, isGameDataRecordSelectable } from "../../core/selection-rules.js";
+import { createPrerequisiteContext, meetsPrerequisites } from "../../core/prerequisites.js";
 import { renderTechniqueProfileHtml } from "../../core/technique-utils.js";
 import { BuilderWidget } from "./builder-widget.js";
 
@@ -230,6 +230,7 @@ export class TechniquesWidget extends BuilderWidget {
   }
 
   getTechniqueSkillRank(technique, context) {
+    if (technique.expressionSyntaxVersion === 3) return this.getTechniqueAccess(technique, context).skillRank;
     const skillName = techniqueSkill(technique);
     if (!skillName) return techniqueRank(technique);
 
@@ -254,6 +255,15 @@ export class TechniquesWidget extends BuilderWidget {
     }
 
     return rank;
+  }
+
+  getTechniqueAccess(technique, context, gameData = this.getGameData()) {
+    return getTechniqueSelectionState(technique, {
+      ...createPrerequisiteContext({ gameData, builder: context.builder, grantedSkillState: context.grantedSkillState }),
+      knownCombatSkills: context.knownCombatSkills,
+      skillRanks: getCombatSkillRanks(gameData, context.builder),
+      allowGrantedOnly: this.isFreeTechniqueName(techniqueKey(technique), context),
+    });
   }
 
   grantMatchesTechniqueChoice(grant, technique, context) {
@@ -467,6 +477,7 @@ export class TechniquesWidget extends BuilderWidget {
     if (key && context.grantedTechniqueNames.has(key)) return true;
     if (key && context.sourceOwnedTechniqueNames?.has(key)) return true;
     if (!this.passesTechniquePrerequisites(technique, context, gameData)) return false;
+    if (technique.expressionSyntaxVersion === 3) return this.getTechniqueAccess(technique, context, gameData).eligible;
     if (!this.filterKnownSkills) return true;
     const skill = techniqueSkill(technique);
     if (!skill) return false;
@@ -579,6 +590,7 @@ export class TechniquesWidget extends BuilderWidget {
     const row = document.createElement("div");
     row.className = "optionRow";
     row.innerHTML = renderTechniqueProfileHtml(technique, {
+      gameData: this.getGameData(),
       rankValue: this.getTechniqueSkillRank(technique, context),
       heading: techniqueName(technique) || "Technique",
       headingTag: "div",
@@ -653,6 +665,7 @@ export class TechniquesWidget extends BuilderWidget {
     const body = document.createElement("div");
     body.style.flex = "1";
     body.innerHTML = renderTechniqueProfileHtml(technique, {
+      gameData: this.getGameData(),
       rankValue: skillRank,
       heading: name,
       headingTag: "div",

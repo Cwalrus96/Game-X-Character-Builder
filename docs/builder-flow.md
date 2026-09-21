@@ -77,7 +77,7 @@ Incomplete but non-destructive expected selections may be informational. A migra
 
 A `choice-rebind` grant reopens an existing answer slot under new eligibility constraints without overwriting the answer originally stored for that slot. The proposed replacement is source-owned overlay state. Validation checks the original answer against its original grant and each overlay against the grant that created that overlay. The effective answer comes from the highest-precedence active overlay.
 
-If the feature supplying an overlay disappears, reconciliation removes only that overlay and restores the preceding overlay or original answer. Cancellation preserves every layer. A rebind that invalidates dependents follows the normal preview/confirmation flow. The schema-v2 pipeline currently preserves this typed meaning as a runtime stub; the widget, persistence, and graph implementation requires its own later vertical slice.
+If the feature supplying an overlay disappears, reconciliation removes only that overlay and restores the preceding overlay or original answer. Cancellation preserves every layer. A rebind that invalidates dependents follows the normal preview/confirmation flow. The schema-v2/v3 pipeline currently preserves this typed meaning as a runtime stub; the widget, persistence, and graph implementation requires its own later vertical slice.
 
 ## Save and navigation behavior
 

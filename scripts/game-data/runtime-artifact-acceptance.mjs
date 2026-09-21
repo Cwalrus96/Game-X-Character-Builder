@@ -9,8 +9,9 @@ import {
   getGameXTechniques,
   getGameXWeaponBases,
   getGameXWeaponEnhancements,
+  getGameXTraits,
+  validateRuntimeGameData,
 } from "../../public/js/core/game-data.js";
-import { RUNTIME_ARTIFACT_SCHEMA_VERSION } from "./artifact-builder.mjs";
 
 const SPLIT_COLLECTIONS = Object.freeze({
   "classes.json": "classes",
@@ -41,11 +42,10 @@ export function validateRuntimeArtifacts(artifactSet) {
   } catch (error) {
     diagnostics.push({ code: "invalid-runtime-json", message: `game-x-data.json cannot be parsed: ${error.message}` });
   }
-  if (data?.schemaVersion !== RUNTIME_ARTIFACT_SCHEMA_VERSION) {
-    diagnostics.push({ code: "runtime-schema-version", message: `Expected runtime artifact schema ${RUNTIME_ARTIFACT_SCHEMA_VERSION}.` });
-  }
+  diagnostics.push(...validateRuntimeGameData(data).diagnostics);
 
-  for (const [fileName, field] of Object.entries(SPLIT_COLLECTIONS)) {
+  const splits = { ...SPLIT_COLLECTIONS, ...(data?.schemaVersion === 3 ? { "traits.json": "traits" } : {}) };
+  for (const [fileName, field] of Object.entries(splits)) {
     const file = files.get(fileName);
     if (!file) {
       diagnostics.push({ code: "missing-runtime-artifact", message: `${fileName} is missing.` });
@@ -68,20 +68,27 @@ export function validateRuntimeArtifacts(artifactSet) {
       ["origins", getGameXOrigins(data)],
       ["weaponBases", getGameXWeaponBases(data)],
       ["weaponEnhancements", getGameXWeaponEnhancements(data)],
+      ...(data.schemaVersion === 3 ? [["traits", getGameXTraits(data)]] : []),
     ];
     for (const [field, value] of collections) {
       if (!Array.isArray(value)) diagnostics.push({ code: "runtime-collection-shape", message: `${field} is not runtime-readable.` });
     }
     const indexes = buildTechniqueIndexes(data.techniques);
-    if (indexes.byName.size !== data.techniques?.length) {
-      diagnostics.push({ code: "runtime-technique-index", message: "Not every technique has a unique runtime-readable techniqueName." });
+    if (data.schemaVersion === 3 ? indexes.byKey.size !== data.techniques?.length : indexes.byName.size !== data.techniques?.length) {
+      diagnostics.push({ code: "runtime-technique-index", message: `Not every technique has a unique runtime-readable ${data.schemaVersion === 3 ? "techniqueKey" : "techniqueName"}.` });
     }
     try {
+      const checkEntry = (entry) => {
+        getEntryGrants(entry, { includeDeferred: true });
+      };
       for (const cls of data.classes || []) {
-        visitEntries(getGameXClassFeatures(data, cls.classKey), getEntryGrants);
+        visitEntries(getGameXClassFeatures(data, cls.classKey), checkEntry);
       }
-      visitEntries(data.feats, getEntryGrants);
-      for (const origin of data.origins || []) visitEntries(origin.features, getEntryGrants);
+      visitEntries(data.feats, checkEntry);
+      for (const origin of data.origins || []) visitEntries(origin.features, checkEntry);
+      if (data.schemaVersion === 3) {
+        for (const field of ["classes", "techniques", "origins", "traits", "weaponBases", "weaponEnhancements"]) visitEntries(data[field], checkEntry);
+      }
       const cls = data.classes?.[0];
       const origin = data.origins?.[0];
       createCharacterGrantCollection(data, {

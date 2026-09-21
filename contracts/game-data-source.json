@@ -5,9 +5,9 @@
   "expectedName": "game-x-class-data",
   "nativeMimeType": "application/vnd.google-apps.spreadsheet",
   "exportMimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  "sourceSchemaVersion": 4,
-  "grantSyntaxVersion": 2,
-  "prerequisiteSyntaxVersion": 2,
+  "sourceSchemaVersion": 5,
+  "grantSyntaxVersion": 3,
+  "prerequisiteSyntaxVersion": 3,
   "requiredSheets": [
     "README",
     "Classes",
@@ -17,12 +17,11 @@
     "Origins",
     "OriginFeatures",
     "WeaponBases",
-    "WeaponProfiles",
     "WeaponEnhancements",
     "Metadata",
     "Schema",
     "Enums",
-    "ClassSkills"
+    "Traits"
   ],
   "workbookFileName": "game-x-class-data.xlsx",
   "provenanceFileName": "source-provenance.json"

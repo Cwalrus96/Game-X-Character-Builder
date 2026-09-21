@@ -4,9 +4,8 @@ import path from "node:path";
 import { buildArtifactDiff, parseArtifactFile, renderArtifactDiffMarkdown } from "./artifact-diff.mjs";
 import {
   buildGameDataArtifacts,
+  artifactVersionsForModel,
   canonicalJson,
-  EXPORTER_VERSION,
-  RUNTIME_ARTIFACT_SCHEMA_VERSION,
   sha256,
 } from "./artifact-builder.mjs";
 import { validateAdaptedGameData } from "./model-validator.mjs";
@@ -42,6 +41,7 @@ function sourceSummary(provenance) {
     modifiedTime: provenance.modifiedTime || null,
     fetchedAt: provenance.fetchedAt || null,
     xlsxSha256: provenance.xlsxSha256 || null,
+    ...(provenance.acquisitionMethod ? { acquisitionMethod: provenance.acquisitionMethod } : {}),
   };
 }
 
@@ -82,12 +82,22 @@ export async function stageWorkbookSnapshot({
   productionDirectory,
   exportedAt = new Date().toISOString(),
   fileSystem = fs,
+  sourceSnapshot = null,
 }) {
-  const [workbookBytes, provenanceText] = await Promise.all([
-    fileSystem.readFile(workbookPath),
-    fileSystem.readFile(provenancePath, "utf8"),
-  ]);
-  const provenance = JSON.parse(provenanceText);
+  // Snapshot-mode callers already validated this exact pair. Do not reopen
+  // mutable paths between validation and use; own copies before any await.
+  let workbookBytes, provenance;
+  if (sourceSnapshot) {
+    workbookBytes = Uint8Array.from(sourceSnapshot.workbookBytes);
+    provenance = structuredClone(sourceSnapshot.provenance);
+  } else {
+    const [bytes, provenanceText] = await Promise.all([
+      fileSystem.readFile(workbookPath),
+      fileSystem.readFile(provenancePath, "utf8"),
+    ]);
+    workbookBytes = bytes;
+    provenance = JSON.parse(provenanceText);
+  }
   const actualSourceHash = sha256(workbookBytes);
   if (provenance.xlsxSha256 && provenance.xlsxSha256 !== actualSourceHash) {
     throw new Error("Source workbook bytes do not match source-provenance.json.");
@@ -95,12 +105,13 @@ export async function stageWorkbookSnapshot({
 
   const adapted = adaptGameDataWorkbook(readWorkbookBytes(workbookBytes));
   const validation = validateAdaptedGameData(adapted);
+  const versions = artifactVersionsForModel(adapted.model);
   const baseReport = {
     reportVersion: 1,
     exportedAt,
     sourceSchemaVersion: Number(adapted.model.metadata.sourceSchemaVersion || 0),
-    runtimeArtifactSchemaVersion: RUNTIME_ARTIFACT_SCHEMA_VERSION,
-    exporterVersion: EXPORTER_VERSION,
+    runtimeArtifactSchemaVersion: versions.schemaVersion,
+    exporterVersion: versions.exporterVersion,
     source: { ...sourceSummary(provenance), xlsxSha256: actualSourceHash },
     modelSha256: sha256(canonicalJson(adapted.model)),
     validation: {
@@ -143,6 +154,7 @@ export async function stageWorkbookSnapshot({
     recordCounts: Object.fromEntries([
       "classes", "classSkills", "classFeatures", "techniques", "feats", "origins", "originFeatures",
       "weaponBases", "weaponProfiles", "weaponEnhancements",
+      ...(adapted.model.traits ? ["traits"] : []),
     ].map((key) => [key, adapted.model[key].length])),
     diffSummary: diff.summary,
   };

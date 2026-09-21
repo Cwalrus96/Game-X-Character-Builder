@@ -2,15 +2,17 @@
 
 Status: Work Package D core is complete and Work Package E migration is active. The class/feat/technique, Equipment, Attributes, and Origin/Skills slices have typed commands, graph coverage, portable session-page controllers, and local page integration; signed-in focused browser acceptance is still pending before the replacements are accepted.
 
-Last updated: 2026-08-30.
+Last updated: 2026-09-21.
 
 ## Purpose and boundary
 
-The Character Dependency Graph is one authoritative pure subsystem for character selection ownership and dependency effects. It accepts one exact schema-v5 character plus normalized runtime artifact schema-v2 game data and produces deterministic plain-data nodes, edges, diagnostics, metadata, and reconciled outcomes.
+The Character Dependency Graph is one authoritative pure subsystem for character selection ownership and dependency effects. It accepts one exact schema-v5 character plus normalized runtime artifact schema-v2 or schema-v3 game data and produces deterministic plain-data nodes, edges, diagnostics, metadata, and reconciled outcomes.
 
 `GraphCompiler` is the subsystem's snapshot-building operation. The reconciler is its fixed-point operation: it repeatedly compiles and applies registered removal, prerequisite, capacity, compatibility, and incomplete-selection policy until it reaches a deterministic fixed point. Keeping those internal operations separate makes snapshot construction independently testable and lets reconciliation recompile after each state change; it does not create two authorities. `CharacterSession` uses one graph reconciliation facade. Neither operation reads Firebase, the DOM, pages, widgets, files, or the network or mutates caller-owned values.
 
 The reviewed production game-data release is schema v2 and supplies stable keys. Work Package E tests the graph against both focused fixtures and the published combined runtime artifact. Production deployment remains a separate approval boundary.
+
+The v5 source importer produces staged schema-v3 game data without changing character persistence. Shared selection Rules handle multiple skill routes, tag/weapon-tag routes, and explicit readiness/runtime deferrals. Typed prerequisite alternatives retain their separate dependencies and use current character/option context. Source-owned repeated features and recipient-owned skills remain explicit deferred effects until their state and execution are implemented. Syntax-v3 wielded/separate-hand prerequisites require evidence that the current character schema does not yet store; weapon ownership alone cannot satisfy them. An OR prerequisite may still use another supported alternative. Deleted source identities require release review rather than guessed replacements or silent character rewrites.
 
 ## Node contract
 
@@ -66,7 +68,7 @@ Work Package E adds domain handlers and tests without adding dependency policy t
 `compileCharacterGraph({ character, gameData, registry })` and `GraphCompiler.compile(character)`:
 
 1. decode the character through the exact v5 codec;
-2. require normalized runtime artifact schema 2;
+2. require normalized runtime artifact schema 2 or 3;
 3. index stable class, origin, feat, feature, option, technique, weapon, choice, and answer identities;
 4. compile typed nodes and edges through the supplied registries;
 5. sort nodes, edges, diagnostics, and metadata deterministically;
@@ -108,7 +110,7 @@ The adapter is installed in the local-review class/feat, Attributes, Equipment, 
 ## Evidence
 
 - `public/js/core/graph-core.js`: typed graph builder, handler registry, contract validation, deterministic freezing, and affected closure;
-- `public/js/core/graph-compiler.js`: exact-v5/schema-v2 deterministic compiler and registered handlers;
+- `public/js/core/graph-compiler.js`: exact-v5/schema-v2/v3 deterministic compiler and registered handlers;
 - `public/js/core/graph-reconciler.js`: bounded fixed-point policy, structured impacts, derived projections, and session adapter;
 - `public/js/core/skill-rules.js`: sole pure owner of skill progression, grants, caps, point budgets, utility capacity, allocation projections, and deterministic fitting;
 - `public/js/core/origin-rules.js`: shared pure Origin eligibility/presentation projection;

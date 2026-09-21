@@ -1,6 +1,7 @@
 import { sanitizeText, sanitizeWeaponList } from "./data-sanitization.js";
-import { GRANT_EXPRESSION_REGISTRY, SUPPORTED_GRANT_TYPES } from "./game-data-contract.js";
+import { getExpressionDefinition, getExpressionRuntimeStatus, SUPPORTED_GRANT_TYPES } from "./game-data-contract.js";
 import { formatExpressionDiagnostic, normalizeExpressionObject, resolveCapacityExpression } from "./game-data-expressions.js";
+import { isGameDataGrantExecutable } from "./selection-rules.js";
 
 export const VALID_GRANT_TYPES = new Set(SUPPORTED_GRANT_TYPES);
 
@@ -25,7 +26,7 @@ export function getGrantSourceLabel(source) {
 export function sanitizeGrantType(value, source) {
   const type = sanitizeText(value, { maxLen: 64, collapse: true });
   if (!type) throw new Error(`Grant from ${getGrantSourceLabel(source)} is missing type.`);
-  if (!VALID_GRANT_TYPES.has(type)) {
+  if (!getExpressionDefinition("grant", type, { syntaxVersion: source?.expressionSyntaxVersion ?? 2 })) {
     throw new Error(`Grant from ${getGrantSourceLabel(source)} has unsupported type "${type}".`);
   }
   return type;
@@ -38,14 +39,15 @@ export function sanitizeGrant(grant, source) {
 
   sanitizeGrantType(grant.type, source);
   const { source: _existingSource, ...expression } = grant;
-  const result = normalizeExpressionObject("grant", expression, { context: getGrantSourceLabel(source) });
+  const result = normalizeExpressionObject("grant", expression, { context: getGrantSourceLabel(source), syntaxVersion: source?.expressionSyntaxVersion ?? 2 });
   if (!result.ok) throw new Error(formatExpressionDiagnostic(result.diagnostics[0]));
   return { ...result.value, source };
 }
 
-export function getEntryGrants(entry) {
+export function getEntryGrants(entry, { includeDeferred = false } = {}) {
   if (!Array.isArray(entry?.grants)) return [];
-  return entry.grants.map((grant) => sanitizeGrant(grant, entry));
+  const normalized = entry.grants.map((grant) => sanitizeGrant(grant, entry));
+  return includeDeferred ? normalized : normalized.filter((grant) => isGameDataGrantExecutable(grant, { source: entry }));
 }
 
 export function getGrantName(grant) {
@@ -53,7 +55,8 @@ export function getGrantName(grant) {
 }
 
 export function getGrantRuntimeStatus(grant) {
-  return GRANT_EXPRESSION_REGISTRY[String(grant?.type || "")]?.runtimeStatus || "unknown";
+  const status = getExpressionRuntimeStatus("grant", grant, { syntaxVersion: grant?.source?.expressionSyntaxVersion ?? 2 });
+  return status === "unsupported" ? "unknown" : status;
 }
 
 export function initializeGrantedResource(grant, context = {}) {

@@ -10,24 +10,25 @@ import {
 
 export const VALID_PREREQUISITE_TYPES = new Set(RUNTIME_PREREQUISITE_TYPES);
 
-export function normalizePrerequisite(prereq) {
+export function normalizePrerequisite(prereq, options = {}) {
   if (!prereq || typeof prereq !== "object") return null;
-  const result = normalizeExpressionObject("prerequisite", prereq, { context: "runtime prerequisite" });
+  const result = normalizeExpressionObject("prerequisite", prereq, { context: "runtime prerequisite", ...options });
   if (!result.ok) throw new Error(formatExpressionDiagnostic(result.diagnostics[0]));
   return result.value;
 }
 
-export function normalizePrerequisites(value) {
-  if (Array.isArray(value)) return value.map(normalizePrerequisite).filter(Boolean);
-  return getEntryPrerequisites({ prerequisites: value });
+export function normalizePrerequisites(value, options = {}) {
+  if (Array.isArray(value)) return value.map((item) => normalizePrerequisite(item, options)).filter(Boolean);
+  return getEntryPrerequisites({ prerequisites: value, expressionSyntaxVersion: options.syntaxVersion });
 }
 
 export function getEntryPrerequisites(entry) {
-  if (Array.isArray(entry?.prerequisites)) return entry.prerequisites.map(normalizePrerequisite).filter(Boolean);
+  const options = { syntaxVersion: entry?.expressionSyntaxVersion ?? 2 };
+  if (Array.isArray(entry?.prerequisites)) return entry.prerequisites.map((item) => normalizePrerequisite(item, options)).filter(Boolean);
 
   const text = sanitizeText(entry?.prerequisites || entry?.prereqs || "", { maxLen: 1000, collapse: false });
   if (!text) return [];
-  const result = parsePrerequisiteExpressions(text, { context: "runtime prerequisite" });
+  const result = parsePrerequisiteExpressions(text, { context: "runtime prerequisite", ...options });
   if (!result.ok) throw new Error(formatExpressionDiagnostic(result.diagnostics[0]));
   return result.values;
 }
@@ -38,15 +39,19 @@ function joinValue(value, joiner = " or ") {
 }
 
 export function formatPrerequisite(prereq) {
-  const p = normalizePrerequisite(prereq);
+  const p = normalizePrerequisite(prereq, { syntaxVersion: 3 });
   if (!p) return "";
   if (p.type === "text") return p.text || "";
+  if (p.type === "any") return p.alternatives.map(formatPrerequisite).join(" OR ");
+  if (p.type === "trait" || p.type === "technique") return `${p.type === "trait" ? "Trait" : "Technique"}: ${joinValue(p.key)}${p.minRank != null ? ` rank ${p.minRank}+` : ""}`;
+  if (p.type === "archetype") return `Archetype: ${joinValue(p.key)} (${p.numFeats ?? 1}+ feats)`;
+  if (p.type === "option") return `Know ${p.count} options from ${p.groupKey}`;
   if (p.type === "class") return `Class: ${joinValue(p.name || p.key)}${p.level ? ` level ${p.level}` : ""}`;
   if (p.type === "feat") return `Feat: ${joinValue(p.name || p.key)}`;
   if (p.type === "origin") return `Origin: ${joinValue(p.name || p.key)}`;
   if (p.type === "attribute") return `Attribute: ${joinValue(p.name || p.key)}${p.minValue !== undefined ? ` ${p.minValue}+` : ""}`;
-  if (p.type === "skill") return `Skill: ${joinValue(p.name || p.key)}${p.rank !== undefined ? ` rank ${p.rank}+` : ""}`;
-  if (p.type === "tag") return `Tag: ${joinValue(p.name || p.key)}${p.minValue !== undefined ? ` ${p.minValue}+` : ""}`;
+  if (p.type === "skill") return `Skill: ${joinValue(p.name || p.key)}${(p.rank ?? p.minRank) !== undefined ? ` rank ${p.rank ?? p.minRank}+` : ""}`;
+  if (p.type === "tag") return `Tag: ${joinValue(p.name || p.key || p.tag)}${p.minValue !== undefined ? ` ${p.minValue}+` : ""}`;
   if (p.type === "choice") {
     const checks = [];
     if (p.tag) checks.push(`tag ${joinValue(p.tag)}`);
@@ -58,14 +63,14 @@ export function formatPrerequisite(prereq) {
   if (p.type === "familiar") return `Familiar${p.minCount !== undefined ? ` count ${p.minCount}+` : ""}${p.minRank !== undefined ? ` rank ${p.minRank}+` : ""}`;
   if (p.type === "weapon" || p.type === "weapon-set") {
     const count = p.type === "weapon-set" && p.count !== undefined ? ` (${p.count}+)` : "";
-    return `${p.type === "weapon-set" ? "Weapon set" : "Weapon"}${count}: ${joinValue(p.tag || p.tagAll || p.tagAny || p.name || p.key)}`;
+    return `${p.type === "weapon-set" ? "Weapon set" : "Weapon"}${count}: ${joinValue(p.tag || p.tagAll || p.tagAny || p.name || p.key)}${p.separateHands ? ", one in each hand" : ""}`;
   }
   if (p.type === "resource") return `Resource: ${joinValue(p.resourceKey)}${p.minCount !== undefined ? ` ${p.minCount}+` : ""}`;
   return "";
 }
 
 export function formatPrerequisites(value) {
-  const prereqs = normalizePrerequisites(value);
+  const prereqs = normalizePrerequisites(value, { syntaxVersion: 3 });
   return prereqs.map(formatPrerequisite).filter(Boolean).join("; ");
 }
 
@@ -259,6 +264,22 @@ function selectedFeatNamesForContext(data, selectedFeats) {
   return Array.from(out);
 }
 
+function collectKnownOptions(builder, gameData, explicit) {
+  const out = explicit instanceof Map ? new Map(explicit) : new Map(Object.entries(explicit || {}));
+  const selected = new Set([...valuesFor(builder.selectedClassFeatureOptions), ...valuesFor(builder.selectedFeatOptions)]);
+  const classRows = Array.isArray(gameData.classFeatures) ? gameData.classFeatures.filter((row) => row.classKey === builder.classKey) : gameData.classFeatures?.[builder.classKey] || [];
+  function visit(rows) {
+    for (const row of rows) {
+      const key = row.featureKey || row.featKey;
+      const options = row.options || [];
+      if (key && options.length && !out.has(key)) out.set(key, options.map((option) => option.featureKey || option.featKey).filter((optionKey) => selected.has(optionKey)));
+      visit(options);
+    }
+  }
+  visit([...classRows, ...(gameData.feats || [])]);
+  return out;
+}
+
 export function createPrerequisiteContext(input = {}) {
   const source = (input && typeof input === "object") ? input : {};
   const builder = (source.builder && typeof source.builder === "object") ? source.builder : source;
@@ -270,12 +291,16 @@ export function createPrerequisiteContext(input = {}) {
   return {
     builder,
     gameData,
+    syntaxVersion: Number(source.syntaxVersion ?? source.expressionSyntaxVersion ?? gameData.expressionSyntaxVersion ?? 2),
     level,
     classKey,
     originKey,
     classNames: classNamesForContext(gameData, classKey),
     originNames: originNamesForContext(gameData, originKey),
     selectedFeats: selectedFeatNamesForContext(gameData, builder.selectedFeats),
+    selectedTechniqueKeys: valuesFor(source.selectedTechniqueKeys || builder.selectedTechniques || builder.selectedTechniqueKeys || (Array.isArray(builder.techniques) ? builder.techniques : []).map((row) => typeof row === "string" ? row : row.techniqueKey || row.key)),
+    selectedTraits: source.selectedTraits || builder.traits || [],
+    knownOptions: collectKnownOptions(builder, gameData, source.knownOptions),
     attributes: normalizeAttributes(builder.attributes || {}),
     skillRanks: collectSkillRanks({
       builder,
@@ -360,15 +385,37 @@ function choiceRank(choice) {
 }
 
 export function evaluatePrerequisite(prerequisite, context = {}) {
-  const prereq = normalizePrerequisite(prerequisite);
   const ctx = context?.skillRanks instanceof Map && context?.choices instanceof Map
     ? context
     : createPrerequisiteContext(context);
+  const prereq = normalizePrerequisite(prerequisite, { syntaxVersion: ctx.syntaxVersion });
   const label = formatPrerequisite(prereq);
 
   if (!prereq) return { ok: true, manual: true, prerequisite: null, label: "", reason: "" };
   if (prereq.type === "text") {
+    if (ctx.syntaxVersion >= 3) return { ok: false, manual: false, deferred: true, prerequisite: prereq, label, reason: `Prerequisite requires an implemented rule: ${label}` };
     return { ok: true, manual: true, prerequisite: prereq, label, reason: `Manual prerequisite: ${label}` };
+  }
+  if (prereq.type === "any") {
+    const alternatives = prereq.alternatives.map((item) => evaluatePrerequisite(item, ctx));
+    return { ok: alternatives.some((item) => item.ok && !item.manual), prerequisite: prereq, label, alternatives, reason: `Requires one of: ${label}` };
+  }
+  if (prereq.type === "technique") return { ok: valuesFor(prereq.key).some((key) => ctx.selectedTechniqueKeys.includes(key)), prerequisite: prereq, label, reason: `Requires ${label}.` };
+  if (prereq.type === "trait") {
+    const selected = Array.isArray(ctx.selectedTraits) ? ctx.selectedTraits : Object.entries(ctx.selectedTraits).map(([traitKey, value]) => typeof value === "object" ? { ...value, traitKey } : { traitKey, rank: value });
+    const ok = selected.some((trait) => valuesFor(prereq.key).includes(typeof trait === "string" ? trait : trait.traitKey || trait.key) && (prereq.minRank == null || toRank(trait.rank) >= prereq.minRank));
+    return { ok, prerequisite: prereq, label, reason: `Requires ${label}.` };
+  }
+  if (prereq.type === "archetype") {
+    const selected = new Set(valuesFor(ctx.builder.selectedFeats));
+    const ok = valuesFor(prereq.key).some((key) => new Set((ctx.gameData.feats || []).filter((feat) => feat.archetypeKey === key && selected.has(feat.featKey)).map((feat) => feat.featKey)).size >= (prereq.numFeats ?? 1));
+    return { ok, prerequisite: prereq, label, reason: `Requires ${label}.` };
+  }
+  if (prereq.type === "option") {
+    const value = ctx.knownOptions instanceof Map ? ctx.knownOptions.get(prereq.groupKey) : ctx.knownOptions[prereq.groupKey];
+    const known = Array.isArray(value) ? value : value?.selectedKeys || value?.options || [];
+    const count = new Set(known.map((item) => typeof item === "string" ? item : item.key || item.featureKey || item.featKey).filter(Boolean)).size;
+    return { ok: count >= prereq.count, prerequisite: prereq, label, reason: `Requires ${label}.` };
   }
   if (prereq.type === "class") {
     const classMatches = matchesAnyValue(ctx.classNames, prereq.name || prereq.key);
@@ -411,7 +458,7 @@ export function evaluatePrerequisite(prerequisite, context = {}) {
   if (prereq.type === "choice") {
     const choice = getChoice(ctx, prereq.choiceRef);
     if (!choice) {
-      if (ctx.deferUnresolvedChoices) {
+      if (ctx.deferUnresolvedChoices && ctx.syntaxVersion < 3) {
         return { ok: true, manual: true, prerequisite: prereq, label, reason: `Pending choice: ${prereq.choiceRef}.` };
       }
       return { ok: false, prerequisite: prereq, label, reason: `Choose ${prereq.choiceRef} first.` };
@@ -451,20 +498,24 @@ export function evaluatePrerequisite(prerequisite, context = {}) {
       const reachOk = requiredReach === null || weaponReach(weapon) >= requiredReach;
       const requiredRank = getRequiredNumber(prereq, ["rank", "minRank"]);
       const rankOk = requiredRank === null || toRank(weapon?.rank) >= requiredRank;
-      const wieldedOk = prereq.wielded !== true || weapon?.wielded !== false;
+      const wieldedOk = prereq.wielded !== true || (ctx.syntaxVersion >= 3 ? weapon?.wielded === true : weapon?.wielded !== false);
       return identityOk && tagOk && tagAllOk && tagAnyOk && tagNotOk && reachOk && rankOk && wieldedOk;
     });
     const required = prereq.type === "weapon-set" ? (getRequiredNumber(prereq, ["count"]) ?? 2) : 1;
-    const ok = matches.length >= required;
+    const occupiedHands = matches.map((weapon) => weapon.hand || weapon.wieldedHand).filter((hand) => ["left", "right"].includes(hand));
+    const distinctWeapons = new Set(matches.map((weapon) => weapon.id).filter(Boolean));
+    const ok = matches.length >= required && (!prereq.separateHands || (required <= 2 && new Set(occupiedHands).size >= required && distinctWeapons.size >= required));
     return { ok, prerequisite: prereq, label, reason: `Requires ${required} matching weapon${required === 1 ? "" : "s"}.` };
   }
 
-  return { ok: true, manual: true, prerequisite: prereq, label, reason: "" };
+  return ctx.syntaxVersion >= 3
+    ? { ok: false, manual: false, deferred: true, prerequisite: prereq, label, reason: `Unsupported prerequisite: ${label}` }
+    : { ok: true, manual: true, prerequisite: prereq, label, reason: "" };
 }
 
 export function checkPrerequisites(prerequisites, context = {}) {
   const ctx = createPrerequisiteContext(context);
-  const results = normalizePrerequisites(prerequisites).map((prereq) => evaluatePrerequisite(prereq, ctx));
+  const results = normalizePrerequisites(prerequisites, { syntaxVersion: ctx.syntaxVersion }).map((prereq) => evaluatePrerequisite(prereq, ctx));
   const failed = results.filter((result) => !result.ok);
   const manual = results.filter((result) => result.manual);
   return {

@@ -142,7 +142,7 @@ Current shared modules include `character-rules.js`, `choice-capacity.js`, `choi
 
 The compiler converts one complete character state plus normalized game data into typed nodes and edges. Compilation is deterministic and has no UI or persistence side effects.
 
-The pure compiler is implemented in `graph-compiler.js`. It accepts only exact schema-v5 characters and normalized runtime artifact schema 2, uses independent node/grant/prerequisite handler registries, and returns sorted frozen plain data. Missing handlers, malformed/dangling identities, conflicting duplicates, dangling edge endpoints, and cycles are blocking structured diagnostics. The migrated fixtures now cover every current builder domain, including ordinary/source-owned Bonds and Keystones. `graph-extensions.js` composes isolated new-domain adapters into the same registry without adding traversal branches.
+The pure compiler is implemented in `graph-compiler.js`. It accepts exact schema-v5 characters and normalized runtime artifact schema 2 or 3, uses independent node/grant/prerequisite handler registries, and returns sorted frozen plain data. Schema 3 carries explicit source readiness and execution-support diagnostics; unsupported or unfinished records cannot create executable grants. Missing handlers, malformed/dangling identities, conflicting duplicates, dangling edge endpoints, and cycles are blocking structured diagnostics. The migrated fixtures cover every current builder domain, including ordinary/source-owned Bonds and Keystones. `graph-extensions.js` composes isolated new-domain adapters into the same registry without adding traversal branches.
 
 Representative node types include character facts, sources, grants, option groups, answers, selected feats/techniques, materialized weapons, resources, and validation diagnostics.
 
@@ -192,9 +192,9 @@ Character-sheet autosave owns only temporary play-state leaves such as current H
 
 The source pipeline has two independent versioned contracts:
 
-- source schema: native workbook schema v4;
+- source schema: native workbook schema v5 with grant/prerequisite syntax v3; the v4/v2 adapter remains for compatibility;
 - production runtime artifact schema: reviewed schema v2;
-- staged runtime artifact schema: schema v2, authenticated and deterministic, with exact-hash review required for each future publish.
+- staged runtime artifact schema: schema v3 for source v5 and schema v2 for source v4, with deterministic bytes and exact-hash review required for each future publish.
 
 The exporter is responsible for an explicit transformation between them. It must not treat workbook rows as runtime objects without adaptation.
 
@@ -209,7 +209,9 @@ Target phases:
 7. Write only a complete staging run plus hashes and semantic diff.
 8. Promote the exact reviewed staged bytes in a separate explicit operation.
 
-The canonical workbook's `Metadata`, `Schema`, and `Enums` tabs participate in validation. `ClassSkills` is the normalized mechanical relationship table. Display-workbook compatibility adapters and Handbook formatting are downstream presentation systems, not runtime source contracts.
+The canonical workbook's `Metadata`, `Schema`, and `Enums` tabs participate in validation. The v5 adapter derives normalized class-skill relationships from the three distinct Classes fields, preserving roles and primary-attribute conditions. It retains raw authored cells alongside normalized fields and diagnoses unknown or malformed content at its original location. Traits and provider relationships, selection routes and readiness, generic pumping, underlying basic attacks, explicit grant recipients, and reusable feature references survive adaptation and serialization. The shared Rules layer owns contextual selection and executable prerequisite semantics. Conditional feature execution, recipient-owned Artifact skills, and the held Trait/Familiar/Mech/form systems remain deferred and unavailable where their behavior cannot yet execute. Display-workbook compatibility adapters and Handbook formatting are downstream presentation systems, not runtime source contracts.
+
+The stage command normally acquires a fresh read-only Drive export. An explicit snapshot/provenance pair can instead be checked for canonical identity, versions, exact length/hash, and native workbook contract before entering the same pipeline. This mode never borrows connector credentials or claims to restore command-line authentication. The published schema-2 artifact baseline, release approval contract, and saved-character schema remain unchanged by importer integration. Removed source identities require release review and appropriate saved-state handling before schema-3 promotion; the loader must not guess replacements from display names.
 
 While the reviewed runtime artifacts still contain the former skill name, `loadGameXData` applies the pure `projectSkillNames` projection in memory. It updates explicit skill fields, exact skill option labels, and skill-context prose without changing generated artifact bytes or performing a data publish. Unrelated entity keys and explicit choice IDs remain unchanged. Aiming names such as Enhanced Targeting and Targeting Computer, and ordinary targeting prose, retain their meaning. Saved skill and source-owned choice compatibility is defined in [character-persistence.md](character-persistence.md#ranged-weapons-naming-compatibility).
 

@@ -1,16 +1,9 @@
-import {
-  GRANT_EXPRESSION_REGISTRY,
-  PREREQUISITE_EXPRESSION_REGISTRY,
-} from "./game-data-contract.js";
+import { getExpressionRegistry } from "./game-data-contract.js";
 
 const TYPE_PATTERN = /^[a-z][a-z-]*$/;
 const FIELD_PATTERN = /^[a-z][a-zA-Z]*$/;
 
-function registryFor(kind) {
-  if (kind === "grant") return GRANT_EXPRESSION_REGISTRY;
-  if (kind === "prerequisite") return PREREQUISITE_EXPRESSION_REGISTRY;
-  throw new TypeError(`Unknown expression kind "${kind}".`);
-}
+const registryFor = getExpressionRegistry;
 
 function diagnostic(kind, code, message, { context = null, line = null, field = null, severity = "error" } = {}) {
   return Object.freeze({ severity, code, kind, message, context, line, field });
@@ -96,8 +89,8 @@ function finalizeValue(kind, value) {
   return value;
 }
 
-function validateFields(kind, type, rawFields, { context = null, line = null } = {}) {
-  const registry = registryFor(kind);
+function validateFields(kind, type, rawFields, { context = null, line = null, syntaxVersion = 2 } = {}) {
+  const registry = registryFor(kind, { syntaxVersion });
   const definition = registry[type];
   const diagnostics = [];
   if (!definition) {
@@ -156,6 +149,15 @@ export function normalizeExpressionObject(kind, input, options = {}) {
     };
   }
   const type = String(input.type ?? "").trim();
+  if (type === "any" && (kind === "basicAttack" || (kind === "prerequisite" && Number(options.syntaxVersion) >= 3))) {
+    if (!Array.isArray(input.alternatives) || input.alternatives.length < 2 || Object.keys(input).some((key) => !["type", "alternatives"].includes(key))) {
+      return { ok: false, value: null, diagnostics: [diagnostic(kind, "invalid-alternatives", "A typed OR expression requires at least two alternatives and no other fields.", options)] };
+    }
+    const results = input.alternatives.map((item) => normalizeExpressionObject(kind, item, options));
+    const diagnostics = results.flatMap((item) => item.diagnostics);
+    const ok = results.every((item) => item.ok);
+    return { ok, value: ok ? { type: "any", alternatives: results.map((item) => item.value) } : null, diagnostics };
+  }
   if (!TYPE_PATTERN.test(type)) {
     return {
       ok: false,
@@ -169,6 +171,22 @@ export function normalizeExpressionObject(kind, input, options = {}) {
 export function parseExpressionLine(kind, input, options = {}) {
   const raw = String(input ?? "").trim();
   if (!raw) return { ok: true, value: null, diagnostics: [] };
+
+  // A value such as `category=dragoon OR multiclass | maxLevel=1` is
+  // never a grant disjunction. Prerequisite clauses only start at known types.
+  if (kind === "basicAttack" || (kind === "prerequisite" && Number(options.syntaxVersion) >= 3)) {
+    const heads = Object.keys(registryFor(kind, options)).join("|");
+    const separator = kind === "basicAttack"
+      ? new RegExp(`\\s+OR\\s+(?=(?:${heads})(?:\\s*\\||\\s*$))`, "i")
+      : new RegExp(`\\s+OR\\s+(?=(?:${heads})\\s*\\|)`, "i");
+    const alternatives = raw.split(separator);
+    if (alternatives.length > 1) {
+      const results = alternatives.map((part) => parseExpressionLine(kind, part, options));
+      const diagnostics = results.flatMap((result) => result.diagnostics);
+      const ok = results.every((result) => result.ok);
+      return { ok, value: ok ? { type: "any", alternatives: results.map((result) => result.value) } : null, diagnostics };
+    }
+  }
 
   const parts = raw.split("|").map((part) => part.trim());
   if (kind === "prerequisite" && parts.length === 1) {
@@ -189,6 +207,8 @@ export function parseExpressionLine(kind, input, options = {}) {
 
   const fields = [];
   const syntaxDiagnostics = [];
+  // Canonical compact archetype authoring has a positional stable key.
+  if (kind === "prerequisite" && Number(options.syntaxVersion) >= 3 && type === "archetype" && parts[0] && !parts[0].includes("=")) fields.push(["key", parts.shift()]);
   for (const part of parts) {
     const separator = part.indexOf("=");
     if (separator < 0) {
@@ -212,14 +232,14 @@ export function parseExpressionLine(kind, input, options = {}) {
   };
 }
 
-export function parseExpressionBlock(kind, input, { context = null } = {}) {
+export function parseExpressionBlock(kind, input, options = {}) {
   const raw = String(input ?? "").replace(/\r\n?/g, "\n");
   if (!raw.trim()) return { ok: true, values: [], diagnostics: [] };
   const values = [];
   const diagnostics = [];
   raw.split("\n").forEach((line, index) => {
     if (!line.trim()) return;
-    const result = parseExpressionLine(kind, line, { context, line: index + 1 });
+    const result = parseExpressionLine(kind, line, { ...options, line: index + 1 });
     if (result.value) values.push(result.value);
     diagnostics.push(...result.diagnostics);
   });
@@ -230,6 +250,8 @@ export const parseGrantExpression = (input, options) => parseExpressionLine("gra
 export const parseGrantExpressions = (input, options) => parseExpressionBlock("grant", input, options);
 export const parsePrerequisiteExpression = (input, options) => parseExpressionLine("prerequisite", input, options);
 export const parsePrerequisiteExpressions = (input, options) => parseExpressionBlock("prerequisite", input, options);
+export const parseBasicAttackExpression = (input, options) => parseExpressionLine("basicAttack", input, { syntaxVersion: 3, ...options });
+export const parseBasicAttackExpressions = (input, options) => parseExpressionBlock("basicAttack", input, { syntaxVersion: 3, ...options });
 
 function serializeScalar(value, spec) {
   if (Array.isArray(value)) return value.join(spec?.type === "key-list" ? "," : " OR ");
@@ -240,11 +262,12 @@ function serializeScalar(value, spec) {
   return String(value);
 }
 
-export function serializeExpression(kind, input) {
-  const normalized = normalizeExpressionObject(kind, input);
+export function serializeExpression(kind, input, options = {}) {
+  const normalized = normalizeExpressionObject(kind, input, options);
   if (!normalized.ok) return { ok: false, value: "", diagnostics: normalized.diagnostics };
   const value = normalized.value;
-  const definition = registryFor(kind)[value.type];
+  if (value.type === "any") return { ok: true, value: value.alternatives.map((item) => serializeExpression(kind, item, options).value).join(" OR "), diagnostics: [] };
+  const definition = registryFor(kind, options)[value.type];
   const parts = [value.type];
   for (const key of Object.keys(definition.fields)) {
     if (Object.hasOwn(value, key)) parts.push(`${key}=${serializeScalar(value[key], definition.fields[key])}`);

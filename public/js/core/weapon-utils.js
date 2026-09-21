@@ -2,6 +2,7 @@ import { sanitizeText, safeHtmlText } from "./data-sanitization.js";
 import { getEntryPrerequisites, meetsPrerequisites } from "./prerequisites.js";
 import { renderTagChipsHtml, renderTechniqueProfileHtml } from "./technique-utils.js";
 import { canonicalSkillName, RANGED_WEAPONS_SKILL } from "./skill-identity.js";
+import { isGameDataRecordSelectable } from "./selection-rules.js";
 
 export const MAX_WEAPON_SLOTS = 4;
 
@@ -72,6 +73,7 @@ export function getBasicAttackProfiles(weaponDef) {
 }
 
 export function getWeaponSkillNames(weaponDef) {
+  if (weaponDef?.expressionSyntaxVersion === 3) return [...new Set((weaponDef.techniqueSkills || []).map(canonicalSkillName))];
   const skills = new Set();
   for (const profile of getBasicAttackProfiles(weaponDef)) {
     const skill = canonicalSkillName(sanitizeText(profile?.skill, { maxLen: 96, collapse: true }));
@@ -143,11 +145,18 @@ export function computeTotalWeaponSlots(weapons, weaponBases) {
 
 export function isEnhancementCompatible(enhancementDef, weapon, weaponBases, prerequisiteContext = {}) {
   if (!enhancementDef || !weapon) return false;
+  if (enhancementDef.expressionSyntaxVersion === 3 && !isGameDataRecordSelectable(enhancementDef, { allowGrantedOnly: true })) return false;
   const prerequisites = getEntryPrerequisites(enhancementDef);
   if (!prerequisites.length) return true;
 
   const weaponDef = getWeaponDef(weaponBases, weapon.weaponKey);
   const tags = getEffectiveTags(weapon, weaponBases);
+  if (enhancementDef.expressionSyntaxVersion === 3) {
+    return meetsPrerequisites(prerequisites, {
+      ...prerequisiteContext, syntaxVersion: 3,
+      builder: { ...(prerequisiteContext.builder || {}), weapons: [{ ...weapon, tags }] },
+    });
+  }
   const basicProfiles = getBasicAttackProfiles(weaponDef);
   const hasMeleeProfile = basicProfiles.some((profile) => String(profile?.skill || "") === "Melee Weapons");
   const hasRangedProfile = basicProfiles.some((profile) => canonicalSkillName(profile?.skill) === RANGED_WEAPONS_SKILL);
@@ -193,7 +202,7 @@ export function summarizeWeaponProfilesHtml(weaponDef, weaponRank) {
     let heading = rawName || "Profile";
     if (type === "criticalEffect") heading = `Critical Effect — ${rawName || "Critical Effect"}`;
     if (type === "alternateUse") heading = `Alternate Use — ${rawName || "Alternate Use"}`;
-    blocks.push(renderTechniqueProfileHtml(profile, { rankValue: weaponRank, heading, headingTag: "div", headingClass: "combat-profile-title", showRank: false }));
+    blocks.push(renderTechniqueProfileHtml(profile, { rankValue: weaponRank, heading, headingTag: "div", headingClass: "combat-profile-title", showRank: false, gameData: { techniques: profiles } }));
   }
 
   if (!blocks.length && weaponDef?.description) {

@@ -1,5 +1,6 @@
-import { GRANT_EXPRESSION_REGISTRY } from "../../public/js/core/game-data-contract.js";
+import { getExpressionRuntimeStatus } from "../../public/js/core/game-data-contract.js";
 import { SOURCE_TAB_HEADERS } from "./source-adapters.mjs";
+import { validateV5Relationships } from "./model-validator-v5.mjs";
 
 export const VALIDATION_SEVERITY_POLICY = Object.freeze({
   error: "Blocks artifact construction because source meaning is missing, ambiguous, inconsistent, or unresolved.",
@@ -37,7 +38,8 @@ function excelColumn(index) {
 }
 
 function sourceCell(source, column) {
-  const headers = SOURCE_TAB_HEADERS[source?.sheet];
+  if (source?.columns?.[column]) return `${source.columns[column]}${source.row}`;
+  const headers = source?.headers || SOURCE_TAB_HEADERS[source?.sheet];
   const index = headers?.indexOf(column) ?? -1;
   return source?.row && index >= 0 ? `${excelColumn(index)}${source.row}` : null;
 }
@@ -71,9 +73,19 @@ function stableComposite(parts) {
  */
 export function validateGameDataModel(model, { priorDiagnostics = [] } = {}) {
   const diagnostics = [];
+  const v5 = Number(model?.metadata?.sourceSchemaVersion) === 5;
+  const runtimeSupportBySource = {};
+  const deferredCodes = new Set(["record-unready", "playable-record-incomplete", "draft-record-granted", "runtime-subsystem-stubbed", "manual-prerequisite", "runtime-prerequisite-deferred", "recipient-execution-deferred", "feature-invocation-deferred", "unassigned-selection", "incomplete-technique", "incomplete-content", "unresolved-rank-context"]);
   let sequence = 0;
   const add = (severity, code, message, record = null, column = null, details = null) => {
     const source = record?.source || {};
+    if (v5 && deferredCodes.has(code)) severity = "warning";
+    const deferred = v5 && deferredCodes.has(code);
+    if (deferred) {
+      const support = runtimeSupportBySource[`${source.sheet}:${source.row}`] ||= { status: "deferred", reasons: [] };
+      support.status = "deferred";
+      if (!support.reasons.includes(code)) support.reasons.push(code);
+    }
     diagnostics.push({
       severity,
       code,
@@ -83,6 +95,7 @@ export function validateGameDataModel(model, { priorDiagnostics = [] } = {}) {
       column,
       cell: sourceCell(source, column),
       details,
+      ...(v5 ? { deferred } : {}),
       _sequence: sequence++,
     });
   };
@@ -102,6 +115,7 @@ export function validateGameDataModel(model, { priorDiagnostics = [] } = {}) {
     weaponBases: model?.weaponBases || [],
     weaponProfiles: model?.weaponProfiles || [],
     weaponEnhancements: model?.weaponEnhancements || [],
+    ...(v5 ? { traits: model?.traits || [] } : {}),
   };
 
   function identityIndex(rows, {
@@ -120,7 +134,7 @@ export function validateGameDataModel(model, { priorDiagnostics = [] } = {}) {
         continue;
       }
       if (!normalized.includes("\u0000") && pattern && !pattern.test(normalized)) {
-        add("error", "invalid-stable-id", `${label} identity "${normalized}" has an invalid stable-key format.`, record, column);
+        add(v5 ? "warning" : "error", v5 ? "legacy-stable-id" : "invalid-stable-id", `${label} identity "${normalized}" has an invalid stable-key format.`, record, column);
       }
       if (index.has(normalized)) {
         add("error", "duplicate-stable-id", `${label} identity "${normalized.replaceAll("\u0000", "/")}" is duplicated.`, record, column, {
@@ -179,7 +193,7 @@ export function validateGameDataModel(model, { priorDiagnostics = [] } = {}) {
     if (!record.featureKey) {
       add("error", "blank-stable-id", "Feature requires a stable featureKey.", record, "featureKey");
     } else if (!STABLE_KEY.test(record.featureKey)) {
-      add("error", "invalid-stable-id", `Feature identity "${record.featureKey}" has an invalid stable-key format.`, record, "featureKey");
+      add(v5 ? "warning" : "error", v5 ? "legacy-stable-id" : "invalid-stable-id", `Feature identity "${record.featureKey}" has an invalid stable-key format.`, record, "featureKey");
     }
   }
 
@@ -334,8 +348,8 @@ export function validateGameDataModel(model, { priorDiagnostics = [] } = {}) {
   }
 
   for (const record of collections.techniques) {
-    validateSelectionMode(record, "Technique");
-    if (!record.skillKeys?.length) add("error", "missing-skill-keys", "Technique requires at least one stable skill key.", record, "skillKeys");
+    if (!v5) validateSelectionMode(record, "Technique");
+    if (!v5 && !record.skillKeys?.length) add("error", "missing-skill-keys", "Technique requires at least one stable skill key.", record, "skillKeys");
     for (const key of record.skillKeys || []) {
       if (!STABLE_KEY.test(key)) add("error", "invalid-stable-id", `Technique skill key "${key}" is invalid.`, record, "skillKeys");
     }
@@ -343,7 +357,9 @@ export function validateGameDataModel(model, { priorDiagnostics = [] } = {}) {
       if (!/^[a-z][a-z0-9-]*(?:=[^,]+)?$/.test(key)) add("error", "invalid-tag-key", `Technique tag key "${key}" is invalid.`, record, "tagKeys");
     }
     const energy = record.action?.energyCost || {};
-    if (!ENERGY_COST_KINDS.has(energy.kind)) {
+    if (v5 && !energy.kind) {
+      add("warning", "record-unready", "Energy-cost kind is unassigned; the authored blank is retained.", record, "energyCostKind");
+    } else if (!ENERGY_COST_KINDS.has(energy.kind)) {
       add("error", "invalid-energy-cost-kind", `Energy-cost kind "${energy.kind ?? ""}" is invalid.`, record, "energyCostKind");
     } else if (energy.kind === "fixed") {
       if (!Number.isFinite(energy.value) || energy.value < 0) add("error", "invalid-energy-cost", "Fixed energy cost requires a nonnegative numeric value.", record, "energyCost");
@@ -406,6 +422,7 @@ export function validateGameDataModel(model, { priorDiagnostics = [] } = {}) {
     ...collections.originFeatures,
     ...collections.weaponProfiles,
     ...collections.weaponEnhancements,
+    ...(collections.traits || []),
   ];
 
   function defineChoice(key, record, column, kind) {
@@ -443,7 +460,7 @@ export function validateGameDataModel(model, { priorDiagnostics = [] } = {}) {
 
   function validateGrant(grant, record) {
     const column = "grants";
-    if (GRANT_EXPRESSION_REGISTRY[grant.type]?.runtimeStatus === "stubbed") {
+    if (getExpressionRuntimeStatus("grant", grant, { syntaxVersion: v5 ? 3 : 2 }) === "stubbed") {
       add("warning", "runtime-subsystem-stubbed", `${grant.type} grant is preserved but its runtime subsystem is stubbed.`, record, column, { type: grant.type });
     }
     if (grant.choiceRef) requireChoice(grant.choiceRef, record, column);
@@ -451,7 +468,7 @@ export function validateGameDataModel(model, { priorDiagnostics = [] } = {}) {
       rejectDisplayNameReference(grant, record, column, "Technique grant");
       if (grant.key) requireReference(techniques, grant.key, { record, column, kind: "Technique" });
       const target = grant.key ? techniques.get(grant.key) : null;
-      if (target?.selectionMode === "draft") {
+      if (target?.selectionMode === "draft" || (v5 && target && target.status !== "playable")) {
         add("error", "draft-record-granted", `Technique grant references draft technique "${grant.key}".`, record, column, { key: grant.key });
       }
     } else if (grant.type === "feat") {
@@ -473,6 +490,10 @@ export function validateGameDataModel(model, { priorDiagnostics = [] } = {}) {
 
   function validatePrerequisite(prerequisite, record) {
     const column = "prerequisites";
+    if (v5 && prerequisite.type === "any") {
+      (Array.isArray(prerequisite.alternatives) ? prerequisite.alternatives : []).forEach((alternative) => validatePrerequisite(alternative, record));
+      return;
+    }
     if (prerequisite.type === "class") {
       rejectDisplayNameReference(prerequisite, record, column, "Class prerequisite");
       if (prerequisite.key) requireReference(classes, prerequisite.key, { record, column, kind: "Class" });
@@ -493,6 +514,11 @@ export function validateGameDataModel(model, { priorDiagnostics = [] } = {}) {
   for (const record of expressionRows) {
     for (const grant of record.grants || []) validateGrant(grant, record);
     for (const prerequisite of record.prerequisites || []) validatePrerequisite(prerequisite, record);
+  }
+
+  let featureInvocations = [];
+  if (v5) {
+    featureInvocations = validateV5Relationships(model, { add, requireReference, identityIndex, techniques, feats, expressionRows, choiceDefinitions, runtimeSupportBySource });
   }
 
   const knownEnumValues = {
@@ -520,6 +546,7 @@ export function validateGameDataModel(model, { priorDiagnostics = [] } = {}) {
     ok: counts.errors === 0,
     diagnostics: Object.freeze(ordered),
     counts,
+    ...(v5 ? { runtimeSupportBySource: Object.freeze(runtimeSupportBySource), featureInvocations: Object.freeze(featureInvocations) } : {}),
   });
 }
 

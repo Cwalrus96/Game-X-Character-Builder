@@ -3,9 +3,9 @@ import { escapeHtml, sanitizeNamedSkillList, sanitizeText } from "../../core/dat
 import {
   getGameXTechniques,
 } from "../../core/game-data.js";
-import { computeGrantedSkillsState } from "../../core/skill-rules.js";
+import { computeGrantedSkillsState, getCombatSkillRanks } from "../../core/skill-rules.js";
 import { canonicalSkillName, canonicalStoredSkillKey } from "../../core/skill-identity.js";
-import { isGameDataRecordSelectable } from "../../core/selection-rules.js";
+import { getTechniqueSelectionState, isGameDataRecordSelectable } from "../../core/selection-rules.js";
 import { meetsPrerequisites } from "../../core/prerequisites.js";
 import { renderTechniqueProfileHtml } from "../../core/technique-utils.js";
 import { BuilderWidget } from "./builder-widget.js";
@@ -107,6 +107,12 @@ export class TechniqueChoiceWidget extends BuilderWidget {
   }
 
   getTechniqueSkillRank(technique, context) {
+    if (technique.expressionSyntaxVersion === 3) {
+      const skill = canonicalSkillName(this.grant?.skill || this.grant?.name || this.grant?.key);
+      return getTechniqueSelectionState(technique, {
+        knownCombatSkills: new Set([skill]), skillRanks: getCombatSkillRanks(this.gameData, context.builder), allowGrantedOnly: true,
+      }).skillRank;
+    }
     const skillName = techniqueSkill(technique);
     if (!skillName) return techniqueRank(technique);
 
@@ -140,7 +146,9 @@ export class TechniqueChoiceWidget extends BuilderWidget {
     return getGameXTechniques(this.gameData)
       .filter((technique) => techniqueName(technique))
       .filter((technique) => isGameDataRecordSelectable(technique, { allowGrantedOnly: true }))
-      .filter((technique) => normalizeSkill(techniqueSkill(technique)) === grantSkill)
+      .filter((technique) => technique.expressionSyntaxVersion === 3
+        ? technique.selectionRoutes?.some((route) => route.type === "skill" && normalizeSkill(route.name) === grantSkill)
+        : normalizeSkill(techniqueSkill(technique)) === grantSkill)
       .filter((technique) => this.getTechniqueSkillRank(technique, context) >= techniqueRank(technique))
       .filter((technique) => meetsPrerequisites(technique?.prerequisites, {
         gameData: this.gameData,
@@ -215,6 +223,7 @@ export class TechniqueChoiceWidget extends BuilderWidget {
         const detail = document.createElement("div");
         detail.className = "help";
         detail.innerHTML = renderTechniqueProfileHtml(technique, {
+          gameData: this.gameData,
           rankValue: this.getTechniqueSkillRank(technique, context),
           heading: techniqueName(technique),
           headingTag: "div",

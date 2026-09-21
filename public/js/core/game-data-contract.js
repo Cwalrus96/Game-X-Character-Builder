@@ -225,3 +225,48 @@ export const OBSERVED_UNSUPPORTED_GRANT_TYPES = Object.freeze([]);
 export const OBSERVED_UNSUPPORTED_GRANT_FIELDS = Object.freeze([]);
 export const OBSERVED_UNSUPPORTED_PREREQUISITE_TYPES = Object.freeze([]);
 export const OBSERVED_UNSUPPORTED_PREREQUISITE_FIELDS = Object.freeze([]);
+
+// Syntax v3 extends the authoring contract without changing how frozen v2
+// artifacts normalize. Parsing a rule does not imply that it can execute.
+const extend = (base, fields, options = {}) => definition({ ...base, fields: { ...base.fields, ...fields }, ...options });
+export const GRANT_EXPRESSION_REGISTRY_V3 = Object.freeze({
+  ...GRANT_EXPRESSION_REGISTRY,
+  skill: extend(GRANT_EXPRESSION_REGISTRY.skill, { recipientRef: string() }),
+  tag: definition({ fields: { tag: reference(), minRank: integer({ min: 0 }), note: string() }, required: ["tag"], runtimeStatus: "stubbed" }),
+  feature: definition({ fields: { key: string(), note: string() }, aliases: { featureKey: "key" }, required: ["key"], runtimeStatus: "stubbed" }),
+});
+
+export const PREREQUISITE_EXPRESSION_REGISTRY_V3 = Object.freeze({
+  ...PREREQUISITE_EXPRESSION_REGISTRY,
+  trait: definition({ fields: { ...prerequisiteIdentityFields, minRank: integer({ min: 0 }) }, required: ["key"], aliases: { traitKey: "key" } }),
+  technique: definition({ fields: prerequisiteIdentityFields, required: ["key"], aliases: { techniqueKey: "key" } }),
+  archetype: definition({ fields: { key: reference(), numFeats: integer({ min: 1 }) }, required: ["key"], aliases: { archetypeKey: "key" } }),
+  option: definition({ fields: { groupKey: string(), count: integer({ min: 1 }) }, required: ["groupKey", "count"] }),
+  "weapon-set": extend(PREREQUISITE_EXPRESSION_REGISTRY["weapon-set"], { separateHands: field("boolean") }),
+});
+
+export const BASIC_ATTACK_EXPRESSION_REGISTRY = Object.freeze({
+  weapon: definition({ fields: { attribute: string(), defense: string() } }),
+  technique: definition({ fields: { key: string(), attribute: string(), defense: string() }, required: ["key"], aliases: { techniqueKey: "key" } }),
+});
+
+export function getExpressionRegistry(kind, { syntaxVersion = 2 } = {}) {
+  if (kind === "basicAttack") return BASIC_ATTACK_EXPRESSION_REGISTRY;
+  if (kind === "grant") return Number(syntaxVersion) >= 3 ? GRANT_EXPRESSION_REGISTRY_V3 : GRANT_EXPRESSION_REGISTRY;
+  if (kind === "prerequisite") return Number(syntaxVersion) >= 3 ? PREREQUISITE_EXPRESSION_REGISTRY_V3 : PREREQUISITE_EXPRESSION_REGISTRY;
+  throw new TypeError(`Unknown expression kind "${kind}".`);
+}
+
+export function getExpressionDefinition(kind, type, options = {}) {
+  return getExpressionRegistry(kind, options)[type] || null;
+}
+
+export function getExpressionRuntimeStatus(kind, expression, options = {}) {
+  if (expression?.type === "any" && Number(options.syntaxVersion) >= 3) {
+    const statuses = (expression.alternatives || []).map((item) => getExpressionRuntimeStatus(kind, item, options));
+    return statuses.length && statuses.every((status) => status === "implemented" || status === "compatibility") ? "implemented" : "stubbed";
+  }
+  const filters = Array.isArray(expression?.filterType) ? expression.filterType : [expression?.filterType];
+  if (Number(options.syntaxVersion) >= 3 && (expression?.recipientRef || (kind === "grant" && expression?.type === "choice" && filters.some((value) => String(value).toLowerCase() === "keystone")))) return "stubbed";
+  return getExpressionDefinition(kind, expression?.type, options)?.runtimeStatus || "unsupported";
+}

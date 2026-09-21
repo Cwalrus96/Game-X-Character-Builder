@@ -8,7 +8,11 @@ import {
   createFeatGrantSlots,
   getExplicitFeatSlots,
   getFeatSelectionState,
+  featMatchesExplicitSlot,
 } from "../public/js/core/feat-rules.js";
+import { parseGrantExpression } from "../public/js/core/game-data-expressions.js";
+import { compileCharacterGraph } from "../public/js/core/graph-compiler.js";
+import { GRAPH_GAME_DATA, makeGraphCharacter } from "./fixtures/graph-core.mjs";
 
 const published = JSON.parse(fs.readFileSync(
   new URL("../public/data/game-x/game-x-data.json", import.meta.url),
@@ -92,4 +96,53 @@ test("graph and portable feat widget import the same pure feat Rules projection"
   assert.match(widgetSource, /from "\.\.\/\.\.\/core\/feat-rules\.js/);
   assert.doesNotMatch(pageSource, /computeFeatSlots|getFeatSlots/);
   assert.doesNotMatch(characterRulesSource, /computeFeatSlots|Math\.floor\([^\n]*level[^\n]*\/\s*2/i);
+});
+
+test("OR-valued feat grant filters retain every alternative without broadening other filters", () => {
+  const grant = parseGrantExpression("feat | type=class OR archetype | category=example OR multiclass | maxLevel=2", { syntaxVersion: 3 }).value;
+  const slot = createFeatGrantSlots(grant, { sourceId: "feature:choice" })[0];
+  assert.deepEqual(slot.filterType, ["class", "archetype"]);
+  assert.deepEqual(slot.category, ["example", "multiclass"]);
+  assert.equal(featMatchesExplicitSlot(lowFeat, slot), true);
+  assert.equal(featMatchesExplicitSlot({ ...lowFeat, category: "multiclass", featType: "archetype" }, slot), true);
+  assert.equal(featMatchesExplicitSlot({ ...lowFeat, category: "other-class" }, slot), false);
+  assert.equal(featMatchesExplicitSlot({ ...lowFeat, featType: "general" }, slot), false);
+  assert.equal(featMatchesExplicitSlot(highFeat, slot), false);
+  const classSlot = createFeatGrantSlots({ type: "feat", classKey: ["example", "other"] })[0];
+  assert.equal(featMatchesExplicitSlot({ ...lowFeat, category: "other" }, classSlot), true);
+  assert.equal(featMatchesExplicitSlot({ ...lowFeat, category: "third", prerequisites: [] }, classSlot), false);
+});
+
+test("deferred v3 feats cannot retain or acquire slots while legacy selected records remain compatible", () => {
+  const slot = createFeatGrantSlots({ type: "feat", category: "example" })[0];
+  const deferred = { ...lowFeat, expressionSyntaxVersion: 3, runtimeSupport: { status: "deferred", reasons: ["incomplete-content"] } };
+  assert.equal(featMatchesExplicitSlot(deferred, slot), false);
+  const allocation = allocateFeatsToExplicitSlots({ slots: [slot], feats: [deferred], selectedFeatKeys: [deferred.featKey] });
+  assert.deepEqual(allocation.unmatchedFeatKeys, [deferred.featKey]);
+  assert.equal(allocation.assignments.length, 0);
+  assert.deepEqual(getFeatSelectionState({ feats: [deferred] }, { selectedFeats: [deferred.featKey] }, { slots: [slot] }).availableFeats, []);
+  assert.equal(featMatchesExplicitSlot({ ...lowFeat, runtimeSupport: deferred.runtimeSupport }, slot), true);
+});
+
+test("v3 deferred feat options and options beneath an unavailable parent do not execute grants", () => {
+  const data = structuredClone(GRAPH_GAME_DATA);
+  data.schemaVersion = 3; data.expressionSyntaxVersion = 3;
+  const feat = data.feats.find((entry) => entry.featKey === "moon-initiate");
+  feat.expressionSyntaxVersion = 3; feat.runtimeSupport = { status: "supported", reasons: [] };
+  const option = feat.options[0];
+  option.expressionSyntaxVersion = 3; option.runtimeSupport = { status: "deferred", reasons: ["incomplete-content"] };
+  const character = makeGraphCharacter();
+  character.builder.classKey = "ninja"; character.builder.level = 2;
+  character.builder.selectedFeats = [feat.featKey];
+  character.builder.selectedFeatOptions = [option.featKey];
+  let graph = compileCharacterGraph({ character, gameData: data });
+  assert(graph.diagnostics.some((item) => item.code === "unavailable-feat-option"));
+  assert.equal(graph.nodes.find((node) => node.id === `feat-option:${option.featKey}`).state, "incomplete");
+  assert.equal(graph.metadata.automaticTechniqueKeys.includes("moon-shroud"), false);
+  option.runtimeSupport.status = "supported";
+  feat.runtimeSupport = { status: "deferred", reasons: ["incomplete-content"] };
+  graph = compileCharacterGraph({ character, gameData: data });
+  assert.equal(graph.nodes.find((node) => node.id === `feat-selection:${feat.featKey}`).metadata.slotMatched, false);
+  assert.equal(graph.nodes.find((node) => node.id === `feat-option:${option.featKey}`).metadata.orphaned, true);
+  assert.equal(graph.metadata.automaticTechniqueKeys.includes("moon-shroud"), false);
 });

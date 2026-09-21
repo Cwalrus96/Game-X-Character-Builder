@@ -13,7 +13,7 @@ function semanticRecords(fileName, value, { techniqueNameToKey = new Map() } = {
     return value.map((row) => ({ id: row.classKey, value: row }));
   }
   if (fileName === "class-skills.json" && Array.isArray(value)) {
-    return value.map((row) => ({ id: `${row.classKey}/${row.skillKey}`, value: row }));
+    return value.map((row) => ({ id: [row.classKey, row.skillKey, row.role, row.whenPrimaryAttribute || "", row.choiceGroup || ""].join("/"), value: row }));
   }
   if (fileName === "class-features.json" && value && !Array.isArray(value)) {
     return Object.entries(value).flatMap(([owner, rows]) => flattenOptions(rows, (row) => `${owner}/${row.featureKey}`));
@@ -46,6 +46,9 @@ function semanticRecords(fileName, value, { techniqueNameToKey = new Map() } = {
   }
   if (fileName === "weapon-enhancements.json" && Array.isArray(value)) {
     return value.map((row) => ({ id: row.enhancementKey, value: row }));
+  }
+  if (fileName === "traits.json" && Array.isArray(value)) {
+    return value.map((row) => ({ id: row.traitKey, value: row }));
   }
   return null;
 }

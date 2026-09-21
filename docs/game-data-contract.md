@@ -1,6 +1,6 @@
 # Game-data source contract
 
-Status: living source/runtime contract. The accepted authoring contract is schema v5/syntax v3. Runtime acquisition/adaptation still accepts schema v4/syntax v2 and the published artifacts remain schema v2; authoring/display cleanup does not implement or publish that runtime transition.
+Status: living source/runtime contract. Acquisition and adaptation accept the canonical source schema v5 with expression syntax v3. The versioned v4/syntax-v2 path remains compatible. V5 staging produces runtime artifact schema v3; published production artifacts remain schema v2 until a separately reviewed publication. Parsing and preserving a rule does not establish execution support.
 
 Last updated: 2026-09-21.
 
@@ -14,14 +14,14 @@ The canonical editable source is the native Google Sheet [game-x-class-data](htt
 | Published release Drive version | `647` |
 | Published release Drive modified time | `2026-08-09T02:27:03.310Z` |
 | Current authoring checkpoint | Accepted September 21 schema cleanup; installation/readback evidence and current counts belong in status.md |
-| Authoring source schema | `5` |
-| Authoring grant/prerequisite syntax | `3` / `3` |
-| Source schema accepted by runtime | `4`, grant syntax `2`, prerequisite syntax `2` |
+| Source schema | `5` (versioned schema-`4` adaptation retained) |
+| Grant syntax | `3` (syntax-`2` compatibility retained) |
+| Prerequisite syntax | `3` (syntax-`2` compatibility retained) |
 | Production runtime release schema | `2` (reviewed candidate `20260809T022801911Z-51956`) |
-| Staged runtime artifact schema | `2` |
+| Staged runtime artifact schema | `3` for source v5; `2` for source v4 |
 | Production export status | Exact reviewed publisher only; generic export frozen |
 
-`contracts/game-data-source.json` is the machine-readable locator and the implemented acquisition expectation, still schema v4. It contains no credentials. It must not be advanced merely to bypass the deliberate incompatibility with authoring schema v5. `contracts/game-data-release-baseline.json` protects the exact checked-in production artifacts. These contracts describe different things and must not be conflated.
+`contracts/game-data-source.json` is the machine-readable locator and implemented acquisition expectation: source v5, grant/prerequisite syntax v3, and the 13 current tabs. It contains no credentials. `contracts/game-data-release-baseline.json` separately protects the exact published schema-v2 artifacts. Advancing source acquisition does not publish staged bytes.
 
 The Google Sheet is editable source. Any XLSX file is only a point-in-time transport snapshot and must be acquired with `npm run fetch:data`; it is ignored by Git.
 
@@ -60,21 +60,23 @@ When a copied grant or summary plainly contradicts the complete current mechanic
 | `WeaponProfiles` | documented composite identity pending a future `profileKey` decision | 33 |
 | `WeaponEnhancements` | `enhancementKey` | 31 |
 
-The counts above describe the reviewed release's source snapshot, not the current authoring workbook. The `Schema` tab is the authoring field list; the current runtime adapter still requires its accepted 152-field contract.
+The counts above describe the reviewed release's source snapshot, not the current authoring workbook. Its v4 adapter retains the ordered 152-field contract. Current v5 uses the 115 fields below; current row counts are recorded in status and acquisition evidence.
 
-### Current authoring schema v5 (runtime integration deferred)
+### Current source schema v5
+
+The implemented tab set is README, Metadata, Schema, Enums, Classes, ClassFeatures, Techniques, Feats, Origins, OriginFeatures, WeaponBases, WeaponEnhancements, and Traits. ClassSkills and WeaponProfiles are not required source tabs. Internal class-skill relationships are derived; the empty legacy profile collection is retained for compatibility.
 
 Techniques retain stable `techniqueKey` identity and player-facing `techniqueName`. The source renames `skill` to `selection`, `selectionMode` to readiness `status`, `pumpDamageByRank` to generic `pumpingByRank`, and repurposes the redundant `skillKeys` column as optional `associatedSkill`. It removes `damageByRank`, `notes`, `sourceNote`, `prerequisiteText`, and `tagKeys`. Meaningful mechanical notes must be moved into their appropriate retained field before removal; archive editorial provenance in migration evidence. Unknown mechanics remain unknown.
 
 Classes retain all three authoritative skill fields and remove only the unused `levelUp` column. ClassFeatures, Feats, and OriginFeatures remove blank `grantNotes`. WeaponBases removes redundant `tagKeys` and `sourceNote`, retaining names in `tags`, stable technique references, and `traitsText`. The canonical `ClassSkills` and already-empty `WeaponProfiles` tabs are retired after verifying that no authored relationships or mechanics are lost. These removals do not remove the corresponding published runtime data or saved-state compatibility.
 
-The accepted follow-up also retires `grantText` from ClassFeatures, Feats, and OriginFeatures. Formal `grants` provide the derived grant display. The retirement plan must account for the 16 reviewed summaries containing unique information, preserving that meaning in `description` or the appropriate formal field before deleting the columns. Techniques add optional `basicAttack`; the action enum and syntax-v3 extensions below preserve underlying attacks, conditional feature references, explicit grant recipients, and prerequisite alternatives. These authoring changes remain schema v5/syntax v3 and do not advance the runtime contract.
+The accepted follow-up retired `grantText` from ClassFeatures, Feats, and OriginFeatures after preserving the 16 meaningful summaries in descriptions. Formal `grants` supply derived display text. Techniques add optional `basicAttack`; syntax v3 preserves underlying attacks, conditional feature references, explicit recipients, and prerequisite alternatives. The adapter and staged schema-v3 artifacts retain these structures and raw source values.
 
 Traits retain their eight core fields and add optional `grants` for explicit recipient tags. Formal prerequisites and the distinction between classification tags and acquired tags are defined below. `Metadata`, `Schema`, `Enums`, header notes, and validation must describe the same source contract; schema/syntax versions are separate from runtime artifact versions.
 
 Display adapters project source headers into their established local positions, supplying correctly sized blank arrays for omitted optional fields. Derived compatibility columns are not new authoring obligations. Entity lookups and parent relationships use stable keys throughout; names are labels and may duplicate. Identity errors remain diagnostics even when optional display fields are absent. Incomplete Feat placeholders stay in source, are listed by original row in display diagnostics, and are excluded from playable/catalogue identities until they have both a key and name. Do not invent identities or mechanics to fill them.
 
-The source plan, native formulas, and display checks are authoring tools only. The runtime reader, adapter, expression registries, character state, and frozen artifacts are unchanged. A future source-to-runtime migration must implement the new meaning, validate all records and relationships, and pass staging before separately approved publication.
+The source plan and native display checks remain authoring tools. The implemented integration separately adapts and validates v5, constructs deterministic schema-v3 artifacts, and checks runtime loading and eligibility safeguards. Character storage and the frozen production release remain unchanged. Conditional class mechanics, recipient-owned state, and the Trait/Familiar/Mech/form subsystems remain deferred where no execution model exists.
 
 ### Earlier authoring migrations (historical evidence)
 
@@ -92,13 +94,17 @@ The combat skill is now **Ranged Weapons**, with canonical skill key `ranged-wea
 
 The September 20 Trait migration adds a canonical `Traits` tab with 77 distinct records: 25 existing Monster/Familiar Traits, 25 Mech upgrades, 19 Metamorphic adaptations, and eight approved Origin features. Overlapping mechanics remain separate pending review; 16 populated duplicate groups identify candidates without merging their effects, prerequisites, ranks, or drawbacks. Fourteen associated actions were appended to canonical `Techniques`, preserving the 137 records in the fresh prewrite snapshot and producing 151 observed Techniques, of which 120 are in the main catalogue. These counts are checkpoints rather than assumptions for future work. Eleven existing ClassFeatures/OriginFeatures provider rows now reference the Trait records, retaining their activation and selection rules. The universal format and relationships are specified under [Traits](#traits-authoring-extension).
 
-These are intentional authoring/display extensions. New Feats fields/order, archetype prerequisites, blank technique ranks/skills, WeaponBases technique/trait relationships, the `Traits` table, and provider `traitKeys` remain outside parts of the accepted exporter/runtime contract. Neither source migration establishes executable Trait grants, Familiar/Mech/form state, or automatic weapon techniques. Exporter integration and runtime-data publishing are deferred; all nine frozen production JSON files and the release contract remain unchanged. The next runtime-data release requires separate compatibility work, successful staging, and publish approval. See [data-pipeline.md](data-pipeline.md#handbook-display-and-linked-table-formatting) for the authoring and linked-table workflow.
+At those historical checkpoints, these fields were authoring/display extensions outside the exporter contract. The v5 adapter now retains Feats membership, archetype prerequisites, blank unknown mechanics, WeaponBases relationships, Traits, and provider `traitKeys`. Their storage does not establish executable Trait grants or Familiar/Mech/form state. All nine frozen production JSON files and the release contract remain unchanged. Publishing a new runtime release requires separate review of a successful staged candidate. See [data-pipeline.md](data-pipeline.md#handbook-display-and-linked-table-formatting) for the authoring workflow.
 
-### Implemented schema-v4 adapter model
+### Versioned adapter models
 
-The XLSX reader is domain-neutral: it preserves sheet order, exact headers, raw cell values, and physical row numbers. The schema-v4 adapter then produces flat collections for all ten runtime-source tabs plus normalized `metadata`, `schema`, and `enums` contracts. Every adapted record retains `{ sheet, row }` source location.
+The domain-neutral XLSX reader preserves sheet order, headers, raw values, and physical row numbers. `source-adapters.mjs` routes by a unique declared `Metadata.sourceSchemaVersion`. The isolated v4 adapter retains its previous model and behavior; unknown versions fail. V5 produces flat collections plus normalized `metadata`, `schema`, and `enums`, derives `classSkills`, and adds `traits`.
 
-Headers must exactly match the ordered schema-v4 contract. `Schema` declarations must cover those same 152 fields without unknowns, duplicates, omissions, or reordered declarations. Scalar parsing is strict for integers, numbers, booleans, rank maps, tag/key lists, and energy-cost alternatives. An invalid populated row is retained when structurally possible and accompanied by a diagnostic; it is never silently dropped or repaired from display text.
+V4 retains exact ordered headers and its 152 ordered Schema declarations. V5 resolves fields by header name, permits reordering, and rejects missing, duplicate, or unknown headers and unheaded populated cells. Its 115 Schema declarations must agree with the implemented types and required/conditional obligations. Enums must contain the implemented domain/value pairs with meanings; missing, duplicate, or unsupported values, contradictory enum formats, and invalid enum defaults are diagnostics. Declaration defaults never fill unknown source mechanics.
+
+V5 records retain `source: { sheet, row, headers }` and exact authored `sourceValues`. The model also retains `sourceSheets`, including documentation and malformed/unheaded rows, for complete review evidence. Blank numeric mechanics remain null; explicit unresolved values such as `X` remain in source values with a diagnostic. Invalid populated scalars do not disappear. Pumping retains its exact rank-to-effect map and raw text; gaps, multiple effects, strain cost, critical-failure outcomes, and other retained columns survive.
+
+Technique normalization keeps raw `selection` plus typed `selectionRoutes`, authored `status`, optional `associatedSkill` and its canonical key, `basicAttack` clauses and raw text, and `pumpingByRank`. Derived compatibility fields do not become new authoring requirements. `source-v5-values.mjs` derives skill/tag identities centrally, reusing Targeting → Ranged Weapons compatibility and preserving unrelated stable entity keys.
 
 Nested class/feat/origin feature rows remain flat during adaptation. Their stable owner key and `parentKey` are copied only from the row itself. Building and validating owner/parent relationships belongs to whole-model validation, never spreadsheet row order.
 
@@ -108,7 +114,7 @@ Nested class/feat/origin feature rows remain flat during adaptation. Their stabl
 
 - New stable keys use lowercase kebab case.
 - Existing weapon/enhancement snake_case keys remain frozen until saved-state aliases and migrations exist.
-- Entity display names are never persistence or cross-reference identity and need not be unique. Skill/tag vocabulary is authored once by name; future normalization derives internal identities centrally with compatibility aliases where required.
+- Entity display names are never persistence or cross-reference identity and need not be unique. Skill/tag vocabulary is authored once by name; normalization derives internal identities centrally with compatibility aliases where required.
 - `OPTION` rows require a stable `parentKey` resolving to an `OPTION_GROUP` in the same owner scope.
 - An `OPTION_GROUP` may itself have a stable `parentKey` resolving to another `OPTION_GROUP`; recursive nesting is preserved in runtime artifacts.
 - `OPTION_GROUP` rows require a positive explicit `chooseCount`; parser fallback `1` is compatibility only, not an authoring rule.
@@ -144,7 +150,7 @@ Tag routes unlock normal selection rather than automatically granting the Techni
 
 `Dazzling Transformation` uses Technique `selection=granted`; the `soulbound` enhancement retains `selectionMode=granted-only`. “Granted” is an acquisition route, not a fake prerequisite.
 
-WeaponEnhancements prerequisites apply to the candidate weapon being enhanced. Author a weapon tag constraint as `weapon | tag=Name`; another possessed weapon cannot satisfy it. The September 21 content audit normalized eight former `tag | name=...` requirements without adding a wielded condition or changing the tag/rank. Future v5 integration must preserve the existing candidate-weapon evaluation scope; the current published runtime release is unchanged. Enhancement mechanics belong in `description`, while `notes` retains editorial uncertainty and cross-references. Rows explicitly authored as draft-level entries use `selectionMode=draft`, as declared in both Schema and Enums.
+WeaponEnhancements prerequisites apply to the candidate weapon being enhanced. Author a weapon tag constraint as `weapon | tag=Name`; another possessed weapon cannot satisfy it. The September 21 content audit normalized eight former `tag | name=...` requirements without adding a wielded condition or changing the tag/rank. V5 preserves that candidate-weapon evaluation scope. Enhancement mechanics belong in `description`, while `notes` retains editorial uncertainty and cross-references. Draft entries retain `selectionMode=draft`. The published runtime release remains unchanged.
 
 ### Editorial and display fields
 
@@ -166,7 +172,7 @@ The three Classes fields are distinct and authoritative:
 - `combatSkills`: combat/defense skill progressions, including attribute-dependent progression such as `Fast (Strength Primary), Medium (Agility Primary)`;
 - `utilitySkillOptions`: the ordered starting utility-skill options.
 
-Do not merge these fields or replace them with duplicate authored relationship rows. The schema-v5 authoring plan derives normalized relationships from them and compares those relationships with the old ClassSkills table before retirement. Preserve each role, progression, primary-attribute condition, utility choice group, and ordering. Future runtime adaptation must derive that model from Classes; the presently implemented schema-v4 importer and published artifacts still use ClassSkills and are deliberately unchanged by this cleanup.
+Do not merge these fields or replace them with duplicate authored relationship rows. The v5 adapter derives each combat-technique/combat-defense role, progression, primary-attribute condition, utility choice group, and authored ordering from Classes. A missing or unrecognized progression remains a diagnostic with its original text; the adapter does not invent one. The v4 compatibility path still reads its historical ClassSkills table.
 
 Weapon Master receives both Melee Weapons and Ranged Weapons. Strength makes Melee fast and Ranged medium; Agility makes Melee medium and Ranged fast. The published release's older skill identity is compatibility input, not the current authoring label.
 
@@ -223,11 +229,11 @@ The granting feature defines the associated skill whenever a Trait needs one. Tr
 
 The initial migration retained 77 variants for review. The user's subsequent consolidation supersedes those identities: providers must reference current keys, deduplicate merged choices, and preserve their activation and selection rules. Quadrupedal is retired; Slime Physiology maps to Inorganic Nature. Broader feature-family conversions, including Fighting Styles, require their own consistent scope and approval. WeaponBases `traitsText` remains its existing authoring field until a separately approved integration addresses it.
 
-Trait source/display acceptance is distinct from runtime support. The accepted adapter does not yet normalize Traits or `traitKeys`; the typed grant/prerequisite registries have no Trait type, and character schema v5 has no dedicated Trait/Familiar/Mech/form state. Future integration must define provider and recipient ownership, selection/rank rules, stable reference validation, codec/migration implications, and graph reconciliation through the existing shared Rules/session architecture. Do not use display prose as executable rules, silently drop the new records, or mark them runtime-ready because the display renders them.
+The adapter normalizes Traits, provider `traitKeys`, associated Technique references, classification tags, and explicit acquired-tag grants; validation checks their stable references. Syntax v3 recognizes Trait prerequisites and preserves tag-grant rank conditions. Character schema v5 still has no dedicated Trait/Familiar/Mech/form state: provider activation, recipient ownership, rank-driven grants, codec implications, and reconciliation require their own execution work. Preserved records and display prose must not silently become executable rules.
 
 ### Techniques
 
-`techniqueKey` is stable identity; `techniqueName` is display text and may duplicate another name. `selection` determines access, while `status` determines readiness. Skill/tag names are authored once; source `skillKeys` and `tagKeys` duplicates are retired. Internal normalization and saved-state aliases belong to the future runtime adapter.
+`techniqueKey` is stable identity; `techniqueName` is display text and may duplicate another name. `selection` determines access, while `status` determines readiness. Skill/tag names are authored once; retired `skillKeys` and `tagKeys` source columns are derived internally. Ranged Weapons accepts the saved Targeting identity; unrelated entity keys remain unchanged.
 
 `associatedSkill` is an optional roll/associated-skill override. A skill-access Technique with a blank override uses its chosen access skill. A granted/tag-access Technique with a blank override uses the granting provider's associated skill; if there is no such context, the skill remains unresolved. Weapon-provided scaling uses weapon rank where the authored rule says so. Do not infer a roll skill, rank, or provider from a display name, classification tag, or missing field.
 
@@ -255,7 +261,7 @@ Legacy `-1`, `N`, blank-means-zero, and `0 or 3` sentinels are not allowed in ca
 
 Author damage and growth once in `damage`; `damageByRank` is retired. State the starting damage, increment, and exact rank basis/minimum. Preserve an irregular progression explicitly in the same field. Do not repeat the rule in a second enumeration or explanatory `rankNotes`.
 
-Canonical compact examples are Spirit Blast's `3 + Hits; +3 damage per Martial Arts rank above 1.` and Spacium Ray's `2 + Hits; +2 damage per Henshin Arts rank above 1.`. Their pumping maps retain all source rank/value entries: Spirit Blast renders Ranks 1–2 at +1 damage/Energy, 3–4 at +2, and 5–6 at +3; Spacium Ray renders Ranks 1–3 at +1, 4–5 at +2, and 6 at +3. These are different schedules, not a universal pumping formula.
+Canonical compact examples are Spirit Blast's `3 + Hits; +3 damage per rank above 1.` and Spacium Ray's `2 + Hits; +2 damage per rank above 1.`. Their associated skill/provider determines Technique rank; weapon-rank formulas retain their explicit weapon basis. Their pumping maps retain all source entries: Spirit Blast uses Ranks 1–2 at +1 damage/Energy, 3–4 at +2, and 5–6 at +3; Spacium Ray uses Ranks 1–3 at +1, 4–5 at +2, and 6 at +3. These are different schedules, not a universal formula.
 
 `pumpingByRank` replaces the damage-specific column. Use semicolon-separated entries such as `1=+1 healing per Energy;2=+1 healing per Energy;3=+2 healing per Energy`; every entry has an explicit effect and per-Energy basis. Damage, healing, armor, ward, and multiple simultaneous effects are valid authored meanings. Unitless historical values require a reviewed effect before migration; do not assume damage. The shared renderer groups only adjacent identical effects, preserving every rank, gaps, nonconsecutive runs, and unit. Preserve authored higher-rank benefits and meaningful `rankNotes`, including minimum Energy and Rank 0 pumping restrictions.
 
@@ -275,6 +281,10 @@ Full technique blocks omit repetitive provider/availability paragraphs. Weapon-b
 - Basic-attack damage scales automatically with weapon rank under the approved growth rule below. Optional pumping is a separate addition. Both use the weapon's rank, never the character's combat-skill rank.
 - Critical profiles are normal `onCriticalSuccess` riders. A basic attack with an alternative may deal normal damage and apply the named alternative's effect instead of multiplying damage. Shuriken Distracting Attack retains its own Distracted 3 critical result.
 - WeaponBases authors tags once in `tags`; redundant `tagKeys` and source provenance columns are retired. Internal tag identities remain a normalization concern.
+
+Schema-v3 artifacts derive a read-only `profiles` compatibility view from each base's ordered stable `techniqueKeys`. Each profile carries the referenced canonical Technique and uses `profileType=technique`; the source does not regain an editable WeaponProfiles table. Weapon cards use these profiles, while weapon rank caps use the linked Techniques' explicit `associatedSkill` or skill-selection routes. Repeated skill names are deduplicated without dropping conditional class progressions. No attack classification or skill association is inferred from a weapon or Technique name. The schema-v2 profile behavior remains unchanged.
+
+An enhancement's formal weapon prerequisites are evaluated against the particular weapon receiving that enhancement, including its effective tags, rank, and reach. Another owned weapon cannot satisfy the candidate's requirements. Schema-v3 manual or unsupported conditions, draft readiness, and deferred execution cannot be bypassed by a granted-only selection path.
 - A weapon grant's tag fields filter which weapon may be chosen; they do not add those tags to the selected weapon.
 - `choiceId` owns the selected answer and `choiceRef` connects later grants/enhancements to that answer.
 - Granted-only enhancements are acquisition mode, not prose prerequisites.
@@ -295,19 +305,19 @@ For these basics, remove only the exact redundant sentence `0 Energy before opti
 
 Alternative-use outcomes and costs are unchanged by this refinement. Shuriken Distracting Attack and Shield Bash retain fixed zero Energy; Pistol Bullet Spray and Shotgun Buckshot Blast retain 2 Energy. The September 21 follow-up resolves Pistol and Machine Gun Bullet Spray through `basicAttack` references to their respective weapon basic attacks, preserving their authored area, attack application, and reload rules. All eight added Rank 2 techniques remain draft: the four basics receive the approved damage and optional-pumping rules but retain unknown action costs and other unresolved fields; the four alternatives keep their existing costs, including Machine Gun Bullet Spray's 2 Actions and 4 Energy. The other unknown alternative Energy/action fields remain unassigned. Timed Explosion's free detonation reaction does not assign a cost to its unspecified initial launch. Referencing draft Covering Fire from Machine Gun does not make that technique complete.
 
-## Grant expression contract v2
+## Grant expression contracts v2 and v3
 
-This section records the implemented runtime syntax, which is unchanged. The following syntax-v3 authoring extensions are accepted source meanings but are not implemented by the runtime grant registry. Storage or readable display does not establish execution support.
+The parser and normalizer default to syntax v2 for existing callers. V5 adaptation and schema-v3 runtime records explicitly select `syntaxVersion: 3`. Separate versioned registries preserve v2 behavior. `getExpressionRuntimeStatus` returns `implemented`, `compatibility`, `manual`, `stubbed`, or `unsupported`; validation translates execution limitations into deferred record support. Parsing and serialization alone do not establish execution support.
 
-### Authoring grant extensions (syntax v3)
+### Implemented normalization extensions (syntax v3)
 
 - `tag | tag=Wings | minRank=1` explicitly grants a recipient tag; `minRank` is the minimum provider-associated Trait/Familiar rank. Classification tags do not supply this grant implicitly.
 - `feature | featureKey=monster-evolution` invokes the canonical Monster Evolution feature's complete conditional rule. Each grant creates a fresh invocation owned by its granting feature; it does not inherit the referenced feature's original level or parent option group. Preserve the canonical conditional description instead of copying an unconditional rank increase into every later award. Resolve the stable key in its owner scope, reject ambiguous targets and direct or indirect feature-reference cycles, and retain the invocation relationship for future execution. Conditional execution is deferred; displaying the referenced rule does not execute it.
-- `skill | choiceId=living-archive-skills | count=3 | rank=1 | recipientRef=artifact` gives the bonded Artifact three Rank 1 skills. The existing `bond | choiceId=artifact | rank=2 | count=1` identifies the Artifact counterpart; the skill answers belong to that recipient, not to the character's skill list. An omitted recipient keeps the existing character default, but an unresolved explicit `recipientRef` must never fall back to the character. Preserve the reference and recipient ownership through future adaptation; runtime execution remains deferred.
+- `skill | choiceId=living-archive-skills | count=3 | rank=1 | recipientRef=artifact` gives the bonded Artifact three Rank 1 skills. The existing `bond | choiceId=artifact | rank=2 | count=1` identifies the Artifact counterpart. Normalization retains the explicit recipient; validation requires the bond to resolve in the same owner scope. The answers belong to that recipient, not the character. Omission retains the existing character default; an unresolved explicit recipient never falls back to the character. Recipient-owned execution remains deferred.
 
 The shared display derives grant text from the formal expressions and resolves entity labels by stable key. Unknown types, fields, or references must stay visible with their authored details. Display must not erase conditional prose or present a partially understood rule as an unconditional grant.
 
-### Implemented grant grammar (syntax v2)
+### Shared grant grammar and v2 compatibility
 
 One grant per line:
 
@@ -315,7 +325,7 @@ One grant per line:
 type | field=value | field=value
 ```
 
-Fields are type-specific. A global “any known field on any grant” allowlist is invalid. `GRANT_EXPRESSION_REGISTRY` encodes each type's required/optional fields, scalar types, aliases, defaults, and runtime status. Exporter validation and runtime loading both use the pure parser/normalizer in `public/js/core/game-data-expressions.js`.
+Fields are type-specific. A global “any known field on any grant” allowlist is invalid. `GRANT_EXPRESSION_REGISTRY` and its v3 extension encode required/optional fields, scalar types, aliases, defaults, and runtime status. Exporter validation and runtime loading use the pure parser/normalizer in `public/js/core/game-data-expressions.js`. V3 adds recipient tag grants, canonical feature references, and explicit skill recipients without changing v2 normalization.
 
 The normalized runtime shape retains the established compact keys (`key`, `name`, `skill`, `tag`, and `level`) while accepting descriptive schema aliases such as `techniqueKey`, `skillKeys`, `tagKeys`, `featKey`, `maxLevel`, `weaponKey`, and `enhancementKey`. Aliases are type-specific. Supplying an alias and its normalized field together is a duplicate-field error rather than an overwrite.
 
@@ -357,11 +367,11 @@ Familiar grants and count/rank prerequisites are valid source data. The builder 
 
 `choice-rebind` is also generic. The original answer remains stored and validatable against the original grant. A player's replacement is stored as an overlay owned by the feature that supplied the rebind and is validated against that rebind's constraints. Active overlays compose in stable feature-progression order; removing a later feature reveals the preceding overlay or base answer. `answerType` may identify a nested answer class such as `weapon-enhancement` without changing the generic rebind operation itself.
 
-## Prerequisite expression contract v2
+## Prerequisite expression contracts v2 and v3
 
-This section records the implemented runtime syntax. Authoring syntax v3 additionally uses stable Trait and Technique references, the accepted archetype prerequisite form, `weapon-set`'s `separateHands` predicate, typed-clause alternatives, and option-count requirements described below. Readable text can be derived without executing these requirements. The runtime registry still requires a separate extension and tests before it may accept or evaluate them.
+Syntax v3 adds stable Trait and Technique references, archetype prerequisites, `weapon-set`'s `separateHands` predicate, typed-clause alternatives, and known-option counts. The versioned parser, validator, and runtime prerequisite helpers preserve these structures. Evaluation uses explicit character/context data; absent Trait/form/recipient state is not invented to satisfy a condition. V2 callers retain their existing grammar.
 
-### Authoring prerequisite extensions (syntax v3)
+### Implemented prerequisite extensions (syntax v3)
 
 Separate nonblank lines are AND conditions. Within a line, complete typed clauses can be alternatives, for example:
 
@@ -369,13 +379,15 @@ Separate nonblank lines are AND conditions. Within a line, complete typed clause
 weapon | tag=Melee | wielded=true OR skill | name=Martial Arts | minRank=1
 ```
 
-This requires either a wielded Melee weapon or at least Rank 1 Martial Arts. An `OR` begins a new clause only when followed by another typed clause and its `|` fields. Preserve value-level alternatives such as `weapon | tag=Melee OR Ranged | wielded=true` within one clause; do not split every occurrence of `OR` indiscriminately. Retain each branch's qualifiers and the AND grouping between lines in both readable output and future normalization.
+This requires either a wielded Melee weapon or at least Rank 1 Martial Arts. An `OR` begins a new clause only when followed by another typed clause and its `|` fields. It normalizes to `{ type: "any", alternatives: [...] }`. Value-level alternatives such as `weapon | tag=Melee OR Ranged | wielded=true` remain an ordered array within one field. Each branch retains its qualifiers; separate lines remain AND conditions.
 
 `option | groupKey=stances | count=2` requires at least two distinct known options from that stable group. It does not grant more options, count duplicate answers, or reference a resource named Stance. Resolve the group and its membership by stable keys. The prerequisite is distinct from the existing `option` grant, where `count` awards additional answers.
 
-Trait/Technique dependencies use `trait | traitKey=...` and `technique | techniqueKey=...`. Archetype prerequisites retain `archetype | <archetypeKey> | numFeats=N`. A `weapon-set` clause may require `separateHands=true` as well as count, tags, and wielded state; preserve that predicate rather than reducing it to possession of two weapons. These source forms require future runtime adaptation and validation.
+Trait/Technique dependencies use `trait | traitKey=...` and `technique | techniqueKey=...`, normalizing their stable references to `key`. Archetype prerequisites accept `archetype | <archetypeKey> | numFeats=N`. A `weapon-set` clause may require `separateHands=true` alongside count, tags, and wielded state. The v3 parser retains that predicate and runtime evaluation checks distinct hand bindings; possession of two weapons alone does not satisfy it.
 
-### Implemented prerequisite grammar (syntax v2)
+Canonical saved weapons currently lack the equipment/hand state needed to prove `wielded=true` or `separateHands=true`. V5 validation therefore defers records that depend solely on those conditions. A typed OR remains usable through a supported alternative, such as Deflect Projectile's Martial Arts branch. Do not infer that a possessed weapon is wielded, invent hand assignments, or weaken the condition to bypass this boundary.
+
+### Shared prerequisite grammar and v2 compatibility
 
 Syntax matches grants. Separate lines are AND conditions. Within a supported field, `A OR B` means either value satisfies that field.
 
@@ -390,13 +402,13 @@ Implemented structured runtime types include:
 
 `PREREQUISITE_EXPRESSION_REGISTRY` also preserves existing runtime types such as origin, attribute, skill, tag, resource, and explicit legacy text. Weapon and weapon-set tag/reach predicates are executable against normalized character weapons. Familiar prerequisites remain typed but explicitly stubbed. Unstructured legacy text is preserved as a manual rule with a diagnostic; it is never mistaken for executable structured data. `selectionMode=granted-only` must never be encoded as prerequisite prose.
 
-For example, `weapon | key=longsword | wielded=true` requires the corresponding wielded base. The expression parser accepts this existing grammar; that fact alone does not implement the new `WeaponBases.techniqueKeys` acquisition relationship in the exporter or runtime graph.
+For example, `weapon | key=longsword | wielded=true` requires the corresponding wielded base. The v5 exporter also preserves its `WeaponBases.techniqueKeys` relationships, but accepting a predicate or storing that relationship does not by itself create a source-owned Technique answer in character state.
 
 Separate nonblank lines are ordered AND conditions. Within registry fields marked as references, `A OR B` normalizes to an ordered array. Parsing returns `{ ok, value/values, diagnostics }`; diagnostics retain caller-provided sheet/row/column/cell context. Unknown types, type-specific unknown fields, duplicate aliases, missing requirements, and invalid scalars are errors. The pure parser performs no file I/O and never exits the process.
 
 ## Required validation before artifact construction
 
-Incomplete game content is valid authoring input; schema integration does not require every class, feature, or Technique to be finished. The future v5 importer must retain structured records, source locations, unknown values, and deterministic diagnostics for intentional drafts, manual conditions, and unsupported conditional execution. It must keep them unavailable where readiness requires that, without inventing mechanics, substituting zero/default values, or discarding their identities. Separate a supported-but-unfinished rule from a malformed expression, broken reference, or loss of source meaning. Structural errors still block the affected runtime artifact construction under the validation boundary below; a content warning is not permission to execute an unimplemented rule. Version acceptance alone is not implementation, and the current v4/v2 pipeline remains unchanged.
+Incomplete game content is valid migration input; importing the format does not require finishing every class or Technique. The v5 adapter retains records, source locations, unknown values, and deterministic diagnostics. Validation distinguishes incomplete content and deferred execution from malformed expressions, broken references, and structural loss. Source completeness is never manufactured by filling blanks with zero, inventing mechanics, or discarding identities. The v4 path retains its existing validation policy.
 
 Validation must reject:
 
@@ -410,14 +422,14 @@ Validation must reject:
 - owner/child scope mismatch;
 - option groups without a positive explicit `chooseCount`;
 - generated records with blank names or invalid owner buckets;
-- playable/selectable records missing required mechanics;
+- v4 playable/selectable records missing required mechanics; v5 instead preserves an incomplete record with a warning and deferred execution;
 - any normalization that would silently discard source meaning.
 
-V5 integration must additionally validate `basicAttack` references and overrides, typed prerequisite branch grouping, distinct-option prerequisites, explicit grant recipients, and feature-invocation references/cycles. Its staged report must distinguish malformed data from preserved incomplete content and from typed behavior whose execution is deferred. Completing all game design is not an acceptance prerequisite for implementing that diagnostic boundary.
+V5 validation checks `basicAttack` references, overrides and cycles; typed prerequisite branches; known-option groups/counts; Trait and Technique references; explicit recipient ownership; and feature-invocation scope/cycles. Each repeated feature invocation receives a distinct source-owned identity without inheriting its target's level or parent. Conditional execution stays deferred.
 
-Warnings are reserved for intentional editorial incompleteness that runtime artifacts can represent safely. Structural loss is an error. Validation returns all deterministic findings and can run without writing artifact files.
+Warnings preserve incomplete content and explicit runtime limitations safely. Structural loss and ambiguous or missing references remain errors. Validation returns `runtimeSupportBySource`, keyed by physical `sheet:row`, with `{ status: "supported" | "deferred", reasons: [...] }`. This execution annotation is separate from authored readiness. Artifact construction carries it forward; selectors and grant execution must respect it. Validation runs without writing artifacts.
 
-`scripts/game-data/model-validator.mjs` implements the schema-v4 boundary; the additional v5 checks above remain future integration requirements. Errors block artifact construction; warnings preserve complete meaning while identifying an intentional limitation, currently including typed grants whose runtime subsystem is explicitly stubbed. Findings are sorted by canonical tab order, physical row, source column, and stable detection order. Validation includes adapter diagnostics rather than replacing or hiding them.
+`scripts/game-data/model-validator.mjs` retains v4 checks and invokes `model-validator-v5.mjs` for v5 relationships and execution limits. Errors block artifact construction; warnings retain source meaning while reporting incompleteness, manual rules, or stubbed behavior. Findings retain physical source locations and deterministic ordering, including adapter diagnostics.
 
 Whole-model identity and reference rules include:
 
@@ -431,13 +443,21 @@ Whole-model identity and reference rules include:
 - class primary-attribute conditions compare normalized values case-insensitively while preserving player-facing capitalization;
 - optional fields in a composite identity may be blank when every required identity component is present.
 
-## Staged runtime artifact schema v2
+## Staged runtime artifact schemas v2 and v3
 
-Artifact construction accepts only a canonical model whose whole-model validation result has no errors. It produces `classes.json`, `class-skills.json`, `class-features.json`, `feats.json`, `techniques.json`, `origins.json`, `weapon-bases.json`, `weapon-enhancements.json`, and the combined `game-x-data.json`. Source row order remains canonical within arrays; object keys and JSON serialization are canonicalized for deterministic bytes.
+Artifact construction accepts only a model whose whole-model validation has no errors. The v4 source path retains runtime schema v2 and its nine files: `classes.json`, `class-skills.json`, `class-features.json`, `feats.json`, `techniques.json`, `origins.json`, `weapon-bases.json`, `weapon-enhancements.json`, and combined `game-x-data.json`. V5 produces runtime schema v3 and adds `traits.json`, for ten files. Arrays retain source ordering; canonical object ordering/serialization produces deterministic bytes.
+
+Schema v3 records `sourceSchemaVersion=5` and `expressionSyntaxVersion=3`, retaining source values/locations, readiness, execution support, archetype memberships, provider relationships, acquired-tag conditions, associated skills, generic pumping, and underlying attack clauses. Class skill names are not duplicated merely because one skill has multiple conditional progressions. Existing schema-v2 runtime loading and fixture artifact bytes remain compatible.
+
+Runtime v3 selection resolves skill alternatives independently, distinguishes acquired recipient tags from candidate weapon tags, honors associated-skill overrides, and rejects unknown readiness or unresolved rank. Formal prerequisites remain additional AND requirements. Draft/incomplete or deferred records cannot enter normal selection or execute grants merely because they parsed successfully. Recipient-owned skill grants, canonical conditional feature invocations, Trait/form acquisition, and broader unfinished class systems are preserved for later execution work.
+
+Every schema-v3 record carries its expression syntax and `runtimeSupport` annotation; combined artifacts also retain source-located validation diagnostics. Mechanical grant collection excludes deferred records and unsupported grants, while explicit inspection can retrieve the complete normalized expressions. A deferred parent cannot activate its nested option grants. Graph and widget prerequisite checks use the same Rules-derived skill ranks, including class grants. These gates do not delete unfinished records or replace their authored readiness with inferred completeness.
+
+The old runtime and saved-character formats remain readable, but that does not establish that every saved selection is valid against a new source revision. Removed source identities must be reviewed as release migration findings before publication. Do not invent aliases for deleted keys; the explicitly accepted `mech-integrated-weapon` → `integrated-weapon` Trait alias is a narrow compatibility mapping, not a general name-based resolver.
 
 The combined artifact records source schema, exporter version, and the exact stable source revision (`fileId`, Drive version, modified time, and normalized-model SHA-256). The raw XLSX SHA-256 identifies one transport export and remains in source provenance and run reports because Google may generate byte-distinct XLSX ZIPs for an unchanged native Sheet revision. Raw transport hashes and volatile fetch/export times do not belong in runtime bytes. Split artifacts must equal their corresponding combined fields, and freshly serialized output must pass current runtime getters, technique indexing, and grant loading before any artifact files are installed.
 
-Schema v2 is the production runtime contract. `WPB-PUBLISH` promoted the exact approved bytes from immutable run `20260809T022801911Z-51956`; the release contract and baseline preserve the approved source/model/artifact hashes. Future releases must repeat acquisition, validation, staging, complete diff review, and separately approved publishing.
+Schema v2 remains the production release. `WPB-PUBLISH` promoted the exact approved bytes from immutable run `20260809T022801911Z-51956`; its baseline and hashes remain intact. Successful v3 staging is an integration/review result. Publishing candidate bytes and deploying the website remain separate boundaries.
 
 ## Published schema-v1 to schema-v2 transition
 
@@ -457,3 +477,5 @@ The exact complete diff and hashes are preserved in [game-data-release-candidate
 The stable execution sequence is defined in [roadmap.md](roadmap.md):
 
 `WPB-SOURCE-SYNC` → `WPB-EXPRESSIONS` → `WPB-ADAPTERS` → `WPB-REFERENCES` → `WPB-STAGING` → `WPB-SOURCE-RESOLUTION` → `WPB-DIFF-REVIEW` → `WPB-PUBLISH`.
+
+The current authoring follow-up is `WPB-AUTHORING-V5` → `WPB-SCHEMA-V5-INTEGRATION`, with its verification and next review boundary recorded in status. It preserves the earlier release and does not authorize completing held class design, publishing data, or deploying the website.

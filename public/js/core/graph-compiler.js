@@ -15,11 +15,11 @@ import {
   makeSourceBondId,
   sourceBondTargetName,
 } from "./bond-rules.js?v=wpe5";
-import { RUNTIME_PREREQUISITE_TYPES, SUPPORTED_GRANT_TYPES } from "./game-data-contract.js";
+import { RUNTIME_PREREQUISITE_TYPES, SUPPORTED_GRANT_TYPES, getExpressionDefinition } from "./game-data-contract.js";
 import {
   createCharacterGrantCollection,
 } from "./game-data.js?v=wpe1";
-import { isGameDataRecordSelectable } from "./selection-rules.js";
+import { getTechniqueSelectionState, isGameDataRecordExecutable, isGameDataGrantExecutable, isGameDataRecordSelectable } from "./selection-rules.js";
 import { canonicalSkillName, canonicalSkillKey } from "./skill-identity.js";
 import {
   computeGrantedSkillsState,
@@ -28,7 +28,7 @@ import {
   getClassUtilitySkillState,
   getSkillAllocationState,
 } from "./skill-rules.js?v=wpe13";
-import { evaluatePrerequisite } from "./prerequisites.js";
+import { createPrerequisiteContext, evaluatePrerequisite } from "./prerequisites.js";
 import { initializeGrantedResource } from "./grants.js";
 import { getOriginSelectionState } from "./origin-rules.js";
 import { registerDefaultGraphExtensions } from "./graph-extensions.js";
@@ -46,6 +46,7 @@ import {
   countPurchasedEnhancements,
   getEnhancementSelectionSpecs,
   getWeaponSkillRankCap,
+  getWeaponSkillNames,
   getWeaponSkillRanks,
   isEnhancementCompatible,
 } from "./weapon-utils.js";
@@ -125,6 +126,7 @@ function defaultPrerequisiteHandler({ prerequisite, character, gameData }) {
   return evaluatePrerequisite(prerequisite, {
     builder: character.builder,
     gameData,
+    ...(gameData.schemaVersion === 3 ? { grantedSkillState: computeGrantedSkillsState(gameData, character.builder) } : {}),
   });
 }
 
@@ -574,9 +576,7 @@ function compileEquipment(context, character, weaponBasesByKey, weaponEnhancemen
     const sourceOwnerId = sourceOwned ? `grant-answer:${weapon.sourceChoiceId || weapon.choiceId}` : "root:character";
     const sourceActive = !sourceOwned || context.activeChoices.has(weapon.sourceChoiceId || weapon.choiceId);
     const skillRankCap = definition ? getWeaponSkillRankCap(definition, skillRanks) : 0;
-    const hasRankedSkill = definition ? definition.profiles?.some((profile) => (
-      profile?.profileType === "basicAttack" && Object.prototype.hasOwnProperty.call(skillRanks, canonicalSkillName(profile?.skill))
-    )) : false;
+    const hasRankedSkill = definition ? getWeaponSkillNames(definition).some((skill) => Object.prototype.hasOwnProperty.call(skillRanks, skill)) : false;
     const minimumRank = Number(definition?.minRank || 0);
     let valid = !!definition && selectable;
     let issue = definition ? (selectable ? "" : "unavailable-definition") : "missing-definition";
@@ -904,7 +904,8 @@ function createCompilerContext({ character, gameData, registry, graph, classesBy
     list.forEach((prerequisite, index) => {
       const type = text(prerequisite?.type);
       const requirementNodeId = `requirement:${sourceNodeId}:${index}:${type || "unknown"}`;
-      const handler = registry.getPrerequisite(type);
+      const handler = registry.getPrerequisite(type) || (gameData.schemaVersion === 3
+        && (type === "any" || getExpressionDefinition("prerequisite", type, { syntaxVersion: 3 })) ? defaultPrerequisiteHandler : null);
       if (!handler) {
         addDiagnostic({
           code: "missing-prerequisite-handler",
@@ -976,6 +977,12 @@ function createCompilerContext({ character, gameData, registry, graph, classesBy
 
   const compileGrants = (source) => {
     const grants = Array.isArray(source.entry?.grants) ? source.entry.grants : [];
+    if (!isGameDataRecordExecutable(source.entry)) {
+      addDiagnostic({
+        severity: "warning", code: "deferred-source-mechanics", path: source.path, nodeId: source.nodeId,
+        message: `Mechanics from "${source.label}" are preserved but unavailable: ${(source.entry.runtimeSupport?.reasons || [source.entry.status]).filter(Boolean).join(", ")}.`,
+      });
+    }
     grants.forEach((grant, grantIndex) => {
       const type = text(grant?.type);
       const grantNodeId = `grant:${source.nodeId}:${grantIndex}:${type || "unknown"}`;
@@ -990,6 +997,10 @@ function createCompilerContext({ character, gameData, registry, graph, classesBy
         metadata: { grant: cloneGraphValue(grant), sourceNodeId: source.nodeId },
       }, path);
       graph.addEdge({ kind: "grants", from: source.nodeId, to: grantNodeId }, { path });
+      if (!isGameDataGrantExecutable(grant, { source: source.entry })) {
+        deferredGrantHandler({ grant, grantIndex, grantNodeId, sourceOwnerId: source.nodeId, addTypedNode, addDiagnostic, path });
+        return;
+      }
       const handler = registry.getGrant(type);
       if (!handler) {
         addDiagnostic({
@@ -1122,7 +1133,7 @@ function compileClassAndOrigin(context, character, classesByKey, originsByKey, g
       storageBinding: { path: "builder.classKey", kind: "scalar" },
       metadata: {
         exists: !!cls,
-        selectable: cls ? cls.selectable !== false : false,
+        selectable: cls ? isGameDataRecordSelectable(cls) : false,
         allowedPrimaryAttributes,
         primaryAttributeValid: !builder.primaryAttribute || allowedPrimaryAttributes.includes(builder.primaryAttribute),
       },
@@ -1207,7 +1218,7 @@ function compileClassFeatures(context, character, gameData, graph) {
   const featureKeys = new Set();
 
   const recordIdentity = (entry, path) => {
-    const key = stableKey(entry?.featureKey);
+    const key = gameData.schemaVersion === 3 ? text(entry?.featureKey) : stableKey(entry?.featureKey);
     if (!key) {
       context.addDiagnostic({
         code: "invalid-feature-identity",
@@ -1234,13 +1245,14 @@ function compileClassFeatures(context, character, gameData, graph) {
     if (!key) return;
     context.offeredClassOptionKeys.add(key);
     const selected = context.selectedClassOptionKeys.has(key);
+    const executable = isGameDataRecordExecutable(entry);
     const nodeId = `class-option:${classKey}:${key}`;
     context.classOptionNodeIds.set(key, nodeId);
     context.addTypedNode("class-option", {
       id: nodeId,
       key,
       label: sourceLabel(entry, key),
-      state: selected ? "selected" : "available",
+      state: !executable ? "incomplete" : selected ? "selected" : "available",
       sourceOwnerId: groupNodeId,
       storageBinding: { path: "builder.selectedClassFeatureOptions", kind: "ordered-key-array" },
       metadata: {
@@ -1251,6 +1263,10 @@ function compileClassFeatures(context, character, gameData, graph) {
     }, path);
     graph.addEdge({ kind: "offers", from: groupNodeId, to: nodeId }, { path });
     if (!selected) return;
+    if (!executable) {
+      context.addDiagnostic({ code: "unavailable-feature-option", path, nodeId, message: `Option "${sourceLabel(entry, key)}" has incomplete or deferred mechanics.` });
+      return;
+    }
     graph.addEdge({ kind: "owns", from: groupNodeId, to: nodeId }, { path });
     const requirements = context.compileRequirements(nodeId, entry?.prerequisites, `${path}.prerequisites`);
     const active = requirements.every((result) => result.ok || result.manual);
@@ -1277,6 +1293,10 @@ function compileClassFeatures(context, character, gameData, graph) {
       metadata: { selectedCount, expectedCount, classKey, featureKey: key },
     }, path);
     graph.addEdge({ kind: "offers", from: ownerNodeId, to: groupNodeId }, { path });
+    if (!isGameDataRecordExecutable(group)) {
+      context.addDiagnostic({ severity: "warning", code: "deferred-source-mechanics", path, nodeId: groupNodeId, message: `Choices from "${sourceLabel(group, key)}" require deferred mechanics.` });
+      return;
+    }
     options.forEach((option, index) => compileSelectedOption(option, groupNodeId, `${path}.${index}`));
   };
 
@@ -1426,6 +1446,10 @@ function compileFeats(context, character, featsByKey, graph) {
       });
     }
 
+    // V3 option answers only exist while their selected parent is eligible.
+    if (feat.expressionSyntaxVersion === 3 && (!assignment || !isGameDataRecordExecutable(feat)
+      || !requirements.every((result) => result.ok || result.manual))) continue;
+
     const options = Array.isArray(feat.options) ? feat.options : [];
     if (!options.length) continue;
     const expectedCount = Math.max(1, Number.parseInt(String(feat.chooseCount ?? 1), 10) || 1);
@@ -1456,12 +1480,13 @@ function compileFeats(context, character, featsByKey, graph) {
       }
       context.offeredFeatOptionKeys.add(optionKey);
       const selected = context.selectedFeatOptionKeys.has(optionKey);
+      const executable = isGameDataRecordExecutable(option);
       const optionNodeId = `feat-option:${optionKey}`;
       context.addTypedNode("feat-option", {
         id: optionNodeId,
         key: optionKey,
         label: sourceLabel(option, optionKey),
-        state: selected ? "selected" : "available",
+        state: !executable ? "incomplete" : selected ? "selected" : "available",
         sourceOwnerId: nodeId,
         storageBinding: { path: "builder.selectedFeatOptions", kind: "ordered-key-array" },
         metadata: {
@@ -1472,6 +1497,10 @@ function compileFeats(context, character, featsByKey, graph) {
       }, `gameData.feats.${featKey}.options`);
       graph.addEdge({ kind: "offers", from: groupNodeId, to: optionNodeId }, { path: `gameData.feats.${featKey}.options` });
       if (!selected) continue;
+      if (!executable) {
+        context.addDiagnostic({ code: "unavailable-feat-option", path: `gameData.feats.${featKey}.options.${optionKey}`, nodeId: optionNodeId, message: `Option "${sourceLabel(option, optionKey)}" has incomplete or deferred mechanics.` });
+        continue;
+      }
       graph.addEdge({ kind: "owns", from: nodeId, to: optionNodeId }, { path: `character.builder.selectedFeatOptions` });
       const optionRequirements = context.compileRequirements(
         optionNodeId,
@@ -1697,12 +1726,14 @@ function compileSelectedTechniques(context, character, techniquesByKey, graph) {
       });
       continue;
     }
-    const selectable = isGameDataRecordSelectable(technique);
+    const access = getTechniqueSelectionState(technique, {
+      ...createPrerequisiteContext({ gameData: context.gameData, builder: character.builder }),
+      knownCombatSkills: known.knownCombatSkills,
+      skillRanks: rankBySkill,
+    });
+    const selectable = access.selectable && (technique.expressionSyntaxVersion !== 3 || access.knownSkill);
     const automatic = context.automaticTechniqueKeys.has(techniqueKey);
-    const skillName = canonicalSkillName(text(technique.skill));
-    const knownSkill = !skillName || known.knownCombatSkills.has(skillName);
-    const requiredRank = Number.parseInt(String(technique.rank ?? 0), 10) || 0;
-    const skillRank = skillName ? (rankBySkill.get(skillName.toLowerCase()) ?? 0) : requiredRank;
+    const { skillName, knownSkill, requiredRank, skillRank } = access;
     context.addTypedNode("technique-selection", {
       id: nodeId,
       key: techniqueKey,
@@ -1745,11 +1776,11 @@ export function compileCharacterGraph({ character, gameData, registry = createDe
       path: "gameData",
       message: "Graph compilation requires normalized runtime game data.",
     });
-  } else if (gameData.schemaVersion !== 2) {
+  } else if (![2, 3].includes(gameData.schemaVersion)) {
     graph.addDiagnostic({
       code: "unsupported-game-data-schema",
       path: "gameData.schemaVersion",
-      message: "Graph core fixture integration requires normalized runtime artifact schema 2.",
+      message: "Graph compilation requires normalized runtime artifact schema 2 or 3.",
     });
   }
 
