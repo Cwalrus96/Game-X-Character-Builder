@@ -1,10 +1,67 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { parseGrantExpression, parsePrerequisiteExpression, parsePrerequisiteExpressions, parseBasicAttackExpression, serializeExpression } from "../public/js/core/game-data-expressions.js";
-import { getExpressionRuntimeStatus } from "../public/js/core/game-data-contract.js";
+import { normalizeExpressionObject, parseGrantExpression, parsePrerequisiteExpression, parsePrerequisiteExpressions, parseBasicAttackExpression, serializeExpression } from "../public/js/core/game-data-expressions.js";
+import { getExpressionRuntimeStatus, getTraitGrantDeferredReasons } from "../public/js/core/game-data-contract.js";
 import { checkPrerequisites, getEntryPrerequisites } from "../public/js/core/prerequisites.js";
 
 const v3 = { syntaxVersion: 3 };
+
+test("v3 Trait grants preserve source-owned context and normalize only explicit defaults", () => {
+  const fixed = parseGrantExpression("trait | traitKey=wings | rank=2", v3);
+  assert.deepEqual(fixed.value, { type: "trait", key: "wings", rank: 2, count: 1 });
+  assert.equal(getExpressionRuntimeStatus("grant", fixed.value, v3), "implemented");
+  const choice = parseGrantExpression("trait | key=wings OR claws | tag=Anatomy OR Natural Weapon | choiceId=form-trait | count=2 | associatedSkill=Metamorphosis", v3);
+  assert.equal(choice.ok, true);
+  assert.deepEqual(choice.value.key, ["wings", "claws"]);
+  assert.deepEqual(choice.value.tag, ["Anatomy", "Natural Weapon"]);
+  assert.equal(choice.value.skill, "Metamorphosis");
+  assert.deepEqual(Object.keys(choice.value).sort(), ["choiceId", "count", "key", "skill", "tag", "type"]);
+  assert.equal(getExpressionRuntimeStatus("grant", choice.value, v3), "implemented");
+  assert.deepEqual(parseGrantExpression(serializeExpression("grant", choice.value, v3).value, v3).value, choice.value);
+  assert.equal(parseGrantExpression("trait | key=wings | rank=2").ok, false);
+  const simple = parseGrantExpression("trait | traitKey=wings", v3);
+  assert.equal(simple.ok, true);
+  assert.equal(getExpressionRuntimeStatus("grant", simple.value, v3), "implemented");
+});
+
+test("v3 incomplete Trait contexts are preserved and cannot execute", () => {
+  for (const [text, reasons] of [
+    ["trait | tag=Anatomy", ["trait-choice-id-missing"]],
+    ["trait | key=wings OR claws | rank=1", ["trait-choice-id-missing"]],
+  ]) {
+    const result = parseGrantExpression(text, v3);
+    assert.equal(result.ok, true, text);
+    assert.deepEqual(getTraitGrantDeferredReasons(result.value), reasons);
+    assert.equal(getExpressionRuntimeStatus("grant", result.value, v3), "stubbed");
+  }
+  assert.equal(getExpressionRuntimeStatus("grant", parseGrantExpression("tag | tag=Flight | minRank=2", v3).value, v3), "implemented");
+});
+
+test("v3 Trait grant conflicts and malformed scalar fields fail with source locations", () => {
+  const context = { sheet: "OriginFeatures", cell: "I7" };
+  for (const text of [
+    "trait | rank=1", "trait | key=wings | count=0", "trait | key=wings | rank=0", "trait | key=wings | rank=1.5",
+    "trait | key=wings | activation=automatic", "trait | key=wings | activationId=",
+    "trait | key=wings | rank=1 | skill=Metamorphosis", "trait | key=wings | traitKey=wings",
+    "trait | key=wings | associatedSkill=Metamorphosis | skill=Metamorphosis",
+  ]) {
+    const result = parseGrantExpression(text, { ...v3, context, line: 3 });
+    assert.equal(result.ok, false, text);
+    assert.equal(result.value, null);
+    assert(result.diagnostics.every(item => item.context === context && item.line === 3));
+  }
+  for (const field of ["key", "tag"]) {
+    assert.equal(normalizeExpressionObject("grant", { type: "trait", [field]: [], rank: 1 }, v3).ok, false);
+  }
+});
+
+test("Trait grants reject gameplay tracking and future-recipient fields with explicit diagnostics", () => {
+  for (const field of ["activation", "activationId", "activationGroup", "costText", "durationText", "rangeText", "recipientRef", "note"]) {
+    const result = parseGrantExpression(`trait | key=wings | ${field}=unused`, v3);
+    assert.equal(result.ok, false, field);
+    assert(result.diagnostics.some(item => item.message.includes(field)), field);
+  }
+});
 
 test("v3 typed OR stays distinct from prerequisite and grant value OR", () => {
   const result = parsePrerequisiteExpression("weapon | tag=Melee OR Ranged | wielded=true OR skill | name=Martial Arts | minRank=1", v3);

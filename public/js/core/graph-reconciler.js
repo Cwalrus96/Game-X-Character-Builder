@@ -631,6 +631,18 @@ function applyRemovalPolicies(character, graph, impacts, {
   let changed = false;
 
   for (const node of graph.nodes) {
+    if (node.type === "trait-choice" && node.metadata.valid === false
+      && (node.metadata.orphaned || node.metadata.code)) {
+      const field = "traitChoices";
+      const previous = next.builder[field][node.key];
+      if (!previous) continue;
+      delete next.builder[field][node.key];
+      changed = true;
+      addImpact(impacts, { category: "confirmation-required", type: "remove", code: node.metadata.code,
+        path: `builder.${field}.${node.key}`, nodeId: node.id, label: node.label,
+        message: node.metadata.reason, before: previous, after: undefined });
+      continue;
+    }
     if (reconcileOrigin(next, node, impacts)) {
       changed = true;
       continue;

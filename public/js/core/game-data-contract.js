@@ -4,11 +4,12 @@ const string = (options = {}) => field("string", options);
 const reference = (options = {}) => field("string", { allowOr: true, ...options });
 const integer = (options = {}) => field("integer", options);
 
-function definition({ fields, required = [], requiredAny = [], aliases = {}, runtimeStatus = "implemented", defaults = {} }) {
+function definition({ fields, required = [], requiredAny = [], mutuallyExclusive = [], aliases = {}, runtimeStatus = "implemented", defaults = {} }) {
   return Object.freeze({
     fields: Object.freeze(fields),
     required: Object.freeze(required),
     requiredAny: Object.freeze(requiredAny.map((group) => Object.freeze(group))),
+    mutuallyExclusive: Object.freeze(mutuallyExclusive.map((group) => Object.freeze(group))),
     aliases: Object.freeze(aliases),
     runtimeStatus,
     defaults: Object.freeze(defaults),
@@ -232,7 +233,15 @@ const extend = (base, fields, options = {}) => definition({ ...base, fields: { .
 export const GRANT_EXPRESSION_REGISTRY_V3 = Object.freeze({
   ...GRANT_EXPRESSION_REGISTRY,
   skill: extend(GRANT_EXPRESSION_REGISTRY.skill, { recipientRef: string() }),
-  tag: definition({ fields: { tag: reference(), minRank: integer({ min: 0 }), note: string() }, required: ["tag"], runtimeStatus: "stubbed" }),
+  tag: definition({ fields: { tag: reference(), minRank: integer({ min: 0 }), note: string() }, required: ["tag"] }),
+  trait: definition({
+    fields: {
+      key: reference({ minItems: 1 }), tag: reference({ minItems: 1 }), choiceId: string(), count: integer({ min: 1 }),
+      rank: integer({ min: 1 }), skill: string(),
+    },
+    requiredAny: [["key", "tag"]], mutuallyExclusive: [["rank", "skill"]],
+    aliases: { traitKey: "key", associatedSkill: "skill" }, defaults: { count: 1 },
+  }),
   feature: definition({ fields: { key: string(), note: string() }, aliases: { featureKey: "key" }, required: ["key"], runtimeStatus: "stubbed" }),
 });
 
@@ -261,12 +270,25 @@ export function getExpressionDefinition(kind, type, options = {}) {
   return getExpressionRegistry(kind, options)[type] || null;
 }
 
+export function getTraitGrantDeferredReasons(expression = {}) {
+  const reasons = [];
+  const choice = Boolean(expression.tag || expression.choiceId || Number(expression.count || 1) > 1 || (Array.isArray(expression.key) && expression.key.length > 1));
+  if (choice && !expression.choiceId) reasons.push("trait-choice-id-missing");
+  // Reject unsupported recipients in previously constructed data; new source
+  // grammar has no recipient field until those subsystems exist.
+  if (expression.recipientRef && expression.recipientRef !== "character") reasons.push("trait-recipient-deferred");
+  return reasons;
+}
+
 export function getExpressionRuntimeStatus(kind, expression, options = {}) {
   if (expression?.type === "any" && Number(options.syntaxVersion) >= 3) {
     const statuses = (expression.alternatives || []).map((item) => getExpressionRuntimeStatus(kind, item, options));
     return statuses.length && statuses.every((status) => status === "implemented" || status === "compatibility") ? "implemented" : "stubbed";
   }
   const filters = Array.isArray(expression?.filterType) ? expression.filterType : [expression?.filterType];
+  if (Number(options.syntaxVersion) >= 3 && kind === "grant" && expression?.type === "trait") {
+    return getTraitGrantDeferredReasons(expression).length ? "stubbed" : "implemented";
+  }
   if (Number(options.syntaxVersion) >= 3 && (expression?.recipientRef || (kind === "grant" && expression?.type === "choice" && filters.some((value) => String(value).toLowerCase() === "keystone")))) return "stubbed";
   return getExpressionDefinition(kind, expression?.type, options)?.runtimeStatus || "unsupported";
 }

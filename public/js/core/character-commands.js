@@ -9,6 +9,7 @@ import {
   assertCanonicalCharacter,
   BUILDER_STEP_IDS,
   isCanonicalStableKey,
+  isCanonicalStableId,
 } from "./character-codec.js?v=wpe1";
 
 export const CHARACTER_COMMAND_TYPES = Object.freeze({
@@ -30,6 +31,10 @@ export const CHARACTER_COMMAND_TYPES = Object.freeze({
   SET_FEAT_SELECTION: "SetFeatSelection",
   SET_FEAT_OPTIONS: "SetFeatOptions",
   SET_GRANT_CHOICES: "SetGrantChoices",
+  SET_TRAIT_CHOICE: "SetTraitChoice",
+  REMOVE_TRAIT_CHOICE: "RemoveTraitChoice",
+  SET_TRAIT_ACTIVATION: "SetTraitActivation",
+  REMOVE_TRAIT_ACTIVATION: "RemoveTraitActivation",
   SET_TECHNIQUE_SELECTION: "SetTechniqueSelection",
   ADD_WEAPON: "AddWeapon",
   REMOVE_WEAPON: "RemoveWeapon",
@@ -372,6 +377,43 @@ function validateSetTechniqueSelection(command) {
   });
 }
 
+function validateTraitCommand(command, { activation = false, remove = false } = {}) {
+  const idField = activation ? "activationId" : "choiceId";
+  const type = activation
+    ? (remove ? CHARACTER_COMMAND_TYPES.REMOVE_TRAIT_ACTIVATION : CHARACTER_COMMAND_TYPES.SET_TRAIT_ACTIVATION)
+    : (remove ? CHARACTER_COMMAND_TYPES.REMOVE_TRAIT_CHOICE : CHARACTER_COMMAND_TYPES.SET_TRAIT_CHOICE);
+  const keys = remove ? ["type", idField]
+    : activation ? ["type", idField, "sourceId", "active"]
+      : ["type", idField, "sourceId", "recipientId", "traitKey"];
+  requireExactKeys(command, keys);
+  const diagnostics = [];
+  if (command.type !== type) diagnostics.push(diagnostic("invalid-value", "command.type", `Expected ${type}.`));
+  for (const key of remove ? [idField] : activation ? [idField, "sourceId"] : [idField, "sourceId", "recipientId"]) {
+    if (!isCanonicalStableId(command[key], { allowEmpty: false })) diagnostics.push(diagnostic("invalid-stable-id", `command.${key}`, "Expected a non-empty canonical stable ID."));
+  }
+  if (!remove && activation && typeof command.active !== "boolean") diagnostics.push(diagnostic("invalid-type", "command.active", "Expected a boolean."));
+  if (!remove && !activation && !isCanonicalStableKey(command.traitKey, { allowEmpty: false })) diagnostics.push(diagnostic("invalid-stable-key", "command.traitKey", "Expected a non-empty canonical Trait key."));
+  if (diagnostics.length) throw new CharacterCommandError("invalid-character-command", `${type} command is invalid.`, diagnostics);
+  return Object.freeze({ ...command });
+}
+
+function applyTraitCommand(builder, command, { activation = false, remove = false } = {}) {
+  const map = activation ? builder.traitActivations : builder.traitChoices;
+  const idField = activation ? "activationId" : "choiceId";
+  const id = command[idField];
+  const existing = Object.prototype.hasOwnProperty.call(map, id) ? map[id] : null;
+  if (remove) {
+    if (!existing) throw new CharacterCommandError("stale-character-command", "The Trait record no longer exists.");
+    delete map[id];
+    return;
+  }
+  if (existing && (existing.sourceId !== command.sourceId || (!activation && existing.recipientId !== command.recipientId))) {
+    throw new CharacterCommandError("stale-character-command", "A Trait identity cannot be reassigned to another source or recipient.");
+  }
+  const { type, ...record } = command;
+  map[id] = record;
+}
+
 function validateSetGrantChoices(command) {
   requireExactKeys(command, ["type", "grantChoices"]);
   if (command.type !== CHARACTER_COMMAND_TYPES.SET_GRANT_CHOICES || !isPlainObject(command.grantChoices)) {
@@ -576,6 +618,24 @@ export function SetGrantChoices(grantChoices) {
   return validateSetGrantChoices({ type: CHARACTER_COMMAND_TYPES.SET_GRANT_CHOICES, grantChoices });
 }
 
+export function SetTraitChoice(choice) {
+  requireExactKeys(choice, ["choiceId", "sourceId", "recipientId", "traitKey"]);
+  return validateTraitCommand({ type: CHARACTER_COMMAND_TYPES.SET_TRAIT_CHOICE, ...choice });
+}
+
+export function RemoveTraitChoice(choiceId) {
+  return validateTraitCommand({ type: CHARACTER_COMMAND_TYPES.REMOVE_TRAIT_CHOICE, choiceId }, { remove: true });
+}
+
+export function SetTraitActivation(activation) {
+  requireExactKeys(activation, ["activationId", "sourceId", "active"]);
+  return validateTraitCommand({ type: CHARACTER_COMMAND_TYPES.SET_TRAIT_ACTIVATION, ...activation }, { activation: true });
+}
+
+export function RemoveTraitActivation(activationId) {
+  return validateTraitCommand({ type: CHARACTER_COMMAND_TYPES.REMOVE_TRAIT_ACTIVATION, activationId }, { activation: true, remove: true });
+}
+
 export function SetTechniqueSelection(techniqueKeys) {
   return validateSetTechniqueSelection({
     type: CHARACTER_COMMAND_TYPES.SET_TECHNIQUE_SELECTION,
@@ -692,6 +752,10 @@ export function decodeCharacterCommand(command) {
     });
   }
   if (command.type === CHARACTER_COMMAND_TYPES.SET_GRANT_CHOICES) return validateSetGrantChoices(command);
+  if (command.type === CHARACTER_COMMAND_TYPES.SET_TRAIT_CHOICE) return validateTraitCommand(command);
+  if (command.type === CHARACTER_COMMAND_TYPES.REMOVE_TRAIT_CHOICE) return validateTraitCommand(command, { remove: true });
+  if (command.type === CHARACTER_COMMAND_TYPES.SET_TRAIT_ACTIVATION) return validateTraitCommand(command, { activation: true });
+  if (command.type === CHARACTER_COMMAND_TYPES.REMOVE_TRAIT_ACTIVATION) return validateTraitCommand(command, { activation: true, remove: true });
   if (command.type === CHARACTER_COMMAND_TYPES.SET_TECHNIQUE_SELECTION) {
     return validateSetTechniqueSelection(command);
   }
@@ -782,6 +846,14 @@ export function applyCharacterCommand(character, command) {
     current.builder.selectedFeatOptions = [...decoded.optionKeys];
   } else if (decoded.type === CHARACTER_COMMAND_TYPES.SET_GRANT_CHOICES) {
     current.builder.grantChoices = cloneValue(decoded.grantChoices);
+  } else if (decoded.type === CHARACTER_COMMAND_TYPES.SET_TRAIT_CHOICE) {
+    applyTraitCommand(current.builder, decoded);
+  } else if (decoded.type === CHARACTER_COMMAND_TYPES.REMOVE_TRAIT_CHOICE) {
+    applyTraitCommand(current.builder, decoded, { remove: true });
+  } else if (decoded.type === CHARACTER_COMMAND_TYPES.SET_TRAIT_ACTIVATION) {
+    applyTraitCommand(current.builder, decoded, { activation: true });
+  } else if (decoded.type === CHARACTER_COMMAND_TYPES.REMOVE_TRAIT_ACTIVATION) {
+    applyTraitCommand(current.builder, decoded, { activation: true, remove: true });
   } else if (decoded.type === CHARACTER_COMMAND_TYPES.SET_TECHNIQUE_SELECTION) {
     current.builder.selectedTechniques = [...decoded.techniqueKeys];
   } else if (decoded.type === CHARACTER_COMMAND_TYPES.ADD_WEAPON) {
@@ -849,6 +921,10 @@ export const CharacterCommands = Object.freeze({
   setFeatSelection: SetFeatSelection,
   setFeatOptions: SetFeatOptions,
   setGrantChoices: SetGrantChoices,
+  setTraitChoice: SetTraitChoice,
+  removeTraitChoice: RemoveTraitChoice,
+  setTraitActivation: SetTraitActivation,
+  removeTraitActivation: RemoveTraitActivation,
   setTechniqueSelection: SetTechniqueSelection,
   addWeapon: AddWeapon,
   removeWeapon: RemoveWeapon,

@@ -145,9 +145,11 @@ test("shared expression parsing stays pure and exporter/runtime import it", () =
   const exporter = fs.readFileSync(new URL("../scripts/export-game-data.mjs", import.meta.url), "utf8");
   const grants = fs.readFileSync(new URL("../public/js/core/grants.js", import.meta.url), "utf8");
   const prerequisites = fs.readFileSync(new URL("../public/js/core/prerequisites.js", import.meta.url), "utf8");
+  const prerequisiteRules = fs.readFileSync(new URL("../public/js/core/prerequisite-rules.js", import.meta.url), "utf8");
   assert.doesNotMatch(expressions, /process\.exit/);
   assert.match(exporter, /game-data-expressions\.js/);
   assert.match(grants, /game-data-expressions\.js/);
-  assert.match(prerequisites, /game-data-expressions\.js/);
+  assert.match(prerequisites, /prerequisite-rules\.js/);
+  assert.match(prerequisiteRules, /game-data-expressions\.js/);
   assert.doesNotMatch(exporter, /function parseGrantLine|function parsePrerequisiteLine/);
 });

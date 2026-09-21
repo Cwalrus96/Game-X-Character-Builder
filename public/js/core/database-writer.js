@@ -49,7 +49,7 @@ import {
 } from "./character-rules.js";
 
 // Compatibility export for the deployed v4 page path. New persistence writes
-// always use the schema version owned by CharacterCodec (currently v5).
+// always use the schema version owned by CharacterCodec.
 export const TRANSITIONAL_CHARACTER_SCHEMA_VERSION = 4;
 export const CHARACTER_SCHEMA_VERSION = TRANSITIONAL_CHARACTER_SCHEMA_VERSION;
 
@@ -89,7 +89,7 @@ function assertDecodedCharacter(decoded, characterId) {
   );
 }
 
-/** Create a new exact-v5 character at revision 1. */
+/** Create a new exact canonical character at revision 1. */
 export async function createCharacter({
   ownerUid,
   firestore = null,
@@ -106,7 +106,7 @@ export async function createCharacter({
     createdAt: timestamp,
     updatedAt: timestamp,
   });
-  assertPersistenceResult(created, "character-create-invalid", "New character did not satisfy schema v5.");
+  assertPersistenceResult(created, "character-create-invalid", "New character did not satisfy the canonical schema.");
   await firestoreApi.setDoc(characterRef, created.value);
   return Object.freeze({
     characterId: characterRef.id,
@@ -184,7 +184,7 @@ export async function patchCharacter({
       expectedOwnerUid: uid,
     }), id);
     const patched = applyCharacterPatch(decoded.character, patch, { scope });
-    assertPersistenceResult(patched, "character-patch-invalid", "Character patch did not satisfy schema v5.");
+    assertPersistenceResult(patched, "character-patch-invalid", "Character patch did not satisfy the canonical schema.");
     const plan = planCharacterReplacement(raw, patched.value, {
       expectedRevision,
       expectedOwnerUid: uid,

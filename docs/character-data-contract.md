@@ -1,12 +1,12 @@
 # Character data contract
 
-This document defines the canonical in-memory character state accepted by `CharacterCodec`. It is the living contract for saved-character schema version 5.
+This document defines the canonical in-memory character state accepted by `CharacterCodec`. It is the living contract for saved-character schema version 6.
 
-## Why schema version 5 exists
+## Why the character format is versioned
 
 The unversioned, v1, v3, and v4 formats were written incrementally by pages that accepted missing fields, silently sanitized malformed values, and stored some game-data references by display name or composite label. Repository history contains no schema-v2 writer. That behavior makes it difficult to distinguish a valid character from a partially damaged one and makes renaming game data unsafe.
 
-Schema version 5 establishes one complete, exact shape. The codec reports missing, unknown, malformed, duplicate, or inconsistent data instead of trimming, defaulting, or dropping it. Older documents are migration input; they are not valid v5 documents until `CharacterMigrations` has transformed them and the v5 codec accepts the result. Historical-format knowledge is isolated in that module; the rest of the application consumes only exact v5 state. See [character-migrations.md](character-migrations.md).
+Schema version 5 established one complete, exact shape. Version 6 adds source-owned Trait choices and activation records. The codec reports missing, unknown, malformed, duplicate, or inconsistent data instead of trimming, defaulting, or dropping it. Older documents are migration input; `CharacterMigrations` converts them before the v6 codec accepts the result. The rest of the application consumes only exact v6 state. See [character-migrations.md](character-migrations.md).
 
 ## Boundary between character state and persistence metadata
 
@@ -14,11 +14,11 @@ The canonical value has exactly three root fields:
 
 | Field | Meaning |
 |---|---|
-| `schemaVersion` | Integer `5`. |
+| `schemaVersion` | Integer `6`. |
 | `ownerUid` | Non-empty Firebase owner UID. |
 | `builder` | Complete canonical builder and temporary sheet state. |
 
-Firestore bookkeeping is repository metadata, not canonical character state. `createdAt`, `updatedAt`, the persistence `revision`, and the former `builder.lastVisitedAt` value must be read, written, and exposed separately by the definitive database reader/writer boundary. They are rejected if passed to the v5 codec. `builder.visitedSteps` remains canonical state because it records which builder sections the character has visited, rather than when a persistence operation occurred.
+Firestore bookkeeping is repository metadata, not canonical character state. `createdAt`, `updatedAt`, the persistence `revision`, and the former `builder.lastVisitedAt` value must be read, written, and exposed separately by the definitive database reader/writer boundary. They are rejected if passed to the v6 codec. `builder.visitedSteps` remains canonical state because it records which builder sections the character has visited, rather than when a persistence operation occurred.
 
 ## Builder shape
 
@@ -31,13 +31,15 @@ Every listed field is required. No additional builder fields are accepted.
 | `classKey`, `originKey`, `primaryAttribute` | Stable game-data keys; empty while unanswered. `primaryAttribute`, when set, is one of the six attribute keys. |
 | `attributes` | Exact map of `strength`, `agility`, `intellect`, `willpower`, `attunement`, and `heart`; structurally each value is an integer from 0 through 10. Effective level caps and the primary-attribute minimum are game rules enforced by graph reconciliation before state is accepted. |
 | `originKeystone` | Optional user-facing text. |
-| `selectedClassFeatureOptions`, `selectedClassUtilitySkills`, `selectedFeats`, `selectedFeatOptions`, `selectedTechniques` | Duplicate-free arrays of stable game-data keys. Display names and schema-v4 composite option labels are migration inputs, not valid v5 references. |
+| `selectedClassFeatureOptions`, `selectedClassUtilitySkills`, `selectedFeats`, `selectedFeatOptions`, `selectedTechniques` | Duplicate-free arrays of stable game-data keys. Display names and schema-v4 composite option labels are migration inputs, not canonical references. |
 | `autoAbilityNames` | Transitional duplicate-free display-name snapshot retained so migrations and reconciliation can prove parity while source-owned ability IDs are introduced. It is not selection identity. |
 | `grantedCoreSkillSnapshot`, `grantedSkillSnapshot` | Transitional duplicate-free stable-key snapshots retained for migration and reconciliation parity. |
 | `bonds` | Ordered exact bond records. User-owned IDs are supplied by the interaction boundary; `grant-bond:*` is reserved for deterministic graph-materialized source-owned records. Source ownership is graph metadata derived from the active grant, not a duplicate stored field. |
 | `backgroundKeystones` | At most two optional canonical non-empty keystone texts; order represents the first and second displayed slots. |
 | `weapons` | Ordered exact weapon records. |
 | `grantChoices` | Map of exact source-owned answer records keyed by `choiceId`. |
+| `traitChoices` | At most 100 exact source-owned Trait answers, keyed by `choiceId`; empty while no answers are stored. |
+| `traitActivations` | At most 100 exact source-owned activation records, keyed by `activationId`; permanent providers do not create toggle records. |
 | `resources` | Map of exact resource state records keyed by `resourceKey`. |
 | `visitedSteps` | Duplicate-free recognized builder step IDs. |
 | `sheet` | Exact builder-owned and temporary character-sheet state described below. |
@@ -52,10 +54,14 @@ Stable identities make list entries and source-owned answers reconcilable withou
 - A weapon is exactly `{ id, choiceId, sourceChoiceId, generated, weaponKey, rank, customName, enhancements }`. Generated weapons must name their source-owned choice in `sourceChoiceId`.
 - A weapon enhancement is exactly `{ id, enhancementKey, rank, selections, granted }`. `selections` is an exact map whose keys identify the enhancement's prompts.
 - A grant answer is exactly `{ choiceId, type, sourceId, sourceLabel, value, techniqueKey, skillKey, weaponKey, rank, customName, enhancements, tags }`. All fields are present; fields not used by that answer type take their canonical empty value. Its `choiceId` must equal its map key.
+- A Trait answer is exactly `{ choiceId, sourceId, recipientId, traitKey }`. All values are nonempty stable identities; `traitKey` is a stable game-data key and `choiceId` equals its map key. `recipientId: "character"` identifies the character. Other recipient IDs require explicit resolution by Rules before effects execute; an unknown recipient never falls back to the character.
+- A Trait activation is exactly `{ activationId, sourceId, active }`, with nonempty stable IDs and a boolean `active`. `activationId` equals its map key. Provider Rules determine whether activation is supported, active-group exclusivity, and expiry; the codec does not infer those mechanics.
 - A resource is exactly `{ resourceKey, name, capacity, current }`. Its key must equal its map key, and `current` cannot exceed `capacity`.
 - A repeatable ability is exactly `{ abilityId, sourceId, name, text }`. `abilityId` is stable. `sourceId` is present but may be empty for a user-authored ability.
 
 The approved `choice-rebind` mechanic must preserve the original answer and overlay a replacement only while the granting source exists. Its persistence and reconciliation shape belongs to the later feature vertical slice; WPC-CODEC does not invent that unresolved overlay structure.
+
+Trait rank, associated skill, acquired tags, Technique access, and automatic ownership are provider-derived projections, not duplicated saved fields. The two Trait maps store player answers and explicit activation state only. Different source-owned choices may reference the same Trait; Rules decide whether a provider permits that selection. Commands cannot reassign an existing choice or activation ID to another source, and a choice cannot change recipient. Provider loss is handled through graph reconciliation and its confirmation/cancellation flow.
 
 ## Character-sheet state
 
@@ -76,7 +82,7 @@ The character-sheet autosave ownership restriction remains unchanged: it may wri
 
 `public/js/core/character-codec.js` is pure: it performs no Firebase, DOM, file, or network access.
 
-- `createDefaultCharacter({ ownerUid })` creates a complete, independently allocated v5 value and rejects a missing or noncanonical owner UID.
+- `createDefaultCharacter({ ownerUid })` creates a complete, independently allocated v6 value with empty Trait maps and rejects a missing or noncanonical owner UID.
 - `validateCharacter(value)` returns `{ ok, diagnostics }` without modifying its input.
 - `decodeCharacter(value)` and `encodeCharacter(value)` return `{ ok, value, diagnostics }`. A successful value is a deep clone; an invalid value is `null`.
 - `assertCanonicalCharacter(value)` returns a validated clone or throws `CharacterCodecError` with structured diagnostics.
@@ -85,6 +91,6 @@ Each diagnostic has a stable `code`, an exact property `path`, and a human-reada
 
 ## Integration boundary
 
-The definitive v5 APIs now live in the existing database reader and writer, backed by the shared pure persistence contract. They apply migrations before decoding, isolate Firestore metadata from canonical state, and stamp every successful canonical create/save as schema version 5. See [character-persistence.md](character-persistence.md).
+The definitive APIs live in the existing database reader and writer, backed by the shared pure persistence contract. They apply migrations before decoding, isolate Firestore metadata from canonical state, and stamp every successful canonical create/save as schema version 6. See [character-persistence.md](character-persistence.md).
 
-The currently deployed pages still call clearly marked transitional v4 exports from those modules. Page integration remains blocked until reviewed runtime game data supplies stable technique keys and the affected domains consume v5 stable-key state. Pages must not call migrations, reproduce compatibility logic, or stamp partial legacy state as v5 while that boundary remains.
+The currently deployed pages still call clearly marked transitional v4 exports from those modules. Releasing the modern builder requires compatible reviewed game data and complete integration verification. Pages must not call migrations, reproduce compatibility logic, or stamp partial legacy state as v6 while that boundary remains. Schema 6 adds no automatic Trait choices or activation when an older character opens, and it does not authorize a production deployment or write.

@@ -301,7 +301,7 @@ function getOriginEntriesForBuilder(data, builder) {
   return [origin].concat(Array.isArray(origin.features) ? origin.features : []);
 }
 
-function getActiveGrantEntries(gameData, builder) {
+export function getActiveGrantEntries(gameData, builder) {
   const data = (gameData && typeof gameData === "object") ? gameData : {};
   return []
     .concat(getClassFeaturesForBuilder(data, builder))

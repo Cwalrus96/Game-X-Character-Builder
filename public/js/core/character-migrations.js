@@ -23,7 +23,15 @@ import { canonicalSkillKey, canonicalStoredSkillKey, renameSkillText } from "./s
 
 export const LEGACY_UNVERSIONED_CHARACTER_SCHEMA = 0;
 export const RESERVED_CHARACTER_SCHEMA_VERSION = 2;
-export const SUPPORTED_CHARACTER_SCHEMA_VERSIONS = Object.freeze([0, 1, 3, 4, 5]);
+export const SUPPORTED_CHARACTER_SCHEMA_VERSIONS = Object.freeze([0, 1, 3, 4, 5, 6]);
+
+// This historical boundary must not expand when the current codec adds fields.
+const LEGACY_V5_BUILDER_FIELDS = Object.freeze([
+  "name", "portraitPath", "level", "classKey", "primaryAttribute", "attributes", "originKey", "originKeystone",
+  "selectedClassFeatureOptions", "selectedClassUtilitySkills", "selectedFeats", "selectedFeatOptions", "autoAbilityNames",
+  "grantedCoreSkillSnapshot", "grantedSkillSnapshot", "bonds", "backgroundKeystones", "weapons", "grantChoices", "resources",
+  "visitedSteps", "selectedTechniques", "sheet",
+]);
 
 const STABLE_KEY_PATTERN = /^[a-z0-9](?:[a-z0-9_-]{0,127})$/;
 const STABLE_ID_PATTERN = /^[A-Za-z0-9](?:[A-Za-z0-9_.:/-]{0,259})$/;
@@ -1025,9 +1033,13 @@ function migrate4To5(input, context) {
   }
   const ownerUid = textValue(input.ownerUid, "character.ownerUid", context, { maxLen: 128, allowEmpty: false });
   const output = createDefaultCharacter({ ownerUid: ownerUid || "migration-invalid-owner" });
+  output.schemaVersion = 5;
   output.ownerUid = ownerUid;
   const builder = output.builder;
-  for (const key of CHARACTER_CODEC_FIELDS.builder) {
+  for (const key of Object.keys(builder)) {
+    if (!LEGACY_V5_BUILDER_FIELDS.includes(key)) delete builder[key];
+  }
+  for (const key of LEGACY_V5_BUILDER_FIELDS) {
     if (!hasOwn(source, key)) reportDefault(context, `character.builder.${key}`, cloneValue(builder[key]));
   }
   builder.name = textValue(source.name, "character.builder.name", context, { maxLen: 64 });
@@ -1068,7 +1080,7 @@ function migrate4To5(input, context) {
   for (const step of builder.visitedSteps) {
     if (!BUILDER_STEP_IDS.has(step)) addDiagnostic(context, "unknown-legacy-enum", "character.builder.visitedSteps", `Unknown builder step "${step}".`);
   }
-  const allowedBuilderKeys = new Set([...CHARACTER_CODEC_FIELDS.builder, "lastVisitedAt"]);
+  const allowedBuilderKeys = new Set([...LEGACY_V5_BUILDER_FIELDS, "lastVisitedAt"]);
   for (const key of Object.keys(source).sort()) {
     if (!allowedBuilderKeys.has(key)) addDiagnostic(context, "unknown-legacy-field", `character.builder.${key}`, "Unknown historical builder field cannot be discarded safely.");
   }
@@ -1095,11 +1107,30 @@ function migrate4To5(input, context) {
   return output;
 }
 
+function migrate5To6(input, context) {
+  context.fromVersion = 5;
+  context.toVersion = 6;
+  const output = stripCanonicalMetadata(input, context);
+  if (isPlainObject(output.builder)) {
+    for (const key of ["traitChoices", "traitActivations"]) {
+      if (hasOwn(output.builder, key)) {
+        addDiagnostic(context, "unknown-legacy-field", `character.builder.${key}`, "Schema v5 did not define Trait state; an existing value cannot be overwritten safely.");
+      }
+      output.builder[key] = {};
+      reportDefault(context, `character.builder.${key}`, {});
+    }
+  }
+  output.schemaVersion = 6;
+  addReport(context, "renamed", "character.schemaVersion", "Added empty source-owned Trait state without inferring any acquisition or activation.");
+  return output;
+}
+
 export const CHARACTER_MIGRATION_STEPS = Object.freeze([
   Object.freeze({ fromVersion: 0, toVersion: 1, migrate: migrateLegacyTo1 }),
   Object.freeze({ fromVersion: 1, toVersion: 3, migrate: migrate1To3 }),
   Object.freeze({ fromVersion: 3, toVersion: 4, migrate: migrate3To4 }),
   Object.freeze({ fromVersion: 4, toVersion: 5, migrate: migrate4To5 }),
+  Object.freeze({ fromVersion: 5, toVersion: 6, migrate: migrate5To6 }),
 ]);
 
 function classifyVersion(value, context) {
@@ -1143,7 +1174,7 @@ function extractMetadata(value) {
   };
 }
 
-function stripV5Metadata(value, metadata, context) {
+function stripCanonicalMetadata(value, context) {
   const output = cloneValue(value);
   for (const key of ["createdAt", "updatedAt", "revision", "lastVisitedAt"]) {
     if (!hasOwn(output, key)) continue;
@@ -1193,7 +1224,7 @@ export function migrateCharacterDocument(value, { references = null } = {}) {
   let version = classifiedVersion;
   const appliedVersions = [];
   if (version === CHARACTER_SCHEMA_VERSION) {
-    current = stripV5Metadata(current, metadata, context);
+    current = stripCanonicalMetadata(current, context);
   } else {
     while (version !== CHARACTER_SCHEMA_VERSION) {
       const step = CHARACTER_MIGRATION_STEPS.find((candidate) => candidate.fromVersion === version);

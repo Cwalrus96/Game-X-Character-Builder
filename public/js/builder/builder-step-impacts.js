@@ -7,6 +7,8 @@ const STEP_OWNED_PATHS = Object.freeze({
     "builder.selectedFeats",
     "builder.selectedFeatOptions",
     "builder.grantChoices",
+    "builder.traitChoices",
+    "builder.traitActivations",
   ]),
   attributes: Object.freeze([
     "builder.attributes",
@@ -14,6 +16,8 @@ const STEP_OWNED_PATHS = Object.freeze({
   origin: Object.freeze([
     "builder.originKey",
     "builder.originKeystone",
+    "builder.traitChoices",
+    "builder.traitActivations",
   ]),
   skills: Object.freeze([
     "builder.selectedClassUtilitySkills",

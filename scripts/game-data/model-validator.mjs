@@ -75,7 +75,7 @@ export function validateGameDataModel(model, { priorDiagnostics = [] } = {}) {
   const diagnostics = [];
   const v5 = Number(model?.metadata?.sourceSchemaVersion) === 5;
   const runtimeSupportBySource = {};
-  const deferredCodes = new Set(["record-unready", "playable-record-incomplete", "draft-record-granted", "runtime-subsystem-stubbed", "manual-prerequisite", "runtime-prerequisite-deferred", "recipient-execution-deferred", "feature-invocation-deferred", "unassigned-selection", "incomplete-technique", "incomplete-content", "unresolved-rank-context"]);
+  const deferredCodes = new Set(["record-unready", "playable-record-incomplete", "draft-record-granted", "runtime-subsystem-stubbed", "manual-prerequisite", "runtime-prerequisite-deferred", "recipient-execution-deferred", "feature-invocation-deferred", "unassigned-selection", "incomplete-technique", "incomplete-content", "unresolved-rank-context", "trait-rank-context-missing", "trait-activation-missing", "trait-choice-id-missing", "trait-toggle-id-missing", "trait-recipient-deferred"]);
   let sequence = 0;
   const add = (severity, code, message, record = null, column = null, details = null) => {
     const source = record?.source || {};
@@ -460,7 +460,7 @@ export function validateGameDataModel(model, { priorDiagnostics = [] } = {}) {
 
   function validateGrant(grant, record) {
     const column = "grants";
-    if (getExpressionRuntimeStatus("grant", grant, { syntaxVersion: v5 ? 3 : 2 }) === "stubbed") {
+    if (!(v5 && grant.type === "trait") && getExpressionRuntimeStatus("grant", grant, { syntaxVersion: v5 ? 3 : 2 }) === "stubbed") {
       add("warning", "runtime-subsystem-stubbed", `${grant.type} grant is preserved but its runtime subsystem is stubbed.`, record, column, { type: grant.type });
     }
     if (grant.choiceRef) requireChoice(grant.choiceRef, record, column);
@@ -469,7 +469,7 @@ export function validateGameDataModel(model, { priorDiagnostics = [] } = {}) {
       if (grant.key) requireReference(techniques, grant.key, { record, column, kind: "Technique" });
       const target = grant.key ? techniques.get(grant.key) : null;
       if (target?.selectionMode === "draft" || (v5 && target && target.status !== "playable")) {
-        add("error", "draft-record-granted", `Technique grant references draft technique "${grant.key}".`, record, column, { key: grant.key });
+        add(v5 && record.traitKey ? "warning" : "error", v5 && record.traitKey ? "draft-trait-technique-link" : "draft-record-granted", `Technique grant references draft technique "${grant.key}".`, record, column, { key: grant.key });
       }
     } else if (grant.type === "feat") {
       rejectDisplayNameReference(grant, record, column, "Feat grant");

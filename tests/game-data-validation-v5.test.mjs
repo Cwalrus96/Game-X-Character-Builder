@@ -14,11 +14,59 @@ test("v5 preserves incomplete content and explicitly defers unimplemented owners
   assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
   assert.equal(JSON.stringify(input.model), before);
   assert.equal(result.runtimeSupportBySource["Techniques:4"].status, "deferred");
-  assert.equal(result.runtimeSupportBySource["Traits:2"].status, "deferred");
+  assert.equal(result.runtimeSupportBySource["Traits:2"].status, "supported");
   assert.equal(result.runtimeSupportBySource["OriginFeatures:3"].status, "deferred");
   assert.equal(result.runtimeSupportBySource["ClassFeatures:2"].status, "deferred");
   assert.equal(result.featureInvocations[0].ownership, "fresh-invocation");
   assert.equal(result.featureInvocations[0].inheritTargetPlacement, false);
+});
+
+test("v5 complete Trait grants validate keys and preserve explicit ownership context", () => {
+  const records = structuredClone(VALID_SCHEMA_V5_RECORDS);
+  records.ClassFeatures[0].grants = "trait | traitKey=wings | rank=2";
+  records.ClassFeatures[1].grants = "trait | tag=Anatomy OR Natural Weapon | choiceId=chosen-trait | associatedSkill=Metamorphosis";
+  const input = adaptGameDataWorkbook(buildSchemaV5Workbook({ records }));
+  const before = JSON.stringify(input.model);
+  const result = validateAdaptedGameData(input);
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  assert.equal(JSON.stringify(input.model), before);
+  assert.equal(result.runtimeSupportBySource["ClassFeatures:2"].status, "supported");
+  assert.equal(result.runtimeSupportBySource["ClassFeatures:3"].status, "supported");
+  assert.equal(input.model.classFeatures[0].grants[0].recipientRef, undefined);
+  assert.equal(input.model.classFeatures[0].grants[0].count, 1);
+  const invalid = structuredClone(input);
+  invalid.model.classFeatures[0].grants[0].key = ["wings", "missing-trait"];
+  assert(validateAdaptedGameData(invalid).diagnostics.some(item => item.code === "unresolved-reference" && item.details.key === "missing-trait"));
+});
+
+test("v5 incomplete Trait grants defer with exact reasons, while conflicting contexts remain errors", () => {
+  const records = structuredClone(VALID_SCHEMA_V5_RECORDS);
+  records.ClassFeatures[0].grants = "trait | tag=Anatomy";
+  records.ClassFeatures[1].grants = "trait | traitKey=wings";
+  const input = adaptGameDataWorkbook(buildSchemaV5Workbook({ records }));
+  const result = validateAdaptedGameData(input);
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  assert.deepEqual(input.model.classFeatures[0].grants[0], { type: "trait", tag: "Anatomy", count: 1 });
+  assert.deepEqual(result.runtimeSupportBySource["ClassFeatures:2"].reasons, ["trait-choice-id-missing"]);
+  assert.equal(result.runtimeSupportBySource["ClassFeatures:3"].status, "supported");
+  assert.equal(result.diagnostics.some(item => item.code === "unresolved-recipient-reference"), false);
+  const invalid = structuredClone(input);
+  invalid.model.classFeatures[0].grants = [{ type: "trait", key: "wings", rank: 1, skill: "Metamorphosis" }];
+  assert(validateAdaptedGameData(invalid).diagnostics.some(item => item.code === "conflicting-fields" && item.sheet === "ClassFeatures" && item.column === "grants"));
+});
+
+test("v5 unfinished linked Techniques disable the link without deferring an otherwise supported Trait", () => {
+  const input = model();
+  input.traits[0].techniqueKeys.push("unfinished-strike");
+  input.traits[0].grants.push({ type: "technique", key: "unfinished-strike" });
+  const result = validateGameDataModel(input);
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  assert.equal(result.runtimeSupportBySource["Traits:2"].status, "supported");
+  const warnings = result.diagnostics.filter(item => item.code === "draft-trait-technique-link");
+  assert.equal(warnings.length, 2);
+  assert(warnings.every(item => item.severity === "warning" && item.deferred === false));
+  input.classFeatures[0].grants = [{ type: "tag", tag: "Flight", minRank: 2 }];
+  assert(validateGameDataModel(input).diagnostics.some(item => item.code === "unresolved-rank-context" && item.deferred === true));
 });
 
 test("v5 malformed stable references stay errors at the actual reordered source cell", () => {

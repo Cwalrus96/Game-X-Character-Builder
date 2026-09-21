@@ -32,6 +32,8 @@ import { createPrerequisiteContext, evaluatePrerequisite } from "./prerequisites
 import { initializeGrantedResource } from "./grants.js";
 import { getOriginSelectionState } from "./origin-rules.js";
 import { registerDefaultGraphExtensions } from "./graph-extensions.js";
+import { compileTraits, TRAIT_NODE_TYPES } from "./trait-graph.js";
+import { projectCharacterTraits, getTraitPrerequisiteEvidence } from "./trait-rules.js";
 import {
   CharacterGraphBuilder,
   GraphHandlerRegistry,
@@ -81,6 +83,7 @@ const DEFAULT_NODE_TYPES = Object.freeze([
   "grant-bond",
   "bond",
   "keystone",
+  ...TRAIT_NODE_TYPES,
 ]);
 
 const STABLE_KEY_PATTERN = /^[a-z0-9](?:[a-z0-9_-]{0,127})$/;
@@ -122,10 +125,11 @@ function defaultNodeHandler({ graph, node, path }) {
   return graph.addNode(node, { path });
 }
 
-function defaultPrerequisiteHandler({ prerequisite, character, gameData }) {
+function defaultPrerequisiteHandler({ prerequisite, character, gameData, traitProjection }) {
   return evaluatePrerequisite(prerequisite, {
     builder: character.builder,
     gameData,
+    traitProjection,
     ...(gameData.schemaVersion === 3 ? { grantedSkillState: computeGrantedSkillsState(gameData, character.builder) } : {}),
   });
 }
@@ -494,6 +498,9 @@ export function createDefaultGraphHandlerRegistry() {
   registry.registerGrant("resource", defaultResourceGrantHandler);
   registry.registerGrant("bond", defaultBondGrantHandler);
   registry.registerGrant("feat", defaultFeatGrantHandler);
+  // Trait grants are materialized together so prerequisite order cannot change
+  // eligibility and shared activations have one source-owned state record.
+  registry.registerGrant("trait", () => {});
   for (const type of SUPPORTED_GRANT_TYPES) {
     if (!registry.getGrant(type)) registry.registerGrant(type, deferredGrantHandler);
   }
@@ -514,7 +521,7 @@ function invalidCharacterGraph(decoded) {
       severity: "error",
       code: diagnostic.code || "invalid-character",
       path: diagnostic.path || "character",
-      message: diagnostic.message || "Graph compilation requires an exact schema-v5 character.",
+      message: diagnostic.message || "Graph compilation requires an exact canonical character.",
     });
   }
   return graphWithCharacter(graph.finalize({ metadata: { compilerVersion: 1 } }), null);
@@ -860,6 +867,7 @@ function evidenceNodeId(prerequisite, character) {
 }
 
 function createCompilerContext({ character, gameData, registry, graph, classesByKey, techniquesByKey, weaponBasesByKey }) {
+  const traitProjection = projectCharacterTraits(character, gameData);
   const activeChoices = new Map();
   const activeBondGrants = new Map();
   const automaticTechniqueKeys = new Set();
@@ -918,7 +926,7 @@ function createCompilerContext({ character, gameData, registry, graph, classesBy
       }
       let result;
       try {
-        result = handler({ prerequisite, character, gameData, sourceNodeId, path: `${path}.${index}` });
+        result = handler({ prerequisite, character, gameData, traitProjection, sourceNodeId, path: `${path}.${index}` });
       } catch (error) {
         addDiagnostic({
           code: "invalid-prerequisite",
@@ -960,6 +968,9 @@ function createCompilerContext({ character, gameData, registry, graph, classesBy
           }, `${path}.${index}`);
         }
         if (evidenceId) graph.addEdge({ kind: "satisfies", from: evidenceId, to: requirementNodeId }, { path: `${path}.${index}` });
+        for (const traitId of getTraitPrerequisiteEvidence(prerequisite, traitProjection)) {
+          graph.addEdge({ kind: "satisfies", from: traitId, to: requirementNodeId }, { path: `${path}.${index}` });
+        }
       }
       if (manual) {
         addDiagnostic({
@@ -1048,6 +1059,7 @@ function createCompilerContext({ character, gameData, registry, graph, classesBy
 
   return {
     gameData,
+    traitProjection,
     activeChoices,
     activeBondGrants,
     automaticTechniqueKeys,
@@ -1185,7 +1197,8 @@ function compileOriginFeatures(context, character, originsByKey, graph) {
   const origin = originsByKey.get(originKey);
   if (!origin || getOriginSelectionState(context.gameData, character.builder).selected?.selectable !== true) return;
   (Array.isArray(origin.features) ? origin.features : []).forEach((feature, index) => {
-    const featureKey = `${index}:${slug(feature?.name || "feature")}`;
+    const featureKey = feature.expressionSyntaxVersion === 3 && stableKey(feature.featureKey)
+      ? feature.featureKey : `${index}:${slug(feature?.name || "feature")}`;
     const nodeId = `origin-feature:${originKey}:${featureKey}`;
     const path = `gameData.origins.${originKey}.features.${index}`;
     context.addTypedNode("origin-feature", {
@@ -1825,6 +1838,7 @@ export function compileCharacterGraph({ character, gameData, registry = createDe
     compiledGrantSourceIds.add(source.nodeId);
   }
   const bondAllocation = compileBondsAndKeystones(context, decoded.value, graph);
+  compileTraits(context, decoded.value, graph);
   compileGrantAnswers(context, decoded.value, techniquesByKey, weaponBasesByKey, graph);
   compileEquipment(context, decoded.value, weaponBasesByKey, weaponEnhancementsByKey, graph);
   compileSelectedTechniques(context, decoded.value, techniquesByKey, graph);

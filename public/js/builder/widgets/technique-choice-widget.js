@@ -6,7 +6,7 @@ import {
 import { computeGrantedSkillsState, getCombatSkillRanks } from "../../core/skill-rules.js";
 import { canonicalSkillName, canonicalStoredSkillKey } from "../../core/skill-identity.js";
 import { getTechniqueSelectionState, isGameDataRecordSelectable } from "../../core/selection-rules.js";
-import { meetsPrerequisites } from "../../core/prerequisites.js";
+import { createPrerequisiteContext, meetsPrerequisites } from "../../core/prerequisites.js";
 import { renderTechniqueProfileHtml } from "../../core/technique-utils.js";
 import { BuilderWidget } from "./builder-widget.js";
 
@@ -110,6 +110,7 @@ export class TechniqueChoiceWidget extends BuilderWidget {
     if (technique.expressionSyntaxVersion === 3) {
       const skill = canonicalSkillName(this.grant?.skill || this.grant?.name || this.grant?.key);
       return getTechniqueSelectionState(technique, {
+        ...createPrerequisiteContext({ gameData: this.gameData, builder: context.builder, grantedSkillState: context.grantedSkillState }),
         knownCombatSkills: new Set([skill]), skillRanks: getCombatSkillRanks(this.gameData, context.builder), allowGrantedOnly: true,
       }).skillRank;
     }

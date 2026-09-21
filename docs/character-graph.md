@@ -6,7 +6,7 @@ Last updated: 2026-09-21.
 
 ## Purpose and boundary
 
-The Character Dependency Graph is one authoritative pure subsystem for character selection ownership and dependency effects. It accepts one exact schema-v5 character plus normalized runtime artifact schema-v2 or schema-v3 game data and produces deterministic plain-data nodes, edges, diagnostics, metadata, and reconciled outcomes.
+The Character Dependency Graph is one authoritative pure subsystem for character selection ownership and dependency effects. It accepts one exact schema-v6 character plus normalized runtime artifact schema-v2 or schema-v3 game data and produces deterministic plain-data nodes, edges, diagnostics, metadata, and reconciled outcomes.
 
 `GraphCompiler` is the subsystem's snapshot-building operation. The reconciler is its fixed-point operation: it repeatedly compiles and applies registered removal, prerequisite, capacity, compatibility, and incomplete-selection policy until it reaches a deterministic fixed point. Keeping those internal operations separate makes snapshot construction independently testable and lets reconciliation recompile after each state change; it does not create two authorities. `CharacterSession` uses one graph reconciliation facade. Neither operation reads Firebase, the DOM, pages, widgets, files, or the network or mutates caller-owned values.
 
@@ -67,7 +67,7 @@ Work Package E adds domain handlers and tests without adding dependency policy t
 
 `compileCharacterGraph({ character, gameData, registry })` and `GraphCompiler.compile(character)`:
 
-1. decode the character through the exact v5 codec;
+1. decode the character through the exact v6 codec;
 2. require normalized runtime artifact schema 2 or 3;
 3. index stable class, origin, feat, feature, option, technique, weapon, choice, and answer identities;
 4. compile typed nodes and edges through the supplied registries;
@@ -95,6 +95,16 @@ The default maximum is 32 iterations. Exceeding the configured bound reports `gr
 
 Running reconciliation again on its reconciled character is character-idempotent. Informational impacts may remain because they describe the same still-incomplete valid state.
 
+## Traits
+
+`trait-rules.js` projects explicit Trait providers, saved choices, fixed or associated-skill ranks, acquired tags and ready Technique access. Named grants default to Rank 1 without an associated skill; the Trait definition's minimum rank and prerequisites still apply. Prerequisite acquisition starts with no derived Traits and reaches a least fixed point; circular Traits or linked Techniques cannot authorize themselves. Classification tags never become character tags. Reference-only `traitKeys` remain visible without granting benefits. Missing choice identity and unfinished definitions remain unavailable; Familiar/Mech recipients await their own subsystems.
+
+`trait-graph.js` materializes registered `trait` and `trait-choice` nodes from that projection. Saved answers bind to schema-v6 `traitChoices`; automatic Traits have no invented stored answers. Ownership uses stable feature keys, including schema-v3 Origin features, rather than row positions or labels. Trait/tag/Technique prerequisite evidence links back to its Trait source for affected-closure traversal. Legacy `traitActivations` values are preserved unchanged and do not create nodes or affect eligibility.
+
+Reconciliation removes orphaned or invalid Trait answers only through confirmation-required impacts. Ownership mismatches are errors and cannot be confirmed away. Replacing a Trait or removing its source reviews dependent learned choices together; cancellation preserves the accepted state. Multiple providers retain distinct ownership, with the strongest qualifying provider determining the displayed Technique rank. Explicit granted-only Technique links consume no normal slots; tag-routed Techniques remain ordinary learned choices. Gameplay form switching, costs and timing are outside this static model.
+
+`prerequisite-rules.js` is the independent typed evaluator. The character-aware `prerequisites.js` facade adds the shared Trait projection; all public prerequisite entry points use the same context. The split avoids recursive projection while Trait prerequisites are evaluated.
+
 ## CharacterSession integration
 
 `createCharacterSessionGraphReconciler({ gameData, registry })` is the graph subsystem's single public integration facade for the existing synchronous session reconciliation contract:
@@ -110,7 +120,7 @@ The adapter is installed in the local-review class/feat, Attributes, Equipment, 
 ## Evidence
 
 - `public/js/core/graph-core.js`: typed graph builder, handler registry, contract validation, deterministic freezing, and affected closure;
-- `public/js/core/graph-compiler.js`: exact-v5/schema-v2/v3 deterministic compiler and registered handlers;
+- `public/js/core/graph-compiler.js`: exact-v6/schema-v2/v3 deterministic compiler and registered handlers;
 - `public/js/core/graph-reconciler.js`: bounded fixed-point policy, structured impacts, derived projections, and session adapter;
 - `public/js/core/skill-rules.js`: sole pure owner of skill progression, grants, caps, point budgets, utility capacity, allocation projections, and deterministic fitting;
 - `public/js/core/origin-rules.js`: shared pure Origin eligibility/presentation projection;

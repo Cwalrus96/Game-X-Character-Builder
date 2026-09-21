@@ -24,6 +24,7 @@ import { createGrantWidgets } from "./widgets/grant-widget-factory.js?v=wpe8";
 import { LevelChoiceWidget } from "./widgets/level-choice-widget.js?v=wpe1";
 import { OptionGroupWidget } from "./widgets/option-group-widget.js?v=wpe7";
 import { PrimaryAttributeWidget } from "./widgets/primary-attribute-widget.js?v=wpe1";
+import { TraitWidget } from "./widgets/trait-widget.js";
 
 import { loadGameXData, getGameXClasses, getGameXClassFeatures, getGameXWeaponBases, getGameXWeaponEnhancements } from "../core/game-data.js?v=wpe1";
 
@@ -652,6 +653,12 @@ async function main() {
       setStatus: (message) => setStatus(statusEl, message),
       onChange: renderFeats,
     });
+
+    const traitMount = document.createElement("section");
+    traitMount.className = "card";
+    traitMount.setAttribute("aria-label", "Traits supplied by your features");
+    featsEl.closest("section").after(traitMount);
+    new TraitWidget(classPage, { gameData, mount: traitMount });
 
     // Wire events
     showUnavailableFeaturesEl?.addEventListener("change", renderFeatures);

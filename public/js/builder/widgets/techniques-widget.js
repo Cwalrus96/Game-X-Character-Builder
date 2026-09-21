@@ -15,6 +15,7 @@ import { canonicalSkillName } from "../../core/skill-identity.js";
 import { getTechniqueSelectionState, isGameDataRecordSelectable } from "../../core/selection-rules.js";
 import { createPrerequisiteContext, meetsPrerequisites } from "../../core/prerequisites.js";
 import { renderTechniqueProfileHtml } from "../../core/technique-utils.js";
+import { projectCharacterTraits, getActiveTraitTechniqueDetails } from "../../core/trait-rules.js";
 import { BuilderWidget } from "./builder-widget.js";
 
 function techniqueName(technique) {
@@ -187,6 +188,10 @@ export class TechniquesWidget extends BuilderWidget {
     const knownAndGrants = computeKnownCombatSkillsAndGrants(gameData, b);
     const sourceOwnedTechniqueDetails = getSourceOwnedTechniqueDetails(b);
     const grantedTechniqueDetails = getGrantedTechniqueDetails(gameData, b);
+    const traitTechniqueDetails = getActiveTraitTechniqueDetails(projectCharacterTraits({ builder: b }, gameData));
+    for (const [key, detail] of traitTechniqueDetails) {
+      grantedTechniqueDetails.set(key, { kind: "granted", label: `Granted by ${detail.traitName || detail.sourceLabel || "Trait"}` });
+    }
     return {
       builder: b,
       primaryAttrKey,
@@ -194,6 +199,7 @@ export class TechniquesWidget extends BuilderWidget {
       knownCombatSkills: knownAndGrants.knownCombatSkills || new Set(),
       grantedTechniqueNames: new Set(grantedTechniqueDetails.keys()),
       grantedTechniqueDetails,
+      traitTechniqueDetails,
       sourceOwnedTechniqueNames: new Set(sourceOwnedTechniqueDetails.keys()),
       sourceOwnedTechniqueDetails,
       techniqueChoiceGrants: getRemainingTechniqueChoiceGrants(
@@ -230,6 +236,8 @@ export class TechniquesWidget extends BuilderWidget {
   }
 
   getTechniqueSkillRank(technique, context) {
+    const traitDetail = context.traitTechniqueDetails?.get(techniqueKey(technique));
+    if (traitDetail) return traitDetail.rank;
     if (technique.expressionSyntaxVersion === 3) return this.getTechniqueAccess(technique, context).skillRank;
     const skillName = techniqueSkill(technique);
     if (!skillName) return techniqueRank(technique);

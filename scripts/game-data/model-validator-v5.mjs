@@ -1,4 +1,4 @@
-import { getExpressionRuntimeStatus } from "../../public/js/core/game-data-contract.js";
+import { getExpressionRuntimeStatus, getTraitGrantDeferredReasons } from "../../public/js/core/game-data-contract.js";
 import { normalizeExpressionObject } from "../../public/js/core/game-data-expressions.js";
 
 const array = (value) => Array.isArray(value) ? value : value == null || value === "" ? [] : [value];
@@ -9,6 +9,13 @@ const nodeId = (row) => `${owner(row)}/${identity(row)}`;
 const incomplete = (row) => /(?:^|\b)(?:TBD|TODO|unfinished|not yet designed)(?:\b|$)/i.test(row.description || "") || (row.kind !== "optionGroup" && !row.description && !row.grants?.length && !row.action?.damage && !row.action?.onSuccess);
 const needsEquipmentState = (rule) => ["weapon", "weapon-set"].includes(rule.type) && (rule.wielded || rule.separateHands);
 const ruleDeferred = (rule) => needsEquipmentState(rule) || !["implemented", "compatibility"].includes(getExpressionRuntimeStatus("prerequisite", rule, { syntaxVersion: 3 }));
+const traitDeferralMessages = Object.freeze({
+  "trait-rank-context-missing": "Trait grant has neither a fixed rank nor an associated skill; its rank context remains unassigned.",
+  "trait-activation-missing": "Trait grant requires an explicit permanent or toggle activation before execution.",
+  "trait-choice-id-missing": "Trait choice requires an explicit choiceId for stable source-owned answers.",
+  "trait-toggle-id-missing": "Toggle Trait grant requires an explicit activationId.",
+  "trait-recipient-deferred": "Trait grant targets a non-character recipient whose execution is not implemented.",
+});
 
 /** Additional source-v5 relationships. Validating an invocation never executes it. */
 export function validateV5Relationships(model, helpers) {
@@ -52,13 +59,19 @@ export function validateV5Relationships(model, helpers) {
     for (const key of row.techniqueKeys || []) {
       requireReference(techniques, key, { record: row, column: "techniqueKeys", kind: "Technique" });
       const target = techniques.get(key);
-      if (target && target.status !== "playable") add("warning", "draft-record-granted", `Related technique "${key}" is unfinished and cannot be granted as complete mechanics.`, row, "techniqueKeys");
+      if (target && target.status !== "playable") add("warning", row.traitKey ? "draft-trait-technique-link" : "draft-record-granted", `Related technique "${key}" is unfinished and cannot be granted as complete mechanics.`, row, "techniqueKeys");
     }
 
     for (const [index, grant] of (row.grants || []).entries()) {
       const normalized = normalizeExpressionObject("grant", grant, { syntaxVersion: 3 });
       for (const diagnostic of normalized.diagnostics) add(diagnostic.severity, diagnostic.code, diagnostic.message, row, "grants", { field: diagnostic.field, expressionIndex: index });
-      if (grant.recipientRef) {
+      if (grant.type === "trait") {
+        if (grant.key) requireReference(traits, grant.key, { record: row, column: "grants", kind: "Trait" });
+        for (const reason of getTraitGrantDeferredReasons(normalized.value || grant)) {
+          add("warning", reason, traitDeferralMessages[reason], row, "grants", { expressionIndex: index });
+        }
+      }
+      if (grant.recipientRef && grant.type !== "trait") {
         requireScopedChoice(grant.recipientRef, row, "grants", { recipient: true });
         add("warning", "recipient-execution-deferred", `Grant recipient "${grant.recipientRef}" is retained; recipient-owned skill execution is not implemented.`, row, "grants");
       }

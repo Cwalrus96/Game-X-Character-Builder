@@ -338,7 +338,9 @@ Acceptance evidence: versioned source adapters and exact Schema/Enums fixtures s
 
 ### `WPB-V5-RELEASE-REVIEW` — review the imported data for release
 
-Status: `pending`
+Status: `active`
+
+September 21 engineering checkpoint: the publisher supports exact nine-file source-v4/runtime-v2 and ten-file source-v5/runtime-v3 releases, with provenance/hash checks and cross-version transactional rollback tests. No release approval or baseline changed. The accepted static Trait correction and [27 source-cell changes](trait-source-proposals-2026-09-21.md) are applied and verified. Fresh immutable candidate `20260922T005923417Z-35172` validates and runtime-loads ten artifacts with zero errors and 302 warnings. Removed-identity/character-impact dispositions and exact candidate approval remain before promotion.
 
 Prerequisite: `WPB-SCHEMA-V5-INTEGRATION` and a complete immutable staged run.
 
@@ -604,16 +606,20 @@ September 21 user direction supersedes the personal-acceptance blocker in the hi
 
 September 21 scope addition: Traits are a required first-class domain. Importing their records and accepting Trait prerequisite syntax does not complete their runtime implementation. The historical "all planned vertical slices" checkpoint below describes the earlier scope, before this addition.
 
+Implemented September 21, including the user's static-only correction: shared Trait Rules, schema-v6 choices and additive migration, portable Origin/Class controls, character-sheet presentation, explicit granted-only Technique access, tag-based normal eligibility, graph ownership/prerequisite evidence and reviewed removals. Legacy activation storage is preserved but ignored. All eight accepted Origin providers and Metamorph's three source-owned choices are now authored; `traitKeys` alone stays reference-only. The 27-cell batch is verified and candidate `20260922T005923417Z-35172` stages ten files with zero errors and 302 warnings. Verification passes 419 unit tests, 18 emulator rule tests, 14 asset checks, and five browser scenarios including staged Metamorph choices and exact local save/reload. This checkpoint completes the generic static Trait implementation, not the entire Work Package E acceptance boundary or coordinated data release.
+
 Trait implementation must supply:
 
+September 21 accepted scope: author named Trait grants or source-owned tag-filtered choices, plus necessary rank context and prerequisites. Acquired Traits supply explicit tag grants for Technique eligibility; moment-to-moment forms, timing and costs are player-tracked prose. Metamorph itself is in scope; incomplete individual feats do not disable the class. Familiar/Mech recipients remain future subsystem work.
+
 - shared pure Rules for Trait eligibility, minimum acquisition rank, provider-defined scaling/fixed rank, explicit acquired tags, and supported Technique access;
-- source-owned Trait choices and recipient context, distinguishing automatic grants from permitted choices, and active from inactive ownership where the provider defines activation;
+- source-owned Trait choices, distinguishing automatic grants from permitted choices and acquired tags from classification filters, without authored recipient or activation fields;
 - a canonical saved-state representation with versioned conversion of older characters, preserving all existing selections and introducing no guessed Traits;
 - graph nodes and ownership/prerequisite relationships so removing or changing a provider reviews affected Traits, tags, and dependent choices together; cancellation remains side-effect free;
 - portable Trait selection/display widgets embedded where the granting feature offers a choice, using the same Rules and session commands as the graph, plus character-sheet presentation;
 - valid/invalid fixtures, persistence round trips, and browser verification against supported real provider examples and the matching staged data.
 
-Do not interpret every `traitKeys` list as automatic acquisition or every `techniqueKeys` list as unconditional access. Incomplete Metamorph, Monster Tamer, Mech Pilot, form, Familiar, and other class-specific design remains held; implement the shared Trait model and explicit supported mechanics without inventing unfinished provider rules. The source contract defines the existing rank, recipient, and tag distinctions.
+Do not interpret every `traitKeys` list as automatic acquisition or every `techniqueKeys` list as unconditional access. Metamorph imports independently of its incomplete individual feats; its remaining prose-only Technique grants and generic Keystone execution are still separate implementation work. Unfinished Monster Tamer, Mech Pilot, Familiar and other class-specific design remains held. Implement supported mechanics without inventing missing rules; the source contract defines rank, ownership and tag distinctions.
 
 Current checkpoint: all planned vertical slices now have automated implementations. Class/Feat/Technique, Equipment, Attributes, Origin/Skills, and Bonds/Keystones/derived abilities use the session/graph path in the local review environment, and the Boon registry adapter proves that a new automatic choice type can be added without a page-controller or graph-traversal branch. Signed-in browser acceptance resumed on 2026-08-30. Its first historical-character Class-page scenario exposed and repaired a v4 migration-coverage gap plus stable-key presentation bindings. Its first save attempt then exposed a graph-derived display snapshot that repeated the shared label of two independently owned class-feature abilities; reconciliation now keeps that non-identity snapshot duplicate-free while preserving both stable ability records. A subsequent save preview exposed that typed `feat` grants were still deferred while the page and compiler manufactured capacity from `floor(level / 2)`. The approved direction now makes explicit feature grants the only source of feat choices: shared pure Rules materialize filtered source-owned slots and both graph and widget consume that projection. Save-time incomplete notices are now scoped by exact current-page field ownership, so pages do not warn about untouched choices elsewhere in the builder; blocking errors and destructive proposal consequences remain global. Skills/Bonds acceptance then exposed locked class-granted utility ranks and widget-wide disabling that captured page Save/Keystone controls; shared Skill Rules now treat grants as free floors with paid increases, and portable widgets disable only their own controls. Focused browser re-acceptance is still pending, so no compatibility path has been removed and production deployment remains blocked.
 
@@ -623,20 +629,20 @@ Goal: replace the transitional page/widget dependency policy with typed commands
 
 Plain-language overview: a **domain** is one related area of character building, including its screen controls, character fields, rules, dependencies, saving/loading behavior, and tests. A **vertical slice** means migrating that complete path from the browser control all the way through state management, dependency reconciliation, and Firebase persistence. It does not mean rewriting one technical layer for every feature at once.
 
-The application currently has two generations of architecture. The deployed builder pages still assemble mutable page/widget state and send broad patches through transitional dependency code. The new core already provides an exact schema-v5 character model, a `CharacterSession` that protects proposed versus accepted edits, one Character Dependency Graph subsystem with separate compilation and fixed-point reconciliation operations, and revision-aware persistence. `WPE-DOMAIN-MIGRATION` connects those pieces to real pages while preserving existing behavior.
+The application currently has two generations of architecture. The deployed builder pages still assemble mutable page/widget state and send broad patches through transitional dependency code. The new core already provides an exact schema-v6 character model, a `CharacterSession` that protects proposed versus accepted edits, one Character Dependency Graph subsystem with separate compilation and fixed-point reconciliation operations, and revision-aware persistence. `WPE-DOMAIN-MIGRATION` connects those pieces to real pages while preserving existing behavior.
 
 Migrated widgets are portable interactive UI components, not data-only adapters: they own their DOM/accessibility/interaction behavior and emit typed intent through injected actions, but never own a second character model, dependency policy, or database writes. Pages coordinate exact session save snapshots with the separate database reader/writer. `CharacterCodec` remains the sole whole-character structural validator; every other validation boundary stays narrow to input, commands, game rules, graph integrity, or persistence.
 
 Pure Rules modules are the sole source of mechanic formulas, limits, eligibility, capacity, and allocation projections. Graph compilation records imported Rules results, reconciliation applies and reports them, and widgets render the same imported results. Compiler, reconciler, page, and widget code must not reconstruct those calculations independently; automated architecture tests enforce this boundary for each migrated domain.
 
-For the first class/feat/technique slice, a user action such as lowering a character from level 5 to level 3 will become a typed statement of intent. `CharacterSession` creates a protected proposal; the graph determines which feat, class option, or technique would become invalid or exceed capacity; the UI displays structured errors, confirmations, or informational notices; cancellation changes nothing; acceptance saves the exact reviewed reconciled state through the v5 reader/writer. Page and widget code will no longer independently decide what to delete or how many selections fit.
+For the first class/feat/technique slice, a user action such as lowering a character from level 5 to level 3 will become a typed statement of intent. `CharacterSession` creates a protected proposal; the graph determines which feat, class option, or technique would become invalid or exceed capacity; the UI displays structured errors, confirmations, or informational notices; cancellation changes nothing; acceptance saves the exact reviewed reconciled state through the v6 reader/writer. Page and widget code will no longer independently decide what to delete or how many selections fit.
 
 Each slice follows the same sequence:
 
 1. define exact commands for the user's direct choices;
 2. register graph nodes, grants, prerequisites, storage bindings, and reconciliation rules for that domain;
 3. connect its pages/widgets to `CharacterSession` and structured impacts;
-4. save and reload through the definitive v5 persistence boundary, including revision conflicts;
+4. save and reload through the definitive v6 persistence boundary, including revision conflicts;
 5. prove parity, cancellation, confirmation, convergence, and independence with automated and focused browser tests; and
 6. remove that domain's transitional path only after the replacement passes acceptance.
 
@@ -660,7 +666,7 @@ Implemented evidence for the final slices:
 Acceptance:
 
 - each vertical slice adds exact typed commands, node/grant/prerequisite handlers, storage bindings, reconciliation policy, and valid/invalid fixtures before the next domain begins;
-- migrated pages submit intent through `CharacterSession`, render structured graph impacts, save the exact accepted reconciled state through the definitive v5 persistence boundary, and contain no duplicate capacity, prerequisite, or dependency-removal authority;
+- migrated pages submit intent through `CharacterSession`, render structured graph impacts, save the exact accepted reconciled state through the definitive v6 persistence boundary, and contain no duplicate capacity, prerequisite, or dependency-removal authority;
 - stable runtime keys and migration evidence exist before a deployed domain stops reading its transitional compatibility fields;
 - automated tests prove parity, destructive confirmation/cancellation, reload/save conflict behavior, graph convergence/idempotence, and page/widget independence for the migrated domain;
 - the corresponding transitional path is removed only after focused browser acceptance exercises the replacement against the current local review environment;

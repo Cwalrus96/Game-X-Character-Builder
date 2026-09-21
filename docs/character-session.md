@@ -6,7 +6,7 @@ Status: implemented pure Work Package C core with the Work Package D graph facad
 
 ## State ownership
 
-The session privately owns four exact schema-v5 states:
+The session privately owns four exact schema-v6 states:
 
 | State | Meaning |
 |---|---|
@@ -15,7 +15,7 @@ The session privately owns four exact schema-v5 states:
 | Proposed | A clone of working state with one typed command applied. |
 | Reconciled | The exact proposed state after the injected reconciler has applied graph/rules policy. |
 
-Constructor input, reconciler output, accepted state, and save snapshots must pass the exact v5 codec. Public projections are cloned and recursively frozen so callers cannot mutate session-owned state through shared references.
+Constructor input, reconciler output, accepted state, and save snapshots must pass the exact v6 codec. Public projections are cloned and recursively frozen so callers cannot mutate session-owned state through shared references.
 
 ## Command boundary
 
@@ -34,6 +34,8 @@ The command registry currently contains:
 - `SetClassFeatureOptions(optionKeys)`, which replaces only the ordered class-option stable-key array;
 - `SetFeatSelection(featKeys)` and `SetFeatOptions(optionKeys)`, which replace only their ordered stable-key arrays;
 - `SetGrantChoices(grantChoices)`, whose intent envelope is narrow while the codec remains the one whole-record structural validator;
+- `SetTraitChoice({ choiceId, sourceId, recipientId, traitKey })` and `RemoveTraitChoice(choiceId)`, which change one source-owned answer while retaining unrelated choices;
+- legacy `SetTraitActivation({ activationId, sourceId, active })` and `RemoveTraitActivation(activationId)` remain decodable for schema-v6 compatibility only; current widgets emit neither and their stored values do not affect Trait eligibility;
 - `SetTechniqueSelection(techniqueKeys)`, which replaces only the ordered `builder.selectedTechniques` stable-key array.
 - `AddWeapon`, `RemoveWeapon`, and `UpdateWeapon`, which address one exact weapon identity and permit only direct weapon fields;
 - `AddWeaponEnhancement`, `RemoveWeaponEnhancement`, and `UpdateWeaponEnhancement`, which address one exact parent weapon and enhancement identity and permit only direct enhancement fields;
@@ -65,7 +67,7 @@ Impact codes, paths, node identities, and before/after values are authoritative 
 
 ## Diff contract
 
-`character-state-diff.js` compares two exact canonical v5 values and emits deterministic path-sorted changes. Objects are traversed by sorted key; ordered arrays are atomic values so reordering remains visible as one field replacement. Every before/after value is cloned and frozen.
+`character-state-diff.js` compares two exact canonical v6 values and emits deterministic path-sorted changes. Objects are traversed by sorted key; ordered arrays are atomic values so reordering remains visible as one field replacement. Every before/after value is cloned and frozen.
 
 ## Save snapshots and revisions
 
@@ -73,7 +75,7 @@ Impact codes, paths, node identities, and before/after values are authoritative 
 
 The page coordinates the separate database boundary: it requests a save snapshot, passes that exact character and expected revision to the database writer, then acknowledges the returned revision. `CharacterSession` does not import or call Firebase. On success, `acknowledgeSave()` requires the matching save identity and exactly the next revision. Persisted state advances to the snapshot that was actually written. If the user accepted another edit while that write was in flight, working state keeps that newer edit and remains dirty. A rejected save clears only the in-flight marker; it does not discard working edits.
 
-This preserves the approved migration rule: loading an old character can produce v5 in memory without a write, while an explicit save snapshot may persist the migrated v5 value even when there are no additional edits.
+This preserves the approved migration rule: loading an old character can produce v6 in memory without a write, while an explicit save snapshot may persist the migrated v6 value even when there are no additional edits. Trait maps start empty when migrating; automatic provider projections do not manufacture player answers. An existing Trait choice or legacy activation ID cannot be rebound to another source through these commands, and a choice cannot change its compatibility recipient binding. Removing an absent record fails as a stale command. Trait Rules and graph reconciliation own static eligibility and dependency impacts. They ignore legacy activation values and do not track gameplay timing, expiry, forms or costs.
 
 ## Dependency and transition boundaries
 

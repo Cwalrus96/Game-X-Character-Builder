@@ -35,14 +35,14 @@ test("stored legacy characters migrate in memory with revision zero and no input
   const result = decodeStoredCharacter(legacy, { references, expectedOwnerUid: "user_123" });
 
   assert.equal(result.ok, true, JSON.stringify(result.diagnostics, null, 2));
-  assert.equal(result.character.schemaVersion, 5);
+  assert.equal(result.character.schemaVersion, 6);
   assert.equal(result.revision, 0);
   assert.equal(result.migrated, true);
   assert.equal(result.metadata.createdAt, "created-at");
   assert.deepEqual(legacy, original);
 });
 
-test("current stored v5 envelopes decode with separate metadata", () => {
+test("current stored v6 envelopes decode with separate metadata", () => {
   const character = createDefaultCharacter({ ownerUid: "user_123" });
   const stored = {
     ...character,
@@ -78,7 +78,7 @@ test("invalid revisions and owner-path mismatches fail explicitly", () => {
   assert.equal(hasDiagnostic(wrongOwner, "character-owner-mismatch", "character.ownerUid"), true);
 });
 
-test("new and saved persistence envelopes are exact v5 plus repository metadata", () => {
+test("new and saved persistence envelopes are exact v6 plus repository metadata", () => {
   const created = createStoredCharacter({
     ownerUid: "user_123",
     createdAt: "created-at",
@@ -86,7 +86,7 @@ test("new and saved persistence envelopes are exact v5 plus repository metadata"
   });
   assert.equal(created.ok, true, JSON.stringify(created.diagnostics, null, 2));
   assert.equal(created.revision, INITIAL_CHARACTER_REVISION);
-  assert.equal(created.value.schemaVersion, 5);
+  assert.equal(created.value.schemaVersion, 6);
   assert.equal(created.value.revision, 1);
   assert.equal(created.value.lastVisitedAt, null);
 

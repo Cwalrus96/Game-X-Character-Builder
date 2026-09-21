@@ -5,7 +5,7 @@ import {
 } from "./character-rules.js";
 import { sanitizeStoragePath, sanitizeText } from "./data-sanitization.js";
 
-export const CHARACTER_SCHEMA_VERSION = 5;
+export const CHARACTER_SCHEMA_VERSION = 6;
 
 export const BUILDER_STEP_IDS = Object.freeze([
   "basics",
@@ -59,6 +59,8 @@ const BUILDER_KEYS = Object.freeze([
   "backgroundKeystones",
   "weapons",
   "grantChoices",
+  "traitChoices",
+  "traitActivations",
   "resources",
   "visitedSteps",
   "selectedTechniques",
@@ -77,6 +79,12 @@ export function isCanonicalStableKey(value, { allowEmpty = true } = {}) {
   if (normalized !== value) return false;
   if (value === "") return allowEmpty;
   return STABLE_KEY_PATTERN.test(value);
+}
+
+export function isCanonicalStableId(value, { allowEmpty = true } = {}) {
+  if (typeof value !== "string") return false;
+  if (sanitizeText(value, { maxLen: 260, collapse: true }) !== value) return false;
+  return value === "" ? allowEmpty : STABLE_ID_PATTERN.test(value);
 }
 
 function isPlainObject(value) {
@@ -107,7 +115,7 @@ function validateExactKeys(value, path, allowedKeys, diagnostics) {
   const allowed = new Set(allowedKeys);
   for (const key of Object.keys(value).sort()) {
     if (!allowed.has(key)) {
-      addDiagnostic(diagnostics, "unknown-field", `${path}.${key}`, "Field is not part of character schema v5.");
+      addDiagnostic(diagnostics, "unknown-field", `${path}.${key}`, `Field is not part of character schema v${CHARACTER_SCHEMA_VERSION}.`);
     }
   }
   for (const key of allowedKeys) {
@@ -326,6 +334,28 @@ function validateGrantChoices(value, path, diagnostics) {
   }
 }
 
+function validateTraitState(value, path, diagnostics, { activation = false } = {}) {
+  if (!validatePlainObject(value, path, diagnostics)) return;
+  const ids = Object.keys(value).sort();
+  if (ids.length > 100) addDiagnostic(diagnostics, "too-many-items", path, "Expected at most 100 Trait records.");
+  const idField = activation ? "activationId" : "choiceId";
+  const keys = activation ? [idField, "sourceId", "active"] : [idField, "sourceId", "recipientId", "traitKey"];
+  for (const id of ids) {
+    const rowPath = `${path}.${id}`;
+    validateStableId(id, rowPath, diagnostics, { allowEmpty: false });
+    const row = value[id];
+    if (!validateExactKeys(row, rowPath, keys, diagnostics)) continue;
+    validateStableId(row[idField], `${rowPath}.${idField}`, diagnostics, { allowEmpty: false });
+    if (row[idField] !== id) addDiagnostic(diagnostics, "identity-mismatch", `${rowPath}.${idField}`, "Trait record ID must match its map key.");
+    validateStableId(row.sourceId, `${rowPath}.sourceId`, diagnostics, { allowEmpty: false });
+    if (activation) validateBoolean(row.active, `${rowPath}.active`, diagnostics);
+    else {
+      validateStableId(row.recipientId, `${rowPath}.recipientId`, diagnostics, { allowEmpty: false });
+      validateStableKey(row.traitKey, `${rowPath}.traitKey`, diagnostics, { allowEmpty: false });
+    }
+  }
+}
+
 function validateResource(value, path, diagnostics, mapResourceKey) {
   const keys = ["resourceKey", "name", "capacity", "current"];
   if (!validateExactKeys(value, path, keys, diagnostics)) return;
@@ -458,6 +488,8 @@ function validateBuilder(value, path, diagnostics) {
     uniqueBy: (item) => isPlainObject(item) ? item.id : "",
   });
   validateGrantChoices(value.grantChoices, `${path}.grantChoices`, diagnostics);
+  validateTraitState(value.traitChoices, `${path}.traitChoices`, diagnostics);
+  validateTraitState(value.traitActivations, `${path}.traitActivations`, diagnostics, { activation: true });
   validateResources(value.resources, `${path}.resources`, diagnostics);
   validateArray(value.visitedSteps, `${path}.visitedSteps`, diagnostics, {
     maxItems: BUILDER_STEP_IDS.length,
@@ -522,6 +554,8 @@ export function createDefaultCharacter({ ownerUid } = {}) {
       backgroundKeystones: [],
       weapons: [],
       grantChoices: {},
+      traitChoices: {},
+      traitActivations: {},
       resources: {},
       visitedSteps: [],
       selectedTechniques: [],
@@ -580,7 +614,7 @@ export class CharacterCodecError extends Error {
 
 export function assertCanonicalCharacter(value) {
   const result = decodeCharacter(value);
-  if (!result.ok) throw new CharacterCodecError("Character does not satisfy schema v5.", result.diagnostics);
+  if (!result.ok) throw new CharacterCodecError(`Character does not satisfy schema v${CHARACTER_SCHEMA_VERSION}.`, result.diagnostics);
   return result.value;
 }
 

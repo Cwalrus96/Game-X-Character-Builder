@@ -1,6 +1,6 @@
 # Builder flow
 
-Status: living current/transition contract. The previously planned Class/Feat, Attributes, Equipment, Techniques, Origin, Skills, and Bonds/Keystones pages use `CharacterSession` plus the graph in local review. The user's September 21 scope addition requires first-class Trait Rules, widgets, saved state, and graph integration; these are not complete merely because Trait data imports. Their personal manual acceptance is deferred and nonblocking. Compatible game data, concrete behavior verification, and the required new Trait implementation remain engineering work; the deployed Class-only hotfix is recorded separately in `docs/status.md`.
+Status: living current/transition contract. Class/Feat, Attributes, Equipment, Techniques, Origin, Skills, and Bonds/Keystones pages use `CharacterSession` plus the graph in local review. Static Trait Rules, widgets, schema-v6 choices and graph integration are implemented for explicit character-owned providers. The accepted source repairs and eight Origin providers are authored and stage successfully; Metamorph's three Trait choices import. Personal manual acceptance is deferred and nonblocking. A compatible reviewed data/application release remains separate; the deployed Class-only hotfix is recorded in `docs/status.md`.
 
 ## Step registry
 
@@ -43,7 +43,7 @@ The accepted replacement path for migrated domains is:
 
 - `character-session-page.js`: portable widget registration, typed command proposals, structured impact confirmation, exact acceptance, and save snapshots;
 - `CharacterSession` plus the Character Dependency Graph facade: canonical state and dependency authority;
-- `database-reader.js` and `database-writer.js`: the separate definitive v5 persistence boundary.
+- `database-reader.js` and `database-writer.js`: the separate definitive v6 persistence boundary.
 
 The compatibility path for untouched domains remains in:
 
@@ -58,6 +58,8 @@ A class-granted utility skill supplies a free minimum rank, not a locked final r
 
 The Feats control displays only choices supplied by active explicit `feat` grants. Character level can activate a feat-granting feature, but level never creates a second automatic slot. The shared Rules projection applies grant type/category/max-level filters and assigns persisted feat keys to source-owned slots deterministically. Removing or deactivating the granting feature therefore produces a reviewed dependency removal; cancelling it leaves the selected feat unchanged.
 
+Trait controls are mounted as independent widgets beside the Origin details and Class/Feat controls. They consume the same immutable projection as the graph and emit only `SetTraitChoice` and `RemoveTraitChoice`. Category labels distinguish multiple choices from the same feature. They restore accepted values and focus after rejected or cancelled proposals. The character sheet displays Traits read-only; its temporary-leaf autosave scope is unchanged. Acquired Traits immediately supply their explicit tags for static eligibility. Reference-only cards, incomplete mechanics and provider descriptions remain visible. Players track form use, costs and timing; there are no activation controls or automatic resource deductions.
+
 ## Proposed-change safety
 
 A migrated choice edit must follow this sequence:
@@ -68,7 +70,7 @@ A migrated choice edit must follow this sequence:
 4. Validation errors reject immediately and never invoke confirmation.
 5. Dependency removals fail closed if no confirmation handler exists.
 6. Cancellation changes neither working builder state nor widget display.
-7. Acceptance commits the exact schema-v5 reconciled state that produced the impacts.
+7. Acceptance commits the exact schema-v6 reconciled state that produced the impacts.
 8. The page passes the session's exact revision-bearing save snapshot to the database writer.
 
 Incomplete but non-destructive expected selections may be informational. A migrated page presents only informational impacts whose exact storage path belongs to fields that page can edit. This current-page ownership is explicit and does not depend on `visitedSteps`, so an Attributes save does not warn about a missing Origin, feat, Bond, or another later-page choice. Destructive impacts caused by the current proposal and blocking structural errors are different structured categories; they are not suppressed by current-page informational scoping and must not be inferred by filtering warning strings.

@@ -46,7 +46,7 @@ export const SOURCE_V5_ENUM_VALUES = Object.freeze(Object.fromEntries(Object.ent
   selectionMode: ["selectable", "granted-only", "draft"],
   energyCostKind: ["fixed", "variable", "conditional", "unassigned", "unspecified"],
   booleanYN: ["Y", "N"],
-  grantType: ["technique", "skill", "feat", "resource", "familiar", "weapon", "weapon-enhancement", "option", "choice", "bond", "specialization", "vehicle", "gadget", "rank", "choice-rebind", "tag", "feature"],
+  grantType: ["technique", "skill", "feat", "resource", "familiar", "weapon", "weapon-enhancement", "option", "choice", "bond", "specialization", "vehicle", "gadget", "rank", "choice-rebind", "tag", "feature", "trait"],
   prerequisiteType: ["class", "familiar", "feat", "choice", "weapon", "weapon-set", "trait", "technique", "tag", "text", "archetype", "attribute", "option", "skill"],
   expression: ["OR", "newline"],
   energyCostOptions: ["mode=value"],

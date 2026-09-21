@@ -70,6 +70,9 @@ function normalizeScalar(value, spec) {
   const cleanOne = (item) => String(item ?? "").trim();
   const raw = spec.allowOr ? splitOr(value) : cleanOne(value);
   const normalized = Array.isArray(raw) ? raw.map(cleanOne) : cleanOne(raw);
+  if (Array.isArray(normalized) && Number.isInteger(spec.minItems) && normalized.length < spec.minItems) {
+    return { ok: false, reason: `must contain at least ${spec.minItems} value` };
+  }
   if (Array.isArray(normalized) ? normalized.some((item) => !item) : !normalized) {
     return { ok: false, reason: "must not be blank" };
   }
@@ -133,6 +136,11 @@ function validateFields(kind, type, rawFields, { context = null, line = null, sy
   for (const group of definition.requiredAny) {
     if (!group.some((key) => Object.hasOwn(value, key))) {
       diagnostics.push(diagnostic(kind, "missing-field-group", `${kind} type "${type}" requires one of: ${group.join(", ")}.`, { context, line }));
+    }
+  }
+  for (const group of definition.mutuallyExclusive) {
+    if (group.filter((key) => Object.hasOwn(value, key)).length > 1) {
+      diagnostics.push(diagnostic(kind, "conflicting-fields", `${kind} type "${type}" permits only one of: ${group.join(", ")}.`, { context, line }));
     }
   }
 

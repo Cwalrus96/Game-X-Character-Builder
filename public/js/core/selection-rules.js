@@ -45,7 +45,7 @@ function skillRankFor(name, ranks) {
 
 /** Resolve acquisition routes only. Formal prerequisites remain a separate AND check. */
 export function getTechniqueSelectionState(technique, {
-  knownCombatSkills = new Set(), skillRanks = new Map(), tags = [], weapons = [],
+  knownCombatSkills = new Set(), skillRanks = new Map(), tags = [], tagRanks = {}, weapons = [],
   allowGrantedOnly = false, associatedSkill = "",
 } = {}) {
   const requiredRank = Number(technique?.rank ?? 0);
@@ -64,7 +64,7 @@ export function getTechniqueSelectionState(technique, {
     const skillName = override && !/^(provider|none)$/i.test(override) ? override : route.type === "skill" ? name : "";
     if (route.type === "granted") return { route, known: allowGrantedOnly, skillName, rank: allowGrantedOnly ? requiredRank : 0 };
     if (route.type === "skill") return { route, known: knownKeys.has(canonicalSkillKey(name)), skillName, rank: skillRankFor(skillName, skillRanks) };
-    if (route.type === "tag") return { route, known: tagKeys.has(identity(route.name)), skillName, rank: skillName ? skillRankFor(skillName, skillRanks) : 0 };
+    if (route.type === "tag") return { route, known: tagKeys.has(identity(route.name)), skillName, rank: skillName ? skillRankFor(skillName, skillRanks) : Math.max(0, ...Object.entries(tagRanks).filter(([tag]) => identity(tag) === identity(route.name)).map(([, rank]) => Number(rank) || 0)) };
     if (route.type === "weaponTag") {
       const matching = weapons.filter((weapon) => (weapon.tags || []).some((tag) => identity(tag) === identity(route.name)));
       return { route, known: matching.length > 0, skillName, rank: skillName ? skillRankFor(skillName, skillRanks) : Math.max(0, ...matching.map((weapon) => Number(weapon.rank) || 0)) };

@@ -42,6 +42,8 @@ import {
   renderEnhancementDetailHtml,
 } from "../core/weapon-utils.js";
 import { renderTechniqueProfileHtml } from "../core/technique-utils.js";
+import { projectCharacterTraits, getActiveTraitTechniqueDetails } from "../core/trait-rules.js";
+import { renderTraitProjectionHtml } from "../core/trait-display.js";
 import { ensureAppTopNav } from "../core/app-nav.js";
 import { renderBuilderNav } from "../builder/builder-nav.js";
 import {
@@ -510,6 +512,28 @@ setNumberFieldByName('hpmax', hpmax);
     }
     return { gameData: _gameXDataForTechniques, indexes: _techniqueIndexes };
   }
+
+  async function renderBuilderTraitsReadOnly(character) {
+    let mount = document.getElementById("builderTraits");
+    if (!mount) {
+      const anchor = document.getElementById("abilities");
+      if (!anchor) return;
+      mount = document.createElement("section");
+      mount.id = "builderTraits";
+      mount.className = "section";
+      mount.setAttribute("aria-labelledby", "traits_title");
+      anchor.before(mount);
+    }
+    try {
+      const { gameData } = await ensureTechniqueData();
+      const projection = projectCharacterTraits(character, gameData);
+      mount.innerHTML = `<h2 id="traits_title">Traits</h2><div class="cards">${renderTraitProjectionHtml(projection, { gameData })}</div>`;
+    } catch (error) {
+      console.warn("renderBuilderTraitsReadOnly failed", error);
+      mount.innerHTML = '<h2 id="traits_title">Traits</h2><p class="hint">Traits could not be loaded.</p>';
+    }
+  }
+
 async function renderBuilderTechniquesReadOnly(builder) {
   try {
     const mount = document.getElementById("selectedTechniquesFromBuilder");
@@ -521,12 +545,15 @@ async function renderBuilderTechniquesReadOnly(builder) {
     const { gameData, indexes } = await ensureTechniqueData();
     const knownAndGrants = computeKnownCombatSkillsAndGrants(gameData, b) || {};
     const grants = knownAndGrants.grantedTechniqueNames || new Set();
+    const traitTechniqueDetails = getActiveTraitTechniqueDetails(projectCharacterTraits({ builder: b }, gameData));
     const knownCombatSkills = knownAndGrants.knownCombatSkills || new Set();
     const grantedSkillState = computeGrantedSkillsState(gameData, b);
     const repeatables = (b?.sheet?.repeatables && typeof b.sheet.repeatables === "object") ? b.sheet.repeatables : {};
     const extraCombatSkills = sanitizeNamedSkillList(repeatables.combatSkillsExtra, { maxItems: 50 });
 
     function getTechniqueSkillRank(technique) {
+      const traitDetail = traitTechniqueDetails.get(technique?.techniqueKey);
+      if (traitDetail) return traitDetail.rank;
       const skillName = canonicalSkillName(sanitizeText(technique?.skill, { maxLen: 96, collapse: true }));
       if (!skillName) return Number(technique?.rank || 0);
 
@@ -551,6 +578,7 @@ async function renderBuilderTechniquesReadOnly(builder) {
 
     const origin = new Map();
     for (const ref of Array.from(grants)) origin.set(String(ref), 'Granted');
+    for (const [key, detail] of traitTechniqueDetails) origin.set(key, `Granted by ${detail.traitName || detail.sourceLabel || "Trait"}`);
     for (const ref of selectedRefs) if (!origin.has(String(ref))) origin.set(String(ref), 'Selected');
     const rankZeroBasics = getGameXTechniques(gameData)
       .filter((tech) => {
@@ -588,7 +616,7 @@ async function renderBuilderTechniquesReadOnly(builder) {
       return `
         <article class="ability-card technique-card technique-card-readonly">
           <div class="ability-card-head">
-            <div style="flex:1; min-width:0;">${renderTechniqueProfileHtml(tech, { rankValue: getTechniqueSkillRank(tech), heading: String(tech?.techniqueName || 'Technique'), headingTag: 'div', headingClass: 'ability-name technique-title-static', showRank: true })}</div>
+            <div style="flex:1; min-width:0;">${renderTechniqueProfileHtml(tech, { gameData, rankValue: getTechniqueSkillRank(tech), heading: String(tech?.techniqueName || 'Technique'), headingTag: 'div', headingClass: 'ability-name technique-title-static', showRank: true })}</div>
             <span class="technique-source-badge">${escapeHtml(source)}</span>
           </div>
         </article>
@@ -817,6 +845,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
         // Render Builder-selected techniques (read-only).
         renderBuilderTechniquesReadOnly(b);
         renderBuilderWeaponsReadOnly(b);
+        renderBuilderTraitsReadOnly(raw);
         renderSheetBuilderNav(raw);
         if (portraitApi && portraitPath) {
           const url = await resolvePortraitUrl(portraitPath);
@@ -858,6 +887,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
 
       renderBuilderTechniquesReadOnly((baseline && baseline.builder) ? baseline.builder : {});
       renderBuilderWeaponsReadOnly((baseline && baseline.builder) ? baseline.builder : {});
+      renderBuilderTraitsReadOnly(baseline);
       renderSheetBuilderNav(baseline);
 
       cloudReady = true;

@@ -23,6 +23,7 @@ import {
   MIGRATION_GAME_DATA,
   makeObservedLegacyV4Character,
   makeV4Character,
+  makeV5Character,
 } from "./fixtures/character-schemas.mjs";
 import {
   ALICE_UID,
@@ -68,7 +69,7 @@ async function seedLegacy(characterId = "legacy") {
   return legacy;
 }
 
-test("repository entry points create and read exact v5 with resolved timestamps", async () => {
+test("repository entry points create and read exact v6 with resolved timestamps", async () => {
   const firestore = aliceFirestore();
   const created = await createCharacter({ ownerUid: ALICE_UID, firestore, firestoreApi });
   assert.equal(created.revision, 1);
@@ -80,14 +81,14 @@ test("repository entry points create and read exact v5 with resolved timestamps"
     firestore,
     firestoreApi,
   });
-  assert.equal(loaded.character.schemaVersion, 5);
+  assert.equal(loaded.character.schemaVersion, 6);
   assert.equal(loaded.revision, 1);
   assert.equal(loaded.migrated, false);
   assert.equal(typeof loaded.metadata.createdAt?.toMillis, "function");
   assert.equal(typeof loaded.metadata.updatedAt?.toMillis, "function");
 });
 
-test("a migrated read is read-only and an explicit save persists schema v5", async () => {
+test("a migrated read is read-only and an explicit save persists schema v6", async () => {
   const original = await seedLegacy();
   const firestore = aliceFirestore();
   const loaded = await readCharacter({
@@ -114,7 +115,7 @@ test("a migrated read is read-only and an explicit save persists schema v5", asy
   });
   assert.equal(saved.revision, 1);
   const afterSave = (await getDoc(doc(firestore, "users", ALICE_UID, "characters", "legacy"))).data();
-  assert.equal(afterSave.schemaVersion, 5);
+  assert.equal(afterSave.schemaVersion, 6);
   assert.equal(afterSave.revision, 1);
   assert.equal(afterSave.lastVisitedAt, "visited-at");
 });
@@ -151,6 +152,40 @@ test("observed legacy v4 state upgrades on explicit save once while preserving c
   const second = await patchCharacter({ ...options, expectedRevision: 1, patch: { "builder.name": reloaded.character.builder.name } });
   assert.equal(second.migrated, false);
   assert.equal(second.revision, 2);
+});
+
+test("v5 upgrades read-only to empty Trait state and explicit v6 saves retain owned answers and revision checks", async () => {
+  const original = makeV5Character();
+  original.ownerUid = ALICE_UID;
+  Object.assign(original, { revision: 4, createdAt: "original-created", updatedAt: "original-updated" });
+  original.builder.sheet.fields.notes = "Player notes survive the Trait schema upgrade.";
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), "users", ALICE_UID, "characters", "traits-v5"), original);
+  });
+  const firestore = aliceFirestore();
+  const options = { ownerUid: ALICE_UID, characterId: "traits-v5", references, firestore, firestoreApi };
+  const ref = doc(firestore, "users", ALICE_UID, "characters", "traits-v5");
+  const loaded = await readCharacter(options);
+  assert.deepEqual((await getDoc(ref)).data(), original);
+  assert.equal(loaded.character.schemaVersion, 6);
+  assert.equal(loaded.revision, 4);
+  assert.deepEqual(loaded.character.builder.traitChoices, {});
+  assert.deepEqual(loaded.character.builder.traitActivations, {});
+  const traitChoices = {
+    "trait-choice:adaptation:1": { choiceId: "trait-choice:adaptation:1", sourceId: "origin-feature:adaptation", recipientId: "character", traitKey: "wings" },
+  };
+  const traitActivations = {
+    "trait-activation:form": { activationId: "trait-activation:form", sourceId: "class-feature:form", active: false },
+  };
+  const saved = await patchCharacter({ ...options, expectedRevision: 4, patch: { "builder.traitChoices": traitChoices, "builder.traitActivations": traitActivations } });
+  assert.equal(saved.revision, 5);
+  const reloaded = await readCharacter(options);
+  assert.equal(reloaded.migrated, false);
+  assert.deepEqual(reloaded.migration.appliedVersions, []);
+  assert.deepEqual(reloaded.character, { ...loaded.character, builder: { ...loaded.character.builder, traitChoices, traitActivations } });
+  assert.equal(reloaded.metadata.createdAt, original.createdAt);
+  await assert.rejects(patchCharacter({ ...options, expectedRevision: 4, patch: { "builder.traitChoices": {} } }), (error) => error instanceof CharacterConflictError);
+  assert.deepEqual((await readCharacter(options)).character, reloaded.character);
 });
 
 test("narrow patches preserve unrelated state and reject invalid paths", async () => {

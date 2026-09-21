@@ -16,6 +16,7 @@ import {
   makeV3Character,
   makeV4Character,
   makeV5Character,
+  makeV6Character,
   makeObservedLegacyV4Character,
 } from "./fixtures/character-schemas.mjs";
 
@@ -28,18 +29,19 @@ function hasDiagnostic(result, code, path) {
 test("registry records only evidence-backed historical migration edges", () => {
   assert.deepEqual(
     CHARACTER_MIGRATION_STEPS.map(({ fromVersion, toVersion }) => `${fromVersion}->${toVersion}`),
-    ["0->1", "1->3", "3->4", "4->5"],
+    ["0->1", "1->3", "3->4", "4->5", "5->6"],
   );
-  assert.deepEqual(CharacterMigrations.supportedVersions, [0, 1, 3, 4, 5]);
+  assert.deepEqual(CharacterMigrations.supportedVersions, [0, 1, 3, 4, 5, 6]);
   assert.equal(Object.isFrozen(CHARACTER_MIGRATION_STEPS), true);
 });
 
-test("every observed historical fixture reaches the exact v5 codec", () => {
+test("every observed historical fixture reaches the exact v6 codec", () => {
   const cases = [
-    [makeUnversionedCharacter(), 0, ["0->1", "1->3", "3->4", "4->5"]],
-    [makeV1Character(), 1, ["1->3", "3->4", "4->5"]],
-    [makeV3Character(), 3, ["3->4", "4->5"]],
-    [makeV4Character(), 4, ["4->5"]],
+    [makeUnversionedCharacter(), 0, ["0->1", "1->3", "3->4", "4->5", "5->6"]],
+    [makeV1Character(), 1, ["1->3", "3->4", "4->5", "5->6"]],
+    [makeV3Character(), 3, ["3->4", "4->5", "5->6"]],
+    [makeV4Character(), 4, ["4->5", "5->6"]],
+    [makeV5Character(), 5, ["5->6"]],
   ];
 
   for (const [fixture, expectedVersion, expectedEdges] of cases) {
@@ -51,7 +53,7 @@ test("every observed historical fixture reaches the exact v5 codec", () => {
       result.appliedVersions.map(({ fromVersion, toVersion }) => `${fromVersion}->${toVersion}`),
       expectedEdges,
     );
-    assert.equal(result.value.schemaVersion, 5);
+    assert.equal(result.value.schemaVersion, 6);
     assert.equal(validateCharacter(result.value).ok, true);
     assert.deepEqual(fixture, original, "migration must not mutate input");
   }
@@ -272,8 +274,8 @@ test("historical revision and update metadata stay outside canonical state", () 
   assert.equal(Object.hasOwn(result.value.builder, "updatedAt"), false);
 });
 
-test("current v5 values remain equivalent and repeated registry migration is idempotent", () => {
-  const current = makeV5Character();
+test("current v6 values remain equivalent and repeated registry migration is idempotent", () => {
+  const current = makeV6Character();
   const currentWithMetadata = {
     ...structuredClone(current),
     createdAt: "created-at",

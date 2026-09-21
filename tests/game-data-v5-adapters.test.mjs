@@ -163,3 +163,17 @@ test("Schema types, required conditions, enum formats/defaults and Enums must ag
   assert.equal(result.model.techniques.length, 3);
   assert.equal(result.model.schema.find((row) => row.tab === "Traits" && row.field === "rank").type, "text");
 });
+
+test("v5 declares the Trait grant enum and preserves its complete normalized provider fields", () => {
+  const records = structuredClone(VALID_SCHEMA_V5_RECORDS);
+  records.OriginFeatures[0].grants = "trait | traitKey=wings | rank=1";
+  const result = adapt(records);
+  assertOk(result);
+  assert.equal(result.model.originFeatures[0].grants[0].type, "trait");
+  assert.deepEqual(result.model.originFeatures[0].grants[0], { type: "trait", key: "wings", rank: 1, count: 1 });
+  records.Enums = records.Enums.filter(row => !(row.domain === "grantType" && row.value === "trait"));
+  const missing = adapt(records);
+  assert.equal(missing.ok, false);
+  assert(missing.diagnostics.some(item => item.code === "missing-enum-value" && /trait/.test(item.message)));
+  assert.equal(missing.model.originFeatures[0].grants[0].type, "trait");
+});

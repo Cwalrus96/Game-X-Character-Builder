@@ -96,12 +96,12 @@ function makePopulatedCharacter() {
   return character;
 }
 
-test("v5 defaults are complete, exact, valid, and independently allocated", () => {
+test("v6 defaults are complete, exact, valid, and independently allocated", () => {
   const first = createDefaultCharacter({ ownerUid: "user_123" });
   const second = createDefaultCharacter({ ownerUid: "user_123" });
 
   assert.equal(first.schemaVersion, CHARACTER_SCHEMA_VERSION);
-  assert.equal(first.schemaVersion, 5);
+  assert.equal(first.schemaVersion, 6);
   assert.equal(first.ownerUid, "user_123");
   assert.deepEqual(first.builder.attributes, {
     strength: 0,
@@ -123,7 +123,7 @@ test("v5 defaults are complete, exact, valid, and independently allocated", () =
   assert.deepEqual(second.builder.sheet.repeatables.conditions, []);
 });
 
-test("v5 codec round-trips a populated canonical character without sharing references", () => {
+test("v6 codec round-trips a populated canonical character without sharing references", () => {
   const character = makePopulatedCharacter();
   const encoded = encodeCharacter(character);
   const decoded = decodeCharacter(character);
@@ -140,7 +140,7 @@ test("v5 codec round-trips a populated canonical character without sharing refer
   assert.equal(character.builder.name, "Kiko");
 });
 
-test("pre-v5 documents must be migrated before decoding", () => {
+test("pre-v6 documents must be migrated before decoding", () => {
   const character = createDefaultCharacter({ ownerUid: "user_123" });
   character.schemaVersion = 4;
 

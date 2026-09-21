@@ -12,6 +12,7 @@ import { renderBuilderNavMounts } from "./builder-nav.js";
 import { getBuilderStepInformationalMessages } from "./builder-step-impacts.js?v=wpe11";
 import { CharacterSessionPage } from "./character-session-page.js?v=wpe10";
 import { OriginWidget } from "./widgets/origin-widget.js?v=wpe4";
+import { TraitWidget } from "./widgets/trait-widget.js";
 import { VisitBuilderStep } from "../core/character-commands.js?v=wpe4";
 import { readCharacter } from "../core/database-reader.js?v=wpe6";
 import { replaceCharacter } from "../core/database-writer.js?v=wpe1";
@@ -108,6 +109,10 @@ async function main() {
       onStateChange: (state) => { currentDoc = state.working; clearError(elements.error); setStatus(elements.status, "Unsaved changes."); },
     });
     new OriginWidget(page, { gameData, elements });
+    const traitMount = document.createElement("section");
+    traitMount.setAttribute("aria-label", "Traits supplied by your features");
+    elements.originDetails.after(traitMount);
+    new TraitWidget(page, { gameData, mount: traitMount });
     const previewIssues = issues(reconcileCharacterGraph({ character: currentDoc, previousCharacter: currentDoc, gameData }));
     if (previewIssues.errors.length) {
       showError(elements.error, `Stored origin data needs review. ${previewIssues.errors.join(" ")}`);

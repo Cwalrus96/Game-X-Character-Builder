@@ -2,7 +2,7 @@
 //
 // Definitive entry point for reading Character documents from Firestore.
 // Historical formats are decoded only through CharacterMigrations. The legacy
-// normalizer at the bottom remains temporarily for pages that cannot consume v5
+// normalizer at the bottom remains temporarily for pages that cannot consume canonical
 // until the stable-key game-data release is available.
 
 import {
@@ -75,7 +75,7 @@ function decodeSnapshot(snapshot, { ownerUid, references }) {
   if (!decoded.ok) {
     throw new CharacterPersistenceError(
       "character-read-invalid",
-      `Character ${snapshot.id} could not be decoded as schema v5.`,
+      `Character ${snapshot.id} could not be decoded as a canonical character.`,
       { diagnostics: decoded.diagnostics },
     );
   }
@@ -98,7 +98,7 @@ function timestampMillis(value) {
 }
 
 /**
- * Read one character as exact canonical v5 state plus separate metadata.
+ * Read one character as exact canonical state plus separate metadata.
  * This function never writes, including when a historical document migrates.
  */
 export async function readCharacter({

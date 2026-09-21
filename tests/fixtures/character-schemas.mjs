@@ -236,6 +236,14 @@ export function makeV4Character() {
 }
 
 export function makeV5Character() {
+  const character = makeV6Character();
+  character.schemaVersion = 5;
+  delete character.builder.traitChoices;
+  delete character.builder.traitActivations;
+  return character;
+}
+
+export function makeV6Character() {
   const character = createDefaultCharacter({ ownerUid: "user_123" });
   character.builder.name = "Kiko";
   return character;

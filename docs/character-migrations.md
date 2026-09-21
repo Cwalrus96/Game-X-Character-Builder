@@ -1,8 +1,8 @@
 # Character migration contract
 
-`CharacterMigrations` is the only target-v5 module that understands historical saved-character formats. Its job is to accept a recognized old Firestore document, preserve repository timestamps separately, explain every conversion it makes, and return an exact schema-v5 character accepted by `CharacterCodec`.
+`CharacterMigrations` is the only target-v6 module that understands historical saved-character formats. Its job is to accept a recognized old Firestore document, preserve repository timestamps separately, explain every conversion it makes, and return an exact schema-v6 character accepted by `CharacterCodec`.
 
-This boundary keeps historical document-format compatibility out of pages, widgets, rules, graph code, sessions, and the repository's canonical-state logic. Those consumers operate only on v5. The definitive reader applies this registry before exposing character state; old format-compatibility branches must be deleted as their remaining callers switch, and no new historical document-format compatibility logic may be added outside this module. Game-data naming aliases shared by current v5 characters are a separate pure identity concern; the Ranged Weapons/Targeting policy is defined in [character-persistence.md](character-persistence.md#ranged-weapons-naming-compatibility).
+This boundary keeps historical document-format compatibility out of pages, widgets, rules, graph code, sessions, and the repository's canonical-state logic. Those consumers operate only on v6. The definitive reader applies this registry before exposing character state; old format-compatibility branches must be deleted as their remaining callers switch, and no new historical document-format compatibility logic may be added outside this module. Game-data naming aliases shared by canonical characters are a separate pure identity concern; the Ranged Weapons/Targeting policy is defined in [character-persistence.md](character-persistence.md#ranged-weapons-naming-compatibility).
 
 ## Evidence-backed version history
 
@@ -15,7 +15,8 @@ The registry follows formats that executable repository history actually wrote; 
 | Version 2 | No repository writer emitted this version. | Rejected as reserved; its meaning is not guessed. |
 | Version 3 | Introduced by commit `3e783d2`; its builder shape grew while the version stayed 3. | `3 -> 4` |
 | Version 4 | Introduced by commit `6da3708`; weapons, grant choices, and resources were added during the v4 period. | `4 -> 5` |
-| Version 5 | The current exact canonical contract. | Validated without migration. |
+| Version 5 | The previous exact canonical contract, without dedicated Trait state. | `5 -> 6` |
+| Version 6 | The exact canonical contract with source-owned Trait answers and activation records. | Validated without migration. |
 
 The recognized unversioned envelope is deliberately narrow. An arbitrary object missing `schemaVersion` is not assumed to be the oldest format.
 
@@ -23,13 +24,13 @@ The recognized unversioned envelope is deliberately narrow. An arbitrary object 
 
 `migrateCharacterDocument(document, { references })` returns a structured result:
 
-- `ok` and `value`: `value` exists only when the final v5 codec accepts it;
+- `ok` and `value`: `value` exists only when the final v6 codec accepts it;
 - `fromVersion`, `toVersion`, and `appliedVersions`: the recognized input and exact edges used;
 - `metadata`: `createdAt`, `updatedAt`, persistence `revision`, and historical `lastVisitedAt`, separated from canonical state;
 - `report`: deterministic `preserved`, `defaulted`, `normalized`, `renamed`, `removed`, and `unresolved` records;
 - `diagnostics`: deterministic path-specific failures such as malformed input, unknown fields, missing references, ambiguous references, or identity collisions.
 
-The database reader invokes this registry without writing. The database writer persists the migrated v5 value only as part of a successful explicit save with a matching revision. See [character-persistence.md](character-persistence.md).
+The database reader invokes this registry without writing. The database writer persists the migrated v6 value only as part of a successful explicit save with a matching revision. See [character-persistence.md](character-persistence.md).
 
 The registry is pure. It does not read Firebase, load files, access the DOM, fetch game data, or mutate its input.
 
@@ -37,9 +38,10 @@ The registry is pure. It does not read Firebase, load files, access the DOM, fet
 
 ## Conversion rules
 
-- Stable v5 references are preserved only when the supplied reference index proves them.
-- V1 attributes are treated as base values. The historical primary-attribute bonus is restored before v5 level caps are applied.
-- Missing required v5 fields receive their documented canonical defaults and are listed in the report.
+- Historical references requiring conversion are accepted only when the supplied reference index proves them. An exact v5 character keeps its existing keys without a new reference-resolution pass.
+- V1 attributes are treated as base values. The historical primary-attribute bonus is restored before historical attribute normalization applies the level caps.
+- The `4 -> 5` edge retains its frozen historical field list and documented defaults. Current codec additions cannot expand that legacy allowlist or silently discard unexpected source values.
+- The `5 -> 6` edge preserves every existing character value and adds only empty `builder.traitChoices` and `builder.traitActivations` maps. It infers no Traits, recipient, rank, or activation. An older document already containing either new field fails rather than having that unknown value overwritten. Missing or malformed required v5 fields still fail final validation.
 - Historical bonds, abilities, weapons, and enhancements that lacked IDs receive deterministic IDs derived from their content and position. Duplicate final identities fail.
 - Historical class-option grant answers are rebound to stable choice and owner IDs only when the reviewed game-data reference index proves one unambiguous match. This includes the display/composite identities emitted by the v4 Dazzling Wand picker; the selected technique is retained as its stable technique key.
 - Known core/defense `rank_*` field identities in older granted-skill snapshots resolve through the fixed Rules skill catalogue. Named skill grants such as Elementalism supply reviewed skill identities even when the older artifact omitted a separate key. Unknown names or unknown `rank_*` fields still fail; no arbitrary player text is converted into a guessed identity.
@@ -49,11 +51,11 @@ The registry is pure. It does not read Firebase, load files, access the DOM, fet
 - Duplicate entries in `autoAbilityNames` are removed because that field is a derived display snapshot, not identity-bearing state. Repeated ability records remain distinct and receive distinct deterministic IDs, so two same-named feat abilities are not collapsed.
 - `migratedAt` and `migratedFromUid` are recognized as obsolete account-import bookkeeping fields and reported as removed. They are not canonical character state.
 - Known sheet mirrors and derived values are removed because canonical builder/rules state owns them; the report names each removal.
-- Firestore timestamps are returned as repository metadata and never passed into the v5 codec.
+- Firestore timestamps are returned as repository metadata and never passed into the canonical codec.
 - Obsolete nested `builder.updatedAt` is reported and separated as metadata. An existing root timestamp takes precedence; the nested timestamp is a fallback only when the root field is absent. A stored revision remains persistence metadata, including on recognized historical envelopes.
 - Unknown fields fail instead of being silently dropped.
 
-Some historical data has no proven lossless v5 binding. A populated legacy custom-technique list, freeform weapon list, `playerName`, or portrait URL/data value without a canonical Storage path produces an unresolved diagnostic. Empty obsolete collections may be removed with a report. Resolving a populated case requires an explicit product/data decision; it is not a license to discard the value.
+Some historical data has no proven lossless canonical binding. A populated legacy custom-technique list, freeform weapon list, `playerName`, or portrait URL/data value without a canonical Storage path produces an unresolved diagnostic. Empty obsolete collections may be removed with a report. Resolving a populated case requires an explicit product/data decision; it is not a license to discard the value.
 
 The September 21 production inspection supplied the shapes above, with historical writer commits confirming their meaning. Real player records remain in ignored local evidence; regression fixtures use synthetic identities and prose. All 13 captured per-user v4 documents pass isolated migration and explicit save/reload after these fixes. Format acceptance does not erase game-rule conflicts: equipment capacity/rank findings from later graph reconciliation remain separately reviewable and must not be repaired by inventing skills or deleting equipment inside a migration.
 
@@ -61,4 +63,4 @@ After conversion, shared grant projection resolves stable option keys against ei
 
 ## Going-forward boundary
 
-`WPC-MIGRATIONS` does not change the live Firebase reader or writer. `WPC-REPOSITORY` is responsible for applying this registry before decoding and for stamping every successfully written canonical character with schema version 5. Loading and migrating a historical character is read-only: the migrated v5 value remains in memory and must not be written back merely because the character was opened. Firebase receives the migrated v5 document only as part of a successful explicit user save. The repository must never expose an older shape to the rest of the application or let pages implement compatibility branches.
+The definitive reader/writer boundary applies this registry before decoding and stamps successful canonical writes with schema version 6. Loading and migrating a historical character is read-only: the migrated value remains in memory and must not be written back merely because the character was opened. Firebase receives the migrated document only as part of a successful explicit user save. The boundary must never expose an older shape to the modern application or let pages implement compatibility branches. The separately deployed legacy Class hotfix remains schema v4; this migration work does not deploy the modern builder or modify production characters.
