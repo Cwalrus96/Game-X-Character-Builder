@@ -231,6 +231,8 @@ The initial migration retained 77 variants for review. The user's subsequent con
 
 The adapter normalizes Traits, provider `traitKeys`, associated Technique references, classification tags, and explicit acquired-tag grants; validation checks their stable references. Syntax v3 recognizes Trait prerequisites and preserves tag-grant rank conditions. Character schema v5 still has no dedicated Trait/Familiar/Mech/form state: provider activation, recipient ownership, rank-driven grants, codec implications, and reconciliation require their own execution work. Preserved records and display prose must not silently become executable rules.
 
+The user's September 21 follow-up requires Traits to become a first-class runtime object with their own Rules and portable widgets. This is now explicit `WPE-DOMAIN-MIGRATION` implementation scope, alongside canonical persistence and graph ownership. The distinctions above remain authoritative; generic Trait support does not authorize completing the held class designs or treating provider/reference lists as unconditional grants.
+
 ### Techniques
 
 `techniqueKey` is stable identity; `techniqueName` is display text and may duplicate another name. `selection` determines access, while `status` determines readiness. Skill/tag names are authored once; retired `skillKeys` and `tagKeys` source columns are derived internally. Ranged Weapons accepts the saved Targeting identity; unrelated entity keys remain unchanged.

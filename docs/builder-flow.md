@@ -1,6 +1,6 @@
 # Builder flow
 
-Status: living current/transition contract. `WPE-DOMAIN-MIGRATION` has automated implementations for every planned slice: the local-review Class/Feat, Attributes, Equipment, Techniques, Origin, Skills, and Bonds/Keystones pages use `CharacterSession` plus the graph. Focused signed-in acceptance is deferred, so compatibility code remains and production cutover is not authorized.
+Status: living current/transition contract. The previously planned Class/Feat, Attributes, Equipment, Techniques, Origin, Skills, and Bonds/Keystones pages use `CharacterSession` plus the graph in local review. The user's September 21 scope addition requires first-class Trait Rules, widgets, saved state, and graph integration; these are not complete merely because Trait data imports. Their personal manual acceptance is deferred and nonblocking. Compatible game data, concrete behavior verification, and the required new Trait implementation remain engineering work; the deployed Class-only hotfix is recorded separately in `docs/status.md`.
 
 ## Step registry
 
