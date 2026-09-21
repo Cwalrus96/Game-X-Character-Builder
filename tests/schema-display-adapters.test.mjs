@@ -3,7 +3,7 @@ import test from 'node:test';
 import {
   DISPLAY_COLUMNS, OPTIONAL_DISPLAY_COLUMNS, DISPLAY_NAMED_FUNCTIONS,
   buildSchemaDisplayAdapters, diagnoseDisplayIdentities, displayProjectionFormula,
-  projectDisplayTable, traitCatalogueFormula,
+  featureDescriptionFormula, projectDisplayTable, schemaDisplayNativeFixtures, traitCatalogueFormula,
 } from '../scripts/display/schema-display-adapters.mjs';
 
 function sourceTable(sheet, records, omit = []) {
@@ -40,14 +40,15 @@ test('class display retains the three authoritative skill columns when levelUp d
   assert.doesNotMatch(displayProjectionFormula('Classes'), /ClassSkills/);
 });
 
-test('parent identity survives colliding display names and authored grant prose remains preferred', () => {
+test('parent identity survives colliding names and retired grant summaries cannot mask formal grants', () => {
   const source = sourceTable('Feats', [
     {category: 'a', featKey: 'first', name: 'Same name', grants: 'skill | name=Arcana | rank=1', grantText: 'Gain Arcana Rank 1.'},
     {category: 'b', featKey: 'second', name: 'Same name'},
     {category: 'a', featKey: 'child', name: 'Option', parentKey: 'first', grants: 'skill | name=Arcana | rank=1'},
   ], ['grantNotes']);
   const projected = projectDisplayTable('Feats', source);
-  assert.equal(recordAt(projected, 1).grants, 'Gain Arcana Rank 1.');
+  assert.equal(recordAt(projected, 1).grants, 'skill | name=Arcana | rank=1');
+  assert.equal(recordAt(projected, 1).grantText, '');
   assert.equal(recordAt(projected, 3).grants, 'skill | name=Arcana | rank=1');
   assert.equal(recordAt(projected, 3).parentKey, 'first');
   assert.deepEqual(diagnoseDisplayIdentities(source, {sheetName: 'Feats', keyColumn: 'featKey'}), []);
@@ -111,6 +112,54 @@ test('shared helpers distinguish an optional absent field from an invalid identi
   assert.match(DISPLAY_NAMED_FUNCTIONS.DATA_GET_COLUMN_BY_NAME.formula, /MAKEARRAY\(ROWS\(table\),1/);
   assert.match(DISPLAY_NAMED_FUNCTIONS.DATA_GET_FIELD_BY_KEY.formula, /OR\(key_value="",matches<>1\),NA\(\)/);
   assert.deepEqual(DISPLAY_NAMED_FUNCTIONS.OPTION_GROUP_BLOCK.argumentPlaceholders, ['class_key', 'lvl', 'group_name', 'group_desc', 'group_grants']);
+});
+
+test('Class and Origin projections preserve feature rows when optional prerequisites are absent', () => {
+  for (const sheet of ['ClassFeatures', 'OriginFeatures']) {
+    const source = sourceTable(sheet, [
+      {featureKey: 'first', name: 'Repeated name', description: 'First benefit'},
+      {featureKey: 'second', name: 'Repeated name', description: 'Second benefit'},
+    ], ['prerequisites']);
+    const projected = projectDisplayTable(sheet, source);
+    assert.equal(recordAt(projected, 1).featureKey, 'first');
+    assert.equal(recordAt(projected, 2).featureKey, 'second');
+    assert.equal(recordAt(projected, 1).prerequisites, '');
+    assert.equal(recordAt(projected, 2).prerequisites, '');
+    assert.equal(recordAt(projected, 2).description, 'Second benefit');
+    assert.match(displayProjectionFormula(sheet), /optional\("prerequisites"\)/);
+  }
+});
+
+test('feature and option helpers add the same prerequisite section once using each stable key', () => {
+  const description = featureDescriptionFormula('get("prerequisites")', 'get("description")');
+  for (const helper of ['CLASS_FEATURE_BLOCKS', 'ORIGIN_FEATURE_BLOCKS', 'OPTION_LINE']) {
+    const formula = DISPLAY_NAMED_FUNCTIONS[helper].formula;
+    assert.ok(formula.includes(description), helper);
+    assert.equal(formula.match(/PREREQ_BLOCK\(/g)?.length, 1, helper);
+    assert.match(formula, /DATA_GET_FIELD_BY_KEY/);
+  }
+  const group = DISPLAY_NAMED_FUNCTIONS.OPTION_GROUP_BLOCK.formula;
+  assert.equal(group.match(/PREREQ_BLOCK\(/g)?.length, 1);
+  assert.match(group, /DATA_GET_FIELD_BY_KEY\("ClassFeatures","featureKey",group_name,"prerequisites"\)/);
+  assert.match(group, /MAP\(FILTER\(DATA_GET_COLUMN_BY_NAME\(cf,"featureKey"\),full_filter\),LAMBDA\(option_key,OPTION_LINE\(cf,"featureKey",option_key\)\)\)/);
+  assert.doesNotMatch(group, /OPTION_LINE_FROM_FIELDS/);
+});
+
+test('native prerequisite fixtures verify OR wording, multiple clauses, keyed options, and missing headers', () => {
+  const fixtures = schemaDisplayNativeFixtures();
+  assert.equal(fixtures.length, 8);
+  assert.equal(fixtures[3].expected, '**Fixture**\nPrerequisites:\nSoulbound Weapon with the "Ranged OR Thrown" tag\n\nBenefit');
+  assert.equal(fixtures[4].expected.match(/Prerequisites:/g).length, 1);
+  assert.equal(fixtures[4].expected.match(/"Reach"/g).length, 1);
+  assert.equal(fixtures[4].expected.match(/"Ranged OR Thrown"/g).length, 1);
+  assert.match(fixtures[5].formula, /OPTION_LINE\("ClassFeatures","featureKey","sentinel-style"\)/);
+  assert.match(fixtures[6].formula, /OPTION_LINE\("ClassFeatures","featureKey","skirmisher-style"\)/);
+  assert.match(fixtures[7].formula, /actual=expected/);
+  const {cells, values} = buildSchemaDisplayAdapters();
+  for (const [index, fixture] of fixtures.entries()) {
+    assert.equal(cells[`Function_Tests!L${index + 18}`], fixture.formula);
+    assert.equal(values[`Function_Tests!M${index + 18}`], fixture.expected);
+  }
 });
 
 test('Trait renderer derives prerequisites, permits absent optional fields, and preserves authored body ownership', () => {

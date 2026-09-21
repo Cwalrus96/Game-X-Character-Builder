@@ -5,7 +5,10 @@ import {
   techniqueCompatibilityFormula,
   techniqueBlocksFormula,
   techniqueNativeFixtures,
+  techniqueDecisionNativeFixtures,
   techniqueNamedFunctionPatches,
+  basicAttackTextFormula,
+  prerequisiteTextFormula,
 } from '../scripts/display/technique-display-formulas.mjs';
 
 // This checks the generator's syntax, not spreadsheet calculation. The exported
@@ -39,6 +42,7 @@ test('Technique display generation produces valid formula structure including su
     blocks: techniqueBlocksFormula(),
     ...techniqueNamedFunctionPatches(),
     ...Object.fromEntries(techniqueNativeFixtures().map(fixture => [fixture.name, fixture.formula])),
+    ...Object.fromEntries(techniqueDecisionNativeFixtures().map(fixture => [fixture.name, fixture.formula])),
   };
   for (const [name, formula] of Object.entries(formulas)) validateFormula(formula, name);
 });
@@ -47,14 +51,44 @@ test('Technique adapter keeps downstream bindings while optional authoring field
   assert.equal(TECHNIQUE_COMPATIBILITY_HEADERS[28], 'techniqueKey');
   assert.equal(TECHNIQUE_COMPATIBILITY_HEADERS[26], 'rankNotes');
   assert.equal(TECHNIQUE_COMPATIBILITY_HEADERS[35], 'associatedSkill');
+  assert.equal(TECHNIQUE_COMPATIBILITY_HEADERS[36], 'basicAttack');
   const formula = techniqueCompatibilityFormula();
   assert.match(formula, /MAKEARRAY\(ROWS\(body\),1,LAMBDA\(rowindex,columnindex,""\)\)/);
   assert.match(formula, /VSTACK\("skill",column\("selection"\)\)/);
   assert.match(formula, /VSTACK\("selectionMode",column\("status"\)\)/);
   assert.match(formula, /VSTACK\("pumpDamageByRank",column\("pumpingByRank"\)\)/);
+  assert.match(formula, /VSTACK\("basicAttack",column\("basicAttack"\)\)/);
   for (const header of ['notes', 'damageByRank', 'sourceNote', 'prerequisiteText', 'skillKeys', 'tagKeys']) {
     assert.ok(formula.includes(`VSTACK("${header}",blank)`), `${header} is an empty compatibility slot`);
   }
+});
+
+test('basic-attack references preserve key identity and modifiers without declaring a second roll', () => {
+  const formula = basicAttackTextFormula('reference');
+  assert.match(formula, /XMATCH\("techniqueKey",referencehead,0\)/);
+  assert.match(formula, /field\("techniqueKey"\)/);
+  assert.match(formula, /Unresolved basic attack key/);
+  assert.match(formula, /field\("attribute"\)/);
+  assert.match(formula, /field\("defense"\)/);
+  assert.match(formula, /Additional basic-attack requirement/);
+  const fixtures = techniqueDecisionNativeFixtures();
+  const wrapper = fixtures.find(fixture => fixture.name.startsWith('Wrapper'));
+  assert.ok(wrapper.expected.includes('Basic attack: Weapon basic attack (vs Spiritual Defense)'));
+  assert.ok(!wrapper.expected.includes('(Martial Arts)'));
+  assert.ok(fixtures.some(fixture => fixture.expected === '[Unresolved basic attack key: missing]'));
+  assert.ok(fixtures.some(fixture => fixture.expected.includes('attribute: Agility; vs Spiritual Defense')));
+  assert.ok(fixtures.some(fixture => fixture.expected.includes('1 Action or Free Reaction + 3 Energy')));
+});
+
+test('typed prerequisite alternatives remain distinct from alternatives inside tag values', () => {
+  const formula = prerequisiteTextFormula('requirement');
+  assert.ok(formula.includes('(?i)\\s+OR\\s+([a-z-]+\\s*\\|)'));
+  assert.match(formula, /CHAR\(9830\)/);
+  assert.doesNotMatch(formula, /CHAR\(29\)/, 'Sheets strips the ASCII control separator to an empty SPLIT delimiter');
+  assert.match(formula, /"skill","name\|minRank"/);
+  const fixtures = techniqueDecisionNativeFixtures();
+  assert.ok(fixtures.some(fixture => fixture.expected === 'Wielding Melee weapon or Martial Arts Rank 1+'));
+  assert.ok(fixtures.some(fixture => fixture.expected === 'Heavy OR Two-handed weapon'));
 });
 
 test('Technique main renderer and compatibility helpers keep stable identity through rendering', () => {

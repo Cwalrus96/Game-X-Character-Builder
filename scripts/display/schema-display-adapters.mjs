@@ -1,5 +1,6 @@
 /** Authoring-only native Sheets formulas. These do not adapt runtime game data. */
 import {prerequisiteTextFormula} from './technique-display-formulas.mjs';
+import {GRANT_NAMED_FUNCTIONS} from './grant-display-formulas.mjs';
 
 export const DISPLAY_COLUMNS = Object.freeze({
   Classes: ['classKey', 'name', 'pitch', 'examples', 'hpProgression', 'primaryAttributeA', 'primaryAttributeB', 'combatTechniqueSkill', 'combatSkills', 'utilitySkillOptions', 'levelUp', 'notes', 'status'],
@@ -13,8 +14,8 @@ export const DISPLAY_COLUMNS = Object.freeze({
 
 export const OPTIONAL_DISPLAY_COLUMNS = Object.freeze({
   Classes: ['levelUp', 'notes'],
-  ClassFeatures: ['grantNotes', 'notes', 'grantText', 'traitKeys'],
-  OriginFeatures: ['grantNotes', 'notes', 'grantText', 'traitKeys'],
+  ClassFeatures: ['grantNotes', 'prerequisites', 'notes', 'grantText', 'traitKeys'],
+  OriginFeatures: ['grantNotes', 'prerequisites', 'notes', 'grantText', 'traitKeys'],
   Feats: ['grantNotes', 'notes', 'grantText'],
   WeaponBases: ['notes', 'sourceNote', 'tagKeys', 'traitsText'],
   WeaponEnhancements: ['notes', 'sourceNote'],
@@ -24,16 +25,14 @@ const quoted = value => `"${String(value).replaceAll('"', '""')}"`;
 const array = values => `{${values.map(quoted).join(',')}}`;
 
 /** Preserve compatibility positions without retaining duplicate authored columns. */
-export function displayProjectionFormula(sheetName) {
+export function displayProjectionFormula(sheetName, source = `DATA_IMPORT_SHEET(${quoted(sheetName)})`) {
   const columns = DISPLAY_COLUMNS[sheetName];
   if (!columns) throw new Error(`Unknown display projection: ${sheetName}`);
   if (sheetName === 'WeaponProfiles') return `=${array(columns)}`;
   const optional = new Set(OPTIONAL_DISPLAY_COLUMNS[sheetName]);
   const field = name => `${optional.has(name) ? 'optional' : 'column'}(${quoted(name)})`;
-  const parts = columns.map(name => name === 'grants'
-    ? `MAP(${field('grants')},${field('grantText')},LAMBDA(grant,prose,IF(grant="grants",grant,IF(prose<>"",prose,grant))))`
-    : field(name));
-  return `=LET(raw,DATA_IMPORT_SHEET(${quoted(sheetName)}),headers,INDEX(raw,1,0),blank,LAMBDA(label,MAKEARRAY(ROWS(raw),1,LAMBDA(rownum,colnum,IF(rownum=1,label,"")))),column,LAMBDA(label,CHOOSECOLS(raw,XMATCH(label,headers,0))),optional,LAMBDA(label,LET(position,IFNA(XMATCH(label,headers,0),0),IF(position=0,blank(label),CHOOSECOLS(raw,MAX(1,position))))),HSTACK(${parts.join(',')}))`;
+  const parts = columns.map(name => name === 'grantText' ? 'blank("grantText")' : field(name));
+  return `=LET(raw,${source},headers,INDEX(raw,1,0),blank,LAMBDA(label,MAKEARRAY(ROWS(raw),1,LAMBDA(rownum,colnum,IF(rownum=1,label,"")))),column,LAMBDA(label,CHOOSECOLS(raw,XMATCH(label,headers,0))),optional,LAMBDA(label,LET(position,IFNA(XMATCH(label,headers,0),0),IF(position=0,blank(label),CHOOSECOLS(raw,MAX(1,position))))),HSTACK(${parts.join(',')}))`;
 }
 
 /** Local preview of the header projection, used to verify an edit plan before native installation. */
@@ -47,9 +46,7 @@ export function projectDisplayTable(sheetName, rows) {
     if (!optional.has(name) && !headers.includes(name)) throw new Error(`${sheetName}: missing required header ${name}`);
   }
   const value = (row, name) => row[headers.indexOf(name)] ?? '';
-  return [columns.slice(), ...rows.slice(1).map(row => columns.map(name => name === 'grants'
-    ? value(row, 'grantText') || value(row, name)
-    : value(row, name)))];
+  return [columns.slice(), ...rows.slice(1).map(row => columns.map(name => name === 'grantText' ? '' : value(row, name)))];
 }
 
 /** Identity diagnostics deliberately do not classify duplicate display names as errors. */
@@ -99,6 +96,16 @@ export function traitCatalogueFormula(source = 'Traits!A1:L1000') {
   return `=LET(src,${source},head,INDEX(src,1,0),keys,CHOOSECOLS(src,XMATCH("traitKey",head,0)),names,CHOOSECOLS(src,XMATCH("name",head,0)),optional,LAMBDA(field,LET(position,IFNA(XMATCH(field,head,0),0),IF(position=0,MAP(keys,LAMBDA(item,"")),CHOOSECOLS(src,MAX(1,position))))),ranks,optional("rank"),prereqs,optional("prerequisites"),tags,optional("tags"),descriptions,optional("description"),ranknotes,optional("rankNotes"),refs,optional("techniqueKeys"),modes,optional("selectionMode"),duplicates,optional("duplicateGroup"),reviews,optional("reviewNotes"),MAP(FILTER(keys,keys<>"",keys<>"traitKey"),LAMBDA(key,LET(name,XLOOKUP(key,keys,names),rank,XLOOKUP(key,keys,ranks),rankmissing,LEN(TO_TEXT(rank))=0,pretext,XLOOKUP(key,keys,prereqs),tagtext,XLOOKUP(key,keys,tags),description,XLOOKUP(key,keys,descriptions),ranktext,XLOOKUP(key,keys,ranknotes),references,XLOOKUP(key,keys,refs),mode,XLOOKUP(key,keys,modes),duplicategroup,XLOOKUP(key,keys,duplicates),review,XLOOKUP(key,keys,reviews),refsvalid,IF(references="",TRUE,AND(MAP(SPLIT(references,","),LAMBDA(techkey,COUNTIF('_TechniqueBlocks'!A1:A1000,TRIM(techkey))=1)))),IF(OR(COUNTIF(keys,key)<>1,name="",NOT(refsvalid)),NA(),TEXTJOIN(CHAR(10),TRUE,"**"&name&" - Rank "&IF(rankmissing,"?",rank)&"**","**Prerequisites:** "&IF(pretext="","None",${prerequisites}),"**Tags:** "&IF(tagtext="","—",tagtext))&CHAR(10)&CHAR(10)&TEXTJOIN(CHAR(10),TRUE,description,ranktext,IF(duplicategroup="","","*Possible duplicate: "&duplicategroup&"*"),IF(review="","",TEXTJOIN(CHAR(10),TRUE,MAP(TRANSPOSE(SPLIT(review,CHAR(10),FALSE,TRUE)),LAMBDA(line,"*"&line&"*")))),IF(OR(rankmissing,mode="draft"),"*Incomplete Trait*","")))))))`;
 }
 
+/** Keep authored prerequisites in their own section, once, before the benefit. */
+export function featureDescriptionFormula(prerequisites = 'prerequisites', description = 'description') {
+  return `TEXTJOIN(CHAR(10)&CHAR(10),TRUE,IF(${prerequisites}="","","Prerequisites:"&CHAR(10)&PREREQ_BLOCK(${prerequisites})),${description})`;
+}
+
+function featureBlocksFormula(sheetName, ownerField, ownerArgument, emptyFallback = false) {
+  const formula = `LET(feature_keys,FILTER(DATA_GET_COLUMN_BY_NAME(${quoted(sheetName)},"featureKey"),DATA_GET_COLUMN_BY_NAME(${quoted(sheetName)},${quoted(ownerField)})=${ownerArgument},DATA_GET_COLUMN_BY_NAME(${quoted(sheetName)},"level")=lvl,DATA_GET_COLUMN_BY_NAME(${quoted(sheetName)},"rowType")="FEATURE"),MAP(feature_keys,LAMBDA(feature_key,LET(get,LAMBDA(field,DATA_GET_FIELD_BY_KEY(${quoted(sheetName)},"featureKey",feature_key,field)),FEATURE_BLOCK(get("name"),${featureDescriptionFormula('get("prerequisites")', 'get("description")')},get("grants"))))))`;
+  return `=${emptyFallback ? `IFERROR(${formula},"")` : formula}`;
+}
+
 /** Replacements retain the existing named-function signatures and formatting. */
 export const DISPLAY_NAMED_FUNCTIONS = Object.freeze({
   DATA_GET_COLUMN_BY_NAME: {
@@ -108,6 +115,18 @@ export const DISPLAY_NAMED_FUNCTIONS = Object.freeze({
   DATA_GET_FIELD_BY_KEY: {
     argumentPlaceholders: ['sheet_name', 'key_column', 'key_value', 'field_name'],
     formula: '=LET(key_values,DATA_GET_COLUMN_BY_NAME(sheet_name,key_column),field_values,DATA_GET_COLUMN_BY_NAME(sheet_name,field_name),matches,SUM(ARRAYFORMULA(N(key_values=key_value))),IF(OR(key_value="",matches<>1),NA(),INDEX(field_values,XMATCH(key_value,key_values,0))))',
+  },
+  CLASS_FEATURE_BLOCKS: {
+    argumentPlaceholders: ['class_key', 'lvl'],
+    formula: featureBlocksFormula('ClassFeatures', 'classKey', 'class_key', true),
+  },
+  ORIGIN_FEATURE_BLOCKS: {
+    argumentPlaceholders: ['origin_key', 'lvl'],
+    formula: featureBlocksFormula('OriginFeatures', 'originKey', 'origin_key'),
+  },
+  OPTION_LINE: {
+    argumentPlaceholders: ['sheet_name', 'key_column', 'option_key'],
+    formula: `=LET(get,LAMBDA(field,DATA_GET_FIELD_BY_KEY(sheet_name,key_column,option_key,field)),OPTION_LINE_FROM_FIELDS(get("name"),${featureDescriptionFormula('get("prerequisites")', 'get("description")')},get("grants")))`,
   },
   FEAT_OPTION_GROUP_BLOCK: {
     argumentPlaceholders: ['feat_key'],
@@ -120,9 +139,37 @@ export const DISPLAY_NAMED_FUNCTIONS = Object.freeze({
   OPTION_GROUP_BLOCK: {
     // group_name is a historical argument name; its value is now the stable featureKey.
     argumentPlaceholders: ['class_key', 'lvl', 'group_name', 'group_desc', 'group_grants'],
-    formula: '=LET(label,DATA_GET_FIELD_BY_KEY("ClassFeatures","featureKey",group_name,"name"),base_group,"**"&label&"**"&IF(group_desc<>"",CHAR(10)&group_desc,""),group_grants_block,IF(group_grants="","",GRANT_BLOCK(group_grants)),cf,"ClassFeatures",class_key_filter,ARRAYFORMULA(DATA_GET_COLUMN_BY_NAME(cf,"classKey")=class_key),level_filter,ARRAYFORMULA(DATA_GET_COLUMN_BY_NAME(cf,"level")=lvl),row_type_filter,ARRAYFORMULA(DATA_GET_COLUMN_BY_NAME(cf,"rowType")="OPTION"),parent_key_filter,ARRAYFORMULA(DATA_GET_COLUMN_BY_NAME(cf,"parentKey")=group_name),full_filter,ARRAYFORMULA(class_key_filter*level_filter*row_type_filter*parent_key_filter),option_lines,IFERROR(MAP(FILTER(DATA_GET_COLUMN_BY_NAME(cf,"name"),full_filter),FILTER(DATA_GET_COLUMN_BY_NAME(cf,"description"),full_filter),FILTER(DATA_GET_COLUMN_BY_NAME(cf,"grants"),full_filter),LAMBDA(option_name,option_desc,option_grants,OPTION_LINE_FROM_FIELDS(option_name,option_desc,option_grants))),""),base_group&IF(group_grants_block<>"",CHAR(10)&CHAR(10)&group_grants_block,"")&IF(COUNTA(option_lines)>0,CHAR(10)&CHAR(10)&TEXTJOIN(CHAR(10),TRUE,option_lines),""))',
+    formula: `=LET(label,DATA_GET_FIELD_BY_KEY("ClassFeatures","featureKey",group_name,"name"),prerequisites,DATA_GET_FIELD_BY_KEY("ClassFeatures","featureKey",group_name,"prerequisites"),description,${featureDescriptionFormula('prerequisites', 'group_desc')},base_group,"**"&label&"**"&IF(description<>"",CHAR(10)&description,""),group_grants_block,IF(group_grants="","",GRANT_BLOCK(group_grants)),cf,"ClassFeatures",class_key_filter,ARRAYFORMULA(DATA_GET_COLUMN_BY_NAME(cf,"classKey")=class_key),level_filter,ARRAYFORMULA(DATA_GET_COLUMN_BY_NAME(cf,"level")=lvl),row_type_filter,ARRAYFORMULA(DATA_GET_COLUMN_BY_NAME(cf,"rowType")="OPTION"),parent_key_filter,ARRAYFORMULA(DATA_GET_COLUMN_BY_NAME(cf,"parentKey")=group_name),full_filter,ARRAYFORMULA(class_key_filter*level_filter*row_type_filter*parent_key_filter),option_lines,IFERROR(MAP(FILTER(DATA_GET_COLUMN_BY_NAME(cf,"featureKey"),full_filter),LAMBDA(option_key,OPTION_LINE(cf,"featureKey",option_key))),""),base_group&IF(group_grants_block<>"",CHAR(10)&CHAR(10)&group_grants_block,"")&IF(COUNTA(option_lines)>0,CHAR(10)&CHAR(10)&TEXTJOIN(CHAR(10),TRUE,option_lines),""))`,
   },
 });
+
+/** Native fixtures exercise the actual shared renderer and installed named helpers. */
+export function schemaDisplayNativeFixtures() {
+  const prerequisite = 'choice | choiceRef=soulbound-weapon | tag=ranged OR thrown';
+  const reach = 'choice | choiceRef=soulbound-weapon | tag=reach';
+  const missingHeader = sheetName => {
+    const headers = DISPLAY_COLUMNS[sheetName].filter(header => !OPTIONAL_DISPLAY_COLUMNS[sheetName].includes(header));
+    const source = `{${headers.map(quoted).join(',')};${headers.map(header => quoted(header === 'featureKey' ? 'first' : '')).join(',')};${headers.map(header => quoted(header === 'featureKey' ? 'second' : '')).join(',')}}`;
+    const projection = displayProjectionFormula(sheetName, source).slice(1);
+    return {name: `${sheetName} missing prerequisite header yields blank rows`, formula: `=LET(projected,${projection},prereqs,CHOOSECOLS(projected,XMATCH("prerequisites",INDEX(projected,1,0),0)),AND(ROWS(projected)=3,INDEX(prereqs,1,1)="prerequisites",INDEX(prereqs,2,1)="",INDEX(prereqs,3,1)=""))`, expected: true};
+  };
+  const once = (text, part) => `(LEN(${text})-LEN(SUBSTITUTE(${text},${part},"")))/LEN(${part})=1`;
+  const option = (key, formal) => ({
+    name: `Option ${key} renders its prerequisite once`,
+    formula: `=LET(block,OPTION_LINE("ClassFeatures","featureKey",${quoted(key)}),prerequisite,PREREQ_BLOCK(${quoted(formal)}),AND(${once('block', '"Prerequisites:"')},${once('block', 'prerequisite')},ISNUMBER(FIND(DATA_GET_FIELD_BY_KEY("ClassFeatures","featureKey",${quoted(key)},"description"),block))))`,
+    expected: true,
+  });
+  return [
+    missingHeader('ClassFeatures'),
+    missingHeader('OriginFeatures'),
+    {name: 'Feature without prerequisites keeps its original benefit', formula: `=FEATURE_BLOCK("Fixture",${featureDescriptionFormula('""', '"Benefit"')},"")`, expected: '**Fixture**\nBenefit'},
+    {name: 'Feature OR prerequisite is rendered once before its benefit', formula: `=FEATURE_BLOCK("Fixture",${featureDescriptionFormula(quoted(prerequisite), '"Benefit"')},"")`, expected: '**Fixture**\nPrerequisites:\nSoulbound Weapon with the "Ranged OR Thrown" tag\n\nBenefit'},
+    {name: 'Feature preserves separate prerequisite clauses without repeating the section', formula: `=FEATURE_BLOCK("Fixture",${featureDescriptionFormula(`${quoted(reach)}&CHAR(10)&${quoted(prerequisite)}`, '"Benefit"')},"")`, expected: '**Fixture**\nPrerequisites:\nSoulbound Weapon with the "Reach" tag\nSoulbound Weapon with the "Ranged OR Thrown" tag\n\nBenefit'},
+    option('sentinel-style', reach),
+    option('skirmisher-style', prerequisite),
+    {name: 'Fighting Styles keeps one prerequisite section per gated option', formula: '=LET(block,OPTION_GROUP_BLOCK("weapon-master",1,"fighting-styles",DATA_GET_FIELD_BY_KEY("ClassFeatures","featureKey","fighting-styles","description"),DATA_GET_FIELD_BY_KEY("ClassFeatures","featureKey","fighting-styles","grants")),actual,(LEN(block)-LEN(SUBSTITUTE(block,"Prerequisites:","")))/LEN("Prerequisites:"),expected,COUNTIFS(DATA_GET_COLUMN_BY_NAME("ClassFeatures","parentKey"),"fighting-styles",DATA_GET_COLUMN_BY_NAME("ClassFeatures","rowType"),"OPTION",DATA_GET_COLUMN_BY_NAME("ClassFeatures","prerequisites"),"<>"),AND(expected>0,actual=expected))', expected: true},
+  ];
+}
 
 /** Native installation payload; no network or file writes occur here. */
 export function buildSchemaDisplayAdapters() {
@@ -151,9 +198,18 @@ export function buildSchemaDisplayAdapters() {
   cells['Function_Tests!B41'] = `=N((${traitCatalogueFormula(fixture(baseHeaders, baseRow)).slice(1)})=${quoted(expected)})`;
   cells['Function_Tests!B42'] = `=N((${traitCatalogueFormula(fixture([...baseHeaders, 'selectionMode', 'duplicateGroup', 'reviewNotes'], [...baseRow, 'draft', 'family', 'Review'])).slice(1)})=${quoted(`${expected}\n*Possible duplicate: family*\n*Review*\n*Incomplete Trait*`)})`;
   cells['Function_Tests!B43'] = `=N(ISNA(${traitCatalogueFormula(fixture(baseHeaders, [...baseRow.slice(0, -1), 'missing-fixture-technique'])).slice(1)}))`;
+  const fixtureValues = {};
+  for (const [index, {name, formula, expected: result}] of schemaDisplayNativeFixtures().entries()) {
+    const row = 18 + index;
+    fixtureValues[`Function_Tests!K${row}`] = name;
+    cells[`Function_Tests!L${row}`] = formula;
+    fixtureValues[`Function_Tests!M${row}`] = result;
+    cells[`Function_Tests!N${row}`] = `=IF(L${row}=M${row},"PASS","FAIL")`;
+  }
   return {
     cells,
     values: {
+      ...fixtureValues,
       'Function_Tests!A4': 'Stable class option parent references',
       'Function_Tests!A5': 'Repeated Monster choices retain separate parent keys',
       'Function_Tests!A6': 'Stable feat option parent references',
@@ -161,6 +217,6 @@ export function buildSchemaDisplayAdapters() {
       'Function_Tests!A22': 'Archetype catalogue covers complete identities',
       'Function_Tests!F1': 'Source', 'Function_Tests!G1': 'Row', 'Function_Tests!H1': 'Key', 'Function_Tests!I1': 'Issue',
     },
-    namedFunctions: DISPLAY_NAMED_FUNCTIONS,
+    namedFunctions: {...DISPLAY_NAMED_FUNCTIONS, ...GRANT_NAMED_FUNCTIONS},
   };
 }

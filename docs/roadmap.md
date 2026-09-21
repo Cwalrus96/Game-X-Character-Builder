@@ -332,7 +332,7 @@ Acceptance:
 - a fresh read-only source acquisition produces a complete staged report and diff, with unresolved source findings retained rather than skipped;
 - applicable full-suite checks pass and the production baseline remains unchanged.
 
-The two incomplete Chimaera feat identities and unresolved draft mechanics still require authoring resolution before a publishable source candidate. This step produces an integration and staged review result. Reviewing/publishing candidate bytes and deploying the website remain separate boundaries.
+The September 21 decisions are recorded in [the content review](source-content-review-2026-09-21.md). Integration must include basic-attack references and their underlying-roll overrides, typed prerequisite alternatives and known-option counts, generic Keystone choices, recipient-owned Artifact skills, and repeated feature references with distinct ownership. Monster Evolution's conditional execution and broader unfinished class systems remain held. Retain incomplete content and precise unsupported-mechanic diagnostics without requiring completion of the game to migrate its format. Preserve candidate-weapon enhancement prerequisites, stable identity aliases, and concurrent authoring changes. This step produces an integration and staged review result. Reviewing/publishing candidate bytes and deploying the website remain separate boundaries.
 
 ## Work Package C — character schema and session skeleton
 
