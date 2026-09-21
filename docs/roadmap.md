@@ -349,9 +349,9 @@ Acceptance:
 - the semantic diff and saved-character impacts have explicit dispositions, including removed Technique, Feat, and ClassFeature keys;
 - a reviewed release contract and publisher support the exact ten-file schema-v3 candidate, with hash/approval rejection and transactional rollback fixtures; the previous nine-file release remains supported;
 - a fresh candidate passes validation, runtime loading, full applicable tests, and local review;
-- exact candidate bytes receive separate diff-review and publishing approval before promotion; website deployment remains blocked by the existing Work Package E manual acceptance boundary unless the user explicitly overrides it.
+- exact candidate bytes receive separate diff-review and publishing approval before promotion. The user's September 21 direction makes their deferred personal acceptance nonblocking; concrete compatibility and verification work remains required before the broader release.
 
-This step makes release consequences concrete; completing an import does not authorize publishing or executing deferred systems. The parallel `WPE-DOMAIN-MIGRATION` step verifies signed-in save/reload, dependency confirmation/cancellation, and conflict/focus behavior before application release.
+This step makes release consequences concrete; completing an import does not authorize publishing or executing deferred systems. The parallel `WPE-DOMAIN-MIGRATION` step verifies signed-in save/reload, dependency confirmation/cancellation, and conflict/focus behavior. Agent-performed verification can proceed now; the user's later manual acceptance is follow-up, not a reason to stop engineering.
 
 ## Work Package C — character schema and session skeleton
 
@@ -443,7 +443,7 @@ Evidence:
 
 Status: `active`
 
-Current checkpoint: the Class/Feat/Technique, Equipment, and Attributes implementations are available in the local review environment. Their focused signed-in browser scenarios remain pending, so their compatibility helpers are retained and Origin/Skills has not started.
+Current checkpoint: all documented Work Package E builder domains are available in the local review environment. Their focused signed-in browser scenarios remain pending, so compatibility helpers are retained. The production-record migration repair below addresses newly observed save failures without declaring that broader acceptance complete.
 
 Prerequisite: `WPC-MIGRATIONS`
 
@@ -479,6 +479,28 @@ Acceptance:
 - arbitrary/open-ended page patch paths are rejected and character-sheet writes remain limited to sheet-owned temporary leaves;
 - unit and emulator tests cover create, read, migrated read without a write, explicit-save migration persistence, valid save, invalid save, authorization propagation, missing documents, conflicts, and timestamp handling;
 - no Firebase production document, production game-data artifact, or canonical Sheet cell changes during verification.
+
+### `WPC-LIVE-MIGRATION-REPAIR` — repair observed legacy save failures
+
+Status: `complete` (implementation and isolated verification; legacy Class hotfix deployed; full newer builder release remains separate)
+
+Prerequisite: the implemented migration and revision-aware persistence boundaries in `WPC-MIGRATIONS` / `WPC-REPOSITORY`.
+
+Goal: use authorized read-only production examples to extend the existing pure migrator, so a recognized older character can open in canonical form and become schema v5 through a successful explicit save. Keep historical-format knowledge in CharacterMigrations; do not add a second migrator in pages or silently discard unknown player state.
+
+Acceptance:
+
+- record live schema/failure categories without committing player identifiers or private character prose;
+- prove conversions from source/history, with synthetic regression fixtures for the observed failures and rejection of ambiguous conflicts;
+- rerun the captured current-path records through migration, codec, and save/reload in isolation; loading alone performs no write, explicit saves upgrade once, and stale revisions remain protected;
+- preserve player-authored identity, choices, notes, and non-derived state, with an explicit report for normalization of old derived snapshots;
+- run full unit/emulator/asset checks, verify the production data baseline, refresh local review, and record residual failures and deployment boundaries.
+
+Bulk production edits and retirement of the older single-character storage path are outside this repair. The user has deferred personal acceptance without blocking progress and authorized the separately reviewed Class-only hotfix. Compatible data release and verification still govern the full builder rollout; game-data publication is separate.
+
+Completed evidence on September 21: all 13 captured current-path records pass migration, codec, read-only opening, explicit save/reload, and stale-revision rejection in isolated Firestore. The full suite passes 361 unit tests, 17 emulator rule tests, and 14 asset checks; nine production data hashes remain unchanged. Shared grant projection preserves migrated stable option keys against schema-2 artifacts. Synthetic regressions reject ambiguity and prevent missing-owner inference for unproven class options.
+
+The deployed Class-page fault was separately reproduced and a bounded hotfix prepared against its exact Hosting release. Browser verification proves saving/reloading preserves the selected feat and newer sheet-owned values. After the user's September 21 override, Hosting version `d5c9671adee0ab31` released that one-file repair, preserving all 101 other paths and configuration. No production character was written. See [the live-save repair](live-save-repair-2026-09-21.md). Next application work remains `WPE-DOMAIN-MIGRATION` compatibility and verification, coordinated with `WPB-V5-RELEASE-REVIEW`; the user's later personal acceptance is nonblocking.
 
 ### `WPC-SESSION`
 
@@ -578,9 +600,11 @@ Evidence:
 
 Status: `active`
 
+September 21 user direction supersedes the personal-acceptance blocker in the historical checkpoint below: "I'll perform manual acceptance soon, but not now. That should not be a blocker." Continue engineering and agent-performed browser verification now. Their testing remains a follow-up, not a release prerequisite. Existing-character compatibility, complete automated checks, and a concrete compatible builder/data release still need to be established; do not mark unperformed checks as passed.
+
 Current checkpoint: all planned vertical slices now have automated implementations. Class/Feat/Technique, Equipment, Attributes, Origin/Skills, and Bonds/Keystones/derived abilities use the session/graph path in the local review environment, and the Boon registry adapter proves that a new automatic choice type can be added without a page-controller or graph-traversal branch. Signed-in browser acceptance resumed on 2026-08-30. Its first historical-character Class-page scenario exposed and repaired a v4 migration-coverage gap plus stable-key presentation bindings. Its first save attempt then exposed a graph-derived display snapshot that repeated the shared label of two independently owned class-feature abilities; reconciliation now keeps that non-identity snapshot duplicate-free while preserving both stable ability records. A subsequent save preview exposed that typed `feat` grants were still deferred while the page and compiler manufactured capacity from `floor(level / 2)`. The approved direction now makes explicit feature grants the only source of feat choices: shared pure Rules materialize filtered source-owned slots and both graph and widget consume that projection. Save-time incomplete notices are now scoped by exact current-page field ownership, so pages do not warn about untouched choices elsewhere in the builder; blocking errors and destructive proposal consequences remain global. Skills/Bonds acceptance then exposed locked class-granted utility ranks and widget-wide disabling that captured page Save/Keystone controls; shared Skill Rules now treat grants as free floors with paid increases, and portable widgets disable only their own controls. Focused browser re-acceptance is still pending, so no compatibility path has been removed and production deployment remains blocked.
 
-Prerequisite: `WPD-GRAPH-CORE`. Deployed class/feat/technique cutover also requires reviewed runtime stable keys and coordination with the active `WPC-REPOSITORY` page-integration boundary.
+Prerequisite: `WPD-GRAPH-CORE`. Deployed class/feat/technique cutover also requires reviewed runtime stable keys, compatible explicit grants, and coordination with the active `WPC-REPOSITORY` page-integration boundary. September 21 live-record replay proves that published schema-2 Spirit Warrior data lacks a feat grant expected by the new graph; the staged schema-3 candidate supplies it. Resolve this coordinated runtime/data release boundary before accepting the new builder's save proposals against production characters; do not treat proposed loss of a valid feat as a format migration.
 
 Goal: replace the transitional page/widget dependency policy with typed commands and registered graph handlers one complete vertical domain at a time, proving behavior and persistence parity before removing each legacy path.
 

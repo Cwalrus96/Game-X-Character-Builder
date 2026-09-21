@@ -16,6 +16,8 @@ Recognized historical documents migrate only in memory. A read never writes the 
 
 Known v4 account-import envelopes are supported, including their obsolete import timestamps, duplicate derived ability-name snapshots, and source-owned class-option answers whose old display/composite identities can be proven against reviewed game data. Identity-bearing repeated records are preserved. The reader still fails closed for unknown fields, ambiguous owners, or references that cannot be proven.
 
+The live-record repair also covers old `rank_*` skill snapshot identities, obsolete merged selection aliases, nested update timestamps, composite feat-option labels, and source-less automatic choices when reviewed grant ownership is unique and active. These conversions stay in CharacterMigrations. Loading remains read-only; an explicit save writes the canonical result once, and a subsequent v5 read does not reapply migration. The synthetic emulator regression verifies complete state preservation and stale revision rejection for this observed envelope.
+
 The returned canonical character contains only `schemaVersion`, `ownerUid`, and `builder`. `createdAt`, `updatedAt`, historical `lastVisitedAt`, and `revision` are returned separately as persistence metadata.
 
 ## Ranged Weapons naming compatibility
@@ -60,12 +62,18 @@ The Firebase SDK and database instance are injectable for emulator verification.
 
 ## Transitional deployment boundary
 
-The definitive v5 APIs are implemented in the existing reader/writer modules, and every local-review builder domain now calls them. The production deployment and deletion of clearly marked transitional v4 exports remain blocked on focused signed-in acceptance. Reviewed runtime stable keys are already available; the remaining gate is behavioral acceptance, not data identity.
+The definitive v5 APIs are implemented in the existing reader/writer modules, and every local-review builder domain now calls them. The full builder release still needs compatible explicit-grant data and verification of actual signed-in behavior. The user's September 21 direction defers their personal acceptance without making it a blocker; agent-performed compatibility and browser checks can continue. Transitional v4 exports remain while deployed callers need them.
 
-Until that acceptance gate is satisfied:
+A September 21 public-file audit confirms that the currently deployed builder and sheet still call the transitional `saveCharacterPatch` path. That path does not invoke the v5 migrator. Its Class-page missing-import failure is therefore distinct from the migration gaps discovered in stored records. The staged Class-only hotfix uses compatible feat lookup and sanitizes then writes only owned skill/ability leaves, preserving sheet-owned play state. Preparing or deploying this bounded legacy-page fix does not deploy the current session/graph builder, migrate production characters, or publish new game data.
+
+Following the user's nonblocking-manual-acceptance direction, the Class-only repair is deployed in Hosting version `d5c9671adee0ab31`. Its writes remain schema v4. The newer migration registry still ships with the future complete builder release; do not describe it as already active in production.
+
+The same inspection also proves a coordinated runtime/data acceptance dependency: the deployed Class page supplies feat capacity through its historical level formula, whereas the new graph requires explicit feat grants. For the captured level-2 Spirit Warrior, the published schema-2 data has no such grant, so the graph proposes removing a valid existing feat; the reviewed staged candidate contains the explicit grant and assigns that feat correctly. Migration preserves the feat. Do not apply this reconciliation or deploy the graph against the old data as a format repair. See [the live-save investigation](live-save-repair-2026-09-21.md).
+
+Until the compatible builder/data release is ready:
 
 - do not stamp transitional partial writes as v5;
 - do not duplicate migration or compatibility logic in pages;
 - do not remove the v4 helpers while their callers remain;
 - do not claim that `WPC-REPOSITORY` page integration is complete;
-- continue implementing and testing the v5 boundary against fixtures and Firebase emulators only.
+- continue implementing and testing the v5 boundary against fixtures and Firebase emulators; deferred personal acceptance does not block that work or the separately authorized Class hotfix.

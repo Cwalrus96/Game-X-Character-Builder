@@ -19,7 +19,7 @@ import {
   resolveGrantChoiceAliases,
   resolveGrantChoiceIds,
 } from "./choice-identity.js";
-import { canonicalStoredSkillKey, renameSkillText } from "./skill-identity.js";
+import { canonicalSkillKey, canonicalStoredSkillKey, renameSkillText } from "./skill-identity.js";
 
 export const LEGACY_UNVERSIONED_CHARACTER_SCHEMA = 0;
 export const RESERVED_CHARACTER_SCHEMA_VERSION = 2;
@@ -833,6 +833,14 @@ function resolveGrantChoiceMigrationReference(rawChoiceId, row, rowPath, context
 
   const rawSourceId = referenceAlias(row?.sourceId);
   let matches = [...matchesByIdentity.values()];
+  matches = matches.filter((match) => !match.classKey || (
+    match.classKey === context.characterBuilder?.classKey
+    && match.minLevel <= context.characterBuilder?.level
+  ));
+  if (!matches.length) {
+    addDiagnostic(context, "unresolved-reference", `${rowPath}.sourceId`, "Historical grant-choice owner is not available to this character's class and level.");
+    return { ok: false, value: null };
+  }
   if (rawSourceId) {
     const sourceMatches = matches.filter((match) => (
       Array.isArray(match.sourceAliases) && match.sourceAliases.includes(rawSourceId)
@@ -854,6 +862,15 @@ function resolveGrantChoiceMigrationReference(rawChoiceId, row, rowPath, context
       "ambiguous-reference",
       `${rowPath}.choiceId`,
       `Historical grant-choice identity "${rawChoiceId}" resolves to more than one reviewed source.`,
+    );
+    return { ok: false, value: null };
+  }
+  if (!rawSourceId && matches[0].canRecoverMissingSource !== true) {
+    addDiagnostic(
+      context,
+      "missing-source-owner",
+      `${rowPath}.sourceId`,
+      "Historical class-option ownership cannot be inferred from its choice alias alone.",
     );
     return { ok: false, value: null };
   }
@@ -918,7 +935,10 @@ function normalizeGrantChoices(value, path, context) {
     const valueKey = row.value && row.value !== row.techniqueName
       ? stableTokenValue(row.value, `${rowPath}.value`, context)
       : "";
-    const suppliedSourceId = textValue(row.sourceId, `${rowPath}.sourceId`, context, { maxLen: 260, allowEmpty: false });
+    const suppliedSourceId = textValue(row.sourceId, `${rowPath}.sourceId`, context, {
+      maxLen: 260,
+      allowEmpty: migrationReference.value?.canRecoverMissingSource === true,
+    });
     const sourceId = migrationReference.value?.sourceId || suppliedSourceId;
     if (migrationReference.value && sourceId !== suppliedSourceId) {
       addReport(context, "renamed", `${rowPath}.sourceId`, `Historical grant-choice owner "${suppliedSourceId}" became stable source ID "${sourceId}".`, {
@@ -981,7 +1001,28 @@ function normalizeResources(value, path, context) {
 function migrate4To5(input, context) {
   context.fromVersion = 4;
   context.toVersion = 5;
-  const source = objectValue(input.builder, "character.builder", context);
+  const source = cloneValue(objectValue(input.builder, "character.builder", context));
+  // Merge-based historical writers left these v1 aliases behind after replacing
+  // their UI bindings. An explicit newer selection, including [], is authoritative.
+  for (const [oldKey, newKey] of [
+    ["classFeatureChoices", "selectedClassFeatureOptions"],
+    ["selectedFeatIds", "selectedFeats"],
+  ]) {
+    if (!hasOwn(source, oldKey)) continue;
+    if (!hasOwn(source, newKey)) {
+      source[newKey] = oldKey === "classFeatureChoices"
+        ? flattenLegacyClassChoices(source[oldKey], `character.builder.${oldKey}`, context)
+        : source[oldKey];
+      addReport(context, "renamed", `character.builder.${oldKey}`, `Moved historical selections into ${newKey}.`, { toPath: `character.builder.${newKey}` });
+    } else {
+      addReport(context, "removed", `character.builder.${oldKey}`, `Removed the obsolete merged alias; the explicit ${newKey} selection is authoritative.`);
+    }
+    delete source[oldKey];
+  }
+  if (hasOwn(source, "updatedAt")) {
+    delete source.updatedAt;
+    addReport(context, "removed", "character.builder.updatedAt", "Separated historical builder timestamp metadata; the root update timestamp takes precedence.");
+  }
   const ownerUid = textValue(input.ownerUid, "character.ownerUid", context, { maxLen: 128, allowEmpty: false });
   const output = createDefaultCharacter({ ownerUid: ownerUid || "migration-invalid-owner" });
   output.ownerUid = ownerUid;
@@ -1017,6 +1058,7 @@ function migrate4To5(input, context) {
   builder.bonds = normalizeBonds(source.bonds, "character.builder.bonds", context);
   builder.backgroundKeystones = canonicalStringArray(source.backgroundKeystones, "character.builder.backgroundKeystones", context, { maxItems: 2, maxLen: 400 });
   builder.weapons = normalizeWeapons(source.weapons, "character.builder.weapons", context);
+  context.characterBuilder = builder;
   builder.grantChoices = normalizeGrantChoices(source.grantChoices, "character.builder.grantChoices", context);
   builder.resources = normalizeResources(source.resources, "character.builder.resources", context);
   builder.visitedSteps = canonicalStringArray(source.visitedSteps, "character.builder.visitedSteps", context, { maxItems: BUILDER_STEP_IDS.size, maxLen: 64 });
@@ -1041,6 +1083,7 @@ function migrate4To5(input, context) {
     "builder",
     "createdAt",
     "updatedAt",
+    "revision",
     "lastVisitedAt",
     "migratedAt",
     "migratedFromUid",
@@ -1090,7 +1133,9 @@ function extractMetadata(value) {
   const builder = isPlainObject(value?.builder) ? value.builder : {};
   return {
     createdAt: hasOwn(value || {}, "createdAt") ? cloneValue(value.createdAt) : null,
-    updatedAt: hasOwn(value || {}, "updatedAt") ? cloneValue(value.updatedAt) : null,
+    updatedAt: hasOwn(value || {}, "updatedAt")
+      ? cloneValue(value.updatedAt)
+      : hasOwn(builder, "updatedAt") ? cloneValue(builder.updatedAt) : null,
     revision: hasOwn(value || {}, "revision") ? cloneValue(value.revision) : null,
     lastVisitedAt: hasOwn(value || {}, "lastVisitedAt")
       ? cloneValue(value.lastVisitedAt)
@@ -1197,7 +1242,7 @@ function addReference(work, kind, alias, stableKey) {
   }
 }
 
-function addGrantChoiceReference(work, alias, { choiceId, sourceId, sourceAliases = [] } = {}) {
+function addGrantChoiceReference(work, alias, { choiceId, sourceId, sourceAliases = [], classKey = "", minLevel = 0, canRecoverMissingSource = false } = {}) {
   const normalizedAlias = referenceAlias(alias);
   const normalizedChoiceId = sanitizeText(choiceId, { maxLen: 260, collapse: true });
   const normalizedSourceId = sanitizeText(sourceId, { maxLen: 260, collapse: true });
@@ -1210,6 +1255,8 @@ function addGrantChoiceReference(work, alias, { choiceId, sourceId, sourceAliase
     choiceId: normalizedChoiceId,
     sourceId: normalizedSourceId,
     sourceAliases: Object.freeze(normalizedSourceAliases),
+    ...(classKey ? { classKey, minLevel } : {}),
+    ...(canRecoverMissingSource ? { canRecoverMissingSource: true } : {}),
   });
   const table = work.grantChoices;
   const values = table.get(normalizedAlias) || new Map();
@@ -1284,16 +1331,51 @@ function collectClassOptionGrantChoiceReferences(entries, ownerKey, work) {
   }
 }
 
+function collectAutomaticClassGrantChoiceReferences(entries, classKey, work) {
+  for (const entry of Array.isArray(entries) ? entries : []) {
+    if (entry?.type !== "feature" || !STABLE_KEY_PATTERN.test(entry?.featureKey || "")) continue;
+    const sourceId = `class-feature:${classKey}:${entry.featureKey}`;
+    const minLevel = Number(entry.level ?? entry.minLevel ?? 0);
+    for (const [index, grant] of (Array.isArray(entry.grants) ? entry.grants : []).entries()) {
+      if (!["technique-choice", "weapon"].includes(grant?.type)) continue;
+      const ids = resolveGrantChoiceIds(grant, { sourceId, index });
+      const aliases = resolveGrantChoiceAliases(grant, { sourceId, index });
+      for (const choiceId of ids) {
+        for (const alias of [choiceId, ...aliases]) {
+          addGrantChoiceReference(work, alias, { choiceId, sourceId, classKey, minLevel, canRecoverMissingSource: true });
+        }
+      }
+    }
+  }
+}
+
 function walkFeats(entries, work, parent = null) {
   for (const entry of Array.isArray(entries) ? entries : []) {
     const stableKey = entry?.featKey;
     addReference(work, parent ? "featOptions" : "feats", stableKey, stableKey);
     addReference(work, parent ? "featOptions" : "feats", entry?.name, stableKey);
-    if (!parent) {
-      addReference(work, "feats", `feat:${entry?.classKey || ""}:${Number(entry?.minLevel || 0)}:${entry?.name || ""}`, stableKey);
-    } else {
-      const level = Number.parseInt(String(parent?.level ?? parent?.minLevel ?? 0), 10) || 0;
-      addReference(work, "featOptions", `${parent?.classKey || ""}|L${level}|${parent?.name || ""}::${entry?.name || ""}`, stableKey);
+    const group = parent || entry;
+    // Earlier pages embedded the owning class and required level in saved IDs.
+    // Reviewed exports now keep that same information in class prerequisites.
+    const coordinates = [{
+      classKey: group?.classKey || "",
+      level: Number.parseInt(String(group?.level ?? group?.minLevel ?? 0), 10) || 0,
+    }];
+    for (const prerequisite of Array.isArray(group?.prerequisites) ? group.prerequisites : []) {
+      if (prerequisite?.type !== "class") continue;
+      const keys = Array.isArray(prerequisite.key) ? prerequisite.key : [prerequisite.key];
+      for (const classKey of keys) {
+        if (typeof classKey === "string" && STABLE_KEY_PATTERN.test(classKey)) {
+          coordinates.push({ classKey, level: Number(prerequisite.level || 0) });
+        }
+      }
+    }
+    for (const { classKey, level } of coordinates) {
+      if (!parent) {
+        addReference(work, "feats", `feat:${classKey}:${level}:${entry?.name || ""}`, stableKey);
+      } else {
+        addReference(work, "featOptions", `${classKey}|L${level}|${parent?.name || ""}::${entry?.name || ""}`, stableKey);
+      }
     }
     walkFeats(entry?.options, work, entry);
   }
@@ -1301,7 +1383,8 @@ function walkFeats(entries, work, parent = null) {
 
 function collectGrantSkillReferences(entry, work) {
   for (const grant of Array.isArray(entry?.grants) ? entry.grants : []) {
-    const skillKey = grant?.skillKey || grant?.key;
+    const skillKey = grant?.skillKey || grant?.key
+      || (typeof grant?.name === "string" ? canonicalSkillKey(grant.name) : "");
     if (grant?.type === "skill" && skillKey) {
       addReference(work, "skills", skillKey, skillKey);
       addReference(work, "skills", grant?.name, skillKey);
@@ -1317,6 +1400,7 @@ export function createCharacterMigrationReferences(gameData = {}) {
   };
   for (const skill of [...CORE_SKILL_FIELDS, ...DEFENSE_SKILL_FIELDS]) {
     const key = String(skill.key || "").replace(/^rank_/, "");
+    addReference(work, "skills", skill.key, key);
     addReference(work, "skills", key, key);
     addReference(work, "skills", skill.label, key);
   }
@@ -1339,6 +1423,7 @@ export function createCharacterMigrationReferences(gameData = {}) {
   for (const [classKey, entries] of Object.entries(classFeatures)) {
     walkFeatureOptions(entries, classKey, work);
     collectClassOptionGrantChoiceReferences(entries, classKey, work);
+    collectAutomaticClassGrantChoiceReferences(entries, classKey, work);
     for (const entry of Array.isArray(entries) ? entries : []) collectGrantSkillReferences(entry, work);
   }
   walkFeats(gameData.feats, work);

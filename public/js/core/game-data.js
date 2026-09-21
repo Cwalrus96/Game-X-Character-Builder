@@ -3,9 +3,9 @@
 // Single source of truth for reading Game X exported JSON.
 // All consumers should load via this module (no per-page fetch duplication).
 
-import { sanitizeText, sanitizeStringArray } from "./data-sanitization.js";
+import { buildOptionKey, sanitizeText, sanitizeStringArray } from "./data-sanitization.js";
 import { projectSkillNames } from "./skill-identity.js";
-import { getEntryRequiredLevel, collectSelectedEntries } from "./option-groups.js";
+import { getEntryRequiredLevel } from "./option-groups.js";
 import { isGameDataRecordExecutable } from "./selection-rules.js";
 import {
   getEntryGrants,
@@ -179,18 +179,41 @@ export function normalizeRef(s) {
   return String(s ?? "").trim().toLowerCase().replace(/\s+/g, " ");
 }
 
-function collectRuntimeSelectedEntries(entries, selectedKeys, out) {
-  for (const entry of entries) {
-    if (entry?.expressionSyntaxVersion !== 3) {
-      collectSelectedEntries([entry], selectedKeys, out);
-      continue;
+function resolveRuntimeSelectedOptions(entries, selectedKeys) {
+  const stable = new Map();
+  const legacy = new Map();
+  const index = (table, key, option) => {
+    if (!key) return;
+    if (!table.has(key)) table.set(key, new Set());
+    table.get(key).add(option);
+  };
+  const visit = (records) => {
+    for (const entry of records || []) {
+      for (const option of entry?.options || []) {
+        index(stable, option.featureKey || option.featKey, option);
+        if (entry.expressionSyntaxVersion !== 3) index(legacy, buildOptionKey(entry, option), option);
+        visit([option]);
+      }
     }
+  };
+  visit(entries);
+  const selected = new Set();
+  for (const key of selectedKeys) {
+    // Canonical saved keys work with either reviewed artifact version. Older
+    // callers may still supply a composite label, but it must identify one row.
+    const matches = stable.get(key) || legacy.get(key);
+    if (matches?.size === 1) selected.add(matches.values().next().value);
+  }
+  return selected;
+}
+
+function collectRuntimeSelectedEntries(entries, selectedOptions, out) {
+  for (const entry of entries) {
     if (!isGameDataRecordExecutable(entry)) continue;
     for (const option of entry.options || []) {
-      const key = option.featureKey || option.featKey;
-      if (!key || !selectedKeys.has(key)) continue;
+      if (!selectedOptions.has(option)) continue;
       out.push(option);
-      collectRuntimeSelectedEntries([option], selectedKeys, out);
+      collectRuntimeSelectedEntries([option], selectedOptions, out);
     }
   }
 }
@@ -233,12 +256,13 @@ function getClassFeaturesForBuilder(data, builder) {
   );
 
   const features = getGameXClassFeatures(data, classKey);
+  const selectedOptions = resolveRuntimeSelectedOptions(features, selectedOptKeys);
   const out = [];
 
   for (const f of features) {
     if (getEntryRequiredLevel(f) > L) continue;
     out.push(f);
-    collectRuntimeSelectedEntries([f], selectedOptKeys, out);
+    collectRuntimeSelectedEntries([f], selectedOptions, out);
   }
 
   return out;
@@ -256,13 +280,14 @@ function getSelectedFeatsForBuilder(data, builder) {
   );
 
   const feats = getGameXFeats(data);
+  const selectedOptions = resolveRuntimeSelectedOptions(feats, selectedFeatOptKeys);
   const out = [];
   for (const feat of feats) {
     const key = sanitizeText(feat?.featKey || "", { maxLen: 128, collapse: true });
     if (!key || !selectedFeatKeys.has(key)) continue;
     if (getEntryRequiredLevel(feat) > L) continue;
     out.push(feat);
-    collectRuntimeSelectedEntries([feat], selectedFeatOptKeys, out);
+    collectRuntimeSelectedEntries([feat], selectedOptions, out);
   }
   return out;
 }

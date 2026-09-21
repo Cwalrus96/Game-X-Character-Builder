@@ -16,6 +16,7 @@ import {
   makeV3Character,
   makeV4Character,
   makeV5Character,
+  makeObservedLegacyV4Character,
 } from "./fixtures/character-schemas.mjs";
 
 const references = createCharacterMigrationReferences(MIGRATION_GAME_DATA);
@@ -132,6 +133,143 @@ test("metadata is preserved outside canonical state", () => {
   assert.equal("createdAt" in result.value, false);
   assert.equal("updatedAt" in result.value, false);
   assert.equal("lastVisitedAt" in result.value.builder, false);
+});
+
+test("historical skill field IDs and reviewed name-only skill grants resolve without accepting unknown skills", () => {
+  const data = structuredClone(MIGRATION_GAME_DATA);
+  data.classFeatures["magical-guardian"].push({
+    type: "feature", featureKey: "elemental-training", name: "Elemental Training",
+    grants: [{ type: "skill", name: "Elementalism", rank: 1 }],
+  });
+  const fixture = makeV4Character();
+  fixture.builder.grantedCoreSkillSnapshot = ["rank_athletics", "rank_medicine", "rank_physdef"];
+  fixture.builder.grantedSkillSnapshot = ["Elementalism"];
+  const refs = createCharacterMigrationReferences(data);
+  const result = migrateCharacterDocument(fixture, { references: refs });
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  assert.deepEqual(result.value.builder.grantedCoreSkillSnapshot, ["athletics", "medicine", "physdef"]);
+  assert.deepEqual(result.value.builder.grantedSkillSnapshot, ["elementalism"]);
+  fixture.builder.grantedCoreSkillSnapshot.push("rank_unknown");
+  const unknown = migrateCharacterDocument(fixture, { references: refs });
+  assert.equal(hasDiagnostic(unknown, "unresolved-reference", "character.builder.grantedCoreSkillSnapshot[3]"), true);
+});
+
+test("legacy feat composites resolve class and level from reviewed prerequisites, retaining ambiguity errors", () => {
+  const data = structuredClone(MIGRATION_GAME_DATA);
+  data.feats.push({
+    featKey: "guardian-training", category: "magical-guardian", name: "Guardian Training", type: "optionGroup",
+    prerequisites: [{ type: "class", key: "magical-guardian", level: 2 }],
+    options: [{ featKey: "guardian-melee", name: "Melee Weapons", type: "option", grants: [] }],
+  });
+  const fixture = makeV4Character();
+  fixture.builder.selectedFeats = ["feat:magical-guardian:2:Guardian Training"];
+  fixture.builder.selectedFeatOptions = ["magical-guardian|L2|Guardian Training::Melee Weapons"];
+  const result = migrateCharacterDocument(fixture, { references: createCharacterMigrationReferences(data) });
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  assert.deepEqual(result.value.builder.selectedFeats, ["guardian-training"]);
+  assert.deepEqual(result.value.builder.selectedFeatOptions, ["guardian-melee"]);
+  data.feats.push({ ...data.feats.at(-1), featKey: "other-training", options: [{ featKey: "other-melee", name: "Melee Weapons" }] });
+  const ambiguous = migrateCharacterDocument(fixture, { references: createCharacterMigrationReferences(data) });
+  assert.equal(hasDiagnostic(ambiguous, "ambiguous-reference", "character.builder.selectedFeatOptions[0]"), true);
+});
+
+test("merged v4 aliases do not resurrect stale selections and missing automatic choice ownership is recovered", () => {
+  const fixture = makeObservedLegacyV4Character();
+  const original = structuredClone(fixture);
+  const result = migrateCharacterDocument(fixture, { references });
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  assert.deepEqual(fixture, original);
+  assert.deepEqual(result.value.builder.selectedFeats, []);
+  assert.deepEqual(result.value.builder.selectedClassFeatureOptions, []);
+  const answer = result.value.builder.grantChoices["soulbound-weapon"];
+  assert.equal(answer.sourceId, "class-feature:weapon-master:soulbound-weapon");
+  assert.equal(answer.weaponKey, "short-blade");
+  assert.equal(answer.customName, "Practice weapon");
+  assert.equal(answer.enhancements[0].id, "enhancement:bound");
+  assert.equal(result.value.builder.weapons[0].id, "weapon:owned-practice");
+  assert.equal(result.value.builder.weapons[0].sourceChoiceId, answer.choiceId);
+  assert.equal(result.metadata.updatedAt, fixture.updatedAt);
+  for (const key of ["selectedFeatIds", "classFeatureChoices", "updatedAt"]) {
+    assert(result.report.some((item) => item.kind === "removed" && item.path === `character.builder.${key}`));
+    assert.equal(Object.hasOwn(result.value.builder, key), false);
+  }
+  fixture.builder.grantChoices["soulbound-weapon"].sourceId = "";
+  assert.equal(migrateCharacterDocument(fixture, { references }).ok, true);
+});
+
+test("v4 aliases migrate when their newer binding is absent, while explicit current selections win", () => {
+  const fixture = makeV4Character();
+  delete fixture.builder.selectedClassFeatureOptions;
+  delete fixture.builder.selectedFeats;
+  fixture.builder.classFeatureChoices = { "cfg:ninja:1:shadow-training": ["Shadow Step"] };
+  fixture.builder.selectedFeatIds = ["feat:ninja:2:Trained Senses"];
+  const migrated = migrateCharacterDocument(fixture, { references });
+  assert.equal(migrated.ok, true, JSON.stringify(migrated.diagnostics));
+  assert.deepEqual(migrated.value.builder.selectedClassFeatureOptions, ["shadow-step"]);
+  assert.deepEqual(migrated.value.builder.selectedFeats, ["trained-senses"]);
+  fixture.builder.selectedClassFeatureOptions = [];
+  fixture.builder.selectedFeats = [];
+  const current = migrateCharacterDocument(fixture, { references });
+  assert.equal(current.ok, true);
+  assert.deepEqual(current.value.builder.selectedClassFeatureOptions, []);
+  assert.deepEqual(current.value.builder.selectedFeats, []);
+});
+
+test("automatic grant ownership is never inferred for a different class, unavailable level, or ambiguous source", () => {
+  const fixture = makeObservedLegacyV4Character();
+  fixture.builder.classKey = "ninja";
+  const wrongClass = migrateCharacterDocument(fixture, { references });
+  assert.equal(hasDiagnostic(wrongClass, "unresolved-reference", "character.builder.grantChoices.soulbound-weapon.sourceId"), true);
+  fixture.builder.classKey = "weapon-master";
+  const data = structuredClone(MIGRATION_GAME_DATA);
+  data.classFeatures["weapon-master"][0].level = 3;
+  const early = migrateCharacterDocument(fixture, { references: createCharacterMigrationReferences(data) });
+  assert.equal(hasDiagnostic(early, "unresolved-reference", "character.builder.grantChoices.soulbound-weapon.sourceId"), true);
+  data.classFeatures["weapon-master"][0].level = 1;
+  data.classFeatures["weapon-master"].push({ ...data.classFeatures["weapon-master"][0], featureKey: "other-owner" });
+  const ambiguous = migrateCharacterDocument(fixture, { references: createCharacterMigrationReferences(data) });
+  assert.equal(hasDiagnostic(ambiguous, "ambiguous-reference", "character.builder.grantChoices.soulbound-weapon.choiceId"), true);
+  delete fixture.builder.grantChoices["soulbound-weapon"];
+  fixture.builder.grantChoices["unknown-choice"] = { choiceId: "unknown-choice", type: "weapon", weaponKey: "short-blade" };
+  const unknown = migrateCharacterDocument(fixture, { references });
+  assert.equal(hasDiagnostic(unknown, "invalid-value", "character.builder.grantChoices.unknown-choice.sourceId"), true);
+});
+
+test("missing class-option owners are not inferred from a matching choice alias", () => {
+  const fixture = makeV4Character();
+  fixture.builder.classKey = "ninja";
+  fixture.builder.selectedClassFeatureOptions = [];
+  const choiceId = "Dazzling Wand:technique-choice:spellcasting:0";
+  fixture.builder.grantChoices = {
+    [choiceId]: {
+      choiceId,
+      type: "technique",
+      techniqueName: "Prismatic Burst",
+      skill: "spellcasting",
+    },
+  };
+  const original = structuredClone(fixture);
+  const result = migrateCharacterDocument(fixture, { references });
+  assert.equal(result.ok, false);
+  assert.equal(result.value, null);
+  assert.equal(hasDiagnostic(result, "missing-source-owner", `character.builder.grantChoices.${choiceId}.sourceId`), true);
+  assert.deepEqual(fixture, original);
+  fixture.builder.grantChoices[choiceId].sourceId = "";
+  const blank = migrateCharacterDocument(fixture, { references });
+  assert.equal(blank.ok, false);
+  assert.equal(hasDiagnostic(blank, "missing-source-owner", `character.builder.grantChoices.${choiceId}.sourceId`), true);
+});
+
+test("historical revision and update metadata stay outside canonical state", () => {
+  const fixture = makeObservedLegacyV4Character();
+  fixture.revision = 4;
+  delete fixture.updatedAt;
+  const result = migrateCharacterDocument(fixture, { references });
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  assert.equal(result.metadata.revision, 4);
+  assert.equal(result.metadata.updatedAt, "older-builder-update");
+  assert.equal(Object.hasOwn(result.value, "revision"), false);
+  assert.equal(Object.hasOwn(result.value.builder, "updatedAt"), false);
 });
 
 test("current v5 values remain equivalent and repeated registry migration is idempotent", () => {

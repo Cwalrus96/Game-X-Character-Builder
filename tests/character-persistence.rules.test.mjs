@@ -21,6 +21,7 @@ import {
 } from "../public/js/core/database-writer.js";
 import {
   MIGRATION_GAME_DATA,
+  makeObservedLegacyV4Character,
   makeV4Character,
 } from "./fixtures/character-schemas.mjs";
 import {
@@ -116,6 +117,40 @@ test("a migrated read is read-only and an explicit save persists schema v5", asy
   assert.equal(afterSave.schemaVersion, 5);
   assert.equal(afterSave.revision, 1);
   assert.equal(afterSave.lastVisitedAt, "visited-at");
+});
+
+test("observed legacy v4 state upgrades on explicit save once while preserving choices and rejecting stale saves", async () => {
+  const original = makeObservedLegacyV4Character();
+  original.ownerUid = ALICE_UID;
+  original.builder.sheet.fields.notes = "Player-authored notes remain unchanged.";
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), "users", ALICE_UID, "characters", "observed-v4"), original);
+  });
+  const firestore = aliceFirestore();
+  const options = { ownerUid: ALICE_UID, characterId: "observed-v4", references, firestore, firestoreApi };
+  const ref = doc(firestore, "users", ALICE_UID, "characters", "observed-v4");
+  const loaded = await readCharacter(options);
+  assert.deepEqual((await getDoc(ref)).data(), original, "migration on read must not write");
+  assert.equal(loaded.revision, 0);
+  assert.deepEqual(loaded.character.builder.selectedFeats, [], "stale merged selections stay superseded");
+  assert.deepEqual(loaded.character.builder.grantedCoreSkillSnapshot, ["athletics", "medicine"]);
+  assert.equal(loaded.character.builder.grantChoices["soulbound-weapon"].sourceId, "class-feature:weapon-master:soulbound-weapon");
+  assert.equal(loaded.character.builder.weapons[0].id, "weapon:owned-practice");
+  const saved = await patchCharacter({ ...options, expectedRevision: 0, patch: { "builder.name": loaded.character.builder.name } });
+  assert.equal(saved.migrated, true);
+  assert.equal(saved.revision, 1);
+  const reloaded = await readCharacter(options);
+  assert.equal(reloaded.migrated, false);
+  assert.deepEqual(reloaded.migration.appliedVersions, []);
+  assert.deepEqual(reloaded.character, loaded.character, "the complete converted state survives save/reload");
+  assert.equal(reloaded.metadata.createdAt, original.createdAt);
+  assert.equal(reloaded.character.builder.sheet.fields.notes, original.builder.sheet.fields.notes);
+  await assert.rejects(patchCharacter({ ...options, expectedRevision: 0, patch: { "builder.name": "Stale" } }),
+    (error) => error instanceof CharacterConflictError);
+  assert.deepEqual((await readCharacter(options)).character, reloaded.character);
+  const second = await patchCharacter({ ...options, expectedRevision: 1, patch: { "builder.name": reloaded.character.builder.name } });
+  assert.equal(second.migrated, false);
+  assert.equal(second.revision, 2);
 });
 
 test("narrow patches preserve unrelated state and reject invalid paths", async () => {

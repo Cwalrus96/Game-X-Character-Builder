@@ -4,6 +4,7 @@ export const MIGRATION_GAME_DATA = Object.freeze({
   classes: Object.freeze([
     { classKey: "ninja", name: "Ninja" },
     { classKey: "magical-guardian", name: "Magical Guardian" },
+    { classKey: "weapon-master", name: "Weapon Master" },
   ]),
   origins: Object.freeze([{ originKey: "wanderer", name: "Wanderer", features: [] }]),
   classSkills: Object.freeze([
@@ -12,6 +13,14 @@ export const MIGRATION_GAME_DATA = Object.freeze({
     { skillKey: "spellcasting", skillName: "Spellcasting" },
   ]),
   classFeatures: Object.freeze({
+    "weapon-master": Object.freeze([{
+      type: "feature",
+      classKey: "weapon-master",
+      level: 1,
+      featureKey: "soulbound-weapon",
+      name: "Soulbound Weapon",
+      grants: Object.freeze([{ type: "weapon", choiceId: "soulbound-weapon", rank: 1 }]),
+    }]),
     ninja: Object.freeze([{
       type: "optionGroup",
       classKey: "ninja",
@@ -230,4 +239,42 @@ export function makeV5Character() {
   const character = createDefaultCharacter({ ownerUid: "user_123" });
   character.builder.name = "Kiko";
   return character;
+}
+
+// Synthetic reproduction of the merged v4 shape observed during the save audit.
+// No account IDs, character names, or player-authored prose are copied from it.
+export function makeObservedLegacyV4Character() {
+  const value = makeV4Character();
+  Object.assign(value.builder, {
+    classKey: "weapon-master",
+    classFeatureChoices: {},
+    selectedClassFeatureOptions: [],
+    selectedFeatIds: ["feat:weapon-master:2:Obsolete Training"],
+    selectedFeats: [],
+    selectedFeatOptions: [],
+    grantedCoreSkillSnapshot: ["rank_athletics", "rank_medicine"],
+    updatedAt: "older-builder-update",
+    grantChoices: {
+      "soulbound-weapon": {
+        choiceId: "soulbound-weapon",
+        type: "weapon",
+        weaponKey: "short-blade",
+        rank: 1,
+        customName: "Practice weapon",
+        enhancements: [{ id: "enhancement:bound", enhancementKey: "soulbound", rank: 1, selections: {}, granted: true }],
+        tags: ["One-Handed"],
+      },
+    },
+    weapons: [{
+      id: "weapon:owned-practice",
+      choiceId: "soulbound-weapon",
+      sourceChoiceId: "soulbound-weapon",
+      generated: true,
+      weaponKey: "short-blade",
+      rank: 1,
+      customName: "Practice weapon",
+      enhancements: [],
+    }],
+  });
+  return value;
 }
