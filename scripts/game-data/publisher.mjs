@@ -23,6 +23,12 @@ export const EXPECTED_RUNTIME_ARTIFACTS = Object.freeze([
   "game-x-data.json",
 ]);
 
+export function expectedRuntimeArtifacts(schemaVersion) {
+  if (schemaVersion === 2) return EXPECTED_RUNTIME_ARTIFACTS;
+  if (schemaVersion === 3) return Object.freeze([...EXPECTED_RUNTIME_ARTIFACTS, "traits.json"]);
+  throw new Error(`Unsupported approved runtime artifact schema: ${schemaVersion}.`);
+}
+
 function requireObject(value, field) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     throw new Error(`Release approval field "${field}" must be an object.`);
@@ -45,11 +51,11 @@ function requireHash(value, field) {
   return hash;
 }
 
-function assertExactArtifactNames(artifacts) {
+function assertExactArtifactNames(artifacts, schemaVersion) {
   const actual = artifacts.map((artifact) => artifact.name).slice().sort();
-  const expected = EXPECTED_RUNTIME_ARTIFACTS.slice().sort();
+  const expected = expectedRuntimeArtifacts(schemaVersion).slice().sort();
   if (JSON.stringify(actual) !== JSON.stringify(expected)) {
-    throw new Error("Release approval must name exactly the nine schema-v2 runtime artifacts.");
+    throw new Error(`Release approval must name exactly the ${expected.length} schema-v${schemaVersion} runtime artifacts.`);
   }
 }
 
@@ -63,6 +69,14 @@ export function validateReleaseApproval(value) {
     throw new Error("Release approval candidateRunId is not a safe immutable staging-run ID.");
   }
   const source = requireObject(approval.source, "source");
+  const sourceSchemaVersion = Number(source.sourceSchemaVersion);
+  const runtimeArtifactSchemaVersion = Number(source.runtimeArtifactSchemaVersion);
+  if (!((sourceSchemaVersion === 4 && runtimeArtifactSchemaVersion === 2)
+      || (sourceSchemaVersion === 5 && runtimeArtifactSchemaVersion === 3))) {
+    throw new Error("Release approval requires the supported source/runtime pair 4/2 or 5/3.");
+  }
+  const driveVersion = sourceSchemaVersion === 5 && source.driveVersion === null
+    ? null : requireString(source.driveVersion, "source.driveVersion");
   const review = requireObject(approval.review, "review");
   if (review.diffReviewApproved !== true || review.publishApproved !== true) {
     throw new Error("Release approval must explicitly approve both WPB-DIFF-REVIEW and WPB-PUBLISH.");
@@ -85,19 +99,19 @@ export function validateReleaseApproval(value) {
   if (new Set(artifacts.map((artifact) => artifact.name)).size !== artifacts.length) {
     throw new Error("Release approval artifact names must be unique.");
   }
-  assertExactArtifactNames(artifacts);
+  assertExactArtifactNames(artifacts, runtimeArtifactSchemaVersion);
   return Object.freeze({
     approvalVersion: approval.approvalVersion,
     candidateRunId,
     approvedOn: requireString(approval.approvedOn, "approvedOn"),
     source: Object.freeze({
       fileId: requireString(source.fileId, "source.fileId"),
-      driveVersion: requireString(source.driveVersion, "source.driveVersion"),
+      driveVersion,
       modifiedTime: requireString(source.modifiedTime, "source.modifiedTime"),
       xlsxSha256: requireHash(source.xlsxSha256, "source.xlsxSha256"),
       modelSha256: requireHash(source.modelSha256, "source.modelSha256"),
-      sourceSchemaVersion: Number(source.sourceSchemaVersion),
-      runtimeArtifactSchemaVersion: Number(source.runtimeArtifactSchemaVersion),
+      sourceSchemaVersion,
+      runtimeArtifactSchemaVersion,
     }),
     artifacts: Object.freeze(artifacts),
     review: Object.freeze({
@@ -164,7 +178,10 @@ export async function inspectApprovedStagingRun({ approval, runsDirectory, fileS
   }
   const expectedSource = reviewed.source;
   for (const field of ["fileId", "driveVersion", "modifiedTime", "xlsxSha256"]) {
-    if (String(provenance?.[field] ?? "") !== String(expectedSource[field])) {
+    const matches = expectedSource[field] === null
+      ? Object.hasOwn(provenance, field) && provenance[field] === null
+      : String(provenance?.[field] ?? "") === String(expectedSource[field]);
+    if (!matches) {
       throw new Error(`Approved staging provenance does not match source.${field}.`);
     }
   }
@@ -177,6 +194,14 @@ export async function inspectApprovedStagingRun({ approval, runsDirectory, fileS
   if (Number(exportReport?.runtimeArtifactSchemaVersion) !== expectedSource.runtimeArtifactSchemaVersion) {
     throw new Error("Approved staging runtime schema does not match the release approval.");
   }
+  for (const [field, expected] of Object.entries({ sourceSchemaVersion: expectedSource.sourceSchemaVersion, runtimeArtifactSchemaVersion: expectedSource.runtimeArtifactSchemaVersion, modelSha256: expectedSource.modelSha256 })) {
+    if (validationReport[field] !== expected) throw new Error(`Staging validation report does not match approved ${field}.`);
+  }
+
+  const stagedEntries = await fileSystem.readdir(artifactDirectory, { withFileTypes: true });
+  if (stagedEntries.some((entry) => !entry.isFile())) throw new Error("Staged artifact directory must contain only the reviewed regular files.");
+  assertExactArtifactNames(stagedEntries, expectedSource.runtimeArtifactSchemaVersion);
+  assertExactArtifactNames(exportReport.artifacts || [], expectedSource.runtimeArtifactSchemaVersion);
 
   const exportArtifacts = new Map((exportReport?.artifacts || []).map((item) => [item.name, item]));
   const files = [];
@@ -197,13 +222,20 @@ export async function inspectApprovedStagingRun({ approval, runsDirectory, fileS
   if (!runtimeAcceptance.ok) {
     throw new Error(`Reviewed staged bytes fail fresh runtime acceptance: ${runtimeAcceptance.diagnostics.map((item) => item.message).join(" ")}`);
   }
+  const combined = JSON.parse(files.find((file) => file.name === "game-x-data.json").text);
+  if (combined.schemaVersion !== expectedSource.runtimeArtifactSchemaVersion || combined.sourceSchemaVersion !== expectedSource.sourceSchemaVersion) {
+    throw new Error("Reviewed combined artifact schema does not match the approved source/runtime pair.");
+  }
+  for (const field of ["fileId", "driveVersion", "modifiedTime", "modelSha256"]) {
+    if (combined.sourceRevision?.[field] !== expectedSource[field]) throw new Error(`Reviewed combined artifact sourceRevision.${field} does not match approval.`);
+  }
   return Object.freeze({ reviewed, runDirectory, files: Object.freeze(files), validationReport, exportReport, provenance, diff });
 }
 
 function buildPublishedBaseline(reviewed, productionDirectory) {
   const snapshot = buildReleaseArtifactSnapshot(productionDirectory);
   return {
-    schemaVersion: 2,
+    schemaVersion: reviewed.source.runtimeArtifactSchemaVersion,
     capturedOn: reviewed.approvedOn,
     sourceWorkbook: {
       fileId: reviewed.source.fileId,
@@ -253,6 +285,7 @@ export async function publishApprovedGameData({
   let dataInstalled = false;
   let baselineMoved = false;
   let baselineInstalled = false;
+  let published;
   try {
     for (const file of inspected.files) {
       await fileSystem.writeFile(path.join(dataTemporary, file.name), file.text, "utf8");
@@ -283,9 +316,7 @@ export async function publishApprovedGameData({
     if (compareReleaseArtifactSnapshot(publishedBaseline.releaseArtifact, publishedSnapshot).length) {
       throw new Error("Post-publish artifacts do not match the new release baseline.");
     }
-    await fileSystem.rm(dataBackup, { recursive: true, force: true });
-    await fileSystem.rm(baselineBackup, { force: true });
-    return Object.freeze({ reviewed: inspected.reviewed, baseline: publishedBaseline, snapshot: publishedSnapshot });
+    published = { reviewed: inspected.reviewed, baseline: publishedBaseline, snapshot: publishedSnapshot };
   } catch (error) {
     if (baselineInstalled) await fileSystem.rm(baselinePath, { force: true });
     if (baselineMoved) await fileSystem.rename(baselineBackup, baselinePath);
@@ -295,4 +326,16 @@ export async function publishApprovedGameData({
     await fileSystem.rm(baselineTemporary, { force: true });
     throw error;
   }
+
+  // Both replacements are verified. Backup cleanup must not roll back an install
+  // after its restore source may already have been removed.
+  const cleanupWarnings = [];
+  for (const [target, options] of [[dataBackup, { recursive: true, force: true }], [baselineBackup, { force: true }]]) {
+    try {
+      await fileSystem.rm(target, options);
+    } catch (error) {
+      cleanupWarnings.push(Object.freeze({ path: target, message: error.message }));
+    }
+  }
+  return Object.freeze({ ...published, cleanupWarnings: Object.freeze(cleanupWarnings) });
 }

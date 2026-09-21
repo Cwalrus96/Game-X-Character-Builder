@@ -40,6 +40,9 @@ if (args.length !== 2 || args[0] !== "--confirm" || !args[1]) {
     const result = await publishApprovedGameData({ approval, runsDirectory, productionDirectory, baselinePath });
     console.log(`Published approved game-data run ${result.reviewed.candidateRunId}.`);
     console.log(`Installed ${result.snapshot.files.length} exact artifacts and updated the release baseline.`);
+    for (const warning of result.cleanupWarnings) {
+      console.warn(`Published successfully; backup cleanup needs attention: ${warning.path}: ${warning.message}`);
+    }
   } catch (error) {
     console.error(`Game-data publish failed: ${error.message}`);
     process.exitCode = 1;

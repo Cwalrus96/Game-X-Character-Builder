@@ -44,6 +44,7 @@ export function summarizeCombinedGameData(gameData = {}) {
     feats: feats.length,
     featNodes: countChoiceNodes(feats),
     techniques: techniques.length,
+    ...(Array.isArray(gameData.traits) ? { traits: gameData.traits.length } : {}),
     origins: origins.length,
     originFeatures: origins.reduce((count, origin) => count + (Array.isArray(origin?.features) ? origin.features.length : 0), 0),
     weaponBases: weaponBases.length,
