@@ -1,5 +1,6 @@
 import { buildGroupId, sanitizeText } from "../../core/data-sanitization.js";
 import { collectOptionGroups } from "../../core/option-groups.js";
+import { sortClassFeaturesByLevel } from "../../core/class-feature-display.js";
 import { BuilderWidget } from "./builder-widget.js";
 
 function setPrerequisiteNotice(el, unavailableCount, hiddenCount) {
@@ -83,7 +84,7 @@ export class ClassFeaturesWidget extends BuilderWidget {
       return this.containerEl;
     }
 
-    const visible = this.getAvailableFeatures({ builder: { classKey, level } });
+    const visible = sortClassFeaturesByLevel(this.getAvailableFeatures({ builder: { classKey, level } }));
     if (this.hintEl) this.hintEl.textContent = `Showing features up to level ${level}.`;
 
     if (!visible.length) {

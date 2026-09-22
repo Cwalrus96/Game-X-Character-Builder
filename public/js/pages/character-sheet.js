@@ -44,6 +44,7 @@ import {
 import { renderTechniqueProfileHtml } from "../core/technique-utils.js";
 import { projectCharacterTraits, getActiveTraitTechniqueDetails } from "../core/trait-rules.js";
 import { renderTraitProjectionHtml } from "../core/trait-display.js";
+import { sortClassFeatureAbilitiesByLevel } from "../core/class-feature-display.js";
 import { ensureAppTopNav } from "../core/app-nav.js";
 import { renderBuilderNav } from "../builder/builder-nav.js";
 import {
@@ -710,7 +711,8 @@ async function renderBuilderWeaponsReadOnly(builder) {
         const sheetFields = (b?.sheet?.fields && typeof b.sheet.fields === 'object') ? b.sheet.fields : {};
         const sheetOnlyFields = pickSheetOnlyFields(sheetFields);
         const repeatables = (b?.sheet?.repeatables && typeof b.sheet.repeatables === 'object') ? b.sheet.repeatables : {};
-        applyReadOnlySkillState(await loadGameXData(), b);
+        const gameData = await loadGameXData();
+        applyReadOnlySkillState(gameData, b);
         const selectedTechniques = Array.isArray(b?.selectedTechniques) ? b.selectedTechniques : [];
         lockedAbilityNames = new Set(Array.isArray(b?.autoAbilityNames) ? b.autoAbilityNames.map((name) => String(name || '').trim()).filter(Boolean) : []);
 
@@ -730,7 +732,10 @@ async function renderBuilderWeaponsReadOnly(builder) {
             previewDataUrl: '',
           },
           fields: sheetOnlyFields,
-          repeatables,
+          repeatables: {
+            ...repeatables,
+            abilities: sortClassFeatureAbilitiesByLevel(repeatables.abilities, gameData),
+          },
         };
 
         applyState(state);

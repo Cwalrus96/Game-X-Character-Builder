@@ -68,6 +68,8 @@ Character level can activate a feat-granting feature, but level never creates an
 
 Trait controls are mounted as independent widgets beside the Origin details and Class/Feat controls. They consume the same immutable projection as the graph and emit only `SetTraitChoice` and `RemoveTraitChoice`. Category labels distinguish multiple choices from the same feature. They restore accepted values and focus after rejected or cancelled proposals. The character sheet displays Traits read-only; its temporary-leaf autosave scope is unchanged. Acquired Traits immediately supply their explicit tags for static eligibility. Reference-only cards, incomplete mechanics and provider descriptions remain visible. Players track form use, costs and timing; there are no activation controls or automatic resource deductions.
 
+Class features display in ascending required-level order on the Class page and character sheet. Equal-level features retain their existing relative order. Class-page choice groups remain with their nested controls; selected options on the sheet inherit at least their parent group's required level. Sorting changes only display lists, never source catalogue arrays, saved ability order, grant allocation, or eligibility.
+
 ## Proposed-change safety
 
 A migrated choice edit must follow this sequence:
