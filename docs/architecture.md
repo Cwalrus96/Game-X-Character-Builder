@@ -2,7 +2,7 @@
 
 Status: living current-and-target architecture.
 
-Last updated: 2026-09-21.
+Last updated: 2026-09-22.
 Execution status and named steps live in [status.md](status.md) and [roadmap.md](roadmap.md).
 
 ## Product shape
@@ -129,6 +129,8 @@ Adding a new domain such as Boons requires a widget, rules/registry entries, nod
 ### Rules
 
 Rules are pure functions for capacity, expected selection counts, prerequisites, compatibility, and derived values. Widgets use them for display; graph compilation/reconciliation uses the same functions for enforcement.
+
+Prerequisites primarily serve as "compile-time" checks on the character build. Here compilation means constructing or revising a character, not compiling JavaScript. Class/level, skill ranks, acquired Traits and tags, selected features, source ownership and applicable equipment requirements determine what the character can select and retain. Relevant build edits cause re-evaluation through the shared Rules and graph. Current Energy, hands, position, triggers and temporary form use describe play-time conditions; they do not remove learned choices or block builder saves. Technique costs and other gameplay mechanics may still be structured for presentation or supported calculations. See [the prerequisite boundary](game-data-contract.md#prerequisites-and-use-conditions).
 
 Rules modules are the sole definition point for game-mechanic formulas, limits, eligibility, capacity, and derived allocation projections. A compiler may turn a Rules result into typed facts and metadata; a reconciler may apply it and produce impacts; a widget may render it and constrain local input. None of those consumers may reproduce the underlying arithmetic, minimum/maximum calculation, ordering policy, or eligibility decision. When several consumers need related values, Rules exposes one frozen projection so those values cannot drift independently. `getAttributeAllocationState` owns the complete attribute calculation; `getSkillAllocationState` and `fitSkillsToRules` own skill progression, granted/free rank floors, paid ranks above those floors, class utility capacity, level rank caps, point usage, assignable minima/maxima, and deterministic repair; `getBondAllocationState` and `fitBondsToRules` own Heart capacity, rank limits, source-owned exclusions, and deterministic Bond repair; `getFeatSelectionState` owns explicit feat-grant slots, filters, maximum feat levels, and deterministic assignment; `selection-rules.js` owns shared selectable/draft/granted-only policy; and `getOriginSelectionState` applies that policy to the Origin projection.
 

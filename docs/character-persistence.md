@@ -22,6 +22,16 @@ Schema 6 adds `builder.traitChoices` and the compatibility `builder.traitActivat
 
 The returned canonical character contains only `schemaVersion`, `ownerUid`, and `builder`. `createdAt`, `updatedAt`, historical `lastVisitedAt`, and `revision` are returned separately as persistence metadata.
 
+## Reviewed content changes
+
+Stored shape versions and game-content revisions are independent. `character-content-migrations.js` is a pure internal operation of CharacterMigrations, called once when a historical document reaches the v4 builder boundary or when an existing v5/v6 document opens. It uses a policy derived from the loaded catalog; it does not introduce another persistence boundary or a new character schema.
+
+The September 22 Celestial Knight conversion recognizes only the reviewed stable child keys and historical composite answers. It absorbs the obsolete either/or answer into the same selected `celestial-knight-path-initiate` feat only when that unique current feature grants both Melee Weapons and Ranged Weapons at Rank 1 with slow progression. A missing parent, multiple historical answers, a still-present old option, a recipient-only grant, or insufficient replacement evidence cannot trigger absorption. The original answer, retired key and surviving source key remain in the returned migration report. Unrelated selections and player state are preserved. Current-schema characters can therefore report `migrated: true` for this content conversion even without a schema-version change.
+
+Old Metamorph characters require a player rebuild under the user's September 22 decision. When the new Trait provider is present, pre-v6 Metamorph documents or canonical characters retaining reviewed retired form/Technique keys return `character-rebuild-required`. The reader displays a clear instruction to create a new character; it leaves the original stored document intact and never infers Trait selections. New schema-v6 Metamorph characters remain supported. Other unknown references retain their ordinary unresolved diagnostics.
+
+Both dispositions are read-only. Celestial Knight persists the conversion on the next successful explicit save, and a subsequent read is idempotent. Rule changes to weapon ranks, enhancements or other selections remain graph proposals requiring the usual review; content migration never applies them. Authenticated emulator tests cover v4/v6 first-save conversion, full reload, revision conflicts and preservation of the old Metamorph document after failed reads/patches.
+
 ## Ranged Weapons naming compatibility
 
 Ranged Weapons is the current display name and `ranged-weapons` is its current skill key. The pure `skill-identity.js` boundary recognizes the former Targeting label and `targeting` key when Rules and UI consume existing saved state or reviewed older game data. This naming compatibility does not alter saved skill identities or trigger a Firebase write on read.

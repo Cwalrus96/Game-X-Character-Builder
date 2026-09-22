@@ -2,7 +2,7 @@
 
 Status: living source/runtime contract. Acquisition and adaptation accept the canonical source schema v5 with expression syntax v3. The versioned v4/syntax-v2 path remains compatible. V5 staging produces runtime artifact schema v3; published production artifacts remain schema v2 until a separately reviewed publication. Parsing and preserving a rule does not establish execution support.
 
-Last updated: 2026-09-21.
+Last updated: 2026-09-22.
 
 ## Canonical source and versions
 
@@ -265,6 +265,8 @@ Legacy `-1`, `N`, blank-means-zero, and `0 or 3` sentinels are not allowed in ca
 
 `prerequisites` is the single authored prerequisite field; `prerequisiteText` is removed. Render readable text from formal conditions and stable entity references, retaining every conjunction, alternative, exclusion, rank/reach threshold, and wielded condition. Distinguish a recipient `tag` requirement from a weapon tag. Unresolved references and unsupported qualifiers remain visible diagnostics. Display rendering does not execute or certify the prerequisite.
 
+September 22 static eligibility decision: weapon ownership, identity, tags, reach, rank and required count can restrict acquisition. `wielded` and `separateHands` describe use during play; the builder does not track or require available hands, even if an older object happens to carry such fields. Preserve these authored qualifiers in source and readable mechanics without marking their records deferred. A weapon-set count still requires that many distinct matching owned weapons. Enhancement requirements retain their candidate-weapon scope. Inventory slot capacity is separate from current hand availability and is unchanged.
+
 #### Compact damage and pumping
 
 Author damage and growth once in `damage`; `damageByRank` is retired. State the starting damage, increment, and exact rank basis/minimum. Preserve an irregular progression explicitly in the same field. Do not repeat the rule in a second enumeration or explanatory `rankNotes`.
@@ -379,6 +381,14 @@ Familiar grants and count/rank prerequisites are valid source data. The builder 
 
 Syntax v3 adds stable Trait and Technique references, archetype prerequisites, `weapon-set`'s `separateHands` predicate, typed-clause alternatives, and known-option counts. The versioned parser, validator, and runtime prerequisite helpers preserve these structures. Evaluation uses explicit character/context data; absent Trait/form/recipient state is not invented to satisfy a condition. V2 callers retain their existing grammar.
 
+### Prerequisites and use conditions
+
+The user's September 22 metaphor defines the primary role of prerequisites: they are "compile-time" checks on the character build. They determine eligibility to acquire or retain a choice from static facts such as class/level, skill rank, other selected features, acquired Traits and their explicit tags, source ownership, or applicable owned equipment. The builder checks these facts when offering choices and when relevant build edits are reconciled. A change of class or removal of a granting Trait can therefore require another check and a reviewed dependent change.
+
+Conditions for using an ability during play belong to its gameplay rules. Current Energy, free hands, wielding, position, target state, triggers and an active transformation do not decide whether the character can keep the learned ability or save the build. For example, acquiring Wings can unlock Wing Blast; ending a transformation does not delete Wing Blast. The player still follows the ability's use conditions during play. Techniques can retain structured costs, triggers, durations and effects for presentation and supported calculations without turning those fields into acquisition prerequisites.
+
+The existing weapon qualifiers are a compatibility example: retain `wielded` and `separateHands` in authored mechanics and readable display, while static eligibility checks owned equipment identity, count, tags, rank and reach. Do not infer hand assignments or activation state. Unknown expressions and genuinely unsupported static requirements still receive explicit diagnostics; this distinction does not make unresolved mechanics automatically eligible. In these contracts, software `runtimeSupport` describes whether the application implements a construct, independently of whether the game rule concerns building or playing a character.
+
 ### Implemented prerequisite extensions (syntax v3)
 
 Separate nonblank lines are AND conditions. Within a line, complete typed clauses can be alternatives, for example:
@@ -391,9 +401,9 @@ This requires either a wielded Melee weapon or at least Rank 1 Martial Arts. An 
 
 `option | groupKey=stances | count=2` requires at least two distinct known options from that stable group. It does not grant more options, count duplicate answers, or reference a resource named Stance. Resolve the group and its membership by stable keys. The prerequisite is distinct from the existing `option` grant, where `count` awards additional answers.
 
-Trait/Technique dependencies use `trait | traitKey=...` and `technique | techniqueKey=...`, normalizing their stable references to `key`. Archetype prerequisites accept `archetype | <archetypeKey> | numFeats=N`. A `weapon-set` clause may require `separateHands=true` alongside count, tags, and wielded state. The v3 parser retains that predicate and runtime evaluation checks distinct hand bindings; possession of two weapons alone does not satisfy it.
+Trait/Technique dependencies use `trait | traitKey=...` and `technique | techniqueKey=...`, normalizing their stable references to `key`. Archetype prerequisites accept `archetype | <archetypeKey> | numFeats=N`. A `weapon-set` clause may retain `separateHands=true` alongside count, tags, and `wielded`. The parser preserves those use conditions; static evaluation checks the required number of distinct matching owned weapons without checking hands or wielding.
 
-Canonical saved weapons currently lack the equipment/hand state needed to prove `wielded=true` or `separateHands=true`. V5 validation therefore defers records that depend solely on those conditions. A typed OR remains usable through a supported alternative, such as Deflect Projectile's Martial Arts branch. Do not infer that a possessed weapon is wielded, invent hand assignments, or weaken the condition to bypass this boundary.
+Canonical saved weapons intentionally omit hand/wielding state. V5 validation does not defer a record merely because its authored mechanics include these use conditions. A typed OR supports either qualifying owned equipment or another supported alternative, such as Deflect Projectile's unarmed Martial Arts branch. Other unresolved static conditions remain explicit.
 
 ### Shared prerequisite grammar and v2 compatibility
 
@@ -405,12 +415,12 @@ Implemented structured runtime types include:
 - `feat`: stable `featKey`;
 - `familiar`: count/rank requirements such as `minCount`;
 - `choice`: properties of the source-owned answer referenced by `choiceRef`;
-- `weapon`: one weapon satisfying a stable `key` and/or `tag`, `tagAll`, `tagAny`, `tagNot`, `minReach`, and `wielded` predicates;
-- `weapon-set`: an explicit `count` of wielded weapons satisfying the same tag/reach predicates.
+- `weapon`: one owned weapon satisfying a stable `key` and/or `tag`, `tagAll`, `tagAny`, `tagNot` and `minReach` predicates, with `wielded` retained as a use condition;
+- `weapon-set`: an explicit `count` of distinct owned weapons satisfying the same tag/reach predicates, with wielding and separate hands retained as use conditions.
 
 `PREREQUISITE_EXPRESSION_REGISTRY` also preserves existing runtime types such as origin, attribute, skill, tag, resource, and explicit legacy text. Weapon and weapon-set tag/reach predicates are executable against normalized character weapons. Familiar prerequisites remain typed but explicitly stubbed. Unstructured legacy text is preserved as a manual rule with a diagnostic; it is never mistaken for executable structured data. `selectionMode=granted-only` must never be encoded as prerequisite prose.
 
-For example, `weapon | key=longsword | wielded=true` requires the corresponding wielded base. The v5 exporter also preserves its `WeaponBases.techniqueKeys` relationships, but accepting a predicate or storing that relationship does not by itself create a source-owned Technique answer in character state.
+For example, `weapon | key=longsword | wielded=true` requires the corresponding owned base for static eligibility and describes wielding it during use. The v5 exporter also preserves its `WeaponBases.techniqueKeys` relationships, but accepting a predicate or storing that relationship does not by itself create a source-owned Technique answer in character state.
 
 Separate nonblank lines are ordered AND conditions. Within registry fields marked as references, `A OR B` normalizes to an ordered array. Parsing returns `{ ok, value/values, diagnostics }`; diagnostics retain caller-provided sheet/row/column/cell context. Unknown types, type-specific unknown fields, duplicate aliases, missing requirements, and invalid scalars are errors. The pure parser performs no file I/O and never exits the process.
 

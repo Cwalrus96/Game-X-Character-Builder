@@ -499,13 +499,13 @@ export function evaluatePrerequisite(prerequisite, context = {}) {
       const reachOk = requiredReach === null || weaponReach(weapon) >= requiredReach;
       const requiredRank = getRequiredNumber(prereq, ["rank", "minRank"]);
       const rankOk = requiredRank === null || toRank(weapon?.rank) >= requiredRank;
-      const wieldedOk = prereq.wielded !== true || (ctx.syntaxVersion >= 3 ? weapon?.wielded === true : weapon?.wielded !== false);
-      return identityOk && tagOk && tagAllOk && tagAnyOk && tagNotOk && reachOk && rankOk && wieldedOk;
+      // Wielding and available hands are player-tracked use conditions. Static
+      // eligibility depends only on the matching equipment the character owns.
+      return identityOk && tagOk && tagAllOk && tagAnyOk && tagNotOk && reachOk && rankOk;
     });
     const required = prereq.type === "weapon-set" ? (getRequiredNumber(prereq, ["count"]) ?? 2) : 1;
-    const occupiedHands = matches.map((weapon) => weapon.hand || weapon.wieldedHand).filter((hand) => ["left", "right"].includes(hand));
-    const distinctWeapons = new Set(matches.map((weapon) => weapon.id).filter(Boolean));
-    const ok = matches.length >= required && (!prereq.separateHands || (required <= 2 && new Set(occupiedHands).size >= required && distinctWeapons.size >= required));
+    const distinctWeapons = new Set(matches.map((weapon) => weapon.id || weapon));
+    const ok = distinctWeapons.size >= required;
     return { ok, prerequisite: prereq, label, reason: `Requires ${required} matching weapon${required === 1 ? "" : "s"}.` };
   }
 

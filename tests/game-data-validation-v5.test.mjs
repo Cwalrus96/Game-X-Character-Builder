@@ -141,14 +141,15 @@ test("archetype and known-option prerequisites validate actual membership and gr
   assert(result.diagnostics.some((item) => item.code === "impossible-option-count"));
 });
 
-test("unsupported equipment state defers a sole prerequisite but preserves a supported OR route", () => {
+test("weapon use conditions are preserved without deferring static equipment eligibility", () => {
   const input = model();
   let result = validateGameDataModel(input);
   assert.equal(result.runtimeSupportBySource["Techniques:2"].status, "supported");
-  assert(result.diagnostics.some((item) => item.code === "prerequisite-alternative-deferred" && item.deferred === false));
-  input.techniques[0].prerequisites = [{ type: "weapon", tag: "Melee", wielded: true }];
+  assert(!result.diagnostics.some((item) => item.code === "prerequisite-alternative-deferred"));
+  input.techniques[0].prerequisites = [{ type: "weapon-set", tag: "Melee", count: 2, wielded: true, separateHands: true }];
   result = validateGameDataModel(input);
-  assert.equal(result.runtimeSupportBySource["Techniques:2"].status, "deferred");
+  assert.equal(result.runtimeSupportBySource["Techniques:2"].status, "supported");
+  assert.deepEqual(input.techniques[0].prerequisites, [{ type: "weapon-set", tag: "Melee", count: 2, wielded: true, separateHands: true }]);
 });
 
 test("parent cycles and invocations through an option group are rejected", () => {

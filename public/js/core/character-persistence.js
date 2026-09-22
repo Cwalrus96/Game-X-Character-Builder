@@ -129,7 +129,7 @@ export function decodeStoredCharacter(rawDocument, { references = null, expected
     character: ok ? cloneValue(migration.value) : null,
     metadata,
     revision: metadata.revision,
-    migrated: migration.fromVersion !== CHARACTER_SCHEMA_VERSION,
+    migrated: migration.fromVersion !== CHARACTER_SCHEMA_VERSION || migration.report.some((item) => item.kind === "content-migrated"),
     migration,
     diagnostics: freezeDiagnostics(diagnostics),
   });

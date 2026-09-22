@@ -103,6 +103,7 @@ See [docs/architecture.md](docs/architecture.md) for current-versus-target detai
 - Accepted state is exactly the reconciled state used to produce the impact report and save patch.
 - Source-owned techniques do not consume normal technique capacity.
 - Builder pages must not duplicate shared choice-capacity or prerequisite logic.
+- Prerequisites primarily validate the static character build ("compile-time"). Recheck them when build dependencies change; temporary gameplay state such as hands, current Energy, position, triggers or an active form must not invalidate learned choices or block builder saves. Preserve use conditions as gameplay rules, including structured Technique mechanics where supported.
 - Character-sheet autosave may write only sheet-owned temporary leaves.
 
 ### Game data

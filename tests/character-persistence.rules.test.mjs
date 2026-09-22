@@ -14,6 +14,7 @@ import {
 import { createCharacterMigrationReferences } from "../public/js/core/character-migrations.js";
 import { CharacterConflictError } from "../public/js/core/character-persistence.js";
 import { readCharacter } from "../public/js/core/database-reader.js";
+import { contentMigrationGameData, historicalCelestialKnight } from "./fixtures/character-content-migrations.mjs";
 import {
   createCharacter,
   patchCharacter,
@@ -186,6 +187,51 @@ test("v5 upgrades read-only to empty Trait state and explicit v6 saves retain ow
   assert.equal(reloaded.metadata.createdAt, original.createdAt);
   await assert.rejects(patchCharacter({ ...options, expectedRevision: 4, patch: { "builder.traitChoices": {} } }), (error) => error instanceof CharacterConflictError);
   assert.deepEqual((await readCharacter(options)).character, reloaded.character);
+});
+
+test("Celestial Knight absorption is read-only and persists exactly once on explicit save", async () => {
+  const references = createCharacterMigrationReferences(contentMigrationGameData());
+  for (const version of [4, 6]) {
+    const original = historicalCelestialKnight(version, "Targeting");
+    original.ownerUid = ALICE_UID;
+    Object.assign(original, { revision: 2, createdAt: "original-created", updatedAt: "original-updated" });
+    const characterId = `celestial-v${version}`;
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), "users", ALICE_UID, "characters", characterId), original);
+    });
+    const firestore = aliceFirestore();
+    const options = { ownerUid: ALICE_UID, characterId, references, firestore, firestoreApi };
+    const ref = doc(firestore, "users", ALICE_UID, "characters", characterId);
+    const loaded = await readCharacter(options);
+    assert.equal(loaded.migrated, true);
+    assert.deepEqual(loaded.character.builder.selectedFeatOptions, []);
+    assert.deepEqual((await getDoc(ref)).data(), original, "opening must never write");
+    const saved = await replaceCharacter({ ...options, character: loaded.character, expectedRevision: 2 });
+    assert.equal(saved.revision, 3);
+    const reloaded = await readCharacter(options);
+    assert.equal(reloaded.migrated, false);
+    assert.deepEqual(reloaded.character, loaded.character);
+    assert.equal(reloaded.metadata.createdAt, original.createdAt);
+    await assert.rejects(replaceCharacter({ ...options, character: loaded.character, expectedRevision: 2 }), (error) => error instanceof CharacterConflictError);
+    assert.equal((await getDoc(ref)).data().revision, 3);
+  }
+});
+
+test("retired Metamorph gives an actionable rebuild message and neither read nor patch changes the original", async () => {
+  const original = historicalCelestialKnight(4);
+  original.ownerUid = ALICE_UID;
+  original.builder.classKey = "metamorph";
+  original.builder.selectedFeatOptions = [];
+  original.builder.selectedFeats = [];
+  original.builder.selectedClassFeatureOptions = ["metamorph|L1|Metamorphic Transformations::Elemental Form"];
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), "users", ALICE_UID, "characters", "old-metamorph"), original);
+  });
+  const firestore = aliceFirestore();
+  const options = { ownerUid: ALICE_UID, characterId: "old-metamorph", references: createCharacterMigrationReferences(contentMigrationGameData()), firestore, firestoreApi };
+  await assert.rejects(readCharacter(options), (error) => error.code === "character-rebuild-required" && /rebuilt as a new character/.test(error.message));
+  await assert.rejects(patchCharacter({ ...options, expectedRevision: 0, patch: { "builder.name": "Do not overwrite" } }), (error) => error.diagnostics.some((item) => item.code === "character-rebuild-required"));
+  assert.deepEqual((await getDoc(doc(firestore, "users", ALICE_UID, "characters", "old-metamorph"))).data(), original);
 });
 
 test("narrow patches preserve unrelated state and reject invalid paths", async () => {

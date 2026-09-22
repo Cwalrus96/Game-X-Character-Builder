@@ -73,9 +73,10 @@ function decodeSnapshot(snapshot, { ownerUid, references }) {
     expectedOwnerUid: ownerUid,
   });
   if (!decoded.ok) {
+    const rebuild = decoded.diagnostics.find((item) => item.code === "character-rebuild-required");
     throw new CharacterPersistenceError(
-      "character-read-invalid",
-      `Character ${snapshot.id} could not be decoded as a canonical character.`,
+      rebuild?.code || "character-read-invalid",
+      rebuild?.message || `Character ${snapshot.id} could not be decoded as a canonical character.`,
       { diagnostics: decoded.diagnostics },
     );
   }

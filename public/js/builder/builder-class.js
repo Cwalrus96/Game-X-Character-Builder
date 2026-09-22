@@ -442,7 +442,7 @@ async function saveClassStep({ openSheetAfter = false, intent = "save" } = {}) {
     SetClass(classPage.getCharacter().builder.classKey),
   );
   if (!refresh.ok) {
-    showError(errorEl, refresh.errors?.join(" ") || "The character could not be reconciled.");
+    if (refresh.reason !== "cancelled") showError(errorEl, refresh.errors?.join(" ") || "The character could not be reconciled.");
     setStatus(statusEl, "Not saved.");
     return false;
   }

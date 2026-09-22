@@ -120,16 +120,19 @@ test("v3 eligibility evaluates typed alternatives and fails closed for manual ru
   assert.equal(checkPrerequisites([{ type: "familiar", minCount: 2 }], v3).ok, false);
 });
 
-test("v3 known options count distinct knowledge, archetypes count stable feat keys, and hands require evidence", () => {
+test("v3 known options and archetypes count distinct selections; weapon eligibility does not track hands", () => {
   assert.equal(checkPrerequisites([{ type: "option", groupKey: "stances", count: 2 }], { ...v3, knownOptions: { stances: ["a", "a"] } }).ok, false);
   assert.equal(checkPrerequisites([{ type: "option", groupKey: "stances", count: 2 }], { ...v3, knownOptions: { stances: ["a", "b"] } }).ok, true);
   const archetype = [{ type: "archetype", key: "path", numFeats: 2 }];
   const gameData = { feats: [{ featKey: "a", archetypeKey: "path" }, { featKey: "b", archetypeKey: "path" }] };
   assert.equal(checkPrerequisites(archetype, { ...v3, builder: { selectedFeats: ["a", "b"] }, gameData }).ok, true);
   const rule = [{ type: "weapon-set", tag: "Melee", count: 2, wielded: true, separateHands: true }];
-  const weapons = [{ id: "a", tags: ["Melee"], wielded: true }, { id: "b", tags: ["Melee"], wielded: true }];
-  assert.equal(checkPrerequisites(rule, { ...v3, builder: { weapons } }).ok, false);
-  assert.equal(checkPrerequisites(rule, { ...v3, builder: { weapons: weapons.map((weapon, i) => ({ ...weapon, hand: i ? "right" : "left" })) } }).ok, true);
+  const weapons = [{ id: "a", tags: ["Melee"] }, { id: "b", tags: ["Melee"] }];
+  assert.equal(checkPrerequisites(rule, { ...v3, builder: { weapons } }).ok, true);
+  assert.equal(checkPrerequisites(rule, { ...v3, builder: { weapons: weapons.map((weapon) => ({ ...weapon, wielded: false, hand: "left" })) } }).ok, true);
+  assert.equal(checkPrerequisites(rule, { ...v3, builder: { weapons: [weapons[0]] } }).ok, false);
+  assert.equal(checkPrerequisites(rule, { ...v3, builder: { weapons: [weapons[0], weapons[0]] } }).ok, false);
+  assert.equal(checkPrerequisites(rule, { ...v3, builder: { weapons: [weapons[0], { id: "c", tags: ["Ranged"] }] } }).ok, false);
   assert.equal(checkPrerequisites([{ type: "trait", key: "wings", minRank: 2 }, { type: "technique", key: "fly" }], { ...v3, selectedTraits: [{ traitKey: "wings", rank: 2 }], selectedTechniqueKeys: ["fly"] }).ok, true);
   assert.equal(checkPrerequisites([{ type: "technique", key: "fly" }], { ...v3, builder: { selectedTechniques: ["fly"] } }).ok, true);
   assert.equal(checkPrerequisites([{ type: "option", groupKey: "stances", count: 2 }], {

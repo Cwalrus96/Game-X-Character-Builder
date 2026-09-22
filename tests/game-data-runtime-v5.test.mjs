@@ -175,6 +175,19 @@ test("graph prerequisites include class-granted skill ranks for a supported OR a
   assert.equal(withoutSkill.nodes.find((node) => node.id === "requirement:technique-selection:deflect:0:any")?.state, "invalid");
 });
 
+test("graph weapon prerequisites use owned equipment without wielding or hand state", () => {
+  const technique = versioned({ techniqueKey: "paired-strike", techniqueName: "Paired Strike", status: "playable", rank: 1, skill: "Martial Arts", selectionRoutes: [{ type: "skill", name: "Martial Arts" }], prerequisites: [{ type: "weapon-set", tag: "Melee", count: 2, wielded: true, separateHands: true }] });
+  const data = { ...GRAPH_GAME_DATA, schemaVersion: 3, expressionSyntaxVersion: 3, traits: [], techniques: [technique], weaponBases: [{ weaponKey: "longsword", name: "Longsword", tags: ["Melee"] }] };
+  const character = makeGraphCharacter({ selectedTechniques: ["paired-strike"] });
+  const weapon = (id) => ({ id, weaponKey: "longsword", customName: "", rank: 1, enhancements: [], generated: false, choiceId: "", sourceChoiceId: "" });
+  character.builder.weapons = [weapon("left-inventory"), weapon("right-inventory")];
+  const requirementId = "requirement:technique-selection:paired-strike:0:weapon-set";
+  const graph = compileCharacterGraph({ character, gameData: data });
+  assert.equal(graph.nodes.find((node) => node.id === requirementId)?.state, "available");
+  character.builder.weapons.pop();
+  assert.equal(compileCharacterGraph({ character, gameData: data }).nodes.find((node) => node.id === requirementId)?.state, "invalid");
+});
+
 test("explicit conditional class progression survives into the shared skill projection", () => {
   const cls = versioned({ classKey: "weapon-master", name: "Weapon Master", combatTechniqueSkill: "Melee Weapons, Ranged Weapons", combatSkills: [
     { name: "Melee Weapons", progression: "fast", whenPrimaryAttribute: "Strength" },

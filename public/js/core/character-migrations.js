@@ -20,6 +20,7 @@ import {
   resolveGrantChoiceIds,
 } from "./choice-identity.js";
 import { canonicalSkillKey, canonicalStoredSkillKey, renameSkillText } from "./skill-identity.js";
+import { createContentMigrationPolicy, migrateReviewedCharacterContent } from "./character-content-migrations.js";
 
 export const LEGACY_UNVERSIONED_CHARACTER_SCHEMA = 0;
 export const RESERVED_CHARACTER_SCHEMA_VERSION = 2;
@@ -1223,10 +1224,21 @@ export function migrateCharacterDocument(value, { references = null } = {}) {
   let current = cloneValue(value);
   let version = classifiedVersion;
   const appliedVersions = [];
+  // Content revisions are independent of the stored shape version. Run once at
+  // the v4+ builder boundary, including already-canonical historical characters.
+  let contentReviewed = false;
+  const reviewContent = () => {
+    if (!contentReviewed && version >= 4) {
+      migrateReviewedCharacterContent(current, references, context);
+      contentReviewed = true;
+    }
+  };
+  reviewContent();
   if (version === CHARACTER_SCHEMA_VERSION) {
     current = stripCanonicalMetadata(current, context);
   } else {
     while (version !== CHARACTER_SCHEMA_VERSION) {
+      if (diagnostics.some((item) => item.code === "character-rebuild-required")) break;
       const step = CHARACTER_MIGRATION_STEPS.find((candidate) => candidate.fromVersion === version);
       if (!step) {
         addDiagnostic(context, "missing-migration-step", "character.schemaVersion", `No migration step begins at schema version ${version}.`);
@@ -1235,6 +1247,7 @@ export function migrateCharacterDocument(value, { references = null } = {}) {
       current = step.migrate(current, context);
       appliedVersions.push(Object.freeze({ fromVersion: step.fromVersion, toVersion: step.toVersion }));
       version = step.toVersion;
+      reviewContent();
     }
   }
 
@@ -1479,6 +1492,7 @@ export function createCharacterMigrationReferences(gameData = {}) {
         left.choiceId.localeCompare(right.choiceId) || left.sourceId.localeCompare(right.sourceId)
       )))]),
   ));
+  output.contentMigrations = createContentMigrationPolicy(gameData);
   return Object.freeze(output);
 }
 

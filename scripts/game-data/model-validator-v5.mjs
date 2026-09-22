@@ -7,8 +7,7 @@ const identity = (row) => row.featureKey || row.featKey || row.traitKey || row.t
 const owner = (row) => row.classKey ? `class:${row.classKey}` : row.originKey ? `origin:${row.originKey}` : row.featKey ? `feat-category:${row.category}` : `${row.source?.sheet}:${identity(row)}`;
 const nodeId = (row) => `${owner(row)}/${identity(row)}`;
 const incomplete = (row) => /(?:^|\b)(?:TBD|TODO|unfinished|not yet designed)(?:\b|$)/i.test(row.description || "") || (row.kind !== "optionGroup" && !row.description && !row.grants?.length && !row.action?.damage && !row.action?.onSuccess);
-const needsEquipmentState = (rule) => ["weapon", "weapon-set"].includes(rule.type) && (rule.wielded || rule.separateHands);
-const ruleDeferred = (rule) => needsEquipmentState(rule) || !["implemented", "compatibility"].includes(getExpressionRuntimeStatus("prerequisite", rule, { syntaxVersion: 3 }));
+const ruleDeferred = (rule) => !["implemented", "compatibility"].includes(getExpressionRuntimeStatus("prerequisite", rule, { syntaxVersion: 3 }));
 const traitDeferralMessages = Object.freeze({
   "trait-rank-context-missing": "Trait grant has neither a fixed rank nor an associated skill; its rank context remains unassigned.",
   "trait-activation-missing": "Trait grant requires an explicit permanent or toggle activation before execution.",
@@ -108,7 +107,6 @@ export function validateV5Relationships(model, helpers) {
           }
         }
         const status = getExpressionRuntimeStatus("prerequisite", prerequisite, { syntaxVersion: 3 });
-        if (needsEquipmentState(prerequisite)) add("warning", hasSupportedAlternative ? "prerequisite-alternative-deferred" : "runtime-prerequisite-deferred", "This alternative requires equipped-weapon or hand state, which canonical saved characters do not yet represent.", row, "prerequisites");
         if (status === "manual") add("warning", hasSupportedAlternative ? "prerequisite-alternative-deferred" : "manual-prerequisite", "Manual prerequisite text is retained but cannot establish eligibility.", row, "prerequisites");
         else if (!["implemented", "compatibility"].includes(status)) add("warning", hasSupportedAlternative ? "prerequisite-alternative-deferred" : "runtime-prerequisite-deferred", `Prerequisite "${prerequisite.type}" has no executable runtime support.`, row, "prerequisites");
       }
