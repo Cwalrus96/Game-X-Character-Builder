@@ -4,6 +4,8 @@ Status: Work Package D core is complete and Work Package E migration is active. 
 
 Last updated: 2026-09-21.
 
+Release-review skill correction: named grants and class utility choices supply free minimum ranks for allocation. Older extra rows repeating granted skills do not spend points twice. Canonical extra rows remain user-owned when a grant disappears; Skill Rules assess their newly owed cost and reconciliation reports any budget reduction for confirmation. Only the transitional label-based compatibility projection retains its historical grant-row pruning. The read-only sheet consumes the same effective-rank projection.
+
 ## Purpose and boundary
 
 The Character Dependency Graph is one authoritative pure subsystem for character selection ownership and dependency effects. It accepts one exact schema-v6 character plus normalized runtime artifact schema-v2 or schema-v3 game data and produces deterministic plain-data nodes, edges, diagnostics, metadata, and reconciled outcomes.

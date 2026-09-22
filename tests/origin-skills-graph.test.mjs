@@ -74,6 +74,27 @@ test("reconciliation preserves paid ranks above and after a class-granted utilit
   assert.equal(removed.graph.metadata.skillPointUsage, 2);
 });
 
+test("removing a named skill grant keeps paid rows and reviews any newly owed points", () => {
+  const data = structuredClone(GAME_DATA);
+  data.origins[0].features[0].grants = [{ type: "skill", name: "Swordplay", rank: 1 }];
+  const value = character();
+  value.builder.sheet.repeatables.combatSkillsExtra = [{ skill: "Swordplay", rank: "1" }];
+  const granted = reconcileCharacterGraph({ character: value, gameData: data });
+  assert.equal(granted.graph.metadata.skillPointUsage, 0);
+  const withoutGrant = structuredClone(granted.character);
+  withoutGrant.builder.originKey = "";
+  const retained = reconcileCharacterGraph({ character: withoutGrant, previousCharacter: granted.character, gameData: data });
+  assert.deepEqual(retained.character.builder.sheet.repeatables.combatSkillsExtra, [{ skill: "Swordplay", rank: "1" }]);
+  assert.equal(retained.graph.metadata.skillPointUsage, 1);
+  withoutGrant.builder.sheet.fields.rank_athletics = "1";
+  withoutGrant.builder.sheet.fields.rank_nature = "1";
+  const overBudget = reconcileCharacterGraph({ character: withoutGrant, previousCharacter: granted.character, gameData: data });
+  assert.equal(overBudget.ok, true);
+  assert.deepEqual(overBudget.character.builder.sheet.repeatables.combatSkillsExtra, [{ skill: "Swordplay", rank: "0" }]);
+  assert.ok(overBudget.impacts.some((impact) => impact.code === "skill-point-budget-applied" && impact.category === "confirmation-required"));
+  assert.deepEqual(granted.character.builder.sheet.repeatables.combatSkillsExtra, [{ skill: "Swordplay", rank: "1" }]);
+});
+
 test("skill overspend requires confirmation and cancellation is side-effect free", () => {
   const value = character();
   value.builder.sheet.fields.rank_academics = "1";

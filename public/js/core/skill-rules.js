@@ -274,7 +274,7 @@ export function getSkillCapBonuses(gameData, builder) {
   return output;
 }
 
-function allocationRecords(gameData, builder) {
+function allocationRecords(gameData, builder, granted) {
   const fields = builder?.sheet?.fields && typeof builder.sheet.fields === "object" ? builder.sheet.fields : {};
   const repeatables = builder?.sheet?.repeatables && typeof builder.sheet.repeatables === "object" ? builder.sheet.repeatables : {};
   const utility = getClassUtilitySkillState(gameData, builder);
@@ -282,20 +282,26 @@ function allocationRecords(gameData, builder) {
   const capBonuses = getSkillCapBonuses(gameData, builder);
   const baseCap = getStandardSkillRankCap(builder?.level);
   const capFor = (name) => Math.min(6, baseCap + (capBonuses.get(String(name || "").toLowerCase()) || 0));
+  const grantedRankFor = (name) => Math.max(0, ...granted.grantedCombatSkills
+    .filter((record) => canonicalSkillName(record.skill).toLowerCase() === canonicalSkillName(name).toLowerCase())
+    .map((record) => numericRank(record.rank)));
   const fixed = CORE_SKILL_FIELDS.map(({ key, label }) => {
-    const grantedRank = utilitySet.has(slug(label)) ? 1 : 0;
+    const grantedRank = Math.max(utilitySet.has(slug(label)) ? 1 : 0, grantedRankFor(label));
     const rank = Math.max(grantedRank, numericRank(fields[key]));
-    return { domain: "fixed", key, name: label, rank, storedRank: normalizeSkillRank(fields[key], { allowBlank: true }), grantedRank, editable: true, cap: capFor(label), path: `builder.sheet.fields.${key}` };
+    return { domain: "fixed", key, name: label, rank, storedRank: normalizeSkillRank(fields[key], { allowBlank: true }), grantedRank, editable: true, cap: Math.max(grantedRank, capFor(label)), path: `builder.sheet.fields.${key}` };
   });
-  const combat = sanitizeNamedSkillList(repeatables.combatSkillsExtra, { maxItems: 50 }).map((row, index) => ({ domain: "combat", key: row.skill.toLowerCase(), name: canonicalSkillName(row.skill), rank: numericRank(row.rank), storedRank: normalizeSkillRank(row.rank, { allowBlank: true }), grantedRank: 0, editable: true, cap: capFor(row.skill), path: `builder.sheet.repeatables.combatSkillsExtra.${index}.rank`, index }));
+  const combat = sanitizeNamedSkillList(repeatables.combatSkillsExtra, { maxItems: 50 }).map((row, index) => {
+    const grantedRank = grantedRankFor(row.skill);
+    return { domain: "combat", key: row.skill.toLowerCase(), name: canonicalSkillName(row.skill), rank: Math.max(grantedRank, numericRank(row.rank)), storedRank: normalizeSkillRank(row.rank, { allowBlank: true }), grantedRank, editable: true, cap: Math.max(grantedRank, capFor(row.skill)), path: `builder.sheet.repeatables.combatSkillsExtra.${index}.rank`, index };
+  });
   const utilityOptionByKey = new Map(utility.options.map((option) => [option.key, option]));
   const nonCoreUtilityKeys = new Set(utility.selected.filter((key) => !CORE_FIELD_BY_SKILL_KEY.has(key)));
   const representedUtilityKeys = new Set();
   const setting = sanitizeNamedSkillList(repeatables.settingSkills, { maxItems: 50 }).map((row, index) => {
     const utilityKey = slug(row.skill);
-    const grantedRank = nonCoreUtilityKeys.has(utilityKey) ? 1 : 0;
+    const grantedRank = Math.max(nonCoreUtilityKeys.has(utilityKey) ? 1 : 0, grantedRankFor(row.skill));
     if (grantedRank) representedUtilityKeys.add(utilityKey);
-    return { domain: "setting", key: row.skill.toLowerCase(), name: utilityOptionByKey.get(utilityKey)?.label || row.skill, rank: Math.max(grantedRank, numericRank(row.rank)), storedRank: normalizeSkillRank(row.rank, { allowBlank: true }), grantedRank, editable: true, cap: capFor(row.skill), path: `builder.sheet.repeatables.settingSkills.${index}.rank`, index, virtual: false };
+    return { domain: "setting", key: row.skill.toLowerCase(), name: utilityOptionByKey.get(utilityKey)?.label || row.skill, rank: Math.max(grantedRank, numericRank(row.rank)), storedRank: normalizeSkillRank(row.rank, { allowBlank: true }), grantedRank, editable: true, cap: Math.max(grantedRank, capFor(row.skill)), path: `builder.sheet.repeatables.settingSkills.${index}.rank`, index, virtual: false };
   });
   for (const utilityKey of nonCoreUtilityKeys) {
     if (representedUtilityKeys.has(utilityKey)) continue;
@@ -306,13 +312,13 @@ function allocationRecords(gameData, builder) {
 }
 
 export function getSkillAllocationState(gameData, builder) {
-  const records = allocationRecords(gameData, builder);
+  const granted = computeGrantedSkillsState(gameData, builder);
+  const records = allocationRecords(gameData, builder, granted);
   const total = getSpendableSkillPoints(builder?.level, builder?.attributes?.intellect);
   const spent = [...records.fixed, ...records.combat, ...records.setting]
     .reduce((sum, record) => sum + getSkillPointCostForRank(record.rank, { grantedRank: record.grantedRank }), 0);
   const remaining = total - spent;
   const withMaximum = (record) => ({ ...record, minimumAssignable: record.grantedRank, maximumAssignable: record.editable ? Math.min(record.cap, record.rank + Math.max(0, remaining)) : record.rank });
-  const granted = computeGrantedSkillsState(gameData, builder);
   return freeze({
     level: Math.max(1, Math.min(12, Number.parseInt(String(builder?.level ?? 1), 10) || 1)),
     intellect: Number.parseInt(String(builder?.attributes?.intellect ?? 0), 10) || 0,
@@ -360,4 +366,34 @@ export function fitSkillsToRules(gameData, builder) {
   }
   const finalAllocation = getSkillAllocationState(gameData, working);
   return freeze({ fields, combatSkillsExtra, settingSkills, allocation: finalAllocation, changes });
+}
+
+// Read-only presentation of the same effective ranks used by allocation rules.
+// Persisted utility answers are keys; their labels and free ranks come from data.
+export function getSkillDisplayState(gameData, builder) {
+  const allocation = getSkillAllocationState(gameData, builder);
+  const displayRank = (record) => record.rank > 0 || record.storedRank !== "" ? String(record.rank) : "";
+  const fields = Object.fromEntries([
+    ...allocation.fixed.map((record) => [record.key, displayRank(record)]),
+    ...allocation.defense.map((record) => [record.key, record.rank]),
+  ]);
+  const combat = new Map(allocation.combat.map((record) => [
+    canonicalSkillName(record.name).toLowerCase(),
+    { skill: record.name, rank: displayRank(record) },
+  ]));
+  const settingKeys = new Set(allocation.setting.map((record) => canonicalSkillName(record.name).toLowerCase()));
+  for (const record of allocation.grantedCombatSkills) {
+    const name = canonicalSkillName(record.skill);
+    const key = name.toLowerCase();
+    if (CORE_FIELD_BY_SKILL_KEY.has(slug(name)) || settingKeys.has(key)) continue;
+    const existing = combat.get(key);
+    combat.set(key, { skill: name, rank: displayRank({ rank: Math.max(numericRank(existing?.rank), numericRank(record.rank)), storedRank: existing?.rank || record.rank }) });
+  }
+  return freeze({
+    fields,
+    repeatables: {
+      combatSkillsExtra: [...combat.values()].sort((a, b) => a.skill.localeCompare(b.skill)),
+      settingSkills: allocation.setting.map((record) => ({ skill: record.name, rank: displayRank(record) })),
+    },
+  });
 }

@@ -2,6 +2,7 @@ import { getChoiceCountState } from "../../core/choice-capacity.js";
 import { SetClassFeatureOptions, SetFeatOptions } from "../../core/character-commands.js?v=wpe1";
 import { buildGroupId, buildOptionKey, sanitizeText } from "../../core/data-sanitization.js";
 import { formatPrerequisites } from "../../core/prerequisites.js";
+import { isGameDataRecordExecutable } from "../../core/selection-rules.js";
 import {
   isOptionGroup,
 } from "../../core/option-groups.js";
@@ -83,6 +84,13 @@ export class OptionGroupWidget extends BuilderWidget {
     for (const key of nextKeys || []) this.selectedKeys.add(key);
   }
 
+  checkAvailability(option) {
+    if (!isGameDataRecordExecutable(this.group) || !isGameDataRecordExecutable(option)) {
+      return { ok: false, failureReasons: ["Incomplete option — mechanics are not yet available."] };
+    }
+    return this.checkEntryPrerequisites(option);
+  }
+
   renderChildGroup(option) {
     return new OptionGroupWidget(this.page, {
       group: option,
@@ -158,7 +166,7 @@ export class OptionGroupWidget extends BuilderWidget {
     for (const option of opts) {
       const key = getOptionStorageKey(group, option);
       const checked = this.selectedKeys.has(key);
-      const prereqCheck = this.checkEntryPrerequisites(option);
+      const prereqCheck = this.checkAvailability(option);
       const prereqText = formatPrerequisites(option?.prerequisites);
       const isUnavailable = !prereqCheck.ok;
       if (isUnavailable) this.trackUnavailable?.({ context: this.context, hidden: false });
@@ -185,7 +193,7 @@ export class OptionGroupWidget extends BuilderWidget {
         const previousChecked = !cb.checked;
         const nextKeys = new Set(this.selectedKeys);
         if (cb.checked) {
-          const currentPrereqCheck = this.checkEntryPrerequisites(option);
+          const currentPrereqCheck = this.checkAvailability(option);
           if (!currentPrereqCheck.ok) {
             cb.checked = false;
             this.setStatus?.(currentPrereqCheck.failureReasons[0] || "Prerequisites not met.");

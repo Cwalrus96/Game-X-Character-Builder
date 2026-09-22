@@ -37,8 +37,10 @@ export class OriginWidget {
     this.render();
   }
 
-  async #submit(command) {
+  async #submit(command, focusControl = null) {
     if (this.busy) return;
+    const activeControl = focusControl || document.activeElement;
+    const restoreFocus = activeControl === this.elements.originSelect || activeControl === this.elements.originKeystone;
     this.busy = true;
     this.render();
     try {
@@ -47,11 +49,12 @@ export class OriginWidget {
     } finally {
       this.busy = false;
       this.render();
+      if (restoreFocus) activeControl.focus();
     }
   }
 
   #setOrigin() {
-    return this.#submit(SetOrigin(this.elements.originSelect.value));
+    return this.#submit(SetOrigin(this.elements.originSelect.value), this.elements.originSelect);
   }
 
   #setKeystone() {
@@ -98,4 +101,3 @@ export class OriginWidget {
     if (unregister) this.page.unregisterWidget(this);
   }
 }
-

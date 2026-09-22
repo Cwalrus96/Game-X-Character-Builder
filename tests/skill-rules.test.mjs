@@ -6,6 +6,7 @@ import {
   fitSkillsToRules,
   getClassUtilitySkillState,
   getSkillAllocationState,
+  getSkillDisplayState,
   getSkillProgressionRank,
 } from "../public/js/core/skill-rules.js";
 
@@ -109,4 +110,77 @@ test("skill fitting applies caps then a stable point-budget reduction without mu
     "skill-point-budget-applied",
   ]);
   assert.deepEqual(fitSkillsToRules(GAME_DATA, { ...state, sheet: { ...state.sheet, fields: result.fields, repeatables: { ...state.sheet.repeatables, combatSkillsExtra: result.combatSkillsExtra, settingSkills: result.settingSkills } } }).changes, []);
+});
+
+test("a saved row that repeats a granted combat skill does not spend points or lose the grant", () => {
+  const data = structuredClone(GAME_DATA);
+  data.classFeatures.ninja = [{ type: "feature", featureKey: "training", classKey: "ninja", level: 1,
+    grants: [{ type: "skill", name: "Ranged Weapons", rank: 4 }] }];
+  const state = builder();
+  state.level = 1;
+  state.attributes.intellect = 0;
+  state.sheet.fields.rank_athletics = "1";
+  state.sheet.fields.rank_nature = "1";
+  state.sheet.repeatables.combatSkillsExtra = [{ skill: "Targeting", rank: "1" }];
+  const before = structuredClone(state);
+  const allocation = getSkillAllocationState(data, state);
+  assert.equal(allocation.spent, 2, "the granted rank is free even through the historical Targeting alias");
+  assert.equal(allocation.combat[0].rank, 4);
+  assert.equal(allocation.combat[0].minimumAssignable, 4);
+  assert.equal(allocation.combat[0].maximumAssignable, 4);
+  assert.deepEqual(fitSkillsToRules(data, state).changes, []);
+  assert.deepEqual(state, before);
+  data.classFeatures.ninja = [];
+  assert.equal(getSkillAllocationState(data, state).spent, 3, "removing the grant restores the stored rank's normal cost");
+  assert.equal(fitSkillsToRules(data, state).changes[0].code, "skill-point-budget-applied");
+});
+
+test("paid ranks above a named grant remain paid and survive removal when within budget", () => {
+  const data = structuredClone(GAME_DATA);
+  data.classFeatures.ninja = [{ type: "feature", featureKey: "training", classKey: "ninja", level: 1,
+    grants: [{ type: "skill", name: "Swordplay", rank: 1 }, { type: "skill", name: "Science", rank: 2 }, { type: "skill", name: "Athletics", rank: 2 }] }];
+  const state = builder();
+  state.selectedClassUtilitySkills = ["athletics"];
+  state.sheet.fields.rank_athletics = "3";
+  state.sheet.repeatables.combatSkillsExtra = [{ skill: "swordplay", rank: "3" }];
+  state.sheet.repeatables.settingSkills = [{ skill: "Science", rank: "3" }];
+  assert.equal(getSkillAllocationState(data, state).spent, 4);
+  assert.deepEqual(fitSkillsToRules(data, state).changes, []);
+  data.classFeatures.ninja = [];
+  assert.equal(getSkillAllocationState(data, state).spent, 8);
+  assert.deepEqual(fitSkillsToRules(data, state).changes, []);
+});
+
+test("sheet skill display resolves utility keys and preserves higher paid ranks without changing storage", () => {
+  const state = builder();
+  state.selectedClassUtilitySkills = ["nature", "science"];
+  state.sheet.fields.rank_nature = "3";
+  state.sheet.repeatables.settingSkills = [{ skill: "Science", rank: "2" }];
+  const before = structuredClone(state);
+  const display = getSkillDisplayState(GAME_DATA, state);
+  assert.equal(display.fields.rank_nature, "3");
+  assert.equal(display.fields.rank_athletics, "", "an unanswered core rank stays blank");
+  assert.deepEqual(display.repeatables.settingSkills, [{ skill: "Science", rank: "2" }]);
+  assert.deepEqual(state, before);
+  state.sheet.fields.rank_nature = "";
+  state.sheet.repeatables.settingSkills = [];
+  const free = getSkillDisplayState(GAME_DATA, state);
+  assert.equal(free.fields.rank_nature, "1");
+  assert.deepEqual(free.repeatables.settingSkills, [{ skill: "Science", rank: "1" }]);
+  assert.equal(Object.isFrozen(free.fields), true);
+});
+
+test("sheet skill display merges granted aliases with paid overlays and keeps unknown ranks blank", () => {
+  const data = structuredClone(GAME_DATA);
+  data.classes[0].combatTechniqueSkill = "Mystery Skill";
+  data.classFeatures.ninja = [{ type: "feature", featureKey: "training", classKey: "ninja", level: 1,
+    grants: [{ type: "skill", name: "Ranged Weapons", rank: 1 }, { type: "skill", name: "Athletics", rank: 2 }] }];
+  const state = builder();
+  state.sheet.repeatables.combatSkillsExtra = [{ skill: "Targeting", rank: "3" }];
+  const display = getSkillDisplayState(data, state);
+  assert.equal(display.fields.rank_athletics, "2");
+  assert.equal(display.repeatables.combatSkillsExtra.some((row) => row.skill === "Athletics"), false);
+  assert.equal(display.repeatables.combatSkillsExtra.filter((row) => row.skill === "Ranged Weapons").length, 1);
+  assert.equal(display.repeatables.combatSkillsExtra.find((row) => row.skill === "Ranged Weapons").rank, "3");
+  assert.equal(display.repeatables.combatSkillsExtra.find((row) => row.skill === "Mystery Skill").rank, "");
 });

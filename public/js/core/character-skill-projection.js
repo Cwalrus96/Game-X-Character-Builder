@@ -93,11 +93,16 @@ export function buildCharacterSkillProjection(gameData, builder = {}, {
   const previousGrantedSkillNames = previouslyGranted?.grantedSkillNames instanceof Set
     ? previouslyGranted.grantedSkillNames
     : new Set();
-  repeatables.combatSkillsExtra = prunePreviouslyGrantedRows(
-    repeatables.combatSkillsExtra,
-    previousGrantedSkillNames,
-    grantedSkillNames,
-  );
+  // Canonical extra rows are user-owned paid overlays. Removing a free grant
+  // changes their cost; shared Skill Rules review any resulting overspend.
+  // Keep the transitional label-based projection's existing behavior isolated.
+  if (preserveLegacyLabels) {
+    repeatables.combatSkillsExtra = prunePreviouslyGrantedRows(
+      repeatables.combatSkillsExtra,
+      previousGrantedSkillNames,
+      grantedSkillNames,
+    );
+  }
 
   return {
     fields,
