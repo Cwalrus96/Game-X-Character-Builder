@@ -47,14 +47,29 @@ export function renderTraitCardsHtml(traits, options = {}) {
   return (Array.isArray(traits) ? traits : []).map((trait) => renderTraitCardHtml(trait, options)).join("");
 }
 
+/** Display only one feature's formal grants; eligibility still uses the full character. */
+export function getTraitSourceDisplay(projection, sourceId) {
+  const owned = (item) => item.sourceId === sourceId;
+  const providers = (projection.providers || []).filter((provider) => owned(provider) && !provider.id.endsWith(":references"));
+  const choices = (projection.choices || []).filter(owned);
+  return {
+    providers, choices,
+    traits: (projection.traits || []).filter((trait) => owned(trait) && !trait.referenceOnly),
+    deferred: (projection.deferred || []).filter((provider) => providers.some((item) => item.id === provider.id)),
+    issues: (projection.issues || []).filter((issue) => issue.path === sourceId
+      || choices.some((choice) => choice.choiceId === issue.choiceId)
+      || providers.some((provider) => issue.path?.startsWith(`${provider.id}:`))),
+  };
+}
+
 /** Shared read-only summary for the builder and character sheet. */
-export function renderTraitProjectionHtml(projection = {}, { gameData = {} } = {}) {
+export function renderTraitProjectionHtml(projection = {}, { gameData = {}, emptyMessage = "No Traits are supplied by your current features." } = {}) {
   const cards = renderTraitCardsHtml(projection.traits, { gameData });
   const tags = (projection.tags || []).filter((tag) => typeof tag === "string");
   const messages = [...(projection.issues || []), ...(projection.deferred || [])]
     .map((issue) => typeof issue === "string" ? issue : issue?.message || issue?.reason || "")
     .filter((message, index, values) => message && values.indexOf(message) === index);
-  return `${cards || '<p class="help">No Traits are supplied by your current features.</p>'}
+  return `${cards || (emptyMessage ? `<p class="help">${escapeHtml(emptyMessage)}</p>` : "")}
     ${tags.length ? `<p class="help">Granted tags: ${tags.map(escapeHtml).join(", ")}</p>` : ""}
     ${messages.length ? `<ul class="help">${messages.map((message) => `<li>${escapeHtml(message)}</li>`).join("")}</ul>` : ""}`;
 }

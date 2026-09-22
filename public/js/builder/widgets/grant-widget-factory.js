@@ -4,7 +4,7 @@ import { getEffectiveTags } from "../../core/weapon-utils.js";
 import { TechniqueChoiceWidget } from "./technique-choice-widget.js?v=wpe8";
 import { WeaponChoiceWidget } from "./weapon-choice-widget.js";
 import { WeaponEnhancementChoiceWidget } from "./weapon-enhancement-choice-widget.js";
-import { createDefaultGrantWidgetRegistry } from "./grant-widget-extensions.js";
+import { createDefaultGrantWidgetRegistry } from "./grant-widget-extensions.js?v=wpe2";
 
 const DEFAULT_GRANT_WIDGET_REGISTRY = createDefaultGrantWidgetRegistry();
 

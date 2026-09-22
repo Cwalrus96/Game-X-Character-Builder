@@ -1,13 +1,13 @@
 import { SetTraitChoice, RemoveTraitChoice } from "../../core/character-commands.js";
-import { projectCharacterTraits } from "../../core/trait-rules.js";
+import { projectCharacterTraits, traitSourceIdentity } from "../../core/trait-rules.js";
 import { escapeHtml } from "../../core/data-sanitization.js";
-import { renderTraitProjectionHtml } from "../../core/trait-display.js";
+import { getTraitSourceDisplay, renderTraitProjectionHtml } from "../../core/trait-display.js?v=wpe2";
 
 /** A portable session client. Eligibility and ownership come entirely from Rules. */
 export class TraitWidget {
   constructor(page, {
     id = "traits", scope = "traits", gameData, mount, documentRef = globalThis.document,
-    project = projectCharacterTraits, onRejected = null,
+    project = projectCharacterTraits, onRejected = null, sourceId = "", onAccepted = null,
   } = {}) {
     if (!mount || typeof project !== "function") throw new TypeError("TraitWidget requires a mount and Trait projection.");
     this.id = id;
@@ -17,6 +17,8 @@ export class TraitWidget {
     this.element = mount;
     this.documentRef = documentRef;
     this.project = project;
+    this.sourceId = sourceId;
+    this.onAccepted = typeof onAccepted === "function" ? onAccepted : null;
     this.onRejected = typeof onRejected === "function" ? onRejected : null;
     this.character = page.getCharacter();
     this.busy = false;
@@ -35,11 +37,14 @@ export class TraitWidget {
 
   async #submit(command) {
     if (this.busy || !this.enabled) return;
+    const focusControl = this.focusControl;
+    let accepted = false;
     this.busy = true;
     this.error = "";
     this.render();
     try {
       const result = await this.page.requestCharacterCommand(this, command);
+      accepted = result.ok;
       if (!result.ok) {
         if (result.reason !== "cancelled") this.error = result.errors?.join(" ") || "That Trait change could not be applied.";
         this.onRejected?.(result);
@@ -51,6 +56,11 @@ export class TraitWidget {
     } finally {
       this.busy = false;
       this.render();
+    }
+    if (accepted) this.onAccepted?.();
+    const replacement = this.page.widgets?.get(this.id);
+    if (replacement && replacement !== this && focusControl) {
+      replacement.element.querySelector?.(focusControl)?.focus?.();
     }
   }
 
@@ -69,7 +79,8 @@ export class TraitWidget {
   }
 
   render() {
-    this.projection = this.project(this.character, this.gameData);
+    const projection = this.project(this.character, this.gameData);
+    this.projection = this.sourceId ? getTraitSourceDisplay(projection, this.sourceId) : projection;
     const disabled = this.busy || !this.enabled;
     const choices = (this.projection.choices || []).map((choice, index) => {
       const controlId = `${this.id}-choice-${index}`;
@@ -77,7 +88,7 @@ export class TraitWidget {
       return `<div class="builderItem"><label class="label" for="${escapeHtml(controlId)}">${escapeHtml(choice.label || "Choose a Trait")}</label><select class="input" id="${escapeHtml(controlId)}" data-trait-choice="${index}"${disabled ? " disabled" : ""}><option value="">Choose a Trait…</option>${options}</select></div>`;
     }).join("");
     this.element.setAttribute("aria-busy", String(this.busy));
-    this.element.innerHTML = `<h3 class="h3">Traits</h3>${this.error ? `<p role="alert" class="error">${escapeHtml(this.error)}</p>` : ""}${choices}${renderTraitProjectionHtml(this.projection, { gameData: this.gameData })}`;
+    this.element.innerHTML = `<h3 class="h3">Traits</h3>${this.error ? `<p role="alert" class="error">${escapeHtml(this.error)}</p>` : ""}${choices}${renderTraitProjectionHtml(this.projection, { gameData: this.gameData, ...(this.sourceId ? { emptyMessage: "" } : {}) })}`;
     if (!disabled && this.focusControl) {
       this.element.querySelector?.(this.focusControl)?.focus?.();
       this.focusControl = null;
@@ -92,4 +103,18 @@ export class TraitWidget {
     this.element.innerHTML = "";
     if (unregister) this.page.unregisterWidget(this);
   }
+}
+
+export function registerTraitWidgetExtension(registry, { documentRef = globalThis.document } = {}) {
+  registry.register("trait", ({ page, entry, index, scope, gameData, onChange }) => {
+    // A feature's Trait grants share one widget, with separate source-owned choices.
+    if (index !== entry.grants.findIndex((grant) => grant.type === "trait")) return null;
+    const sourceId = traitSourceIdentity(entry);
+    if (!sourceId) return null;
+    const mount = documentRef.createElement("section");
+    mount.className = "traitWidget";
+    mount.setAttribute("aria-label", `Traits granted by ${entry.name || "this feature"}`);
+    return new TraitWidget(page, { id: `traits:${sourceId}`, sourceId, scope, gameData, mount, onAccepted: onChange });
+  });
+  return registry;
 }

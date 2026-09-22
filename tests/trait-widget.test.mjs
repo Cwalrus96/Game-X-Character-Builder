@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { TraitWidget } from "../public/js/builder/widgets/trait-widget.js";
+import { TraitWidget, registerTraitWidgetExtension } from "../public/js/builder/widgets/trait-widget.js";
 import { SetTraitChoice, RemoveTraitChoice } from "../public/js/core/character-commands.js";
 import { projectCharacterTraits } from "../public/js/core/trait-rules.js";
+import { GrantWidgetRegistry } from "../public/js/builder/widgets/grant-widget-registry.js";
+import { createGrantWidgets } from "../public/js/builder/widgets/grant-widget-factory.js";
+import { traitData, traitCharacter } from "./fixtures/traits.mjs";
 
 function harness({ result = { ok: true }, projection = {}, character = { builder: {} }, gameData = {}, project = null } = {}) {
   const events = new Map();
@@ -111,4 +114,51 @@ test("TraitWidget distinguishes acquired Traits and references without exposing 
   assert.match(h.mount.innerHTML, /While this form is active/);
   assert.doesNotMatch(h.mount.innerHTML, /<input|data-trait-activation|data-reset-trait-activation/);
   assert.deepEqual(character.builder.traitActivations, {});
+});
+
+test("Trait grant widgets exist only for explicit grants and group each feature's grants together", async () => {
+  const documentRef = { createElement() {
+    return { innerHTML: "", events: {}, setAttribute() {},
+      addEventListener(type, handler) { this.events[type] = handler; },
+      removeEventListener(type) { delete this.events[type]; },
+      querySelector() { return { focus() {} }; },
+    };
+  } };
+  const registry = registerTraitWidgetExtension(new GrantWidgetRegistry(), { documentRef });
+  const gameData = traitData();
+  const character = traitCharacter();
+  character.builder.classKey = "test-class";
+  gameData.classes = [{ classKey: "test-class", name: "Test class" }];
+  const feature = (featureKey, grants) => ({ type: "feature", classKey: "test-class", featureKey, name: featureKey, level: 1, grants });
+  const first = feature("first", [{ type: "trait", tag: "Body", choiceId: "body", rank: 2 }, { type: "trait", key: "liquid" }]);
+  const second = feature("second", [{ type: "trait", key: "wings" }]);
+  gameData.classFeatures["test-class"] = [first, second];
+  const commands = [], registered = new Map();
+  const page = {
+    widgets: registered, getCharacter: () => character,
+    registerWidget(widget) { registered.set(widget.id, widget); },
+    unregisterWidget(widget) { registered.delete(widget.id); },
+    async requestCharacterCommand(widget, command) { commands.push(command); return { ok: false, reason: "cancelled" }; },
+  };
+  const create = (entry) => createGrantWidgets({ page, entry, registry, gameData, scope: "feature" });
+  assert.deepEqual(create(feature("ordinary", [])), []);
+  assert.deepEqual(create({ ...feature("reference", []), traitKeys: ["wings"] }), []);
+  const widgets = create(first);
+  assert.equal(widgets.length, 1, "multiple grants from one feature share its widget");
+  const firstWidget = widgets[0], secondWidget = create(second)[0];
+  assert.equal(registered.size, 2);
+  assert.equal(firstWidget.scope, "feature");
+  assert.equal(firstWidget.id, "traits:class-feature:test-class:first");
+  assert.equal(firstWidget.projection.choices.length, 1, "the Origin choice must not appear");
+  assert.deepEqual(firstWidget.projection.traits.map((trait) => trait.traitKey), ["liquid"]);
+  assert.deepEqual(secondWidget.projection.traits.map((trait) => trait.traitKey), ["wings"]);
+  assert.doesNotMatch(firstWidget.element.innerHTML, /No Traits|wings benefit|test-origin/);
+  const before = structuredClone(character);
+  await firstWidget.element.events.change({ target: { dataset: { traitChoice: "0" }, value: "wings" } });
+  assert.deepEqual(commands, [SetTraitChoice({ choiceId: "class-feature:test-class:first:body:1", sourceId: "class-feature:test-class:first", recipientId: "character", traitKey: "wings" })]);
+  assert.deepEqual(character, before, "cancelled choices must not change the character");
+  assert.doesNotMatch(firstWidget.element.innerHTML, /value="wings" selected/);
+  firstWidget.destroy();
+  assert.equal(registered.size, 1);
+  assert.equal(Object.keys(firstWidget.element.events).length, 0);
 });
