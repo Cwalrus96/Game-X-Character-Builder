@@ -108,8 +108,8 @@ test("agent guide reserves mechanic formulas and limits for centralized pure Rul
 
 test("handoff guide requires fresh review deployments and safe feature commits", () => {
   const agents = read("AGENTS.md");
-  assert.match(agents, /Always redeploy ready website changes/);
-  assert.match(agents, /restart\/redeploy the local Firebase review environment/);
+  assert.match(agents, /Deploy ready website changes locally for testing and report the local URL/);
+  assert.match(agents, /Wait for a subsequent explicit production-deployment instruction/);
   assert.match(agents, /Create a new commit for each new feature/);
   assert.match(agents, /current top commit, amend that top commit/);
   assert.match(agents, /never rewrite a non-top commit/);

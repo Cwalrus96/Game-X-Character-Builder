@@ -192,7 +192,7 @@ npm run baseline:data    # prove reviewed production JSON has not drifted
 
 ## Deployment and commit discipline
 
-- Always redeploy ready website changes to the appropriate website target so manual review and release verification never exercise stale code. While production deployment is blocked or not yet approved, restart/redeploy the local Firebase review environment and report the local URL; do not treat that as permission to deploy production. Once production deployment is unblocked and authorized, deploy the ready change and verify the deployed site.
+- Deploy ready website changes locally for testing and report the local URL. The user's September 22 instruction is authoritative: "We can deploy locally for testing purposes. I'll tell you when to deploy to 'production'." Wait for a subsequent explicit production-deployment instruction; earlier release approvals, requests to implement/fix/continue, and nonblocking personal acceptance are not continuing production authorization. Once explicitly authorized for a release, deploy that scope and verify the deployed site.
 - Create a new commit for each new feature. When modifying a feature represented by the current top commit, amend that top commit so the feature remains one coherent change. If that feature commit is not `HEAD`, create a new commit; never rewrite a non-top commit or unrelated history.
 - Before amending, verify the current top commit and worktree scope. Do not fold unrelated user changes into either a new or amended commit.
 
