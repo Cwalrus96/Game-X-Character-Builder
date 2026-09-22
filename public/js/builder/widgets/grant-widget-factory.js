@@ -77,6 +77,7 @@ export function createGrantWidgets({
   getExistingWeapons = null,
   onChange = null,
   showUnavailable = undefined,
+  expandedChoices = undefined,
   renderFeatOptions = null,
   renderFeatGrants = null,
   sourceId = "",
@@ -90,7 +91,6 @@ export function createGrantWidgets({
     if (grant?.type === "technique-choice") {
       for (const [choiceIndex, choiceId] of resolveGrantChoiceIds(grant, { sourceId, index }).entries()) {
         widgets.push(new TechniqueChoiceWidget(page, {
-  expandedChoices = undefined,
           grant: { ...grant, count: 1, choiceNumber: choiceIndex + 1 },
           choice: grantChoiceState?.getChoice(choiceId),
           choiceId,
