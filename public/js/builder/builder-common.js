@@ -366,9 +366,15 @@ export function ensureConfirmModal() {
   return confirmDialogElements;
 }
 
-function renderConfirmDialogMessage(msgEl, { message = "", messages = [] } = {}) {
+function renderConfirmDialogMessage(msgEl, { message = "", messages = [], sections = [] } = {}) {
   msgEl.replaceChildren();
+  for (const section of [{ message, messages }, ...sections]) {
+    appendConfirmDialogSection(msgEl, section);
+  }
+  msgEl.hidden = !msgEl.children.length;
+}
 
+function appendConfirmDialogSection(msgEl, { message = "", messages = [] } = {}) {
   const text = String(message || "").trim();
   if (text) {
     const paragraph = document.createElement("p");
@@ -389,7 +395,6 @@ function renderConfirmDialogMessage(msgEl, { message = "", messages = [] } = {})
     msgEl.append(list);
   }
 
-  msgEl.hidden = !text && !items.length;
 }
 
 function getConfirmDialogLifecycle() {
@@ -427,6 +432,7 @@ function getConfirmDialogLifecycle() {
  *   title?: string,
  *   message?: string,
  *   messages?: string[],
+ *   sections?: {message: string, messages: string[]}[],
  *   okText?: string,
  *   cancelText?: string,
  * }} opts
@@ -440,6 +446,11 @@ export function confirmModal(opts = {}) {
     opener,
     options: opts,
   });
+}
+
+/** Present the session's readable consequences with the shared safe confirmation lifecycle. */
+export function confirmCharacterChange({ summary }) {
+  return confirmModal({ ...summary, okText: "Apply Change", cancelText: "Cancel" });
 }
 
 /**

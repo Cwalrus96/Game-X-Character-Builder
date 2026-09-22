@@ -1,6 +1,7 @@
 import {
   clearError,
   confirmSaveWarnings,
+  confirmCharacterChange,
   ensureBuilderShellUi,
   initBuilderAuth,
   markBuilderNavigationClean,
@@ -106,7 +107,7 @@ async function main() {
     currentDoc = loaded.character;
     page = new CharacterSessionPage({
       character: loaded.character, revision: loaded.revision, metadata: loaded.metadata, gameData,
-      confirmImpacts: ({ messages }) => confirmSaveWarnings({ title: "Apply this skill change?", warnings: messages, okText: "Apply Change", cancelText: "Cancel" }),
+      confirmImpacts: confirmCharacterChange,
       onCommandRejected: ({ errors }) => { showError(elements.error, errors.join(" ") || "That skill change is not valid."); setStatus(elements.status, "Change rejected."); },
       onStateChange: (state) => { currentDoc = state.working; clearError(elements.error); setStatus(elements.status, "Unsaved changes."); },
     });

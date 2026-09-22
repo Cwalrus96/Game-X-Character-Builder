@@ -65,6 +65,8 @@ Impacts use three categories:
 
 Impact codes, paths, node identities, and before/after values are authoritative machine data. UI wording is presentation only. Removal impacts require confirmation by default.
 
+`CharacterSessionPage` supplies confirmation callbacks with a shared `summary` built by `character-impact-display.js`, alongside the original proposal, impacts and diagnostic messages. The presenter resolves display labels from structured identities/current catalogue data, combines duplicate representations of the same answer, and separates removals from rank/value adjustments. It never suppresses validation errors or changes the exact reconciled proposal being accepted. Migrated pages pass this summary to the shared dialog; save-incomplete warnings remain a separate flow.
+
 ## Diff contract
 
 `character-state-diff.js` compares two exact canonical v6 values and emits deterministic path-sorted changes. Objects are traversed by sorted key; ordered arrays are atomic values so reordering remains visible as one field replacement. Every before/after value is cloned and frozen.

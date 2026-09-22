@@ -1,6 +1,7 @@
 import {
   clearError,
   confirmSaveWarnings,
+  confirmCharacterChange,
   ensureBuilderShellUi,
   initBuilderAuth,
   markBuilderNavigationClean,
@@ -127,7 +128,7 @@ async function main() {
       revision: loaded.revision,
       metadata: loaded.metadata,
       gameData,
-      confirmImpacts: ({ messages }) => confirmSaveWarnings({ title: "Apply this Bond change?", warnings: messages, okText: "Apply Change", cancelText: "Cancel" }),
+      confirmImpacts: confirmCharacterChange,
       onCommandRejected: ({ errors }) => { showError(elements.error, errors.join(" ") || "That Bond change is not valid."); setStatus(elements.status, "Change rejected."); },
       onStateChange: (state) => { currentDoc = state.working; clearError(elements.error); setStatus(elements.status, "Unsaved changes."); },
     });

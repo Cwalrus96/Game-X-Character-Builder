@@ -1,5 +1,6 @@
 import { CharacterSession } from "../core/character-session.js?v=wpe1";
 import { createCharacterSessionGraphReconciler } from "../core/graph-reconciler.js?v=wpe13";
+import { describeCharacterChange } from "./character-impact-display.js";
 
 function messageForImpact(impact) {
   if (impact?.message) return impact.message;
@@ -27,6 +28,7 @@ export class CharacterSessionPage {
     onStateChange = null,
   } = {}) {
     this.confirmImpacts = typeof confirmImpacts === "function" ? confirmImpacts : null;
+    this.gameData = gameData;
     this.onCommandRejected = typeof onCommandRejected === "function" ? onCommandRejected : null;
     this.onStateChange = typeof onStateChange === "function" ? onStateChange : null;
     this.widgets = new Map();
@@ -102,6 +104,7 @@ export class CharacterSessionPage {
         widget,
         impacts: proposal.impacts,
         messages: summarizeCharacterImpacts(proposal.impacts, { category: "confirmation-required" }),
+        summary: describeCharacterChange(proposal, { gameData: this.gameData, character: this.getCharacter() }),
       });
       if (!accepted) {
         this.session.cancelProposal(proposal.proposalId);

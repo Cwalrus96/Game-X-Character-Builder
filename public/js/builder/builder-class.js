@@ -8,6 +8,7 @@ import {
   showError,
   clearError,
   confirmSaveWarnings,
+  confirmCharacterChange,
   ensureBuilderShellUi,
   markBuilderNavigationClean,
 } from "./builder-common.js";
@@ -524,12 +525,7 @@ async function main() {
       revision: loaded.revision,
       metadata: loaded.metadata,
       gameData,
-      confirmImpacts: async ({ messages }) => confirmSaveWarnings({
-        title: "Apply this change?",
-        warnings: messages,
-        okText: "Apply Change",
-        cancelText: "Cancel",
-      }),
+      confirmImpacts: confirmCharacterChange,
       onCommandRejected: ({ errors }) => showError(errorEl, errors.join(" ") || "That change is not valid."),
       onStateChange: (state) => {
         currentDoc = state.working;

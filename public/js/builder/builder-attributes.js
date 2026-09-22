@@ -1,6 +1,7 @@
 import {
   clearError,
   confirmSaveWarnings,
+  confirmCharacterChange,
   ensureBuilderShellUi,
   initBuilderAuth,
   markBuilderNavigationClean,
@@ -148,12 +149,7 @@ async function main() {
       revision: loaded.revision,
       metadata: loaded.metadata,
       gameData,
-      confirmImpacts: async ({ messages }) => confirmSaveWarnings({
-        title: "Apply this attribute change?",
-        warnings: messages,
-        okText: "Apply Change",
-        cancelText: "Cancel",
-      }),
+      confirmImpacts: confirmCharacterChange,
       onCommandRejected: ({ errors }) => {
         showError(elements.error, errors.join(" ") || "That attribute change is not valid.");
         setStatus(elements.status, "Change rejected.");
