@@ -86,7 +86,16 @@ export class OptionGroupWidget extends BuilderWidget {
 
   checkAvailability(option) {
     if (!isGameDataRecordExecutable(this.group) || !isGameDataRecordExecutable(option)) {
-      return { ok: false, failureReasons: ["Incomplete option — mechanics are not yet available."] };
+      const unavailable = !isGameDataRecordExecutable(this.group) ? this.group : option;
+      const reasons = unavailable?.runtimeSupport?.reasons || [];
+      const message = reasons.includes("draft-record-granted")
+        ? "Unavailable: a granted technique is not marked playable."
+        : reasons.includes("record-unready")
+          ? "Unavailable: this option is missing readiness information."
+          : reasons.includes("incomplete-content")
+            ? "Unavailable: this option has incomplete content."
+            : "Unavailable: this option needs builder support for its rules.";
+      return { ok: false, failureReasons: [message] };
     }
     return this.checkEntryPrerequisites(option);
   }
