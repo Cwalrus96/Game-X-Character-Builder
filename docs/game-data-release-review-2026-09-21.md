@@ -1,6 +1,6 @@
 # Schema-v3 release review — September 21, 2026
 
-Status: September 22 compatibility decisions implemented and verified; exact publishing and Hosting approval are pending. The user's deferred personal acceptance is nonblocking.
+Status: completed review. The user approved the exact candidate and matching Hosting package, released September 22 as `827d0c70ef63bcda`. The [release record](game-data-release-2026-09-22.md) contains production verification and the subsequent Instinct correction. The evidence below records the review preceding that release. Personal acceptance remains nonblocking.
 
 ## Exact candidate
 
@@ -11,7 +11,7 @@ Status: September 22 compatibility decisions implemented and verified; exact pub
 - Ten artifacts: nine changed existing artifacts plus `traits.json`; zero errors, 254 warnings, successful runtime load. Removing hand-state deferrals accounts for the 48-warning reduction and enables 16 previously deferred records for normal selection. Comparison with the preceding candidate verifies only runtime-support, diagnostics and these derived selectable flags change; authored cells and the normalized model are unchanged.
 - 19 classes, 98 feats, 154 Techniques, 60 Traits, 15 Origins, 31 weapon bases and 31 enhancements. Incomplete content remains represented and is not made executable by migration.
 
-The immutable run's `artifact-diff.json` records every structural path and stable-identity difference. Its `export-report.json` contains every file size and hash. The current reviewed production release remains the nine-file schema-v2 release; no generated production bytes changed during this review.
+The immutable run's `artifact-diff.json` records every structural path and stable-identity difference. Its `export-report.json` contains every file size and hash. Review itself made no production changes; the approved ten-file schema-3 candidate subsequently replaced the former nine-file schema-2 release.
 
 ## Existing-character replay
 
@@ -30,7 +30,7 @@ The current data fixes several older missing feat-slot grants, including the rep
 
 ## Removed stable identities
 
-These are source content changes, not ordinary shape conversions. The following engineering dispositions implement the user's decisions; promotion of the exact candidate remains unapproved. No replacement identity has been guessed from a similar display name.
+These are source content changes, not ordinary shape conversions. The following engineering dispositions implement the user's decisions and were included in the approved release. No replacement identity has been guessed from a similar display name.
 
 | Kind | Removed keys | Proposed handling |
 | --- | --- | --- |
@@ -46,7 +46,7 @@ These are source content changes, not ordinary shape conversions. The following 
 2. The old Metamorph must be rebuilt by its player. It receives a clear rebuild diagnostic and is not changed remotely. New Metamorph characters and their Trait choices remain supported.
 3. Update Celestial Knight compatibility to its surviving both-skills feature. The conversion is in memory on read and is persisted once on the next successful explicit save. Missing parents or ambiguous/multiple historical answers cannot be silently absorbed.
 
-Metamorph's three Trait choices are implemented. Its prose-only Natural Weapon/Metamorphosis Technique rules and generic Transformation Keystone execution are separate unfinished implementation; unfinished Instinct Techniques stay visible but unavailable. Familiar, Mech and other held subsystem mechanics remain deferred. Do not confuse successful Trait import with completion of those systems.
+Metamorph's three Trait choices are implemented. Its prose-only Natural Weapon/Metamorphosis Technique rules and generic Transformation Keystone execution are separate unfinished implementation. The four Instinct Techniques already contain mechanics; blank readiness fields, not missing descriptions, made them unavailable in this candidate. The user's later report initiated the source-readiness repair recorded with the release. Familiar, Mech and other held subsystem mechanics remain deferred.
 
 ## Local verification
 
@@ -54,7 +54,7 @@ The complete current website and exact candidate data are served at `http://127.
 
 A new isolated review character traversed all eight pages and saved/reloaded Metamorph, Web Shooters/Wings/Climber choices, Attributes, Mutation Origin, paid and free Skills, a Rank-0 Kitchen Knife, a Bond, and Origin/Background Keystones. Empty Instinct and normal Technique selections remained savable after the appropriate informational warning. The character sheet displays all acquired Traits with their source and tags. Browser review exposed and repaired the sheet's mistaken treatment of utility keys as display names; Nature and Spirituality now appear at Rank 1 in Core Skills rather than as lowercase Setting Skills.
 
-An Origin-change proposal displayed the source-owned removals. Cancellation restored Mutation and its Traits; acceptance switched to Getaba Warrior, kept the three class-owned Trait choices, and saved/reloaded the reviewed result. Instinct controls are disabled with an explicit incomplete-mechanics explanation rather than inviting a rejected click.
+An Origin-change proposal displayed the source-owned removals. Cancellation restored Mutation and its Traits; acceptance switched to Getaba Warrior, kept the three class-owned Trait choices, and saved/reloaded the reviewed result. Instinct controls were disabled. Their blanket incomplete-mechanics explanation was later identified as misleading and corrected in the follow-up.
 
 Keyboard verification exposed and repaired lost focus after an Origin proposal disabled its control; both Cancel and Apply now return focus to the Origin selector. A second stale browser tab received the explicit revision-conflict error. Direct emulator verification confirms that the winning text was preserved, followed by restoration of the review character to Mutation; its final document is schema 6/revision 14 with all eight visited steps and all three Trait choices. No production write was used for these checks.
 
@@ -62,8 +62,8 @@ The earlier complete new-character pass finished with 424 unit tests and 18 emul
 
 The full website was restarted at PID `54740` with the new candidate. An isolated copy of the captured Celestial Knight opens on Class without the retired selector, keeps both selected feats, and derives both weapon skills. Cancelling its equipment-impact review leaves the original local document unchanged; a misleading cancellation error was repaired. Accepting the review and incomplete-choice notice saves schema 6/revision 1, reloads successfully, and exactly matches the graph's reviewed state. A direct emulator check proves that the retired Metamorph copy remains unchanged and the previously created new Metamorph still has its three Traits. The old Metamorph's rebuild instruction is visible in the browser. The Celestial Class page has no console warnings/errors; its sheet reports only the expected unavailable portrait in the isolated emulator, whose owner differs from the captured source. Production records were never written.
 
-## Prepared release boundary
+## Release authorization and completion
 
-The exact ten-file data candidate is paired with a prepared 128-file Hosting package under ignored `.staging/release-review/hosting-candidate-sep22/`. Its manifest SHA-256 is `d955fdd1c22c9b0dc05107f84f308efc77da37e20debcd98800ec7263ea36256`. It copies current website bytes and overlays the staged artifacts, matching the local preview. The draft data approval keeps both approval flags false; it does not replace the checked-in approved release.
+The exact ten-file data candidate was paired with a prepared 128-file Hosting package under ignored `.staging/release-review/hosting-candidate-sep22/`. Its manifest SHA-256 is `d955fdd1c22c9b0dc05107f84f308efc77da37e20debcd98800ec7263ea36256`. It copies current website bytes and overlays the staged artifacts, matching the local preview. The user approved this concrete package, the checked-in release contract recorded the authorization, and the publisher installed the exact staged bytes.
 
-Next, obtain approval for this exact candidate and a coordinated Hosting-only release of the matching builder. Publishing data and deploying the website are separate actions; release them together operationally so the new graph never runs against the old grants. No Rules, Functions, manual production character writes or source-cell edits are included. The existing Hosting version remains `d5c9671adee0ab31`. Personal manual testing is follow-up. Existing rule conflicts remain player-reviewed, and incomplete/deferred systems listed above remain explicitly unavailable rather than invented.
+Hosting `827d0c70ef63bcda` released the matching builder and data together; all 128 reviewed files match public readback. The prior `d5c9671adee0ab31` is the rollback version. No Rules, Functions, manual production character writes or source-cell edits were included in that release. Personal manual testing is follow-up. Existing rule conflicts remain player-reviewed, and the held systems above remain separate implementation work.

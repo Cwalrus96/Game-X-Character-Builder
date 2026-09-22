@@ -1,8 +1,8 @@
 # Game-data pipeline: Google Sheet to reviewed JSON
 
-Status: living operational design. Source schema v5/syntax v3 now adapts to runtime artifact schema v3, with schema-v4/syntax-v2 compatibility preserved. Staging supports the new format; production remains the reviewed schema-v2 release. Publication and website deployment have separate approval boundaries.
+Status: living operational design. Source schema v5/syntax v3 adapts to the published runtime schema v3; the source-v4/runtime-v2 compatibility path remains. Publication and Hosting deployment are separate operations with recorded authorization.
 
-Last updated: 2026-09-21.
+Last updated: 2026-09-22.
 
 ## Goals
 
@@ -275,7 +275,7 @@ The staged semantic diff must be reviewed before release, especially deleted sta
 npm run baseline:data
 ```
 
-This verifies exact filenames, byte lengths, SHA-256 hashes, release metadata, and structural counts for the nine reviewed production artifacts.
+This verifies exact filenames, byte lengths, SHA-256 hashes, release metadata, and structural counts for the reviewed production artifact set (currently ten schema-3 files).
 
 `npm run export:data` still targets `public/data/game-x` and intentionally fails before reading/writing. It remains a negative safety boundary: production can be changed only by the separately approved exact-byte publisher.
 
@@ -314,7 +314,7 @@ The semantic diff uses stable identities and reports added, removed, changed ent
 
 ## Publishing boundary
 
-Publishing is a separate exact-byte operation. The checked-in `contracts/game-data-release.json` records the approved run, source/model hashes, every artifact hash and byte length, and both approval gates. Its `approvalVersion: 1` structure supports source/runtime version pairs `4/2` and `5/3`; other pairs fail. The current checked-in approval remains the existing nine-file schema-v2 release. Only after separate approval of the exact candidate, run:
+Publishing is a separate exact-byte operation. `contracts/game-data-release.json` records the current approved run, source/model hashes, all artifact sizes/hashes and both approval gates. Its approvalVersion 1 supports source/runtime pairs 4/2 and 5/3. The current approval is the ten-file schema-v3 release. After approval of an exact candidate, run:
 
 ```powershell
 npm run publish:data -- --confirm <approved-run-id>
@@ -333,7 +333,7 @@ It also verifies that the currently installed production bytes still match their
 
 The publisher installs only approved bytes, removes stale runtime files, and updates `contracts/game-data-release-baseline.json` in the same transaction. The generated baseline keeps its existing structure, sets `schemaVersion` to the approved runtime version, and includes the Traits count for schema v3. A failed installation restores every prior artifact and the prior baseline, including when moving between nine and ten files. Both directions and each installation rename failure have rollback fixtures. A successful verified installation is committed before backup cleanup; a cleanup failure leaves the new data and baseline intact, returns a warning naming the remaining backup, and does not attempt rollback after another backup may already have been removed. An intentional return to an older release still needs an exact approved candidate and confirmation.
 
-This tooling support does not approve a schema-v3 candidate. No production artifact, approval contract, or baseline changed as part of the extension. The generic exporter remains frozen so a fresh source run cannot bypass review.
+Publisher support alone does not approve future candidates. The September 22 release is explicitly authorized and recorded in the release contract. The generic exporter remains frozen so fresh source runs cannot bypass review.
 
 Fetch, stage, and publish must never be aliases for the same side-effecting operation.
 
@@ -343,7 +343,7 @@ Source resolution is not automatic cleanup. Read-only inspection, validation, or
 
 ## Runtime artifacts
 
-The website loads `public/data/game-x/game-x-data.json`; domain files remain checked in for review/tooling. The reviewed schema-v2 production release contains:
+The website loads `public/data/game-x/game-x-data.json`; domain files remain checked in for review/tooling. The reviewed schema-v3 production release contains:
 
 - `classes.json`
 - `class-skills.json`
@@ -353,11 +353,12 @@ The website loads `public/data/game-x/game-x-data.json`; domain files remain che
 - `origins.json`
 - `weapon-bases.json`
 - `weapon-enhancements.json`
+- `traits.json`
 - `game-x-data.json`
 
 `export-report.json` is run metadata beside staged `artifacts/`, not a runtime artifact, and was removed from production during the schema-v2 publish. The v2 bytes preserve `ClassSkills`, stable technique keys, status/selectability, structured costs and expressions, source revision identity, and explicit stubbed subsystems. Source rows are not dropped merely to preserve the old file list.
 
-Schema-v3 staged candidates add `traits.json` and a Traits collection in the combined file. They retain normalized v5 fields, original `sourceValues`, physical source locations, readiness, and explicit runtime-support findings. Both artifact versions load through the same runtime boundary; v4-to-v2 fixtures prove byte-for-byte compatibility. Production continues to load its reviewed v2 bytes until a separate release is approved.
+Schema-v3 releases include `traits.json` and a Traits collection in the combined file. They retain normalized v5 fields, original sourceValues, source locations, readiness and runtime-support findings. Both runtime versions remain supported; v4-to-v2 fixtures prove byte compatibility. Unit tests use controlled fixtures. `npm run test:data` separately checks the installed release against the graph without making unit results depend on authored content.
 
 ## Failure policy
 

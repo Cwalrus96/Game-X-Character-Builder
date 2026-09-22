@@ -1,30 +1,31 @@
 {
   "approvalVersion": 1,
-  "candidateRunId": "20260809T022801911Z-51956",
-  "approvedOn": "2026-08-09",
+  "candidateRunId": "20260922T184507461Z-43412",
+  "approvedOn": "2026-09-22",
   "source": {
     "fileId": "1TEdxuufglP8lFRNk8QD4N_351-0ihAUFLG2743ESjoI",
-    "driveVersion": "647",
-    "modifiedTime": "2026-08-09T02:27:03.310Z",
-    "xlsxSha256": "2db974d02773d340957a2f34c1c3de47f365064d5307658bba9572392ccd5916",
-    "modelSha256": "c03ed329b10e27310baef32d73fe239c9146e415c332ae62f7842d81e9a17739",
-    "sourceSchemaVersion": 4,
-    "runtimeArtifactSchemaVersion": 2
+    "driveVersion": null,
+    "modifiedTime": "2026-09-22T00:57:44.536Z",
+    "xlsxSha256": "6968f1d21d6615937ee48b04831febba645058975a9f5df17bf4244c14d51f00",
+    "modelSha256": "b575a571513ecaf6da86948356a82940b3f226ebc6d51c0524b8b70bf1439396",
+    "sourceSchemaVersion": 5,
+    "runtimeArtifactSchemaVersion": 3
   },
   "artifacts": [
-    { "name": "classes.json", "byteLength": 18653, "sha256": "21e43f0b5fdd31273c321b0257a2dcdef698ada145867ff00e208672707fb559" },
-    { "name": "class-skills.json", "byteLength": 16483, "sha256": "215de2cabf534ed2b69dd08cc9f1ed1f281b5ef978a6647f5ab5dd64b1f18a48" },
-    { "name": "class-features.json", "byteLength": 89868, "sha256": "2fa2b7597c6454a4426b816d2e0566820ba6b3aba7b73ef9f483887cec6cdfff" },
-    { "name": "feats.json", "byteLength": 35712, "sha256": "e0f7f78bc1682acc04bde78c16a30f2209707c6ba4c86bf254a28b6cf513339f" },
-    { "name": "techniques.json", "byteLength": 109919, "sha256": "1c97d44358c7eb45648cc9b84faa08a76c0efbb3893b7f3062672f19f8055a40" },
-    { "name": "origins.json", "byteLength": 42184, "sha256": "a5d1aa39a07c139c37cd291e7a503ecf04b215e3cf610dabc8ab1c7e6422bac1" },
-    { "name": "weapon-bases.json", "byteLength": 56935, "sha256": "9ade906def32c14d597d4166913a28a4de6a0f9faea5b8a59b7f02c81de9f3de" },
-    { "name": "weapon-enhancements.json", "byteLength": 14155, "sha256": "e71c273497442dd51baaee84f6397f0248342e951ecd1a76043e0f590aa70c6e" },
-    { "name": "game-x-data.json", "byteLength": 407626, "sha256": "1b394658a0ac5042600e1f5ecd361f88f5fe2d98f2a339d77c0c4dba6b45a177" }
+    { "name": "classes.json", "byteLength": 47437, "sha256": "6ad5a9766616d7374cf32122131849cce20e0fa73b9e28439e093357a0b30c59" },
+    { "name": "class-skills.json", "byteLength": 27347, "sha256": "bafe17bc2e9d17d43f548a8d29ef3b274f3e2b8a24092eaf19d03c6d1975b7b1" },
+    { "name": "class-features.json", "byteLength": 1047688, "sha256": "48c9389d8b6631024db6bf2d2d4d960800ce586f0ccc22a5586445d90226cc89" },
+    { "name": "feats.json", "byteLength": 200343, "sha256": "a98fca3926166e5e8541406ec9b03b053e3f4f7908ccb8f52a089b4868565320" },
+    { "name": "techniques.json", "byteLength": 568402, "sha256": "f7bed229e6a8600557ad023d363ced5c947178e44c3d1ff5e5243e50009be3a1" },
+    { "name": "origins.json", "byteLength": 102378, "sha256": "4a7b86b9364003812ffe07b13ddc95068693b7ae71685825537428edd562d34a" },
+    { "name": "weapon-bases.json", "byteLength": 184868, "sha256": "d35845d018b7a1a048d1491143b32a111307fcfa638a53a8ed870c633f1b435b" },
+    { "name": "weapon-enhancements.json", "byteLength": 39653, "sha256": "faeaf06dd1cf5cf8096cd2edc55d083a2b87bfdb06ca981adb804fa0839c00f5" },
+    { "name": "traits.json", "byteLength": 85864, "sha256": "66fc658be953816fee39734c0ed21a8d9dff637dd6570bdeac464291926fa3e8" },
+    { "name": "game-x-data.json", "byteLength": 2538656, "sha256": "0cedfcc8359af9809360277017502b3cf5435cf733b4bcd143288879a1b6e396" }
   ],
   "review": {
     "diffReviewApproved": true,
     "publishApproved": true,
-    "approvalContext": "User approved WPB-DIFF-REVIEW and explicitly requested WPB-PUBLISH in the Codex task on 2026-08-09."
+    "approvalContext": "On 2026-09-22, after review of candidate 20260922T184507461Z-43412 and its matching 128-file Hosting package, the user requested: Can we push the latest version! This approves the reviewed diff, exact data publication and coordinated Hosting-only website release. Personal manual acceptance remains nonblocking. Rules, Functions, source-cell edits and manual production character writes are outside this release."
   }
 }

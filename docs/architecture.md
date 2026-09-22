@@ -197,7 +197,7 @@ Character-sheet autosave owns only temporary play-state leaves such as current H
 The source pipeline has two independent versioned contracts:
 
 - source schema: native workbook schema v5 with grant/prerequisite syntax v3; the v4/v2 adapter remains for compatibility;
-- production runtime artifact schema: reviewed schema v2;
+- production runtime artifact schema: reviewed schema v3, published with the matching builder on September 22;
 - staged runtime artifact schema: schema v3 for source v5 and schema v2 for source v4, with deterministic bytes and exact-hash review required for each future publish.
 
 The exporter is responsible for an explicit transformation between them. It must not treat workbook rows as runtime objects without adaptation.
@@ -215,7 +215,7 @@ Target phases:
 
 The canonical workbook's `Metadata`, `Schema`, and `Enums` tabs participate in validation. The v5 adapter derives normalized class-skill relationships from the three distinct Classes fields, preserving roles and primary-attribute conditions. It retains raw authored cells alongside normalized fields and diagnoses unknown or malformed content at its original location. Traits and provider relationships, selection routes and readiness, generic pumping, underlying basic attacks, explicit grant recipients, and reusable feature references survive adaptation and serialization. The shared Rules layer owns contextual selection and executable prerequisite semantics. Conditional feature execution, recipient-owned Artifact skills, and the held Familiar/Mech/class-specific form systems remain deferred and unavailable where their behavior cannot yet execute. Display-workbook compatibility adapters and Handbook formatting are downstream presentation systems, not runtime source contracts.
 
-The stage command normally acquires a fresh read-only Drive export. An explicit snapshot/provenance pair can instead be checked for canonical identity, versions, exact length/hash, and native workbook contract before entering the same pipeline. This mode never borrows connector credentials or claims to restore command-line authentication. The published schema-2 artifact baseline, release approval contract, and saved-character schema remain unchanged by importer integration. Removed source identities require release review and appropriate saved-state handling before schema-3 promotion; the loader must not guess replacements from display names.
+The stage command normally acquires a fresh read-only Drive export. An explicit snapshot/provenance pair can instead be checked for canonical identity, versions, exact length/hash, and native workbook contract before entering the same pipeline. This mode never borrows connector credentials or claims to restore command-line authentication. September 22 publishes reviewed schema-3 data and the schema-6 builder together. Removed identities have explicit compatibility or player-review dispositions; the loader never guesses replacements from names. Reading an older character does not write its migrated state to Firebase.
 
 While the reviewed runtime artifacts still contain the former skill name, `loadGameXData` applies the pure `projectSkillNames` projection in memory. It updates explicit skill fields, exact skill option labels, and skill-context prose without changing generated artifact bytes or performing a data publish. Unrelated entity keys and explicit choice IDs remain unchanged. Aiming names such as Enhanced Targeting and Targeting Computer, and ordinary targeting prose, retain their meaning. Saved skill and source-owned choice compatibility is defined in [character-persistence.md](character-persistence.md#ranged-weapons-naming-compatibility).
 
@@ -229,10 +229,10 @@ All saves must be sanitized, narrow, visible on failure, and serialized. Broad m
 
 ## Current transition state
 
-- Milestone 0 and Work Package A automated safety work are complete; real-browser acceptance remains deployment-blocking.
-- Work Package B is complete. Schema-v2 production game data is exact-hash baselined; the generic exporter remains frozen and only the reviewed publisher may change production artifacts.
+- Milestone 0 and Work Package A automated safety work are complete. The user made deferred personal acceptance nonblocking and explicitly authorized the September 22 release; remaining manual checks are follow-up.
+- Reviewed schema-v3 production data is exact-hash baselined. The generic exporter remains frozen and only the reviewed publisher may change production artifacts.
 - Schema-v4 acquisition, a domain-neutral XLSX reader, canonical per-tab adapters, shared typed expressions, pure whole-model reference/domain validation, deterministic schema-v2 artifact construction, runtime-load acceptance, atomic staging, structural/semantic diffing, exact-byte publishing, and transactional rollback are implemented and live-accepted.
-- The v6 codec, isolated migration registry, definitive database reader/writer APIs, pure `CharacterSession` lifecycle, and split compiler/fixed-point reconciler are implemented. Reviewed stable-key runtime data is published. Every current builder domain now uses this path in local review, and the Boon registry seam is proven. Focused acceptance still blocks compatibility removal and production cutover.
+- The v6 codec, migration registry, definitive reader/writer, CharacterSession and graph reconciliation are deployed with compatible data. Local signed-in save/reload, cancellation, focus and revision-conflict scenarios pass. Retained compatibility helpers and deferred mechanics remain separate Work Package E work.
 
 Exact status and the next named step are in [status.md](status.md).
 

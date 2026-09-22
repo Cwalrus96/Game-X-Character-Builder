@@ -39,7 +39,7 @@ Current sanitization and persistence modules are under `public/js/core/`:
 
 Builder pages should use the shared builder/database boundary rather than direct Firestore writes. The character sheet may write temporary play-state leaves only; it cannot write builder-owned character identity, class, attributes, skills, abilities, techniques, equipment, or choices.
 
-Work Package C strengthens the existing database reader/writer into the definitive boundary backed by the exact `CharacterCodec` and sequential migrations. Its v5 APIs are implemented; deployed callers remain on clearly marked transitional helpers until coordinated runtime/data and signed-in behavior acceptance permits a safe switch. Stable keys are available, but the new graph also needs explicit grant semantics absent from the published data. Do not add a parallel repository or spread Firebase document shape knowledge into Rules, graph, or widgets.
+The existing database reader/writer provide the definitive schema-6 persistence boundary, backed by CharacterCodec and sequential migrations. The September 22 coordinated release deploys these callers with compatible explicit-grant game data. Reads never migrate production documents in place; the first successful explicit save persists the accepted state. Do not add a parallel repository or spread Firebase document-shape knowledge into Rules, graph or widgets.
 
 ## Data-source and administration credentials
 
@@ -80,4 +80,4 @@ Do not describe Report-Only CSP as enforcement. Enforcing CSP requires removal o
 - Static asset/path checks.
 - Real-browser tests for auth redirects, GM editing, dirty navigation, failures, multi-tab writes, and CSP/accessibility behavior.
 
-Run `npm run test:all` for changes that touch these boundaries. Deployment remains blocked while [status.md](status.md) lists manual browser acceptance as pending.
+Run `npm run test:all` for changes that touch these boundaries. The user explicitly made personal acceptance nonblocking and authorized the September 22 Hosting releases; later release scope and any remaining blockers belong in [status.md](status.md).

@@ -1,0 +1,3226 @@
+[
+  {
+    "description": "You do not take falling damage, and while falling you may move 1 square horizontally for every square you fall vertically. You gain the \"Wings\" tag",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [
+      {
+        "minRank": 1,
+        "tag": "Wings",
+        "type": "tag"
+      },
+      {
+        "minRank": 2,
+        "tag": "Flight",
+        "type": "tag"
+      }
+    ],
+    "grantsRaw": "tag | tag=Wings | minRank=1\ntag | tag=Flight | minRank=2",
+    "name": "Wings",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": "Rank 2+: You gain a flying speed equal to your speed, and the \"Flight\" tag.",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 2,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "You do not take falling damage, and while falling you may move 1 square horizontally for every square you fall vertically. You gain the \"Wings\" tag",
+      "grants": "tag | tag=Wings | minRank=1\ntag | tag=Flight | minRank=2",
+      "name": "Wings",
+      "prerequisites": null,
+      "rank": "1",
+      "rankNotes": "Rank 2+: You gain a flying speed equal to your speed, and the \"Flight\" tag.",
+      "tags": "Anatomy, Body, Movement",
+      "techniqueKeys": "",
+      "traitKey": "wings"
+    },
+    "tagKeys": [
+      "anatomy",
+      "body",
+      "movement"
+    ],
+    "tags": [
+      "Anatomy",
+      "Body",
+      "Movement"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "wings"
+  },
+  {
+    "description": "The feature granting this sense must define a range. This creature has an enhanced sense of smell. The creature knows the location of Concealed or invisible creatures within this range. As long as the creature is not behind full cover, it is considered Obscured to this creature, rather than Concealed.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Keen Smell",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 3,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "The feature granting this sense must define a range. This creature has an enhanced sense of smell. The creature knows the location of Concealed or invisible creatures within this range. As long as the creature is not behind full cover, it is considered Obscured to this creature, rather than Concealed.",
+      "grants": null,
+      "name": "Keen Smell",
+      "prerequisites": "",
+      "rank": "1",
+      "rankNotes": "",
+      "tags": "Anatomy, Senses",
+      "techniqueKeys": "",
+      "traitKey": "keen-smell"
+    },
+    "tagKeys": [
+      "anatomy",
+      "senses"
+    ],
+    "tags": [
+      "Anatomy",
+      "Senses"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "keen-smell"
+  },
+  {
+    "description": "Gain armor equal to your associated skill rank.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Natural Armor",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 4,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "Gain armor equal to your associated skill rank.",
+      "grants": null,
+      "name": "Natural Armor",
+      "prerequisites": "",
+      "rank": "1",
+      "rankNotes": "",
+      "tags": "Anatomy, Material, Body",
+      "techniqueKeys": "",
+      "traitKey": "natural-armor"
+    },
+    "tagKeys": [
+      "anatomy",
+      "material",
+      "body"
+    ],
+    "tags": [
+      "Anatomy",
+      "Material",
+      "Body"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "natural-armor"
+  },
+  {
+    "description": "You can briefly become incorporeal. On your turn, you can move through other creatures and objects. You cannot end your turn while sharing a space with another creature or object.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Incorporeal",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 5,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "You can briefly become incorporeal. On your turn, you can move through other creatures and objects. You cannot end your turn while sharing a space with another creature or object.",
+      "grants": null,
+      "name": "Incorporeal",
+      "prerequisites": "",
+      "rank": "1",
+      "rankNotes": "",
+      "tags": "Material, Body",
+      "techniqueKeys": null,
+      "traitKey": "incorporeal"
+    },
+    "tagKeys": [
+      "material",
+      "body"
+    ],
+    "tags": [
+      "Material",
+      "Body"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "incorporeal"
+  },
+  {
+    "description": "You are made of an inorganic substance. You are Immune to effects that require a biological body, such as poison or disease. You also do not have to eat, sleep, or breathe.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Inorganic Nature",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 6,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "You are made of an inorganic substance. You are Immune to effects that require a biological body, such as poison or disease. You also do not have to eat, sleep, or breathe.",
+      "grants": null,
+      "name": "Inorganic Nature",
+      "prerequisites": "",
+      "rank": "1",
+      "rankNotes": "",
+      "tags": "Material, Mechanical, Body",
+      "techniqueKeys": "",
+      "traitKey": "inorganic-nature"
+    },
+    "tagKeys": [
+      "material",
+      "mechanical",
+      "body"
+    ],
+    "tags": [
+      "Material",
+      "Mechanical",
+      "Body"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "inorganic-nature"
+  },
+  {
+    "description": "You can breathe underwater, and gain a swim speed equal to your speed.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Amphibious",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 7,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "You can breathe underwater, and gain a swim speed equal to your speed.",
+      "grants": null,
+      "name": "Amphibious",
+      "prerequisites": "",
+      "rank": "1",
+      "rankNotes": "",
+      "tags": "Anatomy, Mechanical, Body, Movement",
+      "techniqueKeys": "",
+      "traitKey": "amphibious"
+    },
+    "tagKeys": [
+      "anatomy",
+      "mechanical",
+      "body",
+      "movement"
+    ],
+    "tags": [
+      "Anatomy",
+      "Mechanical",
+      "Body",
+      "Movement"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "amphibious"
+  },
+  {
+    "description": "If you did not move this turn, regain 2 HP at the end of your turn.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Rooted Regeneration",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": "Rank 2+: Increase recovered HP by 2 for each rank above 1.",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 8,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "If you did not move this turn, regain 2 HP at the end of your turn.",
+      "grants": null,
+      "name": "Rooted Regeneration",
+      "prerequisites": null,
+      "rank": "1",
+      "rankNotes": "Rank 2+: Increase recovered HP by 2 for each rank above 1.",
+      "tags": "Plant",
+      "techniqueKeys": "",
+      "traitKey": "rooted-regeneration"
+    },
+    "tagKeys": [
+      "plant"
+    ],
+    "tags": [
+      "Plant"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "rooted-regeneration"
+  },
+  {
+    "description": "The creature gains Beginner Training in 2 skills.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Well Trained",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 9,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "The creature gains Beginner Training in 2 skills.",
+      "grants": null,
+      "name": "Well Trained",
+      "prerequisites": "",
+      "rank": "1",
+      "rankNotes": "",
+      "tags": "Familiar",
+      "techniqueKeys": "",
+      "traitKey": "well-trained"
+    },
+    "tagKeys": [
+      "familiar"
+    ],
+    "tags": [
+      "Familiar"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "well-trained"
+  },
+  {
+    "description": "The creature works well in teams, gaining a +1D Status bonus to the Assist action.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Herd Instincts",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 10,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "The creature works well in teams, gaining a +1D Status bonus to the Assist action.",
+      "grants": null,
+      "name": "Herd Instincts",
+      "prerequisites": "",
+      "rank": "1",
+      "rankNotes": "",
+      "tags": "Familiar",
+      "techniqueKeys": "",
+      "traitKey": "herd-instincts"
+    },
+    "tagKeys": [
+      "familiar"
+    ],
+    "tags": [
+      "Familiar"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "herd-instincts"
+  },
+  {
+    "description": "The creature can speak one language you can speak.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Speech",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 11,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "The creature can speak one language you can speak.",
+      "grants": null,
+      "name": "Speech",
+      "prerequisites": "",
+      "rank": "1",
+      "rankNotes": "",
+      "tags": "Familiar",
+      "techniqueKeys": "",
+      "traitKey": "speech"
+    },
+    "tagKeys": [
+      "familiar"
+    ],
+    "tags": [
+      "Familiar"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "speech"
+  },
+  {
+    "description": "You gain a climbing speed equal to your speed and can move freely on vertical surfaces.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Climber",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": "Rank 2+: You can climb on a solid surface, even upside down.",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 12,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "You gain a climbing speed equal to your speed and can move freely on vertical surfaces.",
+      "grants": null,
+      "name": "Climber",
+      "prerequisites": "",
+      "rank": "1",
+      "rankNotes": "Rank 2+: You can climb on a solid surface, even upside down.",
+      "tags": "Anatomy, Movement",
+      "techniqueKeys": "",
+      "traitKey": "climber"
+    },
+    "tagKeys": [
+      "anatomy",
+      "movement"
+    ],
+    "tags": [
+      "Anatomy",
+      "Movement"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "climber"
+  },
+  {
+    "description": "You gain a burrowing speed equal to half your speed. You can only burrow through soft dirt, sand or clay.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Burrower",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": "Rank 2+: Your burrow speed through soft dirt, sand, and clay is equal to your speed. You can burrow through rock at half your speed.",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 13,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "You gain a burrowing speed equal to half your speed. You can only burrow through soft dirt, sand or clay.",
+      "grants": null,
+      "name": "Burrower",
+      "prerequisites": "",
+      "rank": "1",
+      "rankNotes": "Rank 2+: Your burrow speed through soft dirt, sand, and clay is equal to your speed. You can burrow through rock at half your speed.",
+      "tags": "Anatomy, Movement",
+      "techniqueKeys": "",
+      "traitKey": "burrower"
+    },
+    "tagKeys": [
+      "anatomy",
+      "movement"
+    ],
+    "tags": [
+      "Anatomy",
+      "Movement"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "burrower"
+  },
+  {
+    "description": "Choose an element. The creature has armor 5 against that element, and its attacks gain that trait. The rank of the element is equal to the rank of the associated skill.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Elemental Body",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 14,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "Choose an element. The creature has armor 5 against that element, and its attacks gain that trait. The rank of the element is equal to the rank of the associated skill.",
+      "grants": null,
+      "name": "Elemental Body",
+      "prerequisites": "",
+      "rank": "1",
+      "rankNotes": "",
+      "tags": "Elemental, Material, Body",
+      "techniqueKeys": "",
+      "traitKey": "elemental-body"
+    },
+    "tagKeys": [
+      "elemental",
+      "material",
+      "body"
+    ],
+    "tags": [
+      "Elemental",
+      "Material",
+      "Body"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "elemental-body"
+  },
+  {
+    "description": "The feature granting this sense must define a range. You can speak telepathically with other creatures within range.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Telepathy",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 15,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "The feature granting this sense must define a range. You can speak telepathically with other creatures within range.",
+      "grants": null,
+      "name": "Telepathy",
+      "prerequisites": "",
+      "rank": "1",
+      "rankNotes": "",
+      "tags": "Psychic, Senses",
+      "techniqueKeys": "",
+      "traitKey": "telepathy"
+    },
+    "tagKeys": [
+      "psychic",
+      "senses"
+    ],
+    "tags": [
+      "Psychic",
+      "Senses"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "telepathy"
+  },
+  {
+    "description": "Increase your Scale by 1",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Giant Frame",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 16,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "Increase your Scale by 1",
+      "grants": null,
+      "name": "Giant Frame",
+      "prerequisites": "",
+      "rank": "1",
+      "rankNotes": "",
+      "tags": "Anatomy, Body",
+      "techniqueKeys": "",
+      "traitKey": "giant-frame"
+    },
+    "tagKeys": [
+      "anatomy",
+      "body"
+    ],
+    "tags": [
+      "Anatomy",
+      "Body"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "giant-frame"
+  },
+  {
+    "description": "Your mech gains a Rank 1 weapon. This weapon is large enough to be used by the mech, meaning that it is too large to reasonably be used by a normal scale 1 humanoid. The mech also learns 1 Weapon Technique that the weapon qualifies for.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Giant Weapon",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 17,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "Your mech gains a Rank 1 weapon. This weapon is large enough to be used by the mech, meaning that it is too large to reasonably be used by a normal scale 1 humanoid. The mech also learns 1 Weapon Technique that the weapon qualifies for.",
+      "grants": null,
+      "name": "Giant Weapon",
+      "prerequisites": "",
+      "rank": "1",
+      "rankNotes": "",
+      "tags": "Weapon, Mechanical",
+      "techniqueKeys": "",
+      "traitKey": "mech-giant-weapon"
+    },
+    "tagKeys": [
+      "weapon",
+      "mechanical"
+    ],
+    "tags": [
+      "Weapon",
+      "Mechanical"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "mech-giant-weapon"
+  },
+  {
+    "description": "The Mech can perform Martial Arts Techniques, using the Pilot’s Mech Piloting Skill, and learns a single Rank 1 technique.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Martial Mech",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 18,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "The Mech can perform Martial Arts Techniques, using the Pilot’s Mech Piloting Skill, and learns a single Rank 1 technique.",
+      "grants": null,
+      "name": "Martial Mech",
+      "prerequisites": "",
+      "rank": "1",
+      "rankNotes": "",
+      "tags": "Mechanical",
+      "techniqueKeys": "",
+      "traitKey": "martial-mech"
+    },
+    "tagKeys": [
+      "mechanical"
+    ],
+    "tags": [
+      "Mechanical"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "martial-mech"
+  },
+  {
+    "description": "Your mech has a built-in grappling hook. You can use the Grappling Hook technique.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Grappling Hook",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 19,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "Your mech has a built-in grappling hook. You can use the Grappling Hook technique.",
+      "grants": null,
+      "name": "Grappling Hook",
+      "prerequisites": "",
+      "rank": "1",
+      "rankNotes": "",
+      "tags": "Mechanical, Integrated, Weapon, Movement",
+      "techniqueKeys": "mech-grappling-hook",
+      "traitKey": "mech-grappling-hook"
+    },
+    "tagKeys": [
+      "mechanical",
+      "integrated",
+      "weapon",
+      "movement"
+    ],
+    "tags": [
+      "Mechanical",
+      "Integrated",
+      "Weapon",
+      "Movement"
+    ],
+    "techniqueKeys": [
+      "mech-grappling-hook"
+    ],
+    "traitKey": "mech-grappling-hook"
+  },
+  {
+    "description": "Your mech has an integrated computer aiming system that helps with ranged attacks. You can use your associated skill for rolls that normally use “Ranged Weapons”.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Targeting Computer",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 20,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "Your mech has an integrated computer aiming system that helps with ranged attacks. You can use your associated skill for rolls that normally use “Ranged Weapons”.",
+      "grants": null,
+      "name": "Targeting Computer",
+      "prerequisites": "",
+      "rank": "1",
+      "rankNotes": "",
+      "tags": "Mechanical",
+      "techniqueKeys": "",
+      "traitKey": "targeting-computer"
+    },
+    "tagKeys": [
+      "mechanical"
+    ],
+    "tags": [
+      "Mechanical"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "targeting-computer"
+  },
+  {
+    "description": "On a short rest, gain wards equal to 5 times your associated skill rank.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Reinforced Frame",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 21,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "On a short rest, gain wards equal to 5 times your associated skill rank.",
+      "grants": null,
+      "name": "Reinforced Frame",
+      "prerequisites": "",
+      "rank": "1",
+      "rankNotes": "",
+      "tags": "Mechanical, Body",
+      "techniqueKeys": "",
+      "traitKey": "mech-reinforced-frame"
+    },
+    "tagKeys": [
+      "mechanical",
+      "body"
+    ],
+    "tags": [
+      "Mechanical",
+      "Body"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "mech-reinforced-frame"
+  },
+  {
+    "description": "Grants a +1D equipment bonus against attempts to hack the mech or otherwise interfere with its electronic components",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Firewalls",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 22,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "Grants a +1D equipment bonus against attempts to hack the mech or otherwise interfere with its electronic components",
+      "grants": null,
+      "name": "Firewalls",
+      "prerequisites": "",
+      "rank": "1",
+      "rankNotes": "",
+      "tags": "Mechanical",
+      "techniqueKeys": "",
+      "traitKey": "mech-firewalls"
+    },
+    "tagKeys": [
+      "mechanical"
+    ],
+    "tags": [
+      "Mechanical"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "mech-firewalls"
+  },
+  {
+    "description": "The mech gains a set of boosters that grant it a limited form of flight, more akin to enhanced jumps. You can spend your movement to move vertically upwards during your turn. If you end your turn and are not on a stable surface, you fall.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [
+      {
+        "minRank": 2,
+        "tag": "Flight",
+        "type": "tag"
+      }
+    ],
+    "grantsRaw": "tag | tag=Flight | minRank=2",
+    "name": "Rocket Boosters",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": "Rank 2+: You gain a flying speed equal to your speed, and the \"Flight\" tag.\nRank 3+: Outside of combat, you can fly at airline speeds.\nRank 4+: Your Rocket Boosters are able to fly in a vacuum, and leave Earth's atmosphere.",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 23,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "The mech gains a set of boosters that grant it a limited form of flight, more akin to enhanced jumps. You can spend your movement to move vertically upwards during your turn. If you end your turn and are not on a stable surface, you fall.",
+      "grants": "tag | tag=Flight | minRank=2",
+      "name": "Rocket Boosters",
+      "prerequisites": "",
+      "rank": "1",
+      "rankNotes": "Rank 2+: You gain a flying speed equal to your speed, and the \"Flight\" tag.\nRank 3+: Outside of combat, you can fly at airline speeds.\nRank 4+: Your Rocket Boosters are able to fly in a vacuum, and leave Earth's atmosphere.",
+      "tags": "Mechanical, Movement",
+      "techniqueKeys": null,
+      "traitKey": "rocket-boosters"
+    },
+    "tagKeys": [
+      "mechanical",
+      "movement"
+    ],
+    "tags": [
+      "Mechanical",
+      "Movement"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "rocket-boosters"
+  },
+  {
+    "description": "The mech has 6 legs instead of 2, granting it additional mobility and stability. It gains +1 movement, ignores difficult terrain, and cannot be knocked prone. However, it cannot jump.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Hexapede Chassis",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 24,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "The mech has 6 legs instead of 2, granting it additional mobility and stability. It gains +1 movement, ignores difficult terrain, and cannot be knocked prone. However, it cannot jump.",
+      "grants": null,
+      "name": "Hexapede Chassis",
+      "prerequisites": "",
+      "rank": "1",
+      "rankNotes": "",
+      "tags": "Mechanical, Movement",
+      "techniqueKeys": "",
+      "traitKey": "mech-hexapede-chassis"
+    },
+    "tagKeys": [
+      "mechanical",
+      "movement"
+    ],
+    "tags": [
+      "Mechanical",
+      "Movement"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "mech-hexapede-chassis"
+  },
+  {
+    "description": "You project an energy barrier in an aura around you. The aura is a number of squares equal to your Scale. The aura grants armor against attacks originating outside the aura. The armor value is equal to your Skill Rank.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Energy Barrier",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 25,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "You project an energy barrier in an aura around you. The aura is a number of squares equal to your Scale. The aura grants armor against attacks originating outside the aura. The armor value is equal to your Skill Rank.",
+      "grants": null,
+      "name": "Energy Barrier",
+      "prerequisites": "",
+      "rank": "1",
+      "rankNotes": "",
+      "tags": "Mechanical, Energy",
+      "techniqueKeys": "",
+      "traitKey": "energy-barrier"
+    },
+    "tagKeys": [
+      "mechanical",
+      "energy"
+    ],
+    "tags": [
+      "Mechanical",
+      "Energy"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "energy-barrier"
+  },
+  {
+    "description": "Choose one Element. You can perform the Elemental Blast technique using that element. Instead of Elementalism, you use the skill associated with this trait.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Elemental Blaster",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 26,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "Choose one Element. You can perform the Elemental Blast technique using that element. Instead of Elementalism, you use the skill associated with this trait.",
+      "grants": null,
+      "name": "Elemental Blaster",
+      "prerequisites": "",
+      "rank": "1",
+      "rankNotes": "",
+      "tags": "Elemental, Weapon, Anatomy, Natural Weapon",
+      "techniqueKeys": "elemental-blast",
+      "traitKey": "mech-elemental-blaster"
+    },
+    "tagKeys": [
+      "elemental",
+      "weapon",
+      "anatomy",
+      "natural-weapon"
+    ],
+    "tags": [
+      "Elemental",
+      "Weapon",
+      "Anatomy",
+      "Natural Weapon"
+    ],
+    "techniqueKeys": [
+      "elemental-blast"
+    ],
+    "traitKey": "mech-elemental-blaster"
+  },
+  {
+    "description": "As an action you may transform into a vehicle form, or back into mech form. The rank of the vehicle must be equal to or less than your rank in the associated skill. The scale of the vehicle may be 1 scale smaller or larger than your current form.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Vehicle Conversion",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 27,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "As an action you may transform into a vehicle form, or back into mech form. The rank of the vehicle must be equal to or less than your rank in the associated skill. The scale of the vehicle may be 1 scale smaller or larger than your current form.",
+      "grants": null,
+      "name": "Vehicle Conversion",
+      "prerequisites": "",
+      "rank": "1",
+      "rankNotes": "",
+      "tags": "Transformation, Mechanical, Movement",
+      "techniqueKeys": null,
+      "traitKey": "mech-vehicle-conversion"
+    },
+    "tagKeys": [
+      "transformation",
+      "mechanical",
+      "movement"
+    ],
+    "tags": [
+      "Transformation",
+      "Mechanical",
+      "Movement"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "mech-vehicle-conversion"
+  },
+  {
+    "description": "A one-handed weapon is integrated with one of your limbs. Choose a weapon base, whose rank is less than or equal to this trait's rank.This weapon does not require your hands to operate, and does not require any actions to draw or stow.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Integrated Weapon",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 28,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "A one-handed weapon is integrated with one of your limbs. Choose a weapon base, whose rank is less than or equal to this trait's rank.This weapon does not require your hands to operate, and does not require any actions to draw or stow.",
+      "grants": null,
+      "name": "Integrated Weapon",
+      "prerequisites": "",
+      "rank": 1,
+      "rankNotes": "",
+      "tags": "Mechanical, Weapon, Integrated, Natural Weapon",
+      "techniqueKeys": "",
+      "traitKey": "integrated-weapon"
+    },
+    "tagKeys": [
+      "mechanical",
+      "weapon",
+      "integrated",
+      "natural-weapon"
+    ],
+    "tags": [
+      "Mechanical",
+      "Weapon",
+      "Integrated",
+      "Natural Weapon"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "integrated-weapon"
+  },
+  {
+    "description": "You have 4 arms. The additional arms have all the functionality of normal arms - they can carry objects, perform attacks, manipulate the environment, etc.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Additional Arms",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 2,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 29,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "You have 4 arms. The additional arms have all the functionality of normal arms - they can carry objects, perform attacks, manipulate the environment, etc.",
+      "grants": null,
+      "name": "Additional Arms",
+      "prerequisites": "",
+      "rank": "2",
+      "rankNotes": "",
+      "tags": "Mechanical, Anatomy, Body",
+      "techniqueKeys": "",
+      "traitKey": "additional-arms"
+    },
+    "tagKeys": [
+      "mechanical",
+      "anatomy",
+      "body"
+    ],
+    "tags": [
+      "Mechanical",
+      "Anatomy",
+      "Body"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "additional-arms"
+  },
+  {
+    "description": "The mech can propel its fist forward. You can use the Rocket Punch technique when making unarmed strikes with your mech.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Rocket Punch",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 2,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 30,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "The mech can propel its fist forward. You can use the Rocket Punch technique when making unarmed strikes with your mech.",
+      "grants": null,
+      "name": "Rocket Punch",
+      "prerequisites": "",
+      "rank": "2",
+      "rankNotes": "",
+      "tags": "Mechanical",
+      "techniqueKeys": "mech-rocket-punch",
+      "traitKey": "mech-rocket-punch"
+    },
+    "tagKeys": [
+      "mechanical"
+    ],
+    "tags": [
+      "Mechanical"
+    ],
+    "techniqueKeys": [
+      "mech-rocket-punch"
+    ],
+    "traitKey": "mech-rocket-punch"
+  },
+  {
+    "description": "Your mech has the ability to launch a powerful, armor-piercing spike, which is integrated with one of its arms. You can use the Pile Bunker Attack technique.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Pile Bunker",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 2,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 31,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "Your mech has the ability to launch a powerful, armor-piercing spike, which is integrated with one of its arms. You can use the Pile Bunker Attack technique.",
+      "grants": null,
+      "name": "Pile Bunker",
+      "prerequisites": "",
+      "rank": "2",
+      "rankNotes": "",
+      "tags": "Mechanical, Weapon, Integrated, One-Handed, Blunt",
+      "techniqueKeys": "mech-pile-bunker-attack",
+      "traitKey": "mech-pile-bunker"
+    },
+    "tagKeys": [
+      "mechanical",
+      "weapon",
+      "integrated",
+      "one-handed",
+      "blunt"
+    ],
+    "tags": [
+      "Mechanical",
+      "Weapon",
+      "Integrated",
+      "One-Handed",
+      "Blunt"
+    ],
+    "techniqueKeys": [
+      "mech-pile-bunker-attack"
+    ],
+    "traitKey": "mech-pile-bunker"
+  },
+  {
+    "description": "The mech has a powerful integrated beam, which it can use to consolidate and launch all of its energy in a concentrated beam. You can use the Chest Beam technique.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Chest Beam",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 2,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 32,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "The mech has a powerful integrated beam, which it can use to consolidate and launch all of its energy in a concentrated beam. You can use the Chest Beam technique.",
+      "grants": null,
+      "name": "Chest Beam",
+      "prerequisites": "",
+      "rank": "2",
+      "rankNotes": "",
+      "tags": "Mechanical, Energy, Integrated, Weapon",
+      "techniqueKeys": "mech-chest-beam",
+      "traitKey": "mech-chest-beam"
+    },
+    "tagKeys": [
+      "mechanical",
+      "energy",
+      "integrated",
+      "weapon"
+    ],
+    "tags": [
+      "Mechanical",
+      "Energy",
+      "Integrated",
+      "Weapon"
+    ],
+    "techniqueKeys": [
+      "mech-chest-beam"
+    ],
+    "traitKey": "mech-chest-beam"
+  },
+  {
+    "description": "The mech can launch a swarm of rockets, peppering an entire area of the battlefield. You can use the Rocket Barrage technique.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Rocket Barrage",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 2,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 33,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "The mech can launch a swarm of rockets, peppering an entire area of the battlefield. You can use the Rocket Barrage technique.",
+      "grants": null,
+      "name": "Rocket Barrage",
+      "prerequisites": "",
+      "rank": "2",
+      "rankNotes": "",
+      "tags": "Mechanical, Explosive, Volley, Integrated, Weapon",
+      "techniqueKeys": "mech-rocket-barrage",
+      "traitKey": "mech-rocket-barrage"
+    },
+    "tagKeys": [
+      "mechanical",
+      "explosive",
+      "volley",
+      "integrated",
+      "weapon"
+    ],
+    "tags": [
+      "Mechanical",
+      "Explosive",
+      "Volley",
+      "Integrated",
+      "Weapon"
+    ],
+    "techniqueKeys": [
+      "mech-rocket-barrage"
+    ],
+    "traitKey": "mech-rocket-barrage"
+  },
+  {
+    "description": "The mech has a special layer of integrated shielding that interferes with incoming psionic attacks. Add +1 to the pilot’s Mental Defense while inside the mech.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Psionic Shielding",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 2,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 34,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "The mech has a special layer of integrated shielding that interferes with incoming psionic attacks. Add +1 to the pilot’s Mental Defense while inside the mech.",
+      "grants": null,
+      "name": "Psionic Shielding",
+      "prerequisites": "",
+      "rank": "2",
+      "rankNotes": "",
+      "tags": "Mechanical, Psychic",
+      "techniqueKeys": "",
+      "traitKey": "mech-psionic-shielding"
+    },
+    "tagKeys": [
+      "mechanical",
+      "psychic"
+    ],
+    "tags": [
+      "Mechanical",
+      "Psychic"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "mech-psionic-shielding"
+  },
+  {
+    "description": "The mech can project an electrical field that interferes with nearby electronic systems. You can use the Electronic Jammer technique.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Electronic Jammer",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 2,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 35,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "The mech can project an electrical field that interferes with nearby electronic systems. You can use the Electronic Jammer technique.",
+      "grants": null,
+      "name": "Electronic Jammer",
+      "prerequisites": "",
+      "rank": "2",
+      "rankNotes": "",
+      "tags": "Mechanical",
+      "techniqueKeys": "mech-electronic-jammer",
+      "traitKey": "mech-electronic-jammer"
+    },
+    "tagKeys": [
+      "mechanical"
+    ],
+    "tags": [
+      "Mechanical"
+    ],
+    "techniqueKeys": [
+      "mech-electronic-jammer"
+    ],
+    "traitKey": "mech-electronic-jammer"
+  },
+  {
+    "description": "The mech is constructed of millions of tiny nanomachines, which can operate independently and repair damaged parts. The mech regains 5 HP at the end of each of its turns.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Self-Repairing Nanites",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 3,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 36,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "The mech is constructed of millions of tiny nanomachines, which can operate independently and repair damaged parts. The mech regains 5 HP at the end of each of its turns.",
+      "grants": null,
+      "name": "Self-Repairing Nanites",
+      "prerequisites": "",
+      "rank": "3",
+      "rankNotes": "",
+      "tags": "Mechanical",
+      "techniqueKeys": "",
+      "traitKey": "mech-self-repairing-nanites"
+    },
+    "tagKeys": [
+      "mechanical"
+    ],
+    "tags": [
+      "Mechanical"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "mech-self-repairing-nanites"
+  },
+  {
+    "description": null,
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "AI Autopilot / Copilot",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 3,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [
+        "incomplete-content"
+      ],
+      "status": "deferred"
+    },
+    "selectable": false,
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 37,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "",
+      "grants": null,
+      "name": "AI Autopilot / Copilot",
+      "prerequisites": "",
+      "rank": "3",
+      "rankNotes": "",
+      "tags": "Mechanical",
+      "techniqueKeys": "",
+      "traitKey": "mech-ai-autopilot-copilot"
+    },
+    "tagKeys": [
+      "mechanical"
+    ],
+    "tags": [
+      "Mechanical"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "mech-ai-autopilot-copilot"
+  },
+  {
+    "description": "Your body is covered in dangerous spikes. Whenever an enemy deals Melee damage to you, they also take damage equal to 1 + your associated skill Rank. You gain the \"Spikes\" tag. You also gain a natural weapon with the \"Thrown 6, Sharp\" tags, and the \"Spike Shot\" basic attack.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [
+      {
+        "minRank": 1,
+        "tag": "Spikes",
+        "type": "tag"
+      }
+    ],
+    "grantsRaw": "tag | tag=Spikes | minRank=1",
+    "name": "Spiked Hide",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 38,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "Your body is covered in dangerous spikes. Whenever an enemy deals Melee damage to you, they also take damage equal to 1 + your associated skill Rank. You gain the \"Spikes\" tag. You also gain a natural weapon with the \"Thrown 6, Sharp\" tags, and the \"Spike Shot\" basic attack.",
+      "grants": "tag | tag=Spikes | minRank=1",
+      "name": "Spiked Hide",
+      "prerequisites": "",
+      "rank": 1,
+      "rankNotes": "",
+      "tags": "Anatomy, Body, Natural Weapon",
+      "techniqueKeys": "spike-shot",
+      "traitKey": "spiked-hide"
+    },
+    "tagKeys": [
+      "anatomy",
+      "body",
+      "natural-weapon"
+    ],
+    "tags": [
+      "Anatomy",
+      "Body",
+      "Natural Weapon"
+    ],
+    "techniqueKeys": [
+      "spike-shot"
+    ],
+    "traitKey": "spiked-hide"
+  },
+  {
+    "description": "Your unarmed strikes gain the Sharp tag. These claws are treated as Natural Weapons with the \"Melee, Sharp, One-handed\" tags, and the \"Claw Slash\" basic attack.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Savage Claws",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 39,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "Your unarmed strikes gain the Sharp tag. These claws are treated as Natural Weapons with the \"Melee, Sharp, One-handed\" tags, and the \"Claw Slash\" basic attack.",
+      "grants": null,
+      "name": "Savage Claws",
+      "prerequisites": "",
+      "rank": 1,
+      "rankNotes": "",
+      "tags": "Anatomy, Natural Weapon",
+      "techniqueKeys": "claw-slash",
+      "traitKey": "savage-claws"
+    },
+    "tagKeys": [
+      "anatomy",
+      "natural-weapon"
+    ],
+    "tags": [
+      "Anatomy",
+      "Natural Weapon"
+    ],
+    "techniqueKeys": [
+      "claw-slash"
+    ],
+    "traitKey": "savage-claws"
+  },
+  {
+    "description": "You gain a +1D bonus to Observation. Double the range of any Sight traits or techniques.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Keen Eyesight",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 40,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "You gain a +1D bonus to Observation. Double the range of any Sight traits or techniques.",
+      "grants": null,
+      "name": "Keen Eyesight",
+      "prerequisites": "",
+      "rank": 1,
+      "rankNotes": "",
+      "tags": "Anatomy, Senses, Sight",
+      "techniqueKeys": "",
+      "traitKey": "keen-eyesight"
+    },
+    "tagKeys": [
+      "anatomy",
+      "senses",
+      "sight"
+    ],
+    "tags": [
+      "Anatomy",
+      "Senses",
+      "Sight"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "keen-eyesight"
+  },
+  {
+    "description": "You gain a +1D Bonus to Stealth. You are Obscured to Ranged attacks.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Natural Camouflage",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 41,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "You gain a +1D Bonus to Stealth. You are Obscured to Ranged attacks.",
+      "grants": null,
+      "name": "Natural Camouflage",
+      "prerequisites": "",
+      "rank": 1,
+      "rankNotes": "",
+      "tags": "Anatomy, Body",
+      "techniqueKeys": "",
+      "traitKey": "natural-camouflage"
+    },
+    "tagKeys": [
+      "anatomy",
+      "body"
+    ],
+    "tags": [
+      "Anatomy",
+      "Body"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "natural-camouflage"
+  },
+  {
+    "description": "Your body is made of a stretchy, elastic material that can absorb impacts. You gain armor equal to 2 times the associated skill rank against \"blunt\" attacks.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Elastic Body",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 42,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "Your body is made of a stretchy, elastic material that can absorb impacts. You gain armor equal to 2 times the associated skill rank against \"blunt\" attacks.",
+      "grants": null,
+      "name": "Elastic Body",
+      "prerequisites": "",
+      "rank": 1,
+      "rankNotes": "",
+      "tags": "Anatomy, Material, Body",
+      "techniqueKeys": "",
+      "traitKey": "elastic-body"
+    },
+    "tagKeys": [
+      "anatomy",
+      "material",
+      "body"
+    ],
+    "tags": [
+      "Anatomy",
+      "Material",
+      "Body"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "elastic-body"
+  },
+  {
+    "description": "Your melee attacks gain additional reach equal to the associated skill rank. When making a melee attack, you may spend additional energy to increase the range of the attack by 1 square for each energy spent. Your unarmed strikes are treated as a Natural Weapon with the \"Melee, Blunt, Reach N\" tags (where N is the associated skill rank). Your basic attack with these weapons is \"Unarmed Strike\".",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Extendable Limbs",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 43,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "Your melee attacks gain additional reach equal to the associated skill rank. When making a melee attack, you may spend additional energy to increase the range of the attack by 1 square for each energy spent. Your unarmed strikes are treated as a Natural Weapon with the \"Melee, Blunt, Reach N\" tags (where N is the associated skill rank). Your basic attack with these weapons is \"Unarmed Strike\".",
+      "grants": null,
+      "name": "Extendable Limbs",
+      "prerequisites": null,
+      "rank": 1,
+      "rankNotes": null,
+      "tags": "Anatomy, Material, Natural Weapon",
+      "techniqueKeys": null,
+      "traitKey": "extendable-limbs"
+    },
+    "tagKeys": [
+      "anatomy",
+      "material",
+      "natural-weapon"
+    ],
+    "tags": [
+      "Anatomy",
+      "Material",
+      "Natural Weapon"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "extendable-limbs"
+  },
+  {
+    "description": "Whenever you would be pushed or pulled, reduce the distance by a number of squares equal to the associated skill rank. Your Unarmed Strikes and Natural Weapons gain the \"Heavy\" tag.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "High Density",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 44,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "Whenever you would be pushed or pulled, reduce the distance by a number of squares equal to the associated skill rank. Your Unarmed Strikes and Natural Weapons gain the \"Heavy\" tag.",
+      "grants": null,
+      "name": "High Density",
+      "prerequisites": "",
+      "rank": 1,
+      "rankNotes": "",
+      "tags": "Material, Body",
+      "techniqueKeys": "",
+      "traitKey": "high-density"
+    },
+    "tagKeys": [
+      "material",
+      "body"
+    ],
+    "tags": [
+      "Material",
+      "Body"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "high-density"
+  },
+  {
+    "description": "You can push and pull nearby metal objects. The range of this effect is 6 squares times the associated skill rank. The maximum size of the object you can affect is the associated skill rank -1. Metal weapons have a -1D penalty to attacks against you. If you hit a creature made of metal (or wearing metal armor) with an attack, you can push that creature a number of squares away from you equal to your associated skill rank.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Magnetic Field",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 45,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "You can push and pull nearby metal objects. The range of this effect is 6 squares times the associated skill rank. The maximum size of the object you can affect is the associated skill rank -1. Metal weapons have a -1D penalty to attacks against you. If you hit a creature made of metal (or wearing metal armor) with an attack, you can push that creature a number of squares away from you equal to your associated skill rank.",
+      "grants": null,
+      "name": "Magnetic Field",
+      "prerequisites": "",
+      "rank": 1,
+      "rankNotes": "",
+      "tags": "Material, Mechanical, Body",
+      "techniqueKeys": "",
+      "traitKey": "magnetic-field"
+    },
+    "tagKeys": [
+      "material",
+      "mechanical",
+      "body"
+    ],
+    "tags": [
+      "Material",
+      "Mechanical",
+      "Body"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "magnetic-field"
+  },
+  {
+    "description": "Your body becomes liquid. You can squeeze through Scale -2 spaces, share spaces with other characters, and adjust your shape to fit any container of your own scale or larger. Gain the \"Liquid\" tag.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [
+      {
+        "minRank": 1,
+        "tag": "Liquid",
+        "type": "tag"
+      }
+    ],
+    "grantsRaw": "tag | tag=Liquid | minRank=1",
+    "name": "Liquid Form",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 46,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "Your body becomes liquid. You can squeeze through Scale -2 spaces, share spaces with other characters, and adjust your shape to fit any container of your own scale or larger. Gain the \"Liquid\" tag.",
+      "grants": "tag | tag=Liquid | minRank=1",
+      "name": "Liquid Form",
+      "prerequisites": "",
+      "rank": 1,
+      "rankNotes": "",
+      "tags": "Material, Body",
+      "techniqueKeys": "",
+      "traitKey": "liquid-form"
+    },
+    "tagKeys": [
+      "material",
+      "body"
+    ],
+    "tags": [
+      "Material",
+      "Body"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "liquid-form"
+  },
+  {
+    "description": "You gain a +1D Status bonus to defense rolls against grapples, immobilization, and other restraints.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Slippery",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 47,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "You gain a +1D Status bonus to defense rolls against grapples, immobilization, and other restraints.",
+      "grants": null,
+      "name": "Slippery",
+      "prerequisites": "",
+      "rank": 1,
+      "rankNotes": "",
+      "tags": "Material, Body",
+      "techniqueKeys": "",
+      "traitKey": "slippery"
+    },
+    "tagKeys": [
+      "material",
+      "body"
+    ],
+    "tags": [
+      "Material",
+      "Body"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "slippery"
+  },
+  {
+    "description": "When you succeed on a melee attack against a single target using an unarmed strike or Natural Weapon, you may choose to have that creature become grappled.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Sticky Skin",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 48,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "When you succeed on a melee attack against a single target using an unarmed strike or Natural Weapon, you may choose to have that creature become grappled.",
+      "grants": null,
+      "name": "Sticky Skin",
+      "prerequisites": "",
+      "rank": 1,
+      "rankNotes": "",
+      "tags": "Material, Body",
+      "techniqueKeys": "",
+      "traitKey": "sticky-skin"
+    },
+    "tagKeys": [
+      "material",
+      "body"
+    ],
+    "tags": [
+      "Material",
+      "Body"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "sticky-skin"
+  },
+  {
+    "description": "When you take damage, gain 1 armor until the beginning of your next turn. If you take damage while you already have an armor bonus due to this ability, increase that bonus by 1.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Variable Hardness",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 49,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "When you take damage, gain 1 armor until the beginning of your next turn. If you take damage while you already have an armor bonus due to this ability, increase that bonus by 1.",
+      "grants": null,
+      "name": "Variable Hardness",
+      "prerequisites": "",
+      "rank": 1,
+      "rankNotes": "",
+      "tags": "Material, Body",
+      "techniqueKeys": "",
+      "traitKey": "variable-hardness"
+    },
+    "tagKeys": [
+      "material",
+      "body"
+    ],
+    "tags": [
+      "Material",
+      "Body"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "variable-hardness"
+  },
+  {
+    "description": "The feature granting this sense must define a range. You can see invisible creatures by sensing their spiritual energy. You can also see other traces of concentrated spiritual energy, such as infused objects or the remnants of recent spiritual activity. You can sense the locations of creatures within range, even behind full cover.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Spirit Sight",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 50,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "The feature granting this sense must define a range. You can see invisible creatures by sensing their spiritual energy. You can also see other traces of concentrated spiritual energy, such as infused objects or the remnants of recent spiritual activity. You can sense the locations of creatures within range, even behind full cover.",
+      "grants": null,
+      "name": "Spirit Sight",
+      "prerequisites": "",
+      "rank": 1,
+      "rankNotes": "",
+      "tags": "Senses, Sight",
+      "techniqueKeys": "",
+      "traitKey": "spirit-sight"
+    },
+    "tagKeys": [
+      "senses",
+      "sight"
+    ],
+    "tags": [
+      "Senses",
+      "Sight"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "spirit-sight"
+  },
+  {
+    "description": "You can store up to 3 Scale -1 or smaller inorganic objects inside your body. As an action you can absorb a Scale -1 or smaller inorganic object or reassemble and eject that object.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Dissolved Storage",
+    "prerequisites": [
+      {
+        "key": "liquid-form",
+        "type": "trait"
+      }
+    ],
+    "prerequisitesRaw": "trait | traitKey=liquid-form",
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 51,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "You can store up to 3 Scale -1 or smaller inorganic objects inside your body. As an action you can absorb a Scale -1 or smaller inorganic object or reassemble and eject that object.",
+      "grants": null,
+      "name": "Dissolved Storage",
+      "prerequisites": "trait | traitKey=liquid-form",
+      "rank": 1,
+      "rankNotes": "",
+      "tags": "Material",
+      "techniqueKeys": null,
+      "traitKey": "dissolved-storage"
+    },
+    "tagKeys": [
+      "material"
+    ],
+    "tags": [
+      "Material"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "dissolved-storage"
+  },
+  {
+    "description": "You can jump vertically up to half your speed, and horizontally up to your speed.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Enhanced Leaps",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 52,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "You can jump vertically up to half your speed, and horizontally up to your speed.",
+      "grants": null,
+      "name": "Enhanced Leaps",
+      "prerequisites": null,
+      "rank": 1,
+      "rankNotes": null,
+      "tags": "Anatomy, Movement",
+      "techniqueKeys": null,
+      "traitKey": "enhanced-leaps"
+    },
+    "tagKeys": [
+      "anatomy",
+      "movement"
+    ],
+    "tags": [
+      "Anatomy",
+      "Movement"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "enhanced-leaps"
+  },
+  {
+    "description": "Reduce your scale by 1.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Tiny Frame",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 53,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "Reduce your scale by 1.",
+      "grants": null,
+      "name": "Tiny Frame",
+      "prerequisites": null,
+      "rank": 1,
+      "rankNotes": null,
+      "tags": "Anatomy, Mechanical, Body",
+      "techniqueKeys": null,
+      "traitKey": "tiny-frame"
+    },
+    "tagKeys": [
+      "anatomy",
+      "mechanical",
+      "body"
+    ],
+    "tags": [
+      "Anatomy",
+      "Mechanical",
+      "Body"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "tiny-frame"
+  },
+  {
+    "description": "You have an extendable arm, tongue, tail, tentacle, or other limb. This limb can grapple enemies and manipulate objects at a distance. It is treated as a Natural Weapon with the \"Melee, Blunt, Reach N\" tags, where N is equal to 1 + your associated skill rank.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Grasping Appendage",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 54,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "You have an extendable arm, tongue, tail, tentacle, or other limb. This limb can grapple enemies and manipulate objects at a distance. It is treated as a Natural Weapon with the \"Melee, Blunt, Reach N\" tags, where N is equal to 1 + your associated skill rank.",
+      "grants": null,
+      "name": "Grasping Appendage",
+      "prerequisites": null,
+      "rank": 1,
+      "rankNotes": null,
+      "tags": "Anatomy, Natural Weapon",
+      "techniqueKeys": null,
+      "traitKey": "grasping-appendage"
+    },
+    "tagKeys": [
+      "anatomy",
+      "natural-weapon"
+    ],
+    "tags": [
+      "Anatomy",
+      "Natural Weapon"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "grasping-appendage"
+  },
+  {
+    "description": "Your unarmed strikes and Natural Weapons gain the \"Poisonous\" tag. They grant the \"poisoned N\" condition on a successful attack, where N is the rank of the associated skill.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Poisonous Skin",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 55,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "Your unarmed strikes and Natural Weapons gain the \"Poisonous\" tag. They grant the \"poisoned N\" condition on a successful attack, where N is the rank of the associated skill.",
+      "grants": null,
+      "name": "Poisonous Skin",
+      "prerequisites": null,
+      "rank": 1,
+      "rankNotes": null,
+      "tags": "Anatomy, Material",
+      "techniqueKeys": null,
+      "traitKey": "poisonous-skin"
+    },
+    "tagKeys": [
+      "anatomy",
+      "material"
+    ],
+    "tags": [
+      "Anatomy",
+      "Material"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "poisonous-skin"
+  },
+  {
+    "description": "You gain a Natural Weapon with the \"Ranged 6, Web\" tags, and the \"Shoot Web\" basic attack. The \"Web\" tag grants the \"Slowed\" condition on a success, and immobilized on a critical success.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [
+      {
+        "minRank": 1,
+        "tag": "Web",
+        "type": "tag"
+      }
+    ],
+    "grantsRaw": "tag | tag=Web | minRank=1",
+    "name": "Web Shooters",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 56,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "You gain a Natural Weapon with the \"Ranged 6, Web\" tags, and the \"Shoot Web\" basic attack. The \"Web\" tag grants the \"Slowed\" condition on a success, and immobilized on a critical success.",
+      "grants": "tag | tag=Web | minRank=1",
+      "name": "Web Shooters",
+      "prerequisites": null,
+      "rank": 1,
+      "rankNotes": null,
+      "tags": "Anatomy, Natural Weapon",
+      "techniqueKeys": "shoot-web",
+      "traitKey": "web-shooters"
+    },
+    "tagKeys": [
+      "anatomy",
+      "natural-weapon"
+    ],
+    "tags": [
+      "Anatomy",
+      "Natural Weapon"
+    ],
+    "techniqueKeys": [
+      "shoot-web"
+    ],
+    "traitKey": "web-shooters"
+  },
+  {
+    "description": "Your body becomes plantlike. You gain the \"Plant\" tag.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [
+      {
+        "minRank": 1,
+        "tag": "Plant",
+        "type": "tag"
+      }
+    ],
+    "grantsRaw": "tag | tag=Plant | minRank=1",
+    "name": "Plant Physiology",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 57,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "Your body becomes plantlike. You gain the \"Plant\" tag.",
+      "grants": "tag | tag=Plant | minRank=1",
+      "name": "Plant Physiology",
+      "prerequisites": null,
+      "rank": 1,
+      "rankNotes": null,
+      "tags": "Anatomy, Material",
+      "techniqueKeys": null,
+      "traitKey": "plant-physiology"
+    },
+    "tagKeys": [
+      "anatomy",
+      "material"
+    ],
+    "tags": [
+      "Anatomy",
+      "Material"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "plant-physiology"
+  },
+  {
+    "description": "You gain the Beam tag and can perform the Restraining Beam and Repulsor Blast techniques using the skill associated with this trait.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [
+      {
+        "minRank": 1,
+        "tag": "Beam",
+        "type": "tag"
+      }
+    ],
+    "grantsRaw": "tag | tag=Beam | minRank=1",
+    "name": "Beam Blaster",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 58,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "You gain the Beam tag and can perform the Restraining Beam and Repulsor Blast techniques using the skill associated with this trait.",
+      "grants": "tag | tag=Beam | minRank=1",
+      "name": "Beam Blaster",
+      "prerequisites": null,
+      "rank": 1,
+      "rankNotes": null,
+      "tags": null,
+      "techniqueKeys": "monster-restraining-beam,monster-repulsor-blast",
+      "traitKey": "beam-blaster"
+    },
+    "tagKeys": [],
+    "tags": [],
+    "techniqueKeys": [
+      "monster-restraining-beam",
+      "monster-repulsor-blast"
+    ],
+    "traitKey": "beam-blaster"
+  },
+  {
+    "description": "Designate up to two limbs to be treated as natural weapons. These limbs may be unusually large or dense, and they deliver attacks with extreme force. They gain the \"Blunt, Melee, Heavy\" tags. They gain the \"Crushing Blow\" basic attack.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Crushing Limbs",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 59,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "Designate up to two limbs to be treated as natural weapons. These limbs may be unusually large or dense, and they deliver attacks with extreme force. They gain the \"Blunt, Melee, Heavy\" tags. They gain the \"Crushing Blow\" basic attack.",
+      "grants": null,
+      "name": "Crushing Limbs",
+      "prerequisites": null,
+      "rank": 1,
+      "rankNotes": null,
+      "tags": "Anatomy, Natural Weapon",
+      "techniqueKeys": null,
+      "traitKey": "crushing-limbs"
+    },
+    "tagKeys": [
+      "anatomy",
+      "natural-weapon"
+    ],
+    "tags": [
+      "Anatomy",
+      "Natural Weapon"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "crushing-limbs"
+  },
+  {
+    "description": "Your Jaws are unusually large, sharp, or powerful, and can be treated as a Natural Weapon with the \"Sharp, Melee\" tags. Their basic attack is \"Clamping Bite\".",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Grasping Fangs",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 60,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "Your Jaws are unusually large, sharp, or powerful, and can be treated as a Natural Weapon with the \"Sharp, Melee\" tags. Their basic attack is \"Clamping Bite\". ",
+      "grants": null,
+      "name": "Grasping Fangs",
+      "prerequisites": null,
+      "rank": 1,
+      "rankNotes": null,
+      "tags": "Anatomy, Natural Weapon",
+      "techniqueKeys": null,
+      "traitKey": "grasping-fangs"
+    },
+    "tagKeys": [
+      "anatomy",
+      "natural-weapon"
+    ],
+    "tags": [
+      "Anatomy",
+      "Natural Weapon"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "grasping-fangs"
+  },
+  {
+    "description": "You have large horns or antlers that you can use to gore your opponents. They are Natural weapons with the \"Melee, Sharp\" tags. Their basic attack is \"Goring Charge\".",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Goring Horns",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants"
+      ],
+      "row": 61,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "You have large horns or antlers that you can use to gore your opponents. They are Natural weapons with the \"Melee, Sharp\" tags. Their basic attack is \"Goring Charge\".",
+      "grants": null,
+      "name": "Goring Horns",
+      "prerequisites": null,
+      "rank": 1,
+      "rankNotes": null,
+      "tags": "Anatomy, Natural Weapon",
+      "techniqueKeys": null,
+      "traitKey": "goring-horns"
+    },
+    "tagKeys": [
+      "anatomy",
+      "natural-weapon"
+    ],
+    "tags": [
+      "Anatomy",
+      "Natural Weapon"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "goring-horns"
+  }
+]

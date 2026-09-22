@@ -5,6 +5,10 @@
     "displayOrder": 1,
     "progression": "fast",
     "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "mental-defense",
     "skillName": "Mental Defense",
     "whenPrimaryAttribute": null
@@ -15,6 +19,10 @@
     "displayOrder": 2,
     "progression": "fast",
     "role": "combat-technique",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "ninjutsu",
     "skillName": "Ninjutsu",
     "whenPrimaryAttribute": null
@@ -25,6 +33,10 @@
     "displayOrder": 3,
     "progression": "slow",
     "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "physical-defense",
     "skillName": "Physical Defense",
     "whenPrimaryAttribute": null
@@ -35,6 +47,10 @@
     "displayOrder": 4,
     "progression": "medium",
     "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "spiritual-defense",
     "skillName": "Spiritual Defense",
     "whenPrimaryAttribute": null
@@ -45,6 +61,10 @@
     "displayOrder": 5,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "athletics",
     "skillName": "Athletics",
     "whenPrimaryAttribute": null
@@ -55,6 +75,10 @@
     "displayOrder": 6,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "deception",
     "skillName": "Deception",
     "whenPrimaryAttribute": null
@@ -65,6 +89,10 @@
     "displayOrder": 7,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "medicine",
     "skillName": "Medicine",
     "whenPrimaryAttribute": null
@@ -75,6 +103,10 @@
     "displayOrder": 8,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "roguery",
     "skillName": "Roguery",
     "whenPrimaryAttribute": null
@@ -85,6 +117,10 @@
     "displayOrder": 9,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "nature",
     "skillName": "Nature",
     "whenPrimaryAttribute": null
@@ -95,6 +131,10 @@
     "displayOrder": 1,
     "progression": "medium",
     "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "mental-defense",
     "skillName": "Mental Defense",
     "whenPrimaryAttribute": null
@@ -105,6 +145,10 @@
     "displayOrder": 2,
     "progression": "slow",
     "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "physical-defense",
     "skillName": "Physical Defense",
     "whenPrimaryAttribute": null
@@ -115,6 +159,10 @@
     "displayOrder": 3,
     "progression": "fast",
     "role": "combat-technique",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "spellcasting",
     "skillName": "Spellcasting",
     "whenPrimaryAttribute": null
@@ -125,6 +173,10 @@
     "displayOrder": 4,
     "progression": "fast",
     "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "spiritual-defense",
     "skillName": "Spiritual Defense",
     "whenPrimaryAttribute": null
@@ -135,6 +187,10 @@
     "displayOrder": 5,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "spirituality",
     "skillName": "Spirituality",
     "whenPrimaryAttribute": null
@@ -145,6 +201,10 @@
     "displayOrder": 6,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "performance",
     "skillName": "Performance",
     "whenPrimaryAttribute": null
@@ -155,6 +215,10 @@
     "displayOrder": 7,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "medicine",
     "skillName": "Medicine",
     "whenPrimaryAttribute": null
@@ -165,6 +229,10 @@
     "displayOrder": 8,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "influence",
     "skillName": "Influence",
     "whenPrimaryAttribute": null
@@ -175,6 +243,10 @@
     "displayOrder": 9,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "nature",
     "skillName": "Nature",
     "whenPrimaryAttribute": null
@@ -185,6 +257,10 @@
     "displayOrder": 1,
     "progression": "fast",
     "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "mental-defense",
     "skillName": "Mental Defense",
     "whenPrimaryAttribute": null
@@ -195,6 +271,10 @@
     "displayOrder": 2,
     "progression": "fast",
     "role": "combat-technique",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "monster-taming",
     "skillName": "Monster Taming",
     "whenPrimaryAttribute": null
@@ -205,6 +285,10 @@
     "displayOrder": 3,
     "progression": "slow",
     "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "physical-defense",
     "skillName": "Physical Defense",
     "whenPrimaryAttribute": null
@@ -215,6 +299,10 @@
     "displayOrder": 4,
     "progression": "medium",
     "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "spiritual-defense",
     "skillName": "Spiritual Defense",
     "whenPrimaryAttribute": null
@@ -225,6 +313,10 @@
     "displayOrder": 5,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "medicine",
     "skillName": "Medicine",
     "whenPrimaryAttribute": null
@@ -235,6 +327,10 @@
     "displayOrder": 6,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "nature",
     "skillName": "Nature",
     "whenPrimaryAttribute": null
@@ -245,6 +341,10 @@
     "displayOrder": 7,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "influence",
     "skillName": "Influence",
     "whenPrimaryAttribute": null
@@ -255,6 +355,10 @@
     "displayOrder": 8,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "athletics",
     "skillName": "Athletics",
     "whenPrimaryAttribute": null
@@ -265,6 +369,10 @@
     "displayOrder": 9,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "stealth",
     "skillName": "Stealth",
     "whenPrimaryAttribute": null
@@ -275,6 +383,10 @@
     "displayOrder": 1,
     "progression": "fast",
     "role": "combat-technique",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "martial-arts",
     "skillName": "Martial Arts",
     "whenPrimaryAttribute": null
@@ -285,6 +397,10 @@
     "displayOrder": 2,
     "progression": "slow",
     "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "mental-defense",
     "skillName": "Mental Defense",
     "whenPrimaryAttribute": null
@@ -295,6 +411,10 @@
     "displayOrder": 3,
     "progression": "fast",
     "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "physical-defense",
     "skillName": "Physical Defense",
     "whenPrimaryAttribute": null
@@ -305,6 +425,10 @@
     "displayOrder": 4,
     "progression": "medium",
     "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "spiritual-defense",
     "skillName": "Spiritual Defense",
     "whenPrimaryAttribute": null
@@ -315,6 +439,10 @@
     "displayOrder": 5,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "spirituality",
     "skillName": "Spirituality",
     "whenPrimaryAttribute": null
@@ -325,6 +453,10 @@
     "displayOrder": 6,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "athletics",
     "skillName": "Athletics",
     "whenPrimaryAttribute": null
@@ -335,6 +467,10 @@
     "displayOrder": 7,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "medicine",
     "skillName": "Medicine",
     "whenPrimaryAttribute": null
@@ -345,6 +481,10 @@
     "displayOrder": 8,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "culinary",
     "skillName": "Culinary",
     "whenPrimaryAttribute": null
@@ -355,8 +495,194 @@
     "displayOrder": 9,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "insight",
     "skillName": "Insight",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "elementalist",
+    "displayOrder": 1,
+    "progression": "fast",
+    "role": "combat-technique",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "skillKey": "elementalism",
+    "skillName": "Elementalism",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "elementalist",
+    "displayOrder": 2,
+    "progression": "medium",
+    "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "skillKey": "mental-defense",
+    "skillName": "Mental Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "elementalist",
+    "displayOrder": 3,
+    "progression": "slow",
+    "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "skillKey": "physical-defense",
+    "skillName": "Physical Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "elementalist",
+    "displayOrder": 4,
+    "progression": "fast",
+    "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "skillKey": "spiritual-defense",
+    "skillName": "Spiritual Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "mech-pilot",
+    "displayOrder": 1,
+    "progression": "fast",
+    "role": "combat-technique",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "skillKey": "mech-piloting",
+    "skillName": "Mech Piloting",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "mech-pilot",
+    "displayOrder": 2,
+    "progression": "fast",
+    "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "skillKey": "mental-defense",
+    "skillName": "Mental Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "mech-pilot",
+    "displayOrder": 3,
+    "progression": "medium",
+    "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "skillKey": "physical-defense",
+    "skillName": "Physical Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "mech-pilot",
+    "displayOrder": 4,
+    "progression": "slow",
+    "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "skillKey": "spiritual-defense",
+    "skillName": "Spiritual Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "mech-pilot",
+    "displayOrder": 5,
+    "progression": null,
+    "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "skillKey": "vehicles",
+    "skillName": "Vehicles",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "mech-pilot",
+    "displayOrder": 6,
+    "progression": null,
+    "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "skillKey": "science",
+    "skillName": "Science",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "mech-pilot",
+    "displayOrder": 7,
+    "progression": null,
+    "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "skillKey": "technology",
+    "skillName": "Technology",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "mech-pilot",
+    "displayOrder": 8,
+    "progression": null,
+    "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "skillKey": "society",
+    "skillName": "Society",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": "starting-utility",
+    "classKey": "mech-pilot",
+    "displayOrder": 9,
+    "progression": null,
+    "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "skillKey": "academics",
+    "skillName": "Academics",
     "whenPrimaryAttribute": null
   },
   {
@@ -365,9 +691,13 @@
     "displayOrder": 1,
     "progression": "fast",
     "role": "combat-technique",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "melee-weapons",
     "skillName": "Melee Weapons",
-    "whenPrimaryAttribute": "strength"
+    "whenPrimaryAttribute": "Strength"
   },
   {
     "choiceGroup": null,
@@ -375,36 +705,24 @@
     "displayOrder": 2,
     "progression": "medium",
     "role": "combat-technique",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "melee-weapons",
     "skillName": "Melee Weapons",
-    "whenPrimaryAttribute": "agility"
+    "whenPrimaryAttribute": "Agility"
   },
   {
     "choiceGroup": null,
     "classKey": "weapon-master",
     "displayOrder": 3,
     "progression": "medium",
-    "role": "combat-technique",
-    "skillKey": "targeting",
-    "skillName": "Targeting",
-    "whenPrimaryAttribute": "strength"
-  },
-  {
-    "choiceGroup": null,
-    "classKey": "weapon-master",
-    "displayOrder": 4,
-    "progression": "fast",
-    "role": "combat-technique",
-    "skillKey": "targeting",
-    "skillName": "Targeting",
-    "whenPrimaryAttribute": "agility"
-  },
-  {
-    "choiceGroup": null,
-    "classKey": "weapon-master",
-    "displayOrder": 5,
-    "progression": "medium",
     "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "mental-defense",
     "skillName": "Mental Defense",
     "whenPrimaryAttribute": null
@@ -412,9 +730,13 @@
   {
     "choiceGroup": null,
     "classKey": "weapon-master",
-    "displayOrder": 6,
+    "displayOrder": 4,
     "progression": "fast",
     "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "physical-defense",
     "skillName": "Physical Defense",
     "whenPrimaryAttribute": null
@@ -422,12 +744,44 @@
   {
     "choiceGroup": null,
     "classKey": "weapon-master",
-    "displayOrder": 7,
+    "displayOrder": 5,
     "progression": "slow",
     "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "spiritual-defense",
     "skillName": "Spiritual Defense",
     "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "weapon-master",
+    "displayOrder": 6,
+    "progression": "medium",
+    "role": "combat-technique",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "skillKey": "ranged-weapons",
+    "skillName": "Ranged Weapons",
+    "whenPrimaryAttribute": "Strength"
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "weapon-master",
+    "displayOrder": 7,
+    "progression": "fast",
+    "role": "combat-technique",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "skillKey": "ranged-weapons",
+    "skillName": "Ranged Weapons",
+    "whenPrimaryAttribute": "Agility"
   },
   {
     "choiceGroup": "starting-utility",
@@ -435,6 +789,10 @@
     "displayOrder": 8,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "athletics",
     "skillName": "Athletics",
     "whenPrimaryAttribute": null
@@ -445,6 +803,10 @@
     "displayOrder": 9,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "society",
     "skillName": "Society",
     "whenPrimaryAttribute": null
@@ -455,6 +817,10 @@
     "displayOrder": 10,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "influence",
     "skillName": "Influence",
     "whenPrimaryAttribute": null
@@ -465,6 +831,10 @@
     "displayOrder": 11,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "observation",
     "skillName": "Observation",
     "whenPrimaryAttribute": null
@@ -475,6 +845,10 @@
     "displayOrder": 12,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "crafting",
     "skillName": "Crafting",
     "whenPrimaryAttribute": null
@@ -485,6 +859,10 @@
     "displayOrder": 1,
     "progression": "fast",
     "role": "combat-technique",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "henshin-arts",
     "skillName": "Henshin Arts",
     "whenPrimaryAttribute": null
@@ -495,6 +873,10 @@
     "displayOrder": 2,
     "progression": "slow",
     "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "mental-defense",
     "skillName": "Mental Defense",
     "whenPrimaryAttribute": null
@@ -505,6 +887,10 @@
     "displayOrder": 3,
     "progression": "fast",
     "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "physical-defense",
     "skillName": "Physical Defense",
     "whenPrimaryAttribute": null
@@ -515,6 +901,10 @@
     "displayOrder": 4,
     "progression": "medium",
     "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "spiritual-defense",
     "skillName": "Spiritual Defense",
     "whenPrimaryAttribute": null
@@ -525,6 +915,10 @@
     "displayOrder": 5,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "athletics",
     "skillName": "Athletics",
     "whenPrimaryAttribute": null
@@ -535,6 +929,10 @@
     "displayOrder": 6,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "performance",
     "skillName": "Performance",
     "whenPrimaryAttribute": null
@@ -545,6 +943,10 @@
     "displayOrder": 7,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "technology",
     "skillName": "Technology",
     "whenPrimaryAttribute": null
@@ -555,6 +957,10 @@
     "displayOrder": 8,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "science",
     "skillName": "Science",
     "whenPrimaryAttribute": null
@@ -565,8 +971,68 @@
     "displayOrder": 9,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "vehicles",
     "skillName": "Vehicles",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "psychic",
+    "displayOrder": 1,
+    "progression": "fast",
+    "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "skillKey": "mental-defense",
+    "skillName": "Mental Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "psychic",
+    "displayOrder": 2,
+    "progression": "slow",
+    "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "skillKey": "physical-defense",
+    "skillName": "Physical Defense",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "psychic",
+    "displayOrder": 3,
+    "progression": "fast",
+    "role": "combat-technique",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "skillKey": "psionics",
+    "skillName": "Psionics",
+    "whenPrimaryAttribute": null
+  },
+  {
+    "choiceGroup": null,
+    "classKey": "psychic",
+    "displayOrder": 4,
+    "progression": "medium",
+    "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "skillKey": "spiritual-defense",
+    "skillName": "Spiritual Defense",
     "whenPrimaryAttribute": null
   },
   {
@@ -575,6 +1041,10 @@
     "displayOrder": 1,
     "progression": "medium",
     "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "mental-defense",
     "skillName": "Mental Defense",
     "whenPrimaryAttribute": null
@@ -585,6 +1055,10 @@
     "displayOrder": 2,
     "progression": "fast",
     "role": "combat-technique",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "metamorphosis",
     "skillName": "Metamorphosis",
     "whenPrimaryAttribute": null
@@ -595,6 +1069,10 @@
     "displayOrder": 3,
     "progression": "fast",
     "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "physical-defense",
     "skillName": "Physical Defense",
     "whenPrimaryAttribute": null
@@ -605,6 +1083,10 @@
     "displayOrder": 4,
     "progression": "slow",
     "role": "combat-defense",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "spiritual-defense",
     "skillName": "Spiritual Defense",
     "whenPrimaryAttribute": null
@@ -615,6 +1097,10 @@
     "displayOrder": 5,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "nature",
     "skillName": "Nature",
     "whenPrimaryAttribute": null
@@ -625,6 +1111,10 @@
     "displayOrder": 6,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "spirituality",
     "skillName": "Spirituality",
     "whenPrimaryAttribute": null
@@ -635,6 +1125,10 @@
     "displayOrder": 7,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "deception",
     "skillName": "Deception",
     "whenPrimaryAttribute": null
@@ -645,6 +1139,10 @@
     "displayOrder": 8,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "performance",
     "skillName": "Performance",
     "whenPrimaryAttribute": null
@@ -655,6 +1153,10 @@
     "displayOrder": 9,
     "progression": null,
     "role": "utility-option",
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "skillKey": "roguery",
     "skillName": "Roguery",
     "whenPrimaryAttribute": null

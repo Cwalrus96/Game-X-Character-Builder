@@ -1,5 +1,10 @@
 [
   {
+    "authoringSkills": {
+      "combatSkills": "Mental Defense:Fast; Ninjutsu:Fast; Physical Defense:Slow; Spiritual Defense:Medium",
+      "combatTechniqueSkill": "Ninjutsu",
+      "utilitySkillOptions": "Athletics; Deception; Medicine; Roguery; Nature"
+    },
     "classKey": "ninja",
     "combatSkills": [
       {
@@ -35,9 +40,10 @@
     "examples": [
       "most characters from Naruto."
     ],
+    "expressionSyntaxVersion": 3,
     "hpProgression": "medium",
     "name": "Ninja",
-    "notes": "Design Note: Ninjas that focus on Intelligence tend to be tricksters and manipulators - using illusions and deception to influence their foes, and using their skills and cunning to set up advantages for themselves. Ninjas that prioritize Agility tend to be deadly skirmishers, striking quickly from the shadows and hiding away before they can be caught.",
+    "notes": "Design Note: Ninjas that focus on Intellect tend to be tricksters and manipulators - using illusions and deception to influence their foes, and using their skills and cunning to set up advantages for themselves. Ninjas that prioritize Agility tend to be deadly skirmishers, striking quickly from the shadows and hiding away before they can be caught.",
     "pitch": "A character who uses spirit energy to enhance their stealth, deception, and infiltration. Ninjas are fast, tricky, mysterious, and deadly.",
     "primaryAttributeA": "Agility",
     "primaryAttributeB": "Intellect",
@@ -45,7 +51,43 @@
       "Agility",
       "Intellect"
     ],
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "selectable": true,
+    "sourceLocation": {
+      "headers": [
+        "classKey",
+        "name",
+        "pitch",
+        "examples",
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB",
+        "combatTechniqueSkill",
+        "combatSkills",
+        "utilitySkillOptions",
+        "notes",
+        "status"
+      ],
+      "row": 2,
+      "sheet": "Classes"
+    },
+    "sourceValues": {
+      "classKey": "ninja",
+      "combatSkills": "Mental Defense:Fast; Ninjutsu:Fast; Physical Defense:Slow; Spiritual Defense:Medium",
+      "combatTechniqueSkill": "Ninjutsu",
+      "examples": "most characters from Naruto.",
+      "hpProgression": "Medium",
+      "name": "Ninja",
+      "notes": "Design Note: Ninjas that focus on Intellect tend to be tricksters and manipulators - using illusions and deception to influence their foes, and using their skills and cunning to set up advantages for themselves. Ninjas that prioritize Agility tend to be deadly skirmishers, striking quickly from the shadows and hiding away before they can be caught.",
+      "pitch": "A character who uses spirit energy to enhance their stealth, deception, and infiltration. Ninjas are fast, tricky, mysterious, and deadly.",
+      "primaryAttributeA": "Agility",
+      "primaryAttributeB": "Intellect",
+      "status": "playable",
+      "utilitySkillOptions": "Athletics; Deception; Medicine; Roguery; Nature"
+    },
     "status": "playable",
     "utilitySkillOptions": [
       "Athletics",
@@ -56,6 +98,11 @@
     ]
   },
   {
+    "authoringSkills": {
+      "combatSkills": "Mental Defense:Medium; Physical Defense:Slow; Spellcasting:Fast; Spiritual Defense:Fast",
+      "combatTechniqueSkill": "Spellcasting",
+      "utilitySkillOptions": "Spirituality; Performance; Medicine; Influence; Nature"
+    },
     "classKey": "magical-guardian",
     "combatSkills": [
       {
@@ -91,6 +138,7 @@
     "examples": [
       "Sailor Moon, Cardcaptor Sakura, Puella Magi Madoka Magica"
     ],
+    "expressionSyntaxVersion": 3,
     "hpProgression": "low",
     "name": "Magical Guardian",
     "notes": "Design Note: Magical Guardians that focus on Attunement tend to emphasize the “Magic” part of their name - they are deeply in-tune with the spiritual energy around them, and able to manipulate it more easily. Guardians that choose Heart as their primary attribute tend to focus on the bond they have with their teammates, and using these bonds to buff, heal, and protect their allies.",
@@ -101,7 +149,43 @@
       "Attunement",
       "Heart"
     ],
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "selectable": true,
+    "sourceLocation": {
+      "headers": [
+        "classKey",
+        "name",
+        "pitch",
+        "examples",
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB",
+        "combatTechniqueSkill",
+        "combatSkills",
+        "utilitySkillOptions",
+        "notes",
+        "status"
+      ],
+      "row": 3,
+      "sheet": "Classes"
+    },
+    "sourceValues": {
+      "classKey": "magical-guardian",
+      "combatSkills": "Mental Defense:Medium; Physical Defense:Slow; Spellcasting:Fast; Spiritual Defense:Fast",
+      "combatTechniqueSkill": "Spellcasting",
+      "examples": "Sailor Moon, Cardcaptor Sakura, Puella Magi Madoka Magica",
+      "hpProgression": "Low",
+      "name": "Magical Guardian",
+      "notes": "Design Note: Magical Guardians that focus on Attunement tend to emphasize the “Magic” part of their name - they are deeply in-tune with the spiritual energy around them, and able to manipulate it more easily. Guardians that choose Heart as their primary attribute tend to focus on the bond they have with their teammates, and using these bonds to buff, heal, and protect their allies.",
+      "pitch": "The Magical Guardian uses spirit energy to defend, heal, and enhance their allies. They are primarily a support class, and their magic can provide a wide range of utility.",
+      "primaryAttributeA": "Attunement",
+      "primaryAttributeB": "Heart",
+      "status": "playable",
+      "utilitySkillOptions": "Spirituality; Performance; Medicine; Influence; Nature"
+    },
     "status": "playable",
     "utilitySkillOptions": [
       "Spirituality",
@@ -112,6 +196,11 @@
     ]
   },
   {
+    "authoringSkills": {
+      "combatSkills": "Mental Defense:Fast; Monster Taming:Fast; Physical Defense:Slow; Spiritual Defense:Medium",
+      "combatTechniqueSkill": "Monster Taming",
+      "utilitySkillOptions": "Medicine; Nature; Influence; Athletics; Stealth"
+    },
     "classKey": "monster-tamer",
     "combatSkills": [
       {
@@ -147,6 +236,7 @@
     "examples": [
       "Ash (Pokemon), Tai (Digimon), Yugi Muto (Yu-Gi-Oh), Final Fantasy, etc."
     ],
+    "expressionSyntaxVersion": 3,
     "hpProgression": "medium",
     "name": "Monster Tamer",
     "notes": "Design Note: Monster Tamers who focus on Willpower tend to emphasize controlling and recruiting creatures. Those who focus on Heart tend to emphasize their bonds with companions and coordinated teamwork.",
@@ -157,7 +247,43 @@
       "Willpower",
       "Heart"
     ],
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "selectable": true,
+    "sourceLocation": {
+      "headers": [
+        "classKey",
+        "name",
+        "pitch",
+        "examples",
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB",
+        "combatTechniqueSkill",
+        "combatSkills",
+        "utilitySkillOptions",
+        "notes",
+        "status"
+      ],
+      "row": 4,
+      "sheet": "Classes"
+    },
+    "sourceValues": {
+      "classKey": "monster-tamer",
+      "combatSkills": "Mental Defense:Fast; Monster Taming:Fast; Physical Defense:Slow; Spiritual Defense:Medium",
+      "combatTechniqueSkill": "Monster Taming",
+      "examples": "Ash (Pokemon), Tai (Digimon), Yugi Muto (Yu-Gi-Oh), Final Fantasy, etc.",
+      "hpProgression": "Medium",
+      "name": "Monster Tamer",
+      "notes": "Design Note: Monster Tamers who focus on Willpower tend to emphasize controlling and recruiting creatures. Those who focus on Heart tend to emphasize their bonds with companions and coordinated teamwork.",
+      "pitch": "A monster tamer shares a special bond with one or more creatures that helps them both to grow stronger.",
+      "primaryAttributeA": "Willpower",
+      "primaryAttributeB": "Heart",
+      "status": "playable",
+      "utilitySkillOptions": "Medicine; Nature; Influence; Athletics; Stealth"
+    },
     "status": "playable",
     "utilitySkillOptions": [
       "Medicine",
@@ -168,6 +294,11 @@
     ]
   },
   {
+    "authoringSkills": {
+      "combatSkills": "Martial Arts:Fast; Mental Defense:Slow; Physical Defense:Fast; Spiritual Defense:Medium",
+      "combatTechniqueSkill": "Martial Arts",
+      "utilitySkillOptions": "Spirituality; Athletics; Medicine; Culinary; Insight"
+    },
     "classKey": "spirit-warrior",
     "combatSkills": [
       {
@@ -203,6 +334,7 @@
     "examples": [
       "Goku (Dragonball), Ryu (Street Fighter), Rock Lee (Naruto), Kenshiro (Fist of the North Star)"
     ],
+    "expressionSyntaxVersion": 3,
     "hpProgression": "high",
     "name": "Spirit Warrior",
     "notes": "Design Note: Spirit Warriors who focus on Strength tend to emphasize powerful strikes, forced movement, and grappling. Those who focus on Agility tend to emphasize mobility, rapid flurries, and fighting multiple targets.",
@@ -213,7 +345,43 @@
       "Strength",
       "Agility"
     ],
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "selectable": true,
+    "sourceLocation": {
+      "headers": [
+        "classKey",
+        "name",
+        "pitch",
+        "examples",
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB",
+        "combatTechniqueSkill",
+        "combatSkills",
+        "utilitySkillOptions",
+        "notes",
+        "status"
+      ],
+      "row": 5,
+      "sheet": "Classes"
+    },
+    "sourceValues": {
+      "classKey": "spirit-warrior",
+      "combatSkills": "Martial Arts:Fast; Mental Defense:Slow; Physical Defense:Fast; Spiritual Defense:Medium",
+      "combatTechniqueSkill": "Martial Arts",
+      "examples": "Goku (Dragonball), Ryu (Street Fighter), Rock Lee (Naruto), Kenshiro (Fist of the North Star)",
+      "hpProgression": "High",
+      "name": "Spirit Warrior",
+      "notes": "Design Note: Spirit Warriors who focus on Strength tend to emphasize powerful strikes, forced movement, and grappling. Those who focus on Agility tend to emphasize mobility, rapid flurries, and fighting multiple targets.",
+      "pitch": "A Spirit Warrior channels Spirit Energy to enhance their physical abilities, and can also release their Spirit Energy in various forms of attack. Focuses on close-combat against a single target. High single-target damage and good bulk. Struggles more with multiple targets and ranged abilities.",
+      "primaryAttributeA": "Strength",
+      "primaryAttributeB": "Agility",
+      "status": "playable",
+      "utilitySkillOptions": "Spirituality; Athletics; Medicine; Culinary; Insight"
+    },
     "status": "playable",
     "utilitySkillOptions": [
       "Spirituality",
@@ -224,42 +392,201 @@
     ]
   },
   {
+    "authoringSkills": {
+      "combatSkills": "Elementalism:Fast; Mental Defense:Medium; Physical Defense:Slow; Spiritual Defense:Fast",
+      "combatTechniqueSkill": "Elementalism",
+      "utilitySkillOptions": null
+    },
     "classKey": "elementalist",
-    "combatSkills": [],
-    "combatTechniqueSkill": null,
+    "combatSkills": [
+      {
+        "name": "Elementalism",
+        "progression": "fast",
+        "role": "combat-technique",
+        "skillKey": "elementalism",
+        "whenPrimaryAttribute": null
+      },
+      {
+        "name": "Mental Defense",
+        "progression": "medium",
+        "role": "combat-defense",
+        "skillKey": "mental-defense",
+        "whenPrimaryAttribute": null
+      },
+      {
+        "name": "Physical Defense",
+        "progression": "slow",
+        "role": "combat-defense",
+        "skillKey": "physical-defense",
+        "whenPrimaryAttribute": null
+      },
+      {
+        "name": "Spiritual Defense",
+        "progression": "fast",
+        "role": "combat-defense",
+        "skillKey": "spiritual-defense",
+        "whenPrimaryAttribute": null
+      }
+    ],
+    "combatTechniqueSkill": "Elementalism",
     "examples": [
       "Avatar: The Last Airbender, Fullmetal Alchemist, Gaara (Naruto)"
     ],
-    "hpProgression": null,
+    "expressionSyntaxVersion": 3,
+    "hpProgression": "medium",
     "name": "Elementalist",
     "notes": null,
-    "pitch": "The elementalist uses Spirit Energy to manipulate various forms of matter - traditionally water, fire, earth, and air.",
-    "primaryAttributeA": null,
-    "primaryAttributeB": null,
-    "primaryAttributes": [],
+    "pitch": "The elementalist uses Spirit Energy to manipulate various forms of matter - traditionally water, fire, earth, and wind.",
+    "primaryAttributeA": "Attunement",
+    "primaryAttributeB": "Willpower",
+    "primaryAttributes": [
+      "Attunement",
+      "Willpower"
+    ],
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "selectable": false,
+    "sourceLocation": {
+      "headers": [
+        "classKey",
+        "name",
+        "pitch",
+        "examples",
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB",
+        "combatTechniqueSkill",
+        "combatSkills",
+        "utilitySkillOptions",
+        "notes",
+        "status"
+      ],
+      "row": 6,
+      "sheet": "Classes"
+    },
+    "sourceValues": {
+      "classKey": "elementalist",
+      "combatSkills": "Elementalism:Fast; Mental Defense:Medium; Physical Defense:Slow; Spiritual Defense:Fast",
+      "combatTechniqueSkill": "Elementalism",
+      "examples": "Avatar: The Last Airbender, Fullmetal Alchemist, Gaara (Naruto)",
+      "hpProgression": "Medium",
+      "name": "Elementalist",
+      "notes": null,
+      "pitch": "The elementalist uses Spirit Energy to manipulate various forms of matter - traditionally water, fire, earth, and wind.",
+      "primaryAttributeA": "Attunement",
+      "primaryAttributeB": "Willpower",
+      "status": "incomplete",
+      "utilitySkillOptions": null
+    },
     "status": "incomplete",
     "utilitySkillOptions": []
   },
   {
+    "authoringSkills": {
+      "combatSkills": "Mech Piloting:Fast; Mental Defense:Fast; Physical Defense:Medium; Spiritual Defense:Slow",
+      "combatTechniqueSkill": "Mech Piloting",
+      "utilitySkillOptions": "Vehicles; Science; Technology; Society; Academics"
+    },
     "classKey": "mech-pilot",
-    "combatSkills": [],
-    "combatTechniqueSkill": null,
+    "combatSkills": [
+      {
+        "name": "Mech Piloting",
+        "progression": "fast",
+        "role": "combat-technique",
+        "skillKey": "mech-piloting",
+        "whenPrimaryAttribute": null
+      },
+      {
+        "name": "Mental Defense",
+        "progression": "fast",
+        "role": "combat-defense",
+        "skillKey": "mental-defense",
+        "whenPrimaryAttribute": null
+      },
+      {
+        "name": "Physical Defense",
+        "progression": "medium",
+        "role": "combat-defense",
+        "skillKey": "physical-defense",
+        "whenPrimaryAttribute": null
+      },
+      {
+        "name": "Spiritual Defense",
+        "progression": "slow",
+        "role": "combat-defense",
+        "skillKey": "spiritual-defense",
+        "whenPrimaryAttribute": null
+      }
+    ],
+    "combatTechniqueSkill": "Mech Piloting",
     "examples": [
       "Kamina (Gurren Lagann), Shinji (Evangelion), Amuro (Gundam)"
     ],
-    "hpProgression": null,
+    "expressionSyntaxVersion": 3,
+    "hpProgression": "low",
     "name": "Mech Pilot",
     "notes": null,
     "pitch": "The Mech Pilot class revolves around channeling their spiritual energy through technology - particularly a piloted robotic vehicle known as a mech.",
-    "primaryAttributeA": null,
-    "primaryAttributeB": null,
-    "primaryAttributes": [],
+    "primaryAttributeA": "Intellect",
+    "primaryAttributeB": "Agility",
+    "primaryAttributes": [
+      "Intellect",
+      "Agility"
+    ],
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "selectable": false,
+    "sourceLocation": {
+      "headers": [
+        "classKey",
+        "name",
+        "pitch",
+        "examples",
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB",
+        "combatTechniqueSkill",
+        "combatSkills",
+        "utilitySkillOptions",
+        "notes",
+        "status"
+      ],
+      "row": 7,
+      "sheet": "Classes"
+    },
+    "sourceValues": {
+      "classKey": "mech-pilot",
+      "combatSkills": "Mech Piloting:Fast; Mental Defense:Fast; Physical Defense:Medium; Spiritual Defense:Slow",
+      "combatTechniqueSkill": "Mech Piloting",
+      "examples": "Kamina (Gurren Lagann), Shinji (Evangelion), Amuro (Gundam)",
+      "hpProgression": "Low",
+      "name": "Mech Pilot",
+      "notes": null,
+      "pitch": "The Mech Pilot class revolves around channeling their spiritual energy through technology - particularly a piloted robotic vehicle known as a mech.",
+      "primaryAttributeA": "Intellect",
+      "primaryAttributeB": "Agility",
+      "status": "incomplete",
+      "utilitySkillOptions": "Vehicles; Science; Technology; Society; Academics"
+    },
     "status": "incomplete",
-    "utilitySkillOptions": []
+    "utilitySkillOptions": [
+      "Vehicles",
+      "Science",
+      "Technology",
+      "Society",
+      "Academics"
+    ]
   },
   {
+    "authoringSkills": {
+      "combatSkills": "Melee Weapons:Fast (Strength Primary), Medium (Agility Primary); Mental Defense:Medium; Physical Defense:Fast; Spiritual Defense:Slow; Ranged Weapons:Medium (Strength Primary), Fast (Agility Primary)",
+      "combatTechniqueSkill": "Melee Weapons, Ranged Weapons",
+      "utilitySkillOptions": "Athletics; Society; Influence; Observation; Crafting"
+    },
     "classKey": "weapon-master",
     "combatSkills": [
       {
@@ -267,28 +594,14 @@
         "progression": "fast",
         "role": "combat-technique",
         "skillKey": "melee-weapons",
-        "whenPrimaryAttribute": "strength"
+        "whenPrimaryAttribute": "Strength"
       },
       {
         "name": "Melee Weapons",
         "progression": "medium",
         "role": "combat-technique",
         "skillKey": "melee-weapons",
-        "whenPrimaryAttribute": "agility"
-      },
-      {
-        "name": "Targeting",
-        "progression": "medium",
-        "role": "combat-technique",
-        "skillKey": "targeting",
-        "whenPrimaryAttribute": "strength"
-      },
-      {
-        "name": "Targeting",
-        "progression": "fast",
-        "role": "combat-technique",
-        "skillKey": "targeting",
-        "whenPrimaryAttribute": "agility"
+        "whenPrimaryAttribute": "Agility"
       },
       {
         "name": "Mental Defense",
@@ -310,12 +623,27 @@
         "role": "combat-defense",
         "skillKey": "spiritual-defense",
         "whenPrimaryAttribute": null
+      },
+      {
+        "name": "Ranged Weapons",
+        "progression": "medium",
+        "role": "combat-technique",
+        "skillKey": "ranged-weapons",
+        "whenPrimaryAttribute": "Strength"
+      },
+      {
+        "name": "Ranged Weapons",
+        "progression": "fast",
+        "role": "combat-technique",
+        "skillKey": "ranged-weapons",
+        "whenPrimaryAttribute": "Agility"
       }
     ],
-    "combatTechniqueSkill": "Melee Weapons",
+    "combatTechniqueSkill": "Melee Weapons, Ranged Weapons",
     "examples": [
       "Goemon (Lupin III), Guts (Berserk), Rurouni Kenshin, Ichigo (Bleach)"
     ],
+    "expressionSyntaxVersion": 3,
     "hpProgression": "high",
     "name": "Weapon Master",
     "notes": "Design Note: Weapon Masters who focus on Strength tend toward melee weapons. Those who focus on Agility tend toward ranged weapons.",
@@ -326,7 +654,43 @@
       "Strength",
       "Agility"
     ],
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "selectable": true,
+    "sourceLocation": {
+      "headers": [
+        "classKey",
+        "name",
+        "pitch",
+        "examples",
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB",
+        "combatTechniqueSkill",
+        "combatSkills",
+        "utilitySkillOptions",
+        "notes",
+        "status"
+      ],
+      "row": 8,
+      "sheet": "Classes"
+    },
+    "sourceValues": {
+      "classKey": "weapon-master",
+      "combatSkills": "Melee Weapons:Fast (Strength Primary), Medium (Agility Primary); Mental Defense:Medium; Physical Defense:Fast; Spiritual Defense:Slow; Ranged Weapons:Medium (Strength Primary), Fast (Agility Primary)",
+      "combatTechniqueSkill": "Melee Weapons, Ranged Weapons",
+      "examples": "Goemon (Lupin III), Guts (Berserk), Rurouni Kenshin, Ichigo (Bleach)",
+      "hpProgression": "High",
+      "name": "Weapon Master",
+      "notes": "Design Note: Weapon Masters who focus on Strength tend toward melee weapons. Those who focus on Agility tend toward ranged weapons.",
+      "pitch": "The weapon master is a master of weapons and armor. They use spirit energy to enhance their abilities both offensively and defensively. They channel energy through their weapons to perform incredible feats, such as slicing a boulder in half, deflecting bullets in midair, or swinging weapons with ease that a normal person couldn’t even lift. The weapon master focuses on battlefield control and multi-target damage. Their single-target damage isn’t bad, but doesn’t match up to classes that focus on single combat.",
+      "primaryAttributeA": "Strength",
+      "primaryAttributeB": "Agility",
+      "status": "playable",
+      "utilitySkillOptions": "Athletics; Society; Influence; Observation; Crafting"
+    },
     "status": "playable",
     "utilitySkillOptions": [
       "Athletics",
@@ -337,6 +701,11 @@
     ]
   },
   {
+    "authoringSkills": {
+      "combatSkills": "Henshin Arts:Fast; Mental Defense:Slow; Physical Defense:Fast; Spiritual Defense:Medium",
+      "combatTechniqueSkill": "Henshin Arts",
+      "utilitySkillOptions": "Athletics; Performance; Technology; Science; Vehicles"
+    },
     "classKey": "henshin-hero",
     "combatSkills": [
       {
@@ -372,6 +741,7 @@
     "examples": [
       "Ultraman, Kamen Rider, Super Sentai"
     ],
+    "expressionSyntaxVersion": 3,
     "hpProgression": "high",
     "name": "Henshin Hero",
     "notes": null,
@@ -382,7 +752,43 @@
       "Strength",
       "Heart"
     ],
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "selectable": true,
+    "sourceLocation": {
+      "headers": [
+        "classKey",
+        "name",
+        "pitch",
+        "examples",
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB",
+        "combatTechniqueSkill",
+        "combatSkills",
+        "utilitySkillOptions",
+        "notes",
+        "status"
+      ],
+      "row": 9,
+      "sheet": "Classes"
+    },
+    "sourceValues": {
+      "classKey": "henshin-hero",
+      "combatSkills": "Henshin Arts:Fast; Mental Defense:Slow; Physical Defense:Fast; Spiritual Defense:Medium",
+      "combatTechniqueSkill": "Henshin Arts",
+      "examples": "Ultraman, Kamen Rider, Super Sentai",
+      "hpProgression": "High",
+      "name": "Henshin Hero",
+      "notes": null,
+      "pitch": "The Henshin Hero, similar to the Magical Guardian, has two forms. They spend most of their time in their average human forms, but transform for battle. The Henshin Hero is more combat oriented than the Magical Guardian, usually having some innate armor and weapons when they transform.",
+      "primaryAttributeA": "Strength",
+      "primaryAttributeB": "Heart",
+      "status": "playable",
+      "utilitySkillOptions": "Athletics; Performance; Technology; Science; Vehicles"
+    },
     "status": "playable",
     "utilitySkillOptions": [
       "Athletics",
@@ -393,24 +799,103 @@
     ]
   },
   {
+    "authoringSkills": {
+      "combatSkills": "Mental Defense:Fast; Physical Defense:Slow; Psionics:Fast; Spiritual Defense:Medium",
+      "combatTechniqueSkill": "Psionics",
+      "utilitySkillOptions": null
+    },
     "classKey": "psychic",
-    "combatSkills": [],
-    "combatTechniqueSkill": null,
+    "combatSkills": [
+      {
+        "name": "Mental Defense",
+        "progression": "fast",
+        "role": "combat-defense",
+        "skillKey": "mental-defense",
+        "whenPrimaryAttribute": null
+      },
+      {
+        "name": "Physical Defense",
+        "progression": "slow",
+        "role": "combat-defense",
+        "skillKey": "physical-defense",
+        "whenPrimaryAttribute": null
+      },
+      {
+        "name": "Psionics",
+        "progression": "fast",
+        "role": "combat-technique",
+        "skillKey": "psionics",
+        "whenPrimaryAttribute": null
+      },
+      {
+        "name": "Spiritual Defense",
+        "progression": "medium",
+        "role": "combat-defense",
+        "skillKey": "spiritual-defense",
+        "whenPrimaryAttribute": null
+      }
+    ],
+    "combatTechniqueSkill": "Psionics",
     "examples": [
       "Mob Psycho 100, Akira, Jojo’s Bizarre Adventure (Arguably)"
     ],
+    "expressionSyntaxVersion": 3,
     "hpProgression": "low",
     "name": "Psychic",
     "notes": null,
     "pitch": "The psychic primarily uses spirit energy to enhance their minds, not their bodies. They can use their minds to manipulate objects, read and project thoughts, and eventually even stop time.",
-    "primaryAttributeA": null,
-    "primaryAttributeB": null,
-    "primaryAttributes": [],
+    "primaryAttributeA": "Willpower",
+    "primaryAttributeB": "Intellect",
+    "primaryAttributes": [
+      "Willpower",
+      "Intellect"
+    ],
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "selectable": false,
+    "sourceLocation": {
+      "headers": [
+        "classKey",
+        "name",
+        "pitch",
+        "examples",
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB",
+        "combatTechniqueSkill",
+        "combatSkills",
+        "utilitySkillOptions",
+        "notes",
+        "status"
+      ],
+      "row": 10,
+      "sheet": "Classes"
+    },
+    "sourceValues": {
+      "classKey": "psychic",
+      "combatSkills": "Mental Defense:Fast; Physical Defense:Slow; Psionics:Fast; Spiritual Defense:Medium",
+      "combatTechniqueSkill": "Psionics",
+      "examples": "Mob Psycho 100, Akira, Jojo’s Bizarre Adventure (Arguably)",
+      "hpProgression": "Low",
+      "name": "Psychic",
+      "notes": null,
+      "pitch": "The psychic primarily uses spirit energy to enhance their minds, not their bodies. They can use their minds to manipulate objects, read and project thoughts, and eventually even stop time.",
+      "primaryAttributeA": "Willpower",
+      "primaryAttributeB": "Intellect",
+      "status": "incomplete",
+      "utilitySkillOptions": null
+    },
     "status": "incomplete",
     "utilitySkillOptions": []
   },
   {
+    "authoringSkills": {
+      "combatSkills": "Mental Defense:Medium; Metamorphosis:Fast; Physical Defense:Fast; Spiritual Defense:Slow",
+      "combatTechniqueSkill": "Metamorphosis",
+      "utilitySkillOptions": "Nature; Spirituality; Deception; Performance; Roguery"
+    },
     "classKey": "metamorph",
     "combatSkills": [
       {
@@ -446,6 +931,7 @@
     "examples": [
       "Titan Shifters (Attack on Titan), Luffy (One Piece - Rubber material), Ben 10, Kirby"
     ],
+    "expressionSyntaxVersion": 3,
     "hpProgression": "high",
     "name": "Metamorph",
     "notes": null,
@@ -456,7 +942,43 @@
       "Strength",
       "Willpower"
     ],
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "selectable": true,
+    "sourceLocation": {
+      "headers": [
+        "classKey",
+        "name",
+        "pitch",
+        "examples",
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB",
+        "combatTechniqueSkill",
+        "combatSkills",
+        "utilitySkillOptions",
+        "notes",
+        "status"
+      ],
+      "row": 11,
+      "sheet": "Classes"
+    },
+    "sourceValues": {
+      "classKey": "metamorph",
+      "combatSkills": "Mental Defense:Medium; Metamorphosis:Fast; Physical Defense:Fast; Spiritual Defense:Slow",
+      "combatTechniqueSkill": "Metamorphosis",
+      "examples": "Titan Shifters (Attack on Titan), Luffy (One Piece - Rubber material), Ben 10, Kirby",
+      "hpProgression": "High",
+      "name": "Metamorph",
+      "notes": null,
+      "pitch": "The Metamorph uses spiritual energy to modify their own bodies - either whole or in part - into new forms. These new forms include elemental transformations, bestial or alien forms, growing giant, changing their body’s composition to have new material properties, etc.",
+      "primaryAttributeA": "Strength",
+      "primaryAttributeB": "Willpower",
+      "status": "playable",
+      "utilitySkillOptions": "Nature; Spirituality; Deception; Performance; Roguery"
+    },
     "status": "playable",
     "utilitySkillOptions": [
       "Nature",
@@ -467,10 +989,16 @@
     ]
   },
   {
+    "authoringSkills": {
+      "combatSkills": null,
+      "combatTechniqueSkill": null,
+      "utilitySkillOptions": null
+    },
     "classKey": "jrpg-mage",
     "combatSkills": [],
-    "combatTechniqueSkill": null,
+    "combatTechniqueSkill": "",
     "examples": [],
+    "expressionSyntaxVersion": 3,
     "hpProgression": null,
     "name": "JRPG Mage",
     "notes": null,
@@ -478,15 +1006,57 @@
     "primaryAttributeA": null,
     "primaryAttributeB": null,
     "primaryAttributes": [],
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "selectable": false,
+    "sourceLocation": {
+      "headers": [
+        "classKey",
+        "name",
+        "pitch",
+        "examples",
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB",
+        "combatTechniqueSkill",
+        "combatSkills",
+        "utilitySkillOptions",
+        "notes",
+        "status"
+      ],
+      "row": 12,
+      "sheet": "Classes"
+    },
+    "sourceValues": {
+      "classKey": "jrpg-mage",
+      "combatSkills": null,
+      "combatTechniqueSkill": null,
+      "examples": null,
+      "hpProgression": null,
+      "name": "JRPG Mage",
+      "notes": null,
+      "pitch": null,
+      "primaryAttributeA": null,
+      "primaryAttributeB": null,
+      "status": "incomplete",
+      "utilitySkillOptions": null
+    },
     "status": "incomplete",
     "utilitySkillOptions": []
   },
   {
+    "authoringSkills": {
+      "combatSkills": null,
+      "combatTechniqueSkill": null,
+      "utilitySkillOptions": null
+    },
     "classKey": "mastermind",
     "combatSkills": [],
-    "combatTechniqueSkill": null,
+    "combatTechniqueSkill": "",
     "examples": [],
+    "expressionSyntaxVersion": 3,
     "hpProgression": null,
     "name": "Mastermind",
     "notes": null,
@@ -494,15 +1064,57 @@
     "primaryAttributeA": null,
     "primaryAttributeB": null,
     "primaryAttributes": [],
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "selectable": false,
+    "sourceLocation": {
+      "headers": [
+        "classKey",
+        "name",
+        "pitch",
+        "examples",
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB",
+        "combatTechniqueSkill",
+        "combatSkills",
+        "utilitySkillOptions",
+        "notes",
+        "status"
+      ],
+      "row": 13,
+      "sheet": "Classes"
+    },
+    "sourceValues": {
+      "classKey": "mastermind",
+      "combatSkills": null,
+      "combatTechniqueSkill": null,
+      "examples": null,
+      "hpProgression": null,
+      "name": "Mastermind",
+      "notes": null,
+      "pitch": null,
+      "primaryAttributeA": null,
+      "primaryAttributeB": null,
+      "status": "incomplete",
+      "utilitySkillOptions": null
+    },
     "status": "incomplete",
     "utilitySkillOptions": []
   },
   {
+    "authoringSkills": {
+      "combatSkills": null,
+      "combatTechniqueSkill": null,
+      "utilitySkillOptions": null
+    },
     "classKey": "dragoon",
     "combatSkills": [],
-    "combatTechniqueSkill": null,
+    "combatTechniqueSkill": "",
     "examples": [],
+    "expressionSyntaxVersion": 3,
     "hpProgression": null,
     "name": "Dragoon",
     "notes": null,
@@ -510,15 +1122,57 @@
     "primaryAttributeA": null,
     "primaryAttributeB": null,
     "primaryAttributes": [],
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "selectable": false,
+    "sourceLocation": {
+      "headers": [
+        "classKey",
+        "name",
+        "pitch",
+        "examples",
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB",
+        "combatTechniqueSkill",
+        "combatSkills",
+        "utilitySkillOptions",
+        "notes",
+        "status"
+      ],
+      "row": 14,
+      "sheet": "Classes"
+    },
+    "sourceValues": {
+      "classKey": "dragoon",
+      "combatSkills": null,
+      "combatTechniqueSkill": null,
+      "examples": null,
+      "hpProgression": null,
+      "name": "Dragoon",
+      "notes": null,
+      "pitch": null,
+      "primaryAttributeA": null,
+      "primaryAttributeB": null,
+      "status": "incomplete",
+      "utilitySkillOptions": null
+    },
     "status": "incomplete",
     "utilitySkillOptions": []
   },
   {
+    "authoringSkills": {
+      "combatSkills": null,
+      "combatTechniqueSkill": null,
+      "utilitySkillOptions": null
+    },
     "classKey": "sports-athlete",
     "combatSkills": [],
-    "combatTechniqueSkill": null,
+    "combatTechniqueSkill": "",
     "examples": [],
+    "expressionSyntaxVersion": 3,
     "hpProgression": null,
     "name": "Sports Athlete",
     "notes": null,
@@ -526,15 +1180,57 @@
     "primaryAttributeA": null,
     "primaryAttributeB": null,
     "primaryAttributes": [],
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "selectable": false,
+    "sourceLocation": {
+      "headers": [
+        "classKey",
+        "name",
+        "pitch",
+        "examples",
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB",
+        "combatTechniqueSkill",
+        "combatSkills",
+        "utilitySkillOptions",
+        "notes",
+        "status"
+      ],
+      "row": 15,
+      "sheet": "Classes"
+    },
+    "sourceValues": {
+      "classKey": "sports-athlete",
+      "combatSkills": null,
+      "combatTechniqueSkill": null,
+      "examples": null,
+      "hpProgression": null,
+      "name": "Sports Athlete",
+      "notes": null,
+      "pitch": null,
+      "primaryAttributeA": null,
+      "primaryAttributeB": null,
+      "status": "incomplete",
+      "utilitySkillOptions": null
+    },
     "status": "incomplete",
     "utilitySkillOptions": []
   },
   {
+    "authoringSkills": {
+      "combatSkills": null,
+      "combatTechniqueSkill": null,
+      "utilitySkillOptions": null
+    },
     "classKey": "racer",
     "combatSkills": [],
-    "combatTechniqueSkill": null,
+    "combatTechniqueSkill": "",
     "examples": [],
+    "expressionSyntaxVersion": 3,
     "hpProgression": null,
     "name": "Racer",
     "notes": null,
@@ -542,15 +1238,57 @@
     "primaryAttributeA": null,
     "primaryAttributeB": null,
     "primaryAttributes": [],
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "selectable": false,
+    "sourceLocation": {
+      "headers": [
+        "classKey",
+        "name",
+        "pitch",
+        "examples",
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB",
+        "combatTechniqueSkill",
+        "combatSkills",
+        "utilitySkillOptions",
+        "notes",
+        "status"
+      ],
+      "row": 16,
+      "sheet": "Classes"
+    },
+    "sourceValues": {
+      "classKey": "racer",
+      "combatSkills": null,
+      "combatTechniqueSkill": null,
+      "examples": null,
+      "hpProgression": null,
+      "name": "Racer",
+      "notes": null,
+      "pitch": null,
+      "primaryAttributeA": null,
+      "primaryAttributeB": null,
+      "status": "incomplete",
+      "utilitySkillOptions": null
+    },
     "status": "incomplete",
     "utilitySkillOptions": []
   },
   {
+    "authoringSkills": {
+      "combatSkills": null,
+      "combatTechniqueSkill": null,
+      "utilitySkillOptions": null
+    },
     "classKey": "gamer",
     "combatSkills": [],
-    "combatTechniqueSkill": null,
+    "combatTechniqueSkill": "",
     "examples": [],
+    "expressionSyntaxVersion": 3,
     "hpProgression": null,
     "name": "Gamer",
     "notes": null,
@@ -558,15 +1296,57 @@
     "primaryAttributeA": null,
     "primaryAttributeB": null,
     "primaryAttributes": [],
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "selectable": false,
+    "sourceLocation": {
+      "headers": [
+        "classKey",
+        "name",
+        "pitch",
+        "examples",
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB",
+        "combatTechniqueSkill",
+        "combatSkills",
+        "utilitySkillOptions",
+        "notes",
+        "status"
+      ],
+      "row": 17,
+      "sheet": "Classes"
+    },
+    "sourceValues": {
+      "classKey": "gamer",
+      "combatSkills": null,
+      "combatTechniqueSkill": null,
+      "examples": null,
+      "hpProgression": null,
+      "name": "Gamer",
+      "notes": null,
+      "pitch": null,
+      "primaryAttributeA": null,
+      "primaryAttributeB": null,
+      "status": "incomplete",
+      "utilitySkillOptions": null
+    },
     "status": "incomplete",
     "utilitySkillOptions": []
   },
   {
+    "authoringSkills": {
+      "combatSkills": null,
+      "combatTechniqueSkill": null,
+      "utilitySkillOptions": null
+    },
     "classKey": "idol",
     "combatSkills": [],
-    "combatTechniqueSkill": null,
+    "combatTechniqueSkill": "",
     "examples": [],
+    "expressionSyntaxVersion": 3,
     "hpProgression": null,
     "name": "Idol",
     "notes": null,
@@ -574,15 +1354,57 @@
     "primaryAttributeA": null,
     "primaryAttributeB": null,
     "primaryAttributes": [],
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "selectable": false,
+    "sourceLocation": {
+      "headers": [
+        "classKey",
+        "name",
+        "pitch",
+        "examples",
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB",
+        "combatTechniqueSkill",
+        "combatSkills",
+        "utilitySkillOptions",
+        "notes",
+        "status"
+      ],
+      "row": 18,
+      "sheet": "Classes"
+    },
+    "sourceValues": {
+      "classKey": "idol",
+      "combatSkills": null,
+      "combatTechniqueSkill": null,
+      "examples": null,
+      "hpProgression": null,
+      "name": "Idol",
+      "notes": null,
+      "pitch": null,
+      "primaryAttributeA": null,
+      "primaryAttributeB": null,
+      "status": "incomplete",
+      "utilitySkillOptions": null
+    },
     "status": "incomplete",
     "utilitySkillOptions": []
   },
   {
+    "authoringSkills": {
+      "combatSkills": null,
+      "combatTechniqueSkill": null,
+      "utilitySkillOptions": null
+    },
     "classKey": "spirit-exorcist",
     "combatSkills": [],
-    "combatTechniqueSkill": null,
+    "combatTechniqueSkill": "",
     "examples": [],
+    "expressionSyntaxVersion": 3,
     "hpProgression": null,
     "name": "Spirit Exorcist",
     "notes": null,
@@ -590,15 +1412,57 @@
     "primaryAttributeA": null,
     "primaryAttributeB": null,
     "primaryAttributes": [],
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "selectable": false,
+    "sourceLocation": {
+      "headers": [
+        "classKey",
+        "name",
+        "pitch",
+        "examples",
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB",
+        "combatTechniqueSkill",
+        "combatSkills",
+        "utilitySkillOptions",
+        "notes",
+        "status"
+      ],
+      "row": 19,
+      "sheet": "Classes"
+    },
+    "sourceValues": {
+      "classKey": "spirit-exorcist",
+      "combatSkills": null,
+      "combatTechniqueSkill": null,
+      "examples": null,
+      "hpProgression": null,
+      "name": "Spirit Exorcist",
+      "notes": null,
+      "pitch": null,
+      "primaryAttributeA": null,
+      "primaryAttributeB": null,
+      "status": "incomplete",
+      "utilitySkillOptions": null
+    },
     "status": "incomplete",
     "utilitySkillOptions": []
   },
   {
+    "authoringSkills": {
+      "combatSkills": null,
+      "combatTechniqueSkill": null,
+      "utilitySkillOptions": null
+    },
     "classKey": "monster-hunter",
     "combatSkills": [],
-    "combatTechniqueSkill": null,
+    "combatTechniqueSkill": "",
     "examples": [],
+    "expressionSyntaxVersion": 3,
     "hpProgression": null,
     "name": "Monster Hunter",
     "notes": null,
@@ -606,7 +1470,43 @@
     "primaryAttributeA": null,
     "primaryAttributeB": null,
     "primaryAttributes": [],
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "selectable": false,
+    "sourceLocation": {
+      "headers": [
+        "classKey",
+        "name",
+        "pitch",
+        "examples",
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB",
+        "combatTechniqueSkill",
+        "combatSkills",
+        "utilitySkillOptions",
+        "notes",
+        "status"
+      ],
+      "row": 20,
+      "sheet": "Classes"
+    },
+    "sourceValues": {
+      "classKey": "monster-hunter",
+      "combatSkills": null,
+      "combatTechniqueSkill": null,
+      "examples": null,
+      "hpProgression": null,
+      "name": "Monster Hunter",
+      "notes": null,
+      "pitch": null,
+      "primaryAttributeA": null,
+      "primaryAttributeB": null,
+      "status": "incomplete",
+      "utilitySkillOptions": null
+    },
     "status": "incomplete",
     "utilitySkillOptions": []
   }

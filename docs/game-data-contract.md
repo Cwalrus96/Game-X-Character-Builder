@@ -1,6 +1,6 @@
 # Game-data source contract
 
-Status: living source/runtime contract. Acquisition and adaptation accept the canonical source schema v5 with expression syntax v3. The versioned v4/syntax-v2 path remains compatible. V5 staging produces runtime artifact schema v3; published production artifacts remain schema v2 until a separately reviewed publication. Parsing and preserving a rule does not establish execution support.
+Status: living source/runtime contract. Canonical source schema v5 / expression syntax v3 is published as reviewed runtime schema v3. The v4/syntax-v2 compatibility path remains. Parsing and preserving a rule does not establish execution support; current release evidence is in [the September 22 release record](game-data-release-2026-09-22.md).
 
 Last updated: 2026-09-22.
 
@@ -11,17 +11,17 @@ The canonical editable source is the native Google Sheet [game-x-class-data](htt
 | Property | Current value |
 |---|---|
 | Drive file ID | `1TEdxuufglP8lFRNk8QD4N_351-0ihAUFLG2743ESjoI` |
-| Published release Drive version | `647` |
-| Published release Drive modified time | `2026-08-09T02:27:03.310Z` |
+| Published release Drive version | Explicitly unknown (`null`) |
+| Published release Drive modified time | `2026-09-22T00:57:44.536Z` |
 | Current authoring checkpoint | Accepted September 21 schema cleanup; installation/readback evidence and current counts belong in status.md |
 | Source schema | `5` (versioned schema-`4` adaptation retained) |
 | Grant syntax | `3` (syntax-`2` compatibility retained) |
 | Prerequisite syntax | `3` (syntax-`2` compatibility retained) |
-| Production runtime release schema | `2` (reviewed candidate `20260809T022801911Z-51956`) |
+| Production runtime release schema | `3` (exact current approval in `contracts/game-data-release.json`) |
 | Staged runtime artifact schema | `3` for source v5; `2` for source v4 |
 | Production export status | Exact reviewed publisher only; generic export frozen |
 
-`contracts/game-data-source.json` is the machine-readable locator and implemented acquisition expectation: source v5, grant/prerequisite syntax v3, and the 13 current tabs. It contains no credentials. `contracts/game-data-release-baseline.json` separately protects the exact published schema-v2 artifacts. Advancing source acquisition does not publish staged bytes.
+`contracts/game-data-source.json` defines source v5, syntax v3 and 13 current tabs without credentials. `contracts/game-data-release-baseline.json` protects the exact published schema-v3 artifacts. Acquiring a new source revision does not publish its bytes.
 
 The Google Sheet is editable source. Any XLSX file is only a point-in-time transport snapshot and must be acquired with `npm run fetch:data`; it is ignored by Git.
 
@@ -45,7 +45,7 @@ When a copied grant or summary plainly contradicts the complete current mechanic
 - `Schema`: one row per allowed field with type, required condition, format/default, and description.
 - `Enums`: allowed values and their semantics.
 
-### Published runtime-source tabs (schema-v4 checkpoint)
+### Historical runtime-source tabs (schema-v4 checkpoint)
 
 | Tab | Stable identity | Normalized rows observed after cleanup |
 |---|---|---:|
@@ -60,7 +60,7 @@ When a copied grant or summary plainly contradicts the complete current mechanic
 | `WeaponProfiles` | documented composite identity pending a future `profileKey` decision | 33 |
 | `WeaponEnhancements` | `enhancementKey` | 31 |
 
-The counts above describe the reviewed release's source snapshot, not the current authoring workbook. Its v4 adapter retains the ordered 152-field contract. Current v5 uses the 115 fields below; current row counts are recorded in status and acquisition evidence.
+The counts above describe the historical schema-v2 release source snapshot. Its v4 adapter retains the ordered 152-field contract; current v5 counts and exact release provenance are recorded separately.
 
 ### Current source schema v5
 
@@ -76,7 +76,7 @@ Traits retain their eight core fields and add optional `grants` for explicit rec
 
 Display adapters project source headers into their established local positions, supplying correctly sized blank arrays for omitted optional fields. Derived compatibility columns are not new authoring obligations. Entity lookups and parent relationships use stable keys throughout; names are labels and may duplicate. Identity errors remain diagnostics even when optional display fields are absent. Incomplete Feat placeholders stay in source, are listed by original row in display diagnostics, and are excluded from playable/catalogue identities until they have both a key and name. Do not invent identities or mechanics to fill them.
 
-The source plan and native display checks remain authoring tools. The implemented integration separately adapts and validates v5, constructs deterministic schema-v3 artifacts, and checks runtime loading and eligibility safeguards. Character storage and the frozen production release remain unchanged. Conditional class mechanics, recipient-owned state, and the Trait/Familiar/Mech/form subsystems remain deferred where no execution model exists.
+The source plan and native display checks remain authoring tools. The implemented integration separately adapts and validates v5, constructs deterministic schema-3 artifacts, and checks runtime loading and eligibility safeguards. The reviewed September 22 release publishes that data with the compatible schema-6 builder. Conditional class mechanics and recipient-owned Familiar/Mech systems remain deferred where no execution model exists; supported static character Traits are implemented.
 
 ### Earlier authoring migrations (historical evidence)
 
@@ -94,7 +94,7 @@ The combat skill is now **Ranged Weapons**, with canonical skill key `ranged-wea
 
 The September 20 Trait migration adds a canonical `Traits` tab with 77 distinct records: 25 existing Monster/Familiar Traits, 25 Mech upgrades, 19 Metamorphic adaptations, and eight approved Origin features. Overlapping mechanics remain separate pending review; 16 populated duplicate groups identify candidates without merging their effects, prerequisites, ranks, or drawbacks. Fourteen associated actions were appended to canonical `Techniques`, preserving the 137 records in the fresh prewrite snapshot and producing 151 observed Techniques, of which 120 are in the main catalogue. These counts are checkpoints rather than assumptions for future work. Eleven existing ClassFeatures/OriginFeatures provider rows now reference the Trait records, retaining their activation and selection rules. The universal format and relationships are specified under [Traits](#traits-authoring-extension).
 
-At those historical checkpoints, these fields were authoring/display extensions outside the exporter contract. The v5 adapter now retains Feats membership, archetype prerequisites, blank unknown mechanics, WeaponBases relationships, Traits, and provider `traitKeys`. Their storage does not establish executable Trait grants or Familiar/Mech/form state. All nine frozen production JSON files and the release contract remain unchanged. Publishing a new runtime release requires separate review of a successful staged candidate. See [data-pipeline.md](data-pipeline.md#handbook-display-and-linked-table-formatting) for the authoring workflow.
+At those historical checkpoints, these fields were authoring/display extensions outside the exporter contract. The v5 adapter now retains Feats membership, archetype prerequisites, unknown mechanics, WeaponBases relationships, Traits, and provider references. Static character Trait grants are implemented, while reference-only lists and prose do not create executable grants or Familiar/Mech state. The September 22 reviewed schema-3 release supersedes the former nine-file baseline. Subsequent publishing still requires separate review of a successful staged candidate. See [data-pipeline.md](data-pipeline.md#handbook-display-and-linked-table-formatting) for the authoring workflow.
 
 ### Versioned adapter models
 
@@ -150,7 +150,7 @@ Tag routes unlock normal selection rather than automatically granting the Techni
 
 `Dazzling Transformation` uses Technique `selection=granted`; the `soulbound` enhancement retains `selectionMode=granted-only`. “Granted” is an acquisition route, not a fake prerequisite.
 
-WeaponEnhancements prerequisites apply to the candidate weapon being enhanced. Author a weapon tag constraint as `weapon | tag=Name`; another possessed weapon cannot satisfy it. The September 21 content audit normalized eight former `tag | name=...` requirements without adding a wielded condition or changing the tag/rank. V5 preserves that candidate-weapon evaluation scope. Enhancement mechanics belong in `description`, while `notes` retains editorial uncertainty and cross-references. Draft entries retain `selectionMode=draft`. The published runtime release remains unchanged.
+WeaponEnhancements prerequisites apply to the candidate weapon being enhanced. Author a weapon tag constraint as `weapon | tag=Name`; another possessed weapon cannot satisfy it. The September 21 content audit normalized eight former `tag | name=...` requirements without adding a wielded condition or changing the tag/rank. V5 preserves that candidate-weapon evaluation scope. Enhancement mechanics belong in `description`, while `notes` retains editorial uncertainty and cross-references. Draft entries retain `selectionMode=draft`. These reviewed corrections are included in the September 22 release.
 
 ### Editorial and display fields
 
@@ -475,7 +475,7 @@ The old runtime and saved-character formats remain readable, but that does not e
 
 The combined artifact records source schema, exporter version, and the exact stable source revision (`fileId`, Drive version, modified time, and normalized-model SHA-256). The raw XLSX SHA-256 identifies one transport export and remains in source provenance and run reports because Google may generate byte-distinct XLSX ZIPs for an unchanged native Sheet revision. Raw transport hashes and volatile fetch/export times do not belong in runtime bytes. Split artifacts must equal their corresponding combined fields, and freshly serialized output must pass current runtime getters, technique indexing, and grant loading before any artifact files are installed.
 
-Schema v2 remains the production release. `WPB-PUBLISH` promoted the exact approved bytes from immutable run `20260809T022801911Z-51956`; its baseline and hashes remain intact. Successful v3 staging is an integration/review result. Publishing candidate bytes and deploying the website remain separate boundaries.
+The September 22 coordinated release publishes exact reviewed schema-v3 bytes with the compatible builder. The schema-v2 release and rollback evidence remain in Git and historical release records. Future candidate publication and Hosting deployment remain separately authorized operations.
 
 ## Published schema-v1 to schema-v2 transition
 
@@ -496,4 +496,4 @@ The stable execution sequence is defined in [roadmap.md](roadmap.md):
 
 `WPB-SOURCE-SYNC` → `WPB-EXPRESSIONS` → `WPB-ADAPTERS` → `WPB-REFERENCES` → `WPB-STAGING` → `WPB-SOURCE-RESOLUTION` → `WPB-DIFF-REVIEW` → `WPB-PUBLISH`.
 
-The current authoring follow-up is `WPB-AUTHORING-V5` → `WPB-SCHEMA-V5-INTEGRATION`, with its verification and next review boundary recorded in status. It preserves the earlier release and does not authorize completing held class design, publishing data, or deploying the website.
+The authoring follow-up `WPB-AUTHORING-V5` through `WPB-V5-RELEASE-REVIEW` produced the September 22 schema-v3 publication. Held class design and deferred executable mechanics remain separate Work Package E work.

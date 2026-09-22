@@ -72,20 +72,20 @@ Contract failures use `CharacterPersistenceError` with a stable `code` and struc
 
 The Firebase SDK and database instance are injectable for emulator verification. The website uses the checked-in browser SDK and configured Firebase instance by default; tests supply a matching isolated SDK/database pair so no production document is touched.
 
-## Transitional deployment boundary
+## Deployed persistence boundary
 
-The definitive APIs are implemented in the existing reader/writer modules and now target schema 6; every local-review builder domain calls them. The full builder release still needs compatible explicit-grant data and verification of actual signed-in behavior. The user's September 21 direction defers their personal acceptance without making it a blocker; agent-performed compatibility and browser checks can continue. Transitional v4 exports remain while deployed callers need them.
+The definitive APIs in the existing reader/writer modules target schema 6 and are deployed with compatible schema-3 game data as of September 22. All eight builder pages passed signed-in local save/reload, dependency-review and conflict checks. Public readback verifies the deployed code; no production character save was used as a release test. Personal acceptance remains nonblocking follow-up. Transitional v4 helpers remain for compatibility until their remaining callers can be retired separately.
 
-A September 21 public-file audit confirms that the currently deployed builder and sheet still call the transitional `saveCharacterPatch` path. That path does not invoke the v5 migrator. Its Class-page missing-import failure is therefore distinct from the migration gaps discovered in stored records. The staged Class-only hotfix uses compatible feat lookup and sanitizes then writes only owned skill/ability leaves, preserving sheet-owned play state. Preparing or deploying this bounded legacy-page fix does not deploy the current session/graph builder, migrate production characters, or publish new game data.
+A September 21 public-file audit found that the then-deployed builder and sheet used transitional `saveCharacterPatch`, independently of the migrator. Its Class-page missing-import fault was fixed by the bounded schema-v4 hotfix; that earlier repair is historical context, not the current deployed save path.
 
-Following the user's nonblocking-manual-acceptance direction, the Class-only repair is deployed in Hosting version `d5c9671adee0ab31`. Its writes remain schema v4. The newer migration registry still ships with the future complete builder release; do not describe it as already active in production.
+Hosting version `d5c9671adee0ab31` carried the earlier Class-only repair. The September 22 coordinated release supersedes it and activates schema-6 migration on read, persisting the reviewed result only on a successful explicit player save. No bulk production migration was performed.
 
-The same inspection also proves a coordinated runtime/data acceptance dependency: the deployed Class page supplies feat capacity through its historical level formula, whereas the new graph requires explicit feat grants. For the captured level-2 Spirit Warrior, the published schema-2 data has no such grant, so the graph proposes removing a valid existing feat; the reviewed staged candidate contains the explicit grant and assigns that feat correctly. Migration preserves the feat. Do not apply this reconciliation or deploy the graph against the old data as a format repair. See [the live-save investigation](live-save-repair-2026-09-21.md).
+The earlier inspection established why code and data must deploy together: schema-2 Spirit Warrior data lacked an explicit feat grant required by the new graph. Published schema-3 data supplies it, preserving the valid feat. A content-rule change is still distinct from a format conversion; destructive consequences require review. See [the live-save investigation](live-save-repair-2026-09-21.md).
 
-Until the compatible builder/data release is ready:
+Continuing compatibility safeguards:
 
 - do not stamp transitional partial writes as canonical v5 or v6;
 - do not duplicate migration or compatibility logic in pages;
 - do not remove the v4 helpers while their callers remain;
-- do not claim that `WPC-REPOSITORY` page integration is complete;
-- continue implementing and testing the v6 boundary against fixtures and Firebase emulators; deferred personal acceptance does not block that work or the separately authorized Class hotfix.
+- keep remaining compatibility-helper retirement separate from the completed deployed-page cutover;
+- continue fixture/emulator coverage for the v6 boundary; deferred personal acceptance does not block authorized engineering or releases.

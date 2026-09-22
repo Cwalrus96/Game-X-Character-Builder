@@ -1,6 +1,6 @@
 # Implementation roadmap
 
-Last updated: 2026-09-21
+Last updated: 2026-09-22
 
 This is the living execution plan derived from the dated architecture audit. Step IDs are stable API-like identifiers for humans and agents: never rename or renumber an existing ID. Add a new ID if scope changes materially.
 
@@ -338,7 +338,9 @@ Acceptance evidence: versioned source adapters and exact Schema/Enums fixtures s
 
 ### `WPB-V5-RELEASE-REVIEW` — review the imported data for release
 
-Status: `active`
+Status: `complete`
+
+September 22 completion: the user approved the prepared exact candidate and matching Hosting package. Run `20260922T184507461Z-43412` is published; Hosting `827d0c70ef63bcda` deploys the compatible builder. All 128 reviewed files, ten data artifacts and serving headers match live readback. The user explicitly directed deployment before repairing tests coupled to old content. Personal manual acceptance is nonblocking. See [the release record](game-data-release-2026-09-22.md); the subsequent Instinct source-readiness correction does not reopen the completed initial release.
 
 September 21 engineering checkpoint: the publisher supports exact nine-file source-v4/runtime-v2 and ten-file source-v5/runtime-v3 releases, with provenance/hash checks and cross-version transactional rollback tests. No release approval or baseline changed. The accepted static Trait correction and [27 source-cell changes](trait-source-proposals-2026-09-21.md) are applied and verified. Fresh immutable candidate `20260922T005923417Z-35172` validates and runtime-loads ten artifacts with zero errors and 302 warnings. Removed-identity/character-impact dispositions and exact candidate approval remain before promotion.
 
@@ -449,7 +451,7 @@ Evidence:
 
 Status: `active`
 
-Current checkpoint: all documented Work Package E builder domains are available in the local review environment. Their focused signed-in browser scenarios remain pending, so compatibility helpers are retained. The production-record migration repair below addresses newly observed save failures without declaring that broader acceptance complete.
+Current checkpoint: all eight builder pages passed local signed-in save/reload, cancellation, focus and conflict scenarios. The September 22 coordinated release deploys the definitive schema-6 reader/writer with compatible schema-3 data, completing the deployed-page cutover. Compatibility helpers remain for separate retirement with Work Package E; no production character was written during release verification.
 
 Prerequisite: `WPC-MIGRATIONS`
 
@@ -614,7 +616,7 @@ Implemented September 21, including the user's static-only correction: shared Tr
 
 Continuation acceptance uses the complete eight-page website with the exact candidate and local Firebase, rather than only the isolated Trait preview. A new Metamorph saves/reloads its Traits, attributes, Origin, Skills, equipment, Bond and Keystones. Dependency cancellation/acceptance, restored Origin focus and two-tab revision conflict pass. Repairs centralize granted-skill charging/read-only display, preserve canonical paid overlays, and mark incomplete options unavailable. Final verification passes 424 unit tests, 18 emulator tests, 14 asset checks and the nine-file frozen baseline. Existing-character retired-reference handling and static weapon-use policy remain coordinated release prerequisites; see the release review above. Do not mark the whole step complete from these new-character checks alone.
 
-September 22 continuation completes the user's static weapon and historical-character decisions. The owned-equipment prerequisite path no longer requires hands, Celestial Knight converts read-only and saves once, and the retired Metamorph cannot be silently converted or overwritten. The captured Celestial character passes local Class save/reload with explicit equipment-impact confirmation; cancellation preserves the original. New Metamorph Trait state remains valid. Seven added unit cases and two emulator scenarios bring verification to 431/20 plus 14 asset checks. Broader production cutover still requires the coordinated exact release described in `WPB-V5-RELEASE-REVIEW`; held mechanics and the remaining Work Package E acceptance scope are not marked complete.
+September 22 continuation completes the user's static weapon and historical-character decisions. Owned-equipment prerequisites ignore hands, Celestial Knight converts read-only and saves once, and the retired Metamorph cannot be silently converted or overwritten. Local Class save/reload and cancellation pass for Celestial Knight; new Metamorph Trait state remains valid. The coordinated release is now deployed with schema-3 data and the schema-6 builder. Remaining work covers held mechanics and compatibility-helper retirement; the whole Work Package E is not complete.
 
 Trait implementation must supply:
 
@@ -629,21 +631,21 @@ September 21 accepted scope: author named Trait grants or source-owned tag-filte
 
 Do not interpret every `traitKeys` list as automatic acquisition or every `techniqueKeys` list as unconditional access. Metamorph imports independently of its incomplete individual feats; its remaining prose-only Technique grants and generic Keystone execution are still separate implementation work. Unfinished Monster Tamer, Mech Pilot, Familiar and other class-specific design remains held. Implement supported mechanics without inventing missing rules; the source contract defines rank, ownership and tag distinctions.
 
-Current checkpoint: all planned vertical slices now have automated implementations. Class/Feat/Technique, Equipment, Attributes, Origin/Skills, and Bonds/Keystones/derived abilities use the session/graph path in the local review environment, and the Boon registry adapter proves that a new automatic choice type can be added without a page-controller or graph-traversal branch. Signed-in browser acceptance resumed on 2026-08-30. Its first historical-character Class-page scenario exposed and repaired a v4 migration-coverage gap plus stable-key presentation bindings. Its first save attempt then exposed a graph-derived display snapshot that repeated the shared label of two independently owned class-feature abilities; reconciliation now keeps that non-identity snapshot duplicate-free while preserving both stable ability records. A subsequent save preview exposed that typed `feat` grants were still deferred while the page and compiler manufactured capacity from `floor(level / 2)`. The approved direction now makes explicit feature grants the only source of feat choices: shared pure Rules materialize filtered source-owned slots and both graph and widget consume that projection. Save-time incomplete notices are now scoped by exact current-page field ownership, so pages do not warn about untouched choices elsewhere in the builder; blocking errors and destructive proposal consequences remain global. Skills/Bonds acceptance then exposed locked class-granted utility ranks and widget-wide disabling that captured page Save/Keystone controls; shared Skill Rules now treat grants as free floors with paid increases, and portable widgets disable only their own controls. Focused browser re-acceptance is still pending, so no compatibility path has been removed and production deployment remains blocked.
+Earlier August checkpoint (superseded by the September acceptance and deployment above): the original Class/Feat/Technique, Equipment, Attributes, Origin/Skills and Bonds/Keystones slices gained session/graph implementations. Browser checks exposed migration, duplicate display-label, explicit feat-slot, grant-floor, focus and widget-disable defects, which were repaired. Subsequent full local checks and the coordinated September 22 release satisfied the deployed-page cutover. Retained compatibility helpers still require focused retirement work; historical deployment blockers do not describe the current release.
 
-Prerequisite: `WPD-GRAPH-CORE`. Deployed class/feat/technique cutover also requires reviewed runtime stable keys, compatible explicit grants, and coordination with the active `WPC-REPOSITORY` page-integration boundary. September 21 live-record replay proves that published schema-2 Spirit Warrior data lacks a feat grant expected by the new graph; the staged schema-3 candidate supplies it. Resolve this coordinated runtime/data release boundary before accepting the new builder's save proposals against production characters; do not treat proposed loss of a valid feat as a format migration.
+Prerequisite: `WPD-GRAPH-CORE`, reviewed stable keys, compatible explicit grants, and coordination with `WPC-REPOSITORY`. The September 22 release satisfies the coordinated runtime/data boundary, including the previously missing Spirit Warrior feat grant. Future data changes still require saved-character impact review; loss of a valid choice is not an ordinary format migration.
 
 Goal: replace the transitional page/widget dependency policy with typed commands and registered graph handlers one complete vertical domain at a time, proving behavior and persistence parity before removing each legacy path.
 
 Plain-language overview: a **domain** is one related area of character building, including its screen controls, character fields, rules, dependencies, saving/loading behavior, and tests. A **vertical slice** means migrating that complete path from the browser control all the way through state management, dependency reconciliation, and Firebase persistence. It does not mean rewriting one technical layer for every feature at once.
 
-The application currently has two generations of architecture. The deployed builder pages still assemble mutable page/widget state and send broad patches through transitional dependency code. The new core already provides an exact schema-v6 character model, a `CharacterSession` that protects proposed versus accepted edits, one Character Dependency Graph subsystem with separate compilation and fixed-point reconciliation operations, and revision-aware persistence. `WPE-DOMAIN-MIGRATION` connects those pieces to real pages while preserving existing behavior.
+The deployed builder now uses the schema-v6 character model, a `CharacterSession` that separates proposed and accepted edits, the Character Dependency Graph for reviewing dependent changes, and revision-aware persistence. Pages and widgets share pure Rules. Remaining `WPE-DOMAIN-MIGRATION` work retires retained compatibility helpers and implements supported missing mechanics without inventing unfinished class design.
 
 Migrated widgets are portable interactive UI components, not data-only adapters: they own their DOM/accessibility/interaction behavior and emit typed intent through injected actions, but never own a second character model, dependency policy, or database writes. Pages coordinate exact session save snapshots with the separate database reader/writer. `CharacterCodec` remains the sole whole-character structural validator; every other validation boundary stays narrow to input, commands, game rules, graph integrity, or persistence.
 
 Pure Rules modules are the sole source of mechanic formulas, limits, eligibility, capacity, and allocation projections. Graph compilation records imported Rules results, reconciliation applies and reports them, and widgets render the same imported results. Compiler, reconciler, page, and widget code must not reconstruct those calculations independently; automated architecture tests enforce this boundary for each migrated domain.
 
-For the first class/feat/technique slice, a user action such as lowering a character from level 5 to level 3 will become a typed statement of intent. `CharacterSession` creates a protected proposal; the graph determines which feat, class option, or technique would become invalid or exceed capacity; the UI displays structured errors, confirmations, or informational notices; cancellation changes nothing; acceptance saves the exact reviewed reconciled state through the v6 reader/writer. Page and widget code will no longer independently decide what to delete or how many selections fit.
+In the deployed class/feat/technique slice, lowering a character from level 5 to level 3 produces a typed command. `CharacterSession` creates a protected proposal; the graph identifies choices that become invalid or exceed capacity; the UI shows errors, confirmations or informational notices. Cancellation changes nothing; acceptance saves exactly the reviewed state through the v6 reader/writer. Pages and widgets do not independently decide what to delete or how many selections fit.
 
 Each slice follows the same sequence:
 
@@ -669,7 +671,7 @@ Implemented evidence for the final slices:
 - exact Bond and Background Keystone commands flow through the portable widget, `CharacterSession`, graph reconciliation, and revision-aware whole-character replacement;
 - the graph compiles stable Bond/Keystone nodes and `bond` grant effects, materializes Artifact/Patron Bonds outside user Heart capacity, keeps source rank authoritative, and reviews source-owned Bond plus derived-ability removal together;
 - the Boon proof uses graph and widget extension registries plus an isolated Rules adapter/widget; tests prove the generic compiler traversal and existing page controllers contain no Boon-specific branch;
-- automated unit acceptance covers limits, direct intent, stable bindings, source ownership, published Artifact/Patron grants, fixed-point idempotence, destructive cancellation, persistence independence, and the Boon extension seam.
+- automated unit acceptance uses controlled fixtures for limits, direct intent, stable bindings, source ownership, origin Bond grants, fixed-point idempotence, destructive cancellation, persistence independence, and the Boon extension seam. Installed-catalogue checks run separately with `npm run test:data`.
 
 Acceptance:
 
