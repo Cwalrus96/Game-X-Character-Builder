@@ -1,6 +1,6 @@
 # Authoring display and bulk formatter
 
-## Current configuration: source schema v5, September 21, 2026
+## Current configuration: source schema v5, September 22, 2026
 
 The canonical [game-x-class-data](https://docs.google.com/spreadsheets/d/1TEdxuufglP8lFRNk8QD4N_351-0ihAUFLG2743ESjoI/edit) workbook owns the simplified authoring format. The [Game-X-Data-Display](https://docs.google.com/spreadsheets/d/106wXA3w52aubp0zCYqieHJME02C0bu4jdho9b_eBA8U/edit) workbook adapts that format for its existing display tabs and handbook bindings. This is an authoring/display migration; runtime import support and the frozen production release remain separate work.
 
@@ -21,7 +21,7 @@ The 30 authored Technique columns are independent of the 36 columns in `_Techniq
 | Canonical authoring field | Display compatibility slot | Meaning |
 | --- | --- | --- |
 | `selection` | `skill` | Skill alternatives, `granted`, `tag=…`, or `weaponTag=…` determine access. |
-| `status` | `selectionMode` | `playable`, `draft`, or `incomplete` records readiness independently of access. |
+| Removed `status` | Empty `selectionMode` slot | Readiness uses required cells; the empty slot preserves downstream bindings. |
 | `pumpingByRank` | `pumpDamageByRank` | Explicit rank/effect maps can grant damage, healing, wards, armor, or multiple effects. |
 | `associatedSkill` | `associatedSkill` | Overrides the roll skill; a blank uses the selected skill or the provider's associated skill. |
 | `prerequisites` | `prerequisites` | Formal source DSL is retained and rendered into readable text. |
@@ -29,7 +29,7 @@ The 30 authored Technique columns are independent of the 36 columns in `_Techniq
 
 Damage, including irregular progression, is authored in `damage`. Keep independent higher-rank benefits and restrictions in `rankNotes`. `strainCost` and `onCriticalFailure` remain supported. Mechanical content from removed notes belongs in descriptions or outcomes; the display does not recover mechanics from archived editorial notes.
 
-Costs retain their source meanings. `energyCostKind` distinguishes fixed, variable, conditional, and unassigned costs; `energyCostOptions` preserves conditional option labels and values. No `-1` or `N` compatibility sentinel stands in for a cost. Zero is present data, while blank or unassigned costs remain explicitly unassigned. Unknown rank/action data also stays unknown, with an `Incomplete technique` notice where appropriate.
+Costs retain explicit fixed, variable, and conditional meanings; `energyCostOptions` preserves named alternatives. Blank Energy means zero. No `-1` or `N` compatibility sentinel stands in for a cost. Pumping renders only from explicit `pumpingByRank` entries and never from cost kind. Only missing required Technique identity, selection, rank, action type, or action count produces an incomplete notice. Optional Energy and pumping never do. Classes and Origins project empty historical status positions, preserving downstream column bindings after source removal.
 
 The three Class skill fields retain their separate meanings in canonical `Classes`: `combatTechniqueSkill`, `combatSkills`, and `utilitySkillOptions`. Display adapters preserve their independent positions and do not derive their source from `ClassSkills`. Other adapters retain removed optional fields such as `grantNotes` as blank compatibility columns. `WeaponBases` retains a ten-column display view, including an empty historical `tagKeys` slot, without requiring that duplicate source column. The retired `WeaponProfiles` display helper is header-only.
 

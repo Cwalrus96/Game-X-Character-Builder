@@ -1,6 +1,7 @@
 import { getExpressionRuntimeStatus } from "../../public/js/core/game-data-contract.js";
 import { SOURCE_TAB_HEADERS } from "./source-adapters.mjs";
 import { validateV5Relationships } from "./model-validator-v5.mjs";
+import { usesRequiredCells } from "./required-cell-readiness.mjs";
 
 export const VALIDATION_SEVERITY_POLICY = Object.freeze({
   error: "Blocks artifact construction because source meaning is missing, ambiguous, inconsistent, or unresolved.",
@@ -74,6 +75,7 @@ function stableComposite(parts) {
 export function validateGameDataModel(model, { priorDiagnostics = [] } = {}) {
   const diagnostics = [];
   const v5 = Number(model?.metadata?.sourceSchemaVersion) === 5;
+  const requiredCells = v5 && usesRequiredCells(model.metadata);
   const runtimeSupportBySource = {};
   const deferredCodes = new Set(["record-unready", "playable-record-incomplete", "draft-record-granted", "runtime-subsystem-stubbed", "manual-prerequisite", "runtime-prerequisite-deferred", "recipient-execution-deferred", "feature-invocation-deferred", "unassigned-selection", "incomplete-technique", "incomplete-content", "unresolved-rank-context", "trait-rank-context-missing", "trait-activation-missing", "trait-choice-id-missing", "trait-toggle-id-missing", "trait-recipient-deferred"]);
   let sequence = 0;
@@ -117,6 +119,12 @@ export function validateGameDataModel(model, { priorDiagnostics = [] } = {}) {
     weaponEnhancements: model?.weaponEnhancements || [],
     ...(v5 ? { traits: model?.traits || [] } : {}),
   };
+
+  if (requiredCells) for (const rows of Object.values(collections)) for (const record of rows) {
+    for (const field of record.readiness?.missingFields || []) {
+      add("warning", "record-unready", `Required cell "${field}" is blank.`, record, field);
+    }
+  }
 
   function identityIndex(rows, {
     field,
@@ -375,7 +383,7 @@ export function validateGameDataModel(model, { priorDiagnostics = [] } = {}) {
         if (!Number.isFinite(option.value) || option.value < 0) add("error", "invalid-energy-cost-options", `Energy-cost option "${option.key}" requires a nonnegative numeric value.`, record, "energyCostOptions");
       }
     } else if (energy.kind === "variable") {
-      if (energy.value !== null && energy.value !== undefined) add("error", "invalid-energy-cost", "Variable energy cost must leave the fixed value blank.", record, "energyCost");
+      if (energy.value !== null && energy.value !== undefined && !(requiredCells && energy.value === 0 && !String(record.sourceValues?.energyCost ?? "").trim())) add("error", "invalid-energy-cost", "Variable energy cost must leave the fixed value blank.", record, "energyCost");
       if (energy.options?.length) add("error", "invalid-energy-cost-options", "Variable energy cost cannot declare fixed alternatives.", record, "energyCostOptions");
     } else {
       if (energy.value !== null && energy.value !== undefined) add("error", "invalid-energy-cost", `${energy.kind} energy cost must leave the value blank.`, record, "energyCost");

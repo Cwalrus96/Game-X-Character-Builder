@@ -4,6 +4,7 @@ import {GRANT_NAMED_FUNCTIONS} from './grant-display-formulas.mjs';
 
 export const DISPLAY_COLUMNS = Object.freeze({
   Classes: ['classKey', 'name', 'pitch', 'examples', 'hpProgression', 'primaryAttributeA', 'primaryAttributeB', 'combatTechniqueSkill', 'combatSkills', 'utilitySkillOptions', 'levelUp', 'notes', 'status'],
+  Origins: ['originKey', 'name', 'status', 'summary', 'description', 'originKeystone', 'questions', 'futureUpgradesText', 'examplesText', 'notes'],
   ClassFeatures: ['classKey', 'level', 'rowType', 'featureKey', 'name', 'parentKey', 'description', 'chooseCount', 'grants', 'grantNotes', 'prerequisites', 'notes', 'grantText', 'traitKeys'],
   OriginFeatures: ['originKey', 'level', 'rowType', 'featureKey', 'name', 'description', 'grants', 'grantNotes', 'parentKey', 'chooseCount', 'prerequisites', 'notes', 'grantText', 'traitKeys'],
   Feats: ['category', 'rowType', 'featKey', 'name', 'parentKey', 'prerequisites', 'description', 'grants', 'grantNotes', 'featType', 'chooseCount', 'notes', 'grantText', 'archetypeKey', 'archetypeName'],
@@ -13,7 +14,8 @@ export const DISPLAY_COLUMNS = Object.freeze({
 });
 
 export const OPTIONAL_DISPLAY_COLUMNS = Object.freeze({
-  Classes: ['levelUp', 'notes'],
+  Classes: ['levelUp', 'notes', 'status'],
+  Origins: ['status'],
   ClassFeatures: ['grantNotes', 'prerequisites', 'notes', 'grantText', 'traitKeys'],
   OriginFeatures: ['grantNotes', 'prerequisites', 'notes', 'grantText', 'traitKeys'],
   Feats: ['grantNotes', 'notes', 'grantText'],
@@ -174,7 +176,7 @@ export function schemaDisplayNativeFixtures() {
 /** Native installation payload; no network or file writes occur here. */
 export function buildSchemaDisplayAdapters() {
   const cells = {};
-  for (const name of ['Classes', 'ClassFeatures', 'OriginFeatures', 'WeaponBases', 'WeaponEnhancements', 'WeaponProfiles']) {
+  for (const name of ['Classes', 'Origins', 'ClassFeatures', 'OriginFeatures', 'WeaponBases', 'WeaponEnhancements', 'WeaponProfiles']) {
     cells[`${name.startsWith('Weapon') ? '' : '_'}${name}!A1`] = displayProjectionFormula(name);
   }
   cells['_Feats!A1'] = featImportFormula();

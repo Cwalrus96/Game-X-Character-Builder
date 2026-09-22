@@ -1,5 +1,6 @@
 import { getExpressionRuntimeStatus, getTraitGrantDeferredReasons } from "../../public/js/core/game-data-contract.js";
 import { normalizeExpressionObject } from "../../public/js/core/game-data-expressions.js";
+import { usesRequiredCells } from "./required-cell-readiness.mjs";
 
 const array = (value) => Array.isArray(value) ? value : value == null || value === "" ? [] : [value];
 const leaves = (expression) => expression?.type === "any" ? (Array.isArray(expression.alternatives) ? expression.alternatives : []).flatMap(leaves) : [expression];
@@ -53,7 +54,7 @@ export function validateV5Relationships(model, helpers) {
     const sourceKey = `${row.source?.sheet}:${row.source?.row}`;
     runtimeSupportBySource[sourceKey] ||= { status: "supported", reasons: [] };
     if (row.status && row.status !== "playable") add("warning", "record-unready", `Record status "${row.status}" is retained and excluded from normal selection.`, row, "status");
-    if (incomplete(row)) add("warning", "incomplete-content", "Incomplete authored content is retained for review and cannot execute as a complete option.", row, "description");
+    if (!usesRequiredCells(model.metadata) && incomplete(row)) add("warning", "incomplete-content", "Incomplete authored content is retained for review and cannot execute as a complete option.", row, "description");
     for (const key of row.traitKeys || []) requireReference(traits, key, { record: row, column: "traitKeys", kind: "Trait" });
     for (const key of row.techniqueKeys || []) {
       requireReference(techniques, key, { record: row, column: "techniqueKeys", kind: "Technique" });

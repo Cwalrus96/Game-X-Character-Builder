@@ -13,7 +13,7 @@ The canonical editable source is the native Google Sheet [game-x-class-data](htt
 | Drive file ID | `1TEdxuufglP8lFRNk8QD4N_351-0ihAUFLG2743ESjoI` |
 | Published release Drive version | Explicitly unknown (`null`) |
 | Published release Drive modified time | `2026-09-22T00:57:44.536Z` |
-| Current authoring checkpoint | Accepted September 21 schema cleanup; installation/readback evidence and current counts belong in status.md |
+| Current authoring checkpoint | September 22 required-cell readiness correction; exact source/readback evidence belongs in status.md |
 | Source schema | `5` (versioned schema-`4` adaptation retained) |
 | Grant syntax | `3` (syntax-`2` compatibility retained) |
 | Prerequisite syntax | `3` (syntax-`2` compatibility retained) |
@@ -29,7 +29,7 @@ The Google Sheet is editable source. Any XLSX file is only a point-in-time trans
 
 1. The canonical Sheet owns authored game data; a successful adapter/validator/release run is required before it becomes runtime data.
 2. The Player Handbook is used to fill omissions, but complete newer Sheet mechanics win when they intentionally differ.
-3. Preserve every authored record through export or a source-located diagnostic. Technique readiness (`status`), acquisition (`selection`), prerequisites, and Rules determine availability; display filtering is not permission for the runtime exporter to drop records.
+3. Preserve every authored record through export or a source-located diagnostic. Required-cell completeness, acquisition (`selection`), prerequisites, and Rules determine availability; display filtering is not permission for the runtime exporter to drop records.
 4. The display workbook is a human-readable downstream view. Its hidden compatibility adapters and rich-text outputs are not canonical runtime fields.
 5. The workbook's `Metadata`, `Schema`, and `Enums` tabs are part of the source contract.
 6. Unknown/missing headers, invalid values, or unresolved references are diagnostics; the exporter must not silently coerce or skip them.
@@ -66,7 +66,7 @@ The counts above describe the historical schema-v2 release source snapshot. Its 
 
 The implemented tab set is README, Metadata, Schema, Enums, Classes, ClassFeatures, Techniques, Feats, Origins, OriginFeatures, WeaponBases, WeaponEnhancements, and Traits. ClassSkills and WeaponProfiles are not required source tabs. Internal class-skill relationships are derived; the empty legacy profile collection is retained for compatibility.
 
-Techniques retain stable `techniqueKey` identity and player-facing `techniqueName`. The source renames `skill` to `selection`, `selectionMode` to readiness `status`, `pumpDamageByRank` to generic `pumpingByRank`, and repurposes the redundant `skillKeys` column as optional `associatedSkill`. It removes `damageByRank`, `notes`, `sourceNote`, `prerequisiteText`, and `tagKeys`. Meaningful mechanical notes must be moved into their appropriate retained field before removal; archive editorial provenance in migration evidence. Unknown mechanics remain unknown.
+Techniques retain stable `techniqueKey` identity and player-facing `techniqueName`. The source uses `selection`, generic `pumpingByRank`, and optional `associatedSkill`. It removes `damageByRank`, `notes`, `sourceNote`, `prerequisiteText`, and `tagKeys`. The September 22 required-cell correction also removes Classes, Origins, and Techniques `status` columns. Meaningful mechanical notes must be preserved before field removal. Blank Energy has the explicit zero default; other unknown mechanics remain unknown.
 
 Classes retain all three authoritative skill fields and remove only the unused `levelUp` column. ClassFeatures, Feats, and OriginFeatures remove blank `grantNotes`. WeaponBases removes redundant `tagKeys` and `sourceNote`, retaining names in `tags`, stable technique references, and `traitsText`. The canonical `ClassSkills` and already-empty `WeaponProfiles` tabs are retired after verifying that no authored relationships or mechanics are lost. These removals do not remove the corresponding published runtime data or saved-state compatibility.
 
@@ -100,11 +100,11 @@ At those historical checkpoints, these fields were authoring/display extensions 
 
 The domain-neutral XLSX reader preserves sheet order, headers, raw values, and physical row numbers. `source-adapters.mjs` routes by a unique declared `Metadata.sourceSchemaVersion`. The isolated v4 adapter retains its previous model and behavior; unknown versions fail. V5 produces flat collections plus normalized `metadata`, `schema`, and `enums`, derives `classSkills`, and adds `traits`.
 
-V4 retains exact ordered headers and its 152 ordered Schema declarations. V5 resolves fields by header name, permits reordering, and rejects missing, duplicate, or unknown headers and unheaded populated cells. Its 115 Schema declarations must agree with the implemented types and required/conditional obligations. Enums must contain the implemented domain/value pairs with meanings; missing, duplicate, or unsupported values, contradictory enum formats, and invalid enum defaults are diagnostics. Declaration defaults never fill unknown source mechanics.
+V4 retains exact ordered headers and its 152 ordered Schema declarations. V5 resolves fields by header name, permits reordering, and rejects missing, duplicate, or unknown headers and unheaded populated cells. `Metadata.readinessPolicy=required-cells-v1` selects the 112-field status-free contract; earlier v5 snapshots retain the original 115-field contract. Schema types and required/conditional declarations must match the selected contract. Enums must contain its domain/value pairs with meanings. Missing, duplicate, unsupported, or contradictory declarations are diagnostics. The only new mechanical default is the explicitly approved zero Energy cost; defaults never invent pumping or other mechanics.
 
 V5 records retain `source: { sheet, row, headers }` and exact authored `sourceValues`. The model also retains `sourceSheets`, including documentation and malformed/unheaded rows, for complete review evidence. Blank numeric mechanics remain null; explicit unresolved values such as `X` remain in source values with a diagnostic. Invalid populated scalars do not disappear. Pumping retains its exact rank-to-effect map and raw text; gaps, multiple effects, strain cost, critical-failure outcomes, and other retained columns survive.
 
-Technique normalization keeps raw `selection` plus typed `selectionRoutes`, authored `status`, optional `associatedSkill` and its canonical key, `basicAttack` clauses and raw text, and `pumpingByRank`. Derived compatibility fields do not become new authoring requirements. `source-v5-values.mjs` derives skill/tag identities centrally, reusing Targeting → Ranged Weapons compatibility and preserving unrelated stable entity keys.
+Technique normalization keeps raw `selection` plus typed `selectionRoutes`, derived runtime `status` and `readiness` evidence, optional `associatedSkill` and its canonical key, `basicAttack` clauses and raw text, and `pumpingByRank`. Derived compatibility fields do not become authoring requirements. Earlier snapshots retain their authored status semantics. `source-v5-values.mjs` derives skill/tag identities centrally, reusing Targeting → Ranged Weapons compatibility and preserving unrelated stable entity keys.
 
 Nested class/feat/origin feature rows remain flat during adaptation. Their stable owner key and `parentKey` are copied only from the row itself. Building and validating owner/parent relationships belongs to whole-model validation, never spreadsheet row order.
 
@@ -120,17 +120,20 @@ Nested class/feat/origin feature rows remain flat during adaptation. Their stabl
 - `OPTION_GROUP` rows require a positive explicit `chooseCount`; parser fallback `1` is compatibility only, not an authoring rule.
 - Every answer-producing grant has a stable explicit `choiceId` or an unambiguous typed source-owned identity derived from its stable owning feature. Explicit IDs are required when another expression must address that exact answer through `choiceRef`; they are not duplicate copies of every owning `featureKey`.
 
-Descriptions are optional presentation content on every runtime-source tab. A blank description never makes an otherwise complete record invalid or unselectable. Mechanical readiness is determined from mechanical fields and readiness status; acquisition is separately controlled by the entity's selection contract.
+Descriptions are optional presentation content on every runtime-source tab. Blank descriptions or editorial words such as TODO never make an otherwise complete record invalid or unselectable. Completeness uses only the required cells below; acquisition is separate.
 
-### Status and selection
+### Required-cell completeness and selection
 
-Authoring `status` values describe readiness:
+No source row maintains `playable`, `draft`, `incomplete`, or another readiness state. `Metadata.readinessPolicy=required-cells-v1` declares the deterministic importer policy:
 
-- `playable`: complete; the applicable acquisition route still determines access;
-- `draft`: exported but unavailable in normal selection;
-- `incomplete`: exported but unavailable because required mechanics remain incomplete.
+- Every tab requires its declared identities/display names and existing row semantics/owner fields.
+- Classes additionally require `hpProgression`, `primaryAttributeA`, and `primaryAttributeB`.
+- Techniques require `techniqueKey`, `techniqueName`, `selection`, `rank`, `actionType`, and `actions`. Zero is filled, not missing.
+- OPTION rows require `parentKey`; OPTION_GROUP rows require `chooseCount`; top-level archetype feats require `archetypeKey`. Archetype names are shared group labels, not required on every member.
+- All Energy fields, `pumpingByRank`, descriptions, notes, and other Schema-optional cells are excluded from completeness decisions. Missing Energy becomes zero in normalized/runtime data without writing fabricated source values. Only explicit pumping entries enable pumping.
+- Missing required mechanics remain exported with source-located diagnostics and derived incomplete readiness. Identity, syntax, references, prerequisites, and supported execution remain separate validation boundaries.
 
-All 19 classes export; the seven currently playable classes are Ninja, Magical Guardian, Monster Tamer, Spirit Warrior, Weapon Master, Henshin Hero, and Metamorph. Origins use the same export-versus-selectability policy.
+All records export. The September 22 candidate increases available classes from 7 to 10, Origins from 8 to 15, Techniques including grant access from 109 to 140, and enhancements including grant access from 24 to 31. These are checkpoint observations, not fixed requirements. No previously selectable or executable record is lost relative to either the source or published catalogue. Publication is separate.
 
 Technique acquisition is authored separately in `selection`:
 
@@ -140,17 +143,18 @@ Technique acquisition is authored separately in `selection`:
 - `weaponTag=Name` requires the relevant weapon tag, which is distinct from a recipient tag;
 - blank means unresolved access, not universal availability.
 
-Tag routes unlock normal selection rather than automatically granting the Technique. Formal prerequisites remain additional AND requirements regardless of which selection route succeeds. A draft/incomplete status prohibits both normal selection and grants; `granted` never implies that unfinished mechanics are ready.
+Tag routes unlock normal selection rather than automatically granting the Technique. Formal prerequisites remain additional AND requirements regardless of which selection route succeeds. Derived incomplete readiness prohibits selection/grants; an acquisition route never fills missing required cells.
 
-`selectionMode` remains part of the implemented runtime contract and unconverted source entities such as WeaponEnhancements. Its existing values are:
+WeaponEnhancements retains `selectionMode` strictly as an acquisition field:
 
 - `selectable`: may appear in a normal picker when other Rules pass;
 - `granted-only`: may exist only through a grant and must never be offered directly.
-- `draft`: exported for review but unavailable through normal selection or grants; incomplete mechanics are reported as warnings.
+
+`draft` is retired from current authoring. Earlier source snapshots and runtime artifacts retain compatibility with historical readiness values. Current runtime `status` is generated, never a second editable field.
 
 `Dazzling Transformation` uses Technique `selection=granted`; the `soulbound` enhancement retains `selectionMode=granted-only`. “Granted” is an acquisition route, not a fake prerequisite.
 
-WeaponEnhancements prerequisites apply to the candidate weapon being enhanced. Author a weapon tag constraint as `weapon | tag=Name`; another possessed weapon cannot satisfy it. The September 21 content audit normalized eight former `tag | name=...` requirements without adding a wielded condition or changing the tag/rank. V5 preserves that candidate-weapon evaluation scope. Enhancement mechanics belong in `description`, while `notes` retains editorial uncertainty and cross-references. Draft entries retain `selectionMode=draft`. These reviewed corrections are included in the September 22 release.
+WeaponEnhancements prerequisites apply to the candidate weapon being enhanced. Author a weapon tag constraint as `weapon | tag=Name`; another possessed weapon cannot satisfy it. The September 21 content audit normalized eight former `tag | name=...` requirements without adding a wielded condition or changing the tag/rank. V5 preserves that candidate-weapon evaluation scope. Enhancement mechanics belong in `description`, while `notes` retains editorial uncertainty and cross-references. Current authoring removes the legacy draft acquisition value; earlier published releases retain compatibility until separately replaced.
 
 ### Editorial and display fields
 
@@ -164,7 +168,7 @@ WeaponEnhancements prerequisites apply to the candidate weapon being enhanced. A
 
 ### Classes and derived skill relationships
 
-`Classes.classKey` is the owner/selection identity. A class row always exports; `status` determines picker eligibility. Required playable mechanics include health progression and primary-attribute choices.
+`Classes.classKey` is the owner/selection identity. A class row always exports; required-cell completeness determines its generated readiness. Required mechanics include health progression and primary-attribute choices.
 
 The three Classes fields are distinct and authoritative:
 
@@ -241,7 +245,7 @@ Trait `techniqueKeys` supply automatic access only for explicitly granted-only T
 
 ### Techniques
 
-`techniqueKey` is stable identity; `techniqueName` is display text and may duplicate another name. `selection` determines access, while `status` determines readiness. Skill/tag names are authored once; retired `skillKeys` and `tagKeys` source columns are derived internally. Ranged Weapons accepts the saved Targeting identity; unrelated entity keys remain unchanged.
+`techniqueKey` is stable identity; `techniqueName` is display text and may duplicate another name. `selection` determines access; required cells determine readiness. Skill/tag names are authored once; retired `skillKeys` and `tagKeys` source columns are derived internally. Ranged Weapons accepts the saved Targeting identity; unrelated entity keys remain unchanged.
 
 `associatedSkill` is an optional roll/associated-skill override. A skill-access Technique with a blank override uses its chosen access skill. A granted/tag-access Technique with a blank override uses the granting provider's associated skill; if there is no such context, the skill remains unresolved. Weapon-provided scaling uses weapon rank where the authored rule says so. Do not infer a roll skill, rank, or provider from a display name, classification tag, or missing field.
 
@@ -255,13 +259,11 @@ Energy costs use these fields together:
 
 | `energyCostKind` | `energyCost` | `energyCostOptions` |
 |---|---|---|
-| `fixed` | required nonnegative number | blank |
-| `variable` | blank | pump/variable rule represented by the technique |
-| `conditional` | base/default nonnegative number | required named alternatives |
-| `unassigned` | blank | blank; content is not release-ready |
-| `unspecified` | blank | temporary migration finding; not playable fixed cost |
+| blank or `fixed` | optional nonnegative number; blank means 0 | optional; explicit alternatives derive conditional kind |
+| `variable` | blank base normalizes to 0 | explicit variable rule; never implies pumping |
+| `conditional` | optional base number; blank means 0 | optional named alternatives; without them use the base cost |
 
-Legacy `-1`, `N`, blank-means-zero, and `0 or 3` sentinels are not allowed in canonical source. Pinning Ammunition is represented as base `0` plus `pin-only=0; pin-and-attack=3`.
+Legacy `-1`, `N`, and `0 or 3` sentinels remain invalid. Blank-means-zero is now the explicit approved default. `unassigned`/`unspecified` cost labels are retired from current authoring. Pinning Ammunition retains base `0` plus `pin-only=0; pin-and-attack=3`. Empty pumping means no pumping regardless of cost kind; explicit pumping effects and rank gaps are preserved.
 
 `prerequisites` is the single authored prerequisite field; `prerequisiteText` is removed. Render readable text from formal conditions and stable entity references, retaining every conjunction, alternative, exclusion, rank/reach threshold, and wielded condition. Distinguish a recipient `tag` requirement from a weapon tag. Unresolved references and unsupported qualifiers remain visible diagnostics. Display rendering does not execute or certify the prerequisite.
 
@@ -275,7 +277,7 @@ Canonical compact examples are Spirit Blast's `3 + Hits; +3 damage per rank abov
 
 `pumpingByRank` replaces the damage-specific column. Use semicolon-separated entries such as `1=+1 healing per Energy;2=+1 healing per Energy;3=+2 healing per Energy`; every entry has an explicit effect and per-Energy basis. Damage, healing, armor, ward, and multiple simultaneous effects are valid authored meanings. Unitless historical values require a reviewed effect before migration; do not assume damage. The shared renderer groups only adjacent identical effects, preserving every rank, gaps, nonconsecutive runs, and unit. Preserve authored higher-rank benefits and meaningful `rankNotes`, including minimum Energy and Rank 0 pumping restrictions.
 
-Full technique blocks omit repetitive provider/availability paragraphs. Weapon-base cards also omit their automatic-availability sentence. Retain source provider relationships, selection/status, prerequisites, costs, an Access line reflecting the authored route, and explicit `Incomplete technique` and missing-mechanic notices.
+Full technique blocks omit repetitive provider/availability paragraphs. Weapon-base cards also omit their automatic-availability sentence. Retain source provider relationships, selection, prerequisites, costs, an Access line reflecting the authored route, and notices for missing required cells. Optional costs/pumping never produce an incomplete notice.
 
 ### Origins
 
@@ -445,7 +447,7 @@ Validation must reject:
 
 V5 validation checks `basicAttack` references, overrides and cycles; typed prerequisite branches; known-option groups/counts; Trait and Technique references; explicit recipient ownership; and feature-invocation scope/cycles. Each repeated feature invocation receives a distinct source-owned identity without inheriting its target's level or parent. Conditional execution stays deferred.
 
-Warnings preserve incomplete content and explicit runtime limitations safely. Structural loss and ambiguous or missing references remain errors. Validation returns `runtimeSupportBySource`, keyed by physical `sheet:row`, with `{ status: "supported" | "deferred", reasons: [...] }`. This execution annotation is separate from authored readiness. Artifact construction carries it forward; selectors and grant execution must respect it. Validation runs without writing artifacts.
+Warnings preserve incomplete content and explicit runtime limitations safely. Structural loss and ambiguous or missing references remain errors. Validation returns `runtimeSupportBySource`, keyed by physical `sheet:row`, with `{ status: "supported" | "deferred", reasons: [...] }`. This execution annotation is separate from required-cell completeness. Artifact construction carries it forward; selectors and grant execution must respect it. Validation runs without writing artifacts.
 
 `scripts/game-data/model-validator.mjs` retains v4 checks and invokes `model-validator-v5.mjs` for v5 relationships and execution limits. Errors block artifact construction; warnings retain source meaning while reporting incompleteness, manual rules, or stubbed behavior. Findings retain physical source locations and deterministic ordering, including adapter diagnostics.
 
@@ -469,7 +471,7 @@ Schema v3 records `sourceSchemaVersion=5` and `expressionSyntaxVersion=3`, retai
 
 Runtime v3 selection resolves skill alternatives independently, distinguishes acquired recipient tags from candidate weapon tags, honors associated-skill overrides, and rejects unknown readiness or unresolved rank. Formal prerequisites remain additional AND requirements. Draft/incomplete or deferred records cannot enter normal selection or execute grants merely because they parsed successfully. Recipient-owned skill grants, canonical conditional feature invocations, Trait/form acquisition, and broader unfinished class systems are preserved for later execution work.
 
-Every schema-v3 record carries its expression syntax and `runtimeSupport` annotation; combined artifacts also retain source-located validation diagnostics. Mechanical grant collection excludes deferred records and unsupported grants, while explicit inspection can retrieve the complete normalized expressions. A deferred parent cannot activate its nested option grants. Graph and widget prerequisite checks use the same Rules-derived skill ranks, including class grants. These gates do not delete unfinished records or replace their authored readiness with inferred completeness.
+Every schema-v3 record carries its expression syntax and `runtimeSupport` annotation; combined artifacts also retain source-located validation diagnostics. Mechanical grant collection excludes deferred records and unsupported grants, while explicit inspection can retrieve the complete normalized expressions. A deferred parent cannot activate its nested option grants. Graph and widget prerequisite checks use the same Rules-derived skill ranks, including class grants. Current records additionally carry required-cell readiness evidence and generated status; historical snapshots retain their previous readiness interpretation.
 
 The old runtime and saved-character formats remain readable, but that does not establish that every saved selection is valid against a new source revision. Removed source identities must be reviewed as release migration findings before publication. Do not invent aliases for deleted keys; the explicitly accepted `mech-integrated-weapon` → `integrated-weapon` Trait alias is a narrow compatibility mapping, not a general name-based resolver.
 

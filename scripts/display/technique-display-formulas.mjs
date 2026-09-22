@@ -21,18 +21,18 @@ export const TECHNIQUE_COMPATIBILITY_HEADERS = Object.freeze([
 const authoredField = {
   skill: 'selection', selectionMode: 'status', pumpDamageByRank: 'pumpingByRank',
 };
-const retired = new Set(['notes', 'damageByRank', 'sourceNote', 'prerequisiteText', 'skillKeys', 'tagKeys']);
+const retired = new Set(['notes', 'damageByRank', 'sourceNote', 'prerequisiteText', 'skillKeys', 'tagKeys', 'selectionMode']);
 
 const actionText = compact(`IF(OR(get("actionType")="",get("actions")=""),"Actions: Unassigned",
   IF(get("actions")="0","Free",get("actions"))&" "&SWITCH(get("actionType"),
     "ActionOrReaction","Action or Reaction","ActionOrFreeReaction","Action or Free Reaction",get("actionType")))`);
 const energyText = compact(`SWITCH(get("energyCostKind"),
-  "fixed",IF(get("energyCost")="","Energy: Unassigned",get("energyCost")&" Energy"),
-  "variable","variable Energy","conditional",IF(get("energyCostOptions")="","Energy: Unassigned",
+  "fixed",IF(get("energyCost")="","0 Energy",get("energyCost")&" Energy"),
+  "variable","variable Energy","conditional",IF(get("energyCostOptions")="",IF(get("energyCost")="","0 Energy",get("energyCost")&" Energy"),
     TEXTJOIN(" or ",TRUE,MAP(SPLIT(get("energyCostOptions"),";",FALSE,TRUE),LAMBDA(option,
       IF(REGEXMATCH(TRIM(option),"^[^=]+=[0-9]+$"),
         REGEXEXTRACT(option,"[0-9]+$")&" Energy ("&SUBSTITUTE(REGEXEXTRACT(option,"^[^=]+"),"-"," ")&")",
-        "[Unrecognized Energy option: "&option&"]"))))),"Energy: Unassigned")`);
+        "[Unrecognized Energy option: "&option&"]"))))),IF(get("energyCost")="","0 Energy",get("energyCost")&" Energy"))`);
 const costText = compact(`"( "&TEXTJOIN(" + ",TRUE,actiontext,energytext,
   IF(get("strainCost")="","",get("strainCost")&" Strain"))&
   IF(REGEXMATCH(UPPER(get("sustained")),"^(Y|YES|TRUE|1)$"),", Sustained","")&" )"`);
@@ -204,7 +204,7 @@ export function techniqueBlocksFormula({
           rollskill,${rollSkill},
           pretext,${prerequisites},
           usage,${usageText},actiontext,${actionText},energytext,${energyText},
-          incomplete,OR(rank="",actiontype="",actions="",status="draft",status="incomplete",energytext="Energy: Unassigned"),
+          incomplete,OR(name="",rank="",selection="",actiontype="",actions=""),
           cost,${costText},
           TEXTJOIN(CHAR(10),TRUE,
             IF(name="","[Missing technique name: "&key&"]","**"&name&" ( Rank "&IF(rank="","TBD",rank)&")**"),
@@ -272,7 +272,7 @@ export function techniqueNativeFixtures() {
     { name: 'Unknown prerequisite qualifier is preserved', formula: `=${prerequisiteTextFormula(quote('weapon | tag=Sharp | futureRule=3'))}`, expected: 'Sharp weapon [Additional requirement: futureRule=3]' },
     { name: 'Healing pumping uses healing units', formula: `=${pumpingTextFormula(quote('1=+1 healing per Energy;2=+1 healing per Energy;4=+2 healing per Energy'))}`, expected: 'Pump (healing per energy): +1 at ranks 1–2; +2 at rank 4.' },
     { name: 'Duplicate stable technique keys are diagnosed', formula: renderRows([headers, ['duplicate', 'One', '', '', '', '', '', '', ''], ['duplicate', 'Two', '', '', '', '', '', '', '']], '{"duplicate"}'), expected: '[Unresolved technique key: duplicate]' },
-    { name: 'Unknown cost and blank rank never become free rank zero', formula: renderRows([headers, ['unknown', 'Unfinished', '', '', 'unassigned', '', '', '', 'Known benefit']], '{"unknown"}'), expected: '**Unfinished ( Rank TBD)**\n*Access: Unassigned*\nIncomplete technique\n( Actions: Unassigned + Energy: Unassigned )\nKnown benefit' },
+    { name: 'Blank cost defaults to zero while missing required rank remains unknown', formula: renderRows([headers, ['unknown', 'Unfinished', '', '', '', '', '', '', 'Known benefit']], '{"unknown"}'), expected: '**Unfinished ( Rank TBD)**\n*Access: Unassigned*\nIncomplete technique\n( Actions: Unassigned + 0 Energy )\nKnown benefit' },
     { name: 'Weapon selection inherits skill and preserves strain critical failure', formula: renderRows([
       [...headers, 'rollRequired', 'attribute', 'defense', 'strainCost', 'onCriticalFailure'],
       ['web', 'Web', 'weaponTag=Web', '1', 'fixed', '2', 'Action', '1', 'Known benefit', 'Y', 'Agility', 'Physical', '1', 'Lose your grip'],

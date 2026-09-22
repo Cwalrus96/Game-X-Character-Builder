@@ -361,6 +361,20 @@ Acceptance:
 
 This step makes release consequences concrete; completing an import does not authorize publishing or executing deferred systems. The parallel `WPE-DOMAIN-MIGRATION` step verifies signed-in save/reload, dependency confirmation/cancellation, and conflict/focus behavior. Agent-performed verification can proceed now; the user's later manual acceptance is follow-up, not a reason to stop engineering.
 
+### `WPB-REQUIRED-CELLS` — derive completeness without authored states
+
+Status: `complete`
+
+The user's September 22 correction removes manual readiness columns from the canonical workbook and makes completeness depend only on declared required cells. Blank Energy means zero; blank pumping means no pumping. Optional fields must not gate completeness, and validation changes must not remove currently playable content. This scope explicitly includes source, importer, and dependent display changes together.
+
+Acceptance evidence: three status columns and legacy readiness enum values are removed with exact readback; 14,939 exported cells match the pure migration and 6,389 native cells pass value/style/validation preservation checks. The adapter supports `Metadata.readinessPolicy=required-cells-v1` while retaining original v5/v4 compatibility. Source/published comparisons lose no selectable or executable records. Four Instinct reactions become available at zero Energy without invented pumping. Fresh run `20260922T225854942Z-55228` stages ten artifacts with zero errors, 115 warnings, successful runtime loading, and a complete diff. Focused fixtures cover missing required/optional cells, zeroes, explicit costs/pumping, migration, invalid populated costs, and historical compatibility. Full-suite and native display evidence is recorded in [status.md](status.md).
+
+### `WPB-REQUIRED-CELLS-RELEASE` — publish the reviewed completeness policy
+
+Status: `ready`
+
+Prerequisite: `WPB-REQUIRED-CELLS`. Review the exact ten-file candidate and newly available catalogue entries, then obtain explicit approval for publishing those data bytes and the matching Hosting package. This makes the simpler source-authoring policy available on the live character builder. Verify exact deployed bytes and preserve the prior release for rollback. No character-document edits, Rules/Functions deployment, or unfinished subsystem implementation is implied. Local review does not authorize production publication; the user's broader `WPE-DOMAIN-MIGRATION` remains separate.
+
 ## Work Package C — character schema and session skeleton
 
 Work Package C begins after Work Package B has a fixture-validated runtime contract. Its pure character-schema work may proceed in parallel with Work Package B's externally blocked live-source acquisition and publishing acceptance. It must not assume that unpublished schema-v4 game data is already available in production. Step IDs remain stable.

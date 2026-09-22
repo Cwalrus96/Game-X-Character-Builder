@@ -202,6 +202,8 @@ The source pipeline has two independent versioned contracts:
 
 The exporter is responsible for an explicit transformation between them. It must not treat workbook rows as runtime objects without adaptation.
 
+Current v5 authoring declares `Metadata.readinessPolicy=required-cells-v1`. A pure required-cell policy derives completeness and source-located missing-field evidence; authors maintain no readiness/status columns. Optional descriptions, notes, Energy, and pumping never determine completeness. Blank Energy normalizes to zero, while pumping requires explicit `pumpingByRank` entries. Runtime schema 3 retains generated status for existing consumers. The original v5 and v4 adapters remain compatible with earlier snapshots. Prerequisite evaluation, malformed references, and unsupported execution are separate from content completeness. Validation changes must preserve existing selectable/executable content.
+
 Target phases:
 
 1. Acquire the fixed Drive file through read-only authenticated export and capture provenance.

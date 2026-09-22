@@ -55,7 +55,7 @@ test('Technique adapter keeps downstream bindings while optional authoring field
   const formula = techniqueCompatibilityFormula();
   assert.match(formula, /MAKEARRAY\(ROWS\(body\),1,LAMBDA\(rowindex,columnindex,""\)\)/);
   assert.match(formula, /VSTACK\("skill",column\("selection"\)\)/);
-  assert.match(formula, /VSTACK\("selectionMode",column\("status"\)\)/);
+  assert.match(formula, /VSTACK\("selectionMode",blank\)/);
   assert.match(formula, /VSTACK\("pumpDamageByRank",column\("pumpingByRank"\)\)/);
   assert.match(formula, /VSTACK\("basicAttack",column\("basicAttack"\)\)/);
   for (const header of ['notes', 'damageByRank', 'sourceNote', 'prerequisiteText', 'skillKeys', 'tagKeys']) {
@@ -118,7 +118,7 @@ test('Native fixtures cover key failures, generic effects, missing mechanics and
   assert.ok(fixtures.some(fixture => fixture.expected.includes?.('+1 healing and +2 wards')));
   assert.ok(fixtures.some(fixture => fixture.expected.includes?.('Character has Wing tag; Wing weapon')));
   assert.ok(fixtures.some(fixture => fixture.expected.includes?.('Critical Failure: Lose your grip')));
-  assert.ok(fixtures.some(fixture => fixture.expected.includes?.('Energy: Unassigned')));
+  assert.ok(fixtures.some(fixture => fixture.expected.includes?.('Actions: Unassigned + 0 Energy')));
   assert.ok(fixtures.some(fixture => fixture.expected === 'Beam'));
   assert.ok(fixtures.some(fixture => fixture.expected === 'Wielding 2 Melee weapons one in each hand'));
   const newlineCase = fixtures.find(fixture => fixture.name.includes('character tag'));

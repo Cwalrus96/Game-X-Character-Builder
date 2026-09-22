@@ -3,7 +3,8 @@ import {
   clean, nullable, diagnostic, rowObject, splitList, contextOf, requiredText, booleanValue,
   nestedKind, adaptMetadata, adaptSchema, adaptEnums, adaptClasses, adaptOrigins,
 } from "./source-v4.mjs";
-import { SOURCE_V5_TAB_HEADERS, SOURCE_V5_MODEL_TABS, SOURCE_V5_FIELD_CONTRACTS, SOURCE_V5_ENUM_VALUES } from "./source-v5-schema.mjs";
+import { SOURCE_V5_TAB_HEADERS, SOURCE_V5_MODEL_TABS } from "./source-v5-schema.mjs";
+import { usesRequiredCells, requiredCellReadiness, sourceV5Contract } from "./required-cell-readiness.mjs";
 import {
   canonicalSkillKey, canonicalTagKey, numericValue, selectionRoutes, pumpingMap,
   energyOptions, deriveV5ClassSkills,
@@ -51,16 +52,17 @@ function grantFields(row, context, diagnostics) {
   };
 }
 
-function actionFields(row, context, diagnostics) {
+function actionFields(row, context, diagnostics, requiredCells = false) {
   const action = {};
   for (const field of ["actionType", "trigger", "attribute", "defense", "range", "targets", "damage", "onSuccess",
     "onCriticalSuccess", "onFailure", "onCriticalFailure", "bondEffect"]) action[field] = nullable(row[field]);
   action.actions = numericValue(row, "actions", context, diagnostics, { min: 0 });
-  action.energyCost = Object.freeze({
-    kind: nullable(row.energyCostKind)?.toLowerCase() || null,
-    value: numericValue(row, "energyCost", context, diagnostics, { min: 0 }),
-    options: energyOptions(row.energyCostOptions, context, diagnostics),
-  });
+  const authoredKind = nullable(row.energyCostKind)?.toLowerCase() || null;
+  const options = energyOptions(row.energyCostOptions, context, diagnostics);
+  const kind = requiredCells && (!authoredKind || ["unassigned", "unspecified"].includes(authoredKind) || (authoredKind === "conditional" && !options.length))
+    ? (options.length ? "conditional" : "fixed") : authoredKind;
+  const value = numericValue(row, "energyCost", context, diagnostics, { min: 0 });
+  action.energyCost = Object.freeze({ kind, value: requiredCells && !clean(row.energyCost) ? 0 : value, options });
   action.strainCost = numericValue(row, "strainCost", context, diagnostics, { min: 0 });
   action.sustained = booleanValue(row, "sustained", context, diagnostics);
   action.rollRequired = booleanValue(row, "rollRequired", context, diagnostics);
@@ -68,9 +70,9 @@ function actionFields(row, context, diagnostics) {
   return Object.freeze(action);
 }
 
-function adaptTechnique(sheet, rawRow, diagnostics) {
+function adaptTechnique(sheet, rawRow, diagnostics, requiredCells = false) {
   const { row, context, provenance } = sourceRecord(sheet, rawRow);
-  const status = nullable(row.status)?.toLowerCase() || null;
+  const status = requiredCells ? (requiredCellReadiness(sheet.name, row).complete ? "playable" : "incomplete") : nullable(row.status)?.toLowerCase() || null;
   if (!status) diagnostics.push(diagnostic("unresolved-readiness", "Technique readiness is unknown; preserve the record without granting or selecting it.", { ...context, column: "status", severity: "warning" }));
   const routes = selectionRoutes(row.selection, context, diagnostics);
   const normalRoute = routes.some((route) => ["skill", "tag", "weaponTag"].includes(route.type));
@@ -91,7 +93,7 @@ function adaptTechnique(sheet, rawRow, diagnostics) {
     tags: Object.freeze(splitList(row.tags)), tagKeys: Object.freeze(splitList(row.tags).map(canonicalTagKey)),
     ...prerequisiteFields(row, context, diagnostics),
     prerequisiteText: null,
-    action: actionFields(row, context, diagnostics),
+    action: actionFields(row, context, diagnostics, requiredCells),
     basicAttackRaw: nullable(row.basicAttack),
     basicAttack: normalizedExpressions("basicAttack", row, "basicAttack", context, diagnostics),
     pumpingByRank: pumpingMap(row.pumpingByRank, context, diagnostics),
@@ -176,8 +178,8 @@ function withProvenance(sheet, records) {
   })));
 }
 
-function validateHeaders(workbook, diagnostics) {
-  for (const [name, expected] of Object.entries(SOURCE_V5_TAB_HEADERS)) {
+function validateHeaders(workbook, diagnostics, headers) {
+  for (const [name, expected] of Object.entries(headers)) {
     const sheet = workbook?.sheets?.[name];
     if (!sheet) {
       diagnostics.push(diagnostic("missing-sheet", `Required schema-v5 sheet "${name}" is missing.`, { sheet: name }));
@@ -200,19 +202,20 @@ function validateHeaders(workbook, diagnostics) {
 }
 
 function validateSchema(model, diagnostics) {
+  const contractSet = sourceV5Contract(model.metadata);
   const schemaHeaders = model.sourceSheets.Schema?.headers || SOURCE_V5_TAB_HEADERS.Schema;
   const enumHeaders = model.sourceSheets.Enums?.headers || SOURCE_V5_TAB_HEADERS.Enums;
-  const expected = new Set(Object.keys(SOURCE_V5_MODEL_TABS).flatMap((tab) => SOURCE_V5_TAB_HEADERS[tab].map((field) => `${tab}.${field}`)));
+  const expected = new Set(Object.keys(SOURCE_V5_MODEL_TABS).flatMap((tab) => contractSet.headers[tab].map((field) => `${tab}.${field}`)));
   const seen = new Set();
   for (const entry of model.schema) {
     const key = `${entry.tab}.${entry.field}`;
     if (seen.has(key)) diagnostics.push(diagnostic("duplicate-schema-declaration", `Schema repeats ${key}.`, entry.source));
     if (!expected.has(key)) diagnostics.push(diagnostic("unknown-schema-declaration", `Schema declares unknown field ${key}.`, entry.source));
-    const contract = SOURCE_V5_FIELD_CONTRACTS[key];
+    const contract = contractSet.fields[key];
     if (contract && entry.type !== contract.type) diagnostics.push(diagnostic("schema-type-mismatch", `Schema ${key} declares type "${entry.type}"; implemented v5 type is "${contract.type}".`, { ...entry.source, column: "type", headers: schemaHeaders }));
     if (contract && entry.requirement !== contract.requirement) diagnostics.push(diagnostic("schema-requirement-mismatch", `Schema ${key} declares required="${entry.requirement}"; implemented v5 requirement is "${contract.requirement}".`, { ...entry.source, column: "required", headers: schemaHeaders }));
     if (contract?.type === "enum") {
-      const allowed = SOURCE_V5_ENUM_VALUES[entry.field];
+      const allowed = contractSet.enums[entry.field];
       const declared = clean(entry.valuesOrFormat).split("|").map(clean);
       if (clean(entry.valuesOrFormat) !== "see Enums" && (declared.length !== allowed.length || new Set(declared).size !== allowed.length || declared.some((value) => !allowed.includes(value)))) {
         diagnostics.push(diagnostic("schema-enum-mismatch", `Schema ${key} must reference Enums or declare exactly ${allowed.join("|")}.`, { ...entry.source, column: "valuesOrFormat", headers: schemaHeaders }));
@@ -226,7 +229,7 @@ function validateSchema(model, diagnostics) {
     if (String(model.metadata[key]) !== String(expectedVersion)) diagnostics.push(diagnostic("unsupported-source-version", `Metadata ${key} must equal ${expectedVersion}.`, { sheet: "Metadata", column: "value" }));
   }
   for (const [domain, entries] of Object.entries(model.enums)) {
-    const allowed = SOURCE_V5_ENUM_VALUES[domain];
+    const allowed = contractSet.enums[domain];
     const values = new Set();
     for (const entry of entries) {
       const context = { ...entry.source, headers: enumHeaders };
@@ -236,7 +239,7 @@ function validateSchema(model, diagnostics) {
       values.add(entry.value);
     }
   }
-  for (const [domain, values] of Object.entries(SOURCE_V5_ENUM_VALUES)) {
+  for (const [domain, values] of Object.entries(contractSet.enums)) {
     for (const value of values) if (!model.enums[domain]?.some((entry) => entry.value === value)) {
       diagnostics.push(diagnostic("missing-enum-value", `Enums does not declare ${domain}=${value}.`, { sheet: "Enums" }));
     }
@@ -246,12 +249,21 @@ function validateSchema(model, diagnostics) {
 /** Pure v5 adaptation; every authored row and unknown value remains inspectable. */
 export function adaptSchemaV5Workbook(workbook) {
   const diagnostics = [];
-  validateHeaders(workbook, diagnostics);
+  const metadataSheet = workbook?.sheets?.Metadata || { name: "Metadata", headers: SOURCE_V5_TAB_HEADERS.Metadata, rows: [] };
+  const metadata = adaptMetadata(metadataSheet, diagnostics);
+  if (metadata.readinessPolicy && !usesRequiredCells(metadata)) diagnostics.push(diagnostic("unsupported-readiness-policy", `Unknown readinessPolicy "${metadata.readinessPolicy}".`, { sheet: "Metadata", column: "value" }));
+  const requiredCells = usesRequiredCells(metadata);
+  validateHeaders(workbook, diagnostics, sourceV5Contract(metadata).headers);
   const sheet = (name) => workbook?.sheets?.[name] || { name, headers: SOURCE_V5_TAB_HEADERS[name], rows: [] };
   const map = (name, adapter) => Object.freeze(sheet(name).rows.map((row) => adapter(sheet(name), row, diagnostics)));
-  const classes = withProvenance(sheet("Classes"), adaptClasses(sheet("Classes"), diagnostics));
+  // Reuse legacy scalar adapters with an internal derived status, retaining the
+  // original status-free source and locations for diagnostics and provenance.
+  const statusSheet = (name) => requiredCells ? { ...sheet(name), headers: [...sheet(name).headers, "status"],
+    rows: sheet(name).rows.map((raw) => ({ ...raw, values: [...raw.values.slice(0, sheet(name).headers.length),
+      requiredCellReadiness(name, rowObject(sheet(name), raw)).complete ? "playable" : "incomplete"] })) } : sheet(name);
+  const classes = withProvenance(sheet("Classes"), adaptClasses(statusSheet("Classes"), diagnostics));
   const model = {
-    metadata: adaptMetadata(sheet("Metadata"), diagnostics),
+    metadata,
     schema: adaptSchema(sheet("Schema"), diagnostics),
     enums: adaptEnums(sheet("Enums"), diagnostics),
     classes: Object.freeze(classes.map((record) => Object.freeze({
@@ -269,9 +281,9 @@ export function adaptSchemaV5Workbook(workbook) {
     }))),
     classSkills: deriveV5ClassSkills(classes, diagnostics),
     classFeatures: map("ClassFeatures", (s, r, d) => adaptFeature(s, r, d, "classKey")),
-    techniques: map("Techniques", adaptTechnique),
+    techniques: map("Techniques", (s, r, d) => adaptTechnique(s, r, d, requiredCells)),
     feats: map("Feats", adaptFeat),
-    origins: withProvenance(sheet("Origins"), adaptOrigins(sheet("Origins"), diagnostics)),
+    origins: withProvenance(sheet("Origins"), adaptOrigins(statusSheet("Origins"), diagnostics)),
     originFeatures: map("OriginFeatures", (s, r, d) => adaptFeature(s, r, d, "originKey")),
     weaponBases: map("WeaponBases", adaptWeapon),
     weaponProfiles: Object.freeze([]),
@@ -283,6 +295,13 @@ export function adaptSchemaV5Workbook(workbook) {
       rows: Object.freeze(s.rows.map((r) => Object.freeze({ rowNumber: r.rowNumber, values: Object.freeze([...r.values]) }))),
     })]))),
   };
+  if (requiredCells) for (const collection of Object.values(SOURCE_V5_MODEL_TABS)) {
+    model[collection] = Object.freeze(model[collection].map((record) => {
+      const readiness = requiredCellReadiness(record.source.sheet, record.sourceValues);
+      return Object.freeze({ ...record, readiness, status: readiness.complete ? "playable" : "incomplete",
+        ...(readiness.complete ? {} : { selectable: false }) });
+    }));
+  }
   validateSchema(model, diagnostics);
   return Object.freeze({ ok: diagnostics.every((entry) => entry.severity !== "error"), model: Object.freeze(model), diagnostics: Object.freeze(diagnostics) });
 }
