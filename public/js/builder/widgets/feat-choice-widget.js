@@ -1,7 +1,6 @@
 import { SetFeatSelection } from "../../core/character-commands.js";
 import { getFeatGrantChoices } from "../../core/feat-rules.js";
 import { escapeHtml } from "../../core/data-sanitization.js";
-import { formatPrerequisites } from "../../core/prerequisites.js";
 import { isOptionGroup } from "../../core/option-groups.js";
 
 /** One portable picker for an answer-producing feat grant. */
@@ -106,11 +105,9 @@ export class FeatChoiceWidget {
         ? `<fieldset class="featOptions optionList" id="${escapeHtml(controlId)}" aria-labelledby="${escapeHtml(controlId)}-label">
             <label class="optionRow">${radio("", "No feat selected")}<span>No feat selected</span></label>
             ${options.map((option) => {
-              const prerequisites = formatPrerequisites(option.feat.prerequisites);
               return `<div class="featDescriptionOption"><label class="optionRow">${radio(option.featKey, option.feat.name)}
                 <div><div class="optionTitle">${escapeHtml(option.feat.name)}</div>
-                <div class="optionDesc">${escapeHtml(option.feat.description || "")}</div>
-                ${prerequisites ? `<p class="muted">Prerequisite: ${escapeHtml(prerequisites)}</p>` : ""}</div></label>
+                <div class="optionDesc">${escapeHtml(option.feat.description || "")}</div></div></label>
                 ${option.featKey === choice.featKey ? `<div data-feat-detail="${index}"></div>` : ""}</div>`;
             }).join("")}
           </fieldset>`

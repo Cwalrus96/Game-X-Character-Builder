@@ -620,6 +620,8 @@ Evidence:
 
 ### `WPE-DOMAIN-MIGRATION`
 
+September 22 prerequisite-display follow-up is complete in local review. Character-context feat and feature-option cards hide satisfied prerequisite lines while retaining unmet requirements and independent readiness notices. Eligible-only expanded feat cards keep full descriptions without redundant requirements. Five new regression tests and local browser review verify the display policy; the full suite passes 461 unit tests, 20 emulator tests and 14 asset checks, with the ten-artifact baseline unchanged. Eligibility and saved character data are unchanged. See [status.md](status.md) for evidence and local review; the broader migration remains active and Hosting release remains separate.
+
 September 22 Class-choice repair is deployed: unavailable options start hidden, empty groups and aggregate unavailable headings are omitted, and Soulbound weapon input now creates a complete source-owned schema-v6 answer. Clearing a granted weapon reviews removal safely. The exact eleven-file Hosting patch preserves the published catalogue and excludes separately developed feat-picker/source-readiness changes. Local browser save/reload and cancellation checks pass for level-2 Weapon Master; level-12 Metamorph opt-in visibility also passes. See [the repair record](class-choice-repair-2026-09-22.md) for verification and release evidence. This closes the two reported defects, not the remaining domain-migration work.
 
 Status: `active`

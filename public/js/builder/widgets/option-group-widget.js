@@ -176,7 +176,10 @@ export class OptionGroupWidget extends BuilderWidget {
       const key = getOptionStorageKey(group, option);
       const checked = this.selectedKeys.has(key);
       const prereqCheck = this.checkAvailability(option);
-      const prereqText = formatPrerequisites(option?.prerequisites);
+      // Missing content or builder support does not imply unmet character prerequisites.
+      const prereqText = !prereqCheck.ok && !this.checkEntryPrerequisites(option).ok
+        ? formatPrerequisites(option?.prerequisites)
+        : "";
       const isUnavailable = !prereqCheck.ok;
       if (isUnavailable) this.trackUnavailable?.({ context: this.context, hidden: false });
       if (isUnavailable && !this.showUnavailable && !checked) {

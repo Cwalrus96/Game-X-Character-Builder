@@ -70,7 +70,7 @@ test("compact and expanded feat choices always exclude unavailable feats even wh
   assert.match(h.mount.innerHTML, /class-b description/);
   assert.doesNotMatch(h.mount.innerHTML, /<select|needs-skill|unfinished|archetype-a|class-high/);
   assert.match(h.mount.innerHTML, /value="class-a" aria-label="class-a" checked/);
-  assert.match(h.mount.innerHTML, /Prerequisite: Class: ninja level 2/);
+  assert.doesNotMatch(h.mount.innerHTML, /Prerequisite:/, "eligible feats must not repeat satisfied requirements");
   h.toggle();
   assert.match(h.mount.innerHTML, /value="class-a" selected/);
   assert.doesNotMatch(h.mount.innerHTML, /class-a description|type="radio"/);
