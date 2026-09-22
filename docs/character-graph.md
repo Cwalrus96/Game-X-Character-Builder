@@ -1,6 +1,6 @@
 # Character graph contract
 
-Status: Work Package D core is complete and Work Package E migration is active. The class/feat/technique, Equipment, Attributes, and Origin/Skills slices have typed commands, graph coverage, portable session-page controllers, and local page integration; signed-in focused browser acceptance is still pending before the replacements are accepted.
+Status: Work Package D core is complete and Work Package E migration is active. The class/feat/technique, Equipment, Attributes, and Origin/Skills slices have typed commands, graph coverage, portable session-page controllers, and deployed page integration. Signed-in browser verification covers the released slices; broader domain work and deferred personal acceptance are tracked in `status.md`.
 
 Last updated: 2026-09-22.
 
@@ -12,11 +12,13 @@ The Character Dependency Graph is one authoritative pure subsystem for character
 
 `GraphCompiler` is the subsystem's snapshot-building operation. The reconciler is its fixed-point operation: it repeatedly compiles and applies registered removal, prerequisite, capacity, compatibility, and incomplete-selection policy until it reaches a deterministic fixed point. Keeping those internal operations separate makes snapshot construction independently testable and lets reconciliation recompile after each state change; it does not create two authorities. `CharacterSession` uses one graph reconciliation facade. Neither operation reads Firebase, the DOM, pages, widgets, files, or the network or mutates caller-owned values.
 
-The reviewed production game-data release is schema v2 and supplies stable keys. Work Package E tests the graph against both focused fixtures and the published combined runtime artifact. Production deployment remains a separate approval boundary.
+The reviewed production game-data release is schema v3 and supplies stable keys. Unit tests use controlled fixtures; the separate installed-catalogue integration checks exercise published artifacts. Subsequent production releases remain separate approval boundaries.
 
 The v5 source importer produces staged schema-v3 game data without changing character persistence. Shared selection Rules handle multiple skill routes, tag/weapon-tag routes, and explicit readiness/runtime deferrals. Typed prerequisite alternatives retain their separate dependencies and use current character/option context. Source-owned repeated features and recipient-owned skills remain explicit deferred effects until their state and execution are implemented. Under the September 22 decision, static weapon prerequisites use matching owned equipment, including required count, key, tags, reach and rank. Wielding and available hands are player-tracked gameplay conditions, never saved or required for builder eligibility. Enhancement prerequisites still apply only to the weapon being enhanced. An OR prerequisite may use another supported alternative. Deleted source identities require release review; the explicit Celestial Knight conversion and Metamorph rebuild disposition live in CharacterMigrations, not graph removal policy.
 
 ## Node contract
+
+A generated weapon requires both an active granting choice and its stored answer before the compiler links it to a `grant-answer:*` owner. Clearing an answer leaves the previous generated weapon temporarily present in the proposed snapshot; reconciliation removes it through the normal reviewed impact flow without constructing an edge to a missing answer node. Cancelling the proposal preserves the accepted weapon and dependent choices.
 
 Prerequisite edges describe static build dependencies: for example, removing an acquired Trait that supplies a required tag can invalidate a dependent Technique and require a reviewed change. Temporary play-state changes, such as spending Energy or ending a transformation, do not invalidate or remove the learned Technique. "Compile-time" eligibility is rechecked when the build changes; it is not a permanent eligibility flag recorded only at initial selection. Shared Rules own this distinction for both widgets and graph evaluation, as specified in [the prerequisite boundary](game-data-contract.md#prerequisites-and-use-conditions).
 

@@ -1,4 +1,4 @@
-import { sanitizeText } from "../../core/data-sanitization.js";
+import { normalizeEnumToken, sanitizeText } from "../../core/data-sanitization.js";
 import { resolveGrantChoiceIds } from "../../core/choice-identity.js";
 import { getEffectiveTags } from "../../core/weapon-utils.js";
 import { TechniqueChoiceWidget } from "./technique-choice-widget.js?v=wpe8";
@@ -33,19 +33,31 @@ function getForcedEnhancementsForChoice(choiceId, entries, getSelectedEntries) {
   return out;
 }
 
-function buildWeaponChoicePatch({ choice, patch = {}, forcedEnhancements = [], weaponBases = [] } = {}) {
-  const next = { ...(choice || {}), ...patch, type: "weapon" };
+export function buildWeaponChoicePatch({
+  choice, patch = {}, forcedEnhancements = [], weaponBases = [], sourceId = "", sourceLabel = "",
+} = {}) {
+  const next = {
+    type: "weapon",
+    sourceId: sanitizeText(choice?.sourceId || sourceId, { maxLen: 260, collapse: true }),
+    sourceLabel: sanitizeText(choice?.sourceLabel || sourceLabel, { maxLen: 200, collapse: true }),
+    value: "", techniqueKey: "", skillKey: "", weaponKey: "", rank: 1,
+    customName: "", enhancements: [], tags: [],
+    ...(choice || {}), ...patch,
+  };
   if (!next.weaponKey) return { type: "weapon", weaponKey: "" };
   const optionalEnhancements = Array.isArray(next.enhancements)
     ? next.enhancements.filter((enhancement) => !enhancement?.granted && enhancement?.enhancementKey)
     : [];
   next.enhancements = forcedEnhancements.concat(optionalEnhancements);
   const weapon = { weaponKey: next.weaponKey, rank: next.rank, enhancements: next.enhancements };
-  next.tags = getEffectiveTags(weapon, weaponBases);
+  // The saved compatibility cache uses the same token format as migrations;
+  // Rules derive readable and valued tags from the referenced weapon definition.
+  next.tags = [...new Set(getEffectiveTags(weapon, weaponBases)
+    .map((tag) => normalizeEnumToken(tag, { maxLen: 128 })).filter(Boolean))];
   return next;
 }
 
-function buildWeaponEnhancementChoicePatch({ choice, grant, enhancementKey, forcedEnhancements = [] } = {}) {
+export function buildWeaponEnhancementChoicePatch({ choice, grant, enhancementKey, forcedEnhancements = [] } = {}) {
   const key = sanitizeText(enhancementKey, { maxLen: 96, collapse: true });
   const optional = key
     ? [{
@@ -53,6 +65,7 @@ function buildWeaponEnhancementChoicePatch({ choice, grant, enhancementKey, forc
         enhancementKey: key,
         rank: Number.parseInt(String(grant?.rank ?? 1), 10) || 1,
         selections: {},
+        granted: false,
       }]
     : [];
   return {
@@ -122,11 +135,10 @@ export function createGrantWidgets({
         getExistingWeapons,
         scope,
         onChange: (patch) => {
-          grantChoiceState?.updateChoice(choiceId, buildWeaponChoicePatch({
-            choice: grantChoiceState?.getChoice(choiceId),
-            patch,
-            forcedEnhancements,
-            weaponBases,
+          if (!patch.weaponKey) grantChoiceState?.removeChoice(choiceId);
+          else grantChoiceState?.updateChoice(choiceId, buildWeaponChoicePatch({
+            choice: grantChoiceState?.getChoice(choiceId), patch, forcedEnhancements, weaponBases,
+            sourceId, sourceLabel: entry?.name || entry?.featureName || "",
           }));
           onChange?.();
         },
@@ -148,7 +160,8 @@ export function createGrantWidgets({
         getExistingWeapons,
         scope,
         onChange: (enhancementKey) => {
-          const choice = grantChoiceState?.getChoice(choiceId) || { choiceId, type: "weapon" };
+          const choice = grantChoiceState?.getChoice(choiceId);
+          if (!choice?.weaponKey) return;
           const patch = buildWeaponEnhancementChoicePatch({ choice, grant, enhancementKey, forcedEnhancements });
           grantChoiceState?.updateChoice(choiceId, buildWeaponChoicePatch({
             choice,

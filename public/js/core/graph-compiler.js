@@ -583,7 +583,9 @@ function compileEquipment(context, character, weaponBasesByKey, weaponEnhancemen
     const sourceOwned = isSourceOwnedWeapon(weapon);
     const selectable = !!definition && isGameDataRecordSelectable(definition, { allowGrantedOnly: sourceOwned });
     const sourceOwnerId = sourceOwned ? `grant-answer:${weapon.sourceChoiceId || weapon.choiceId}` : "root:character";
-    const sourceActive = !sourceOwned || context.activeChoices.has(weapon.sourceChoiceId || weapon.choiceId);
+    const sourceChoiceId = weapon.sourceChoiceId || weapon.choiceId;
+    const sourceActive = !sourceOwned || (context.activeChoices.has(sourceChoiceId)
+      && Object.prototype.hasOwnProperty.call(builder.grantChoices, sourceChoiceId));
     const skillRankCap = definition ? getWeaponSkillRankCap(definition, skillRanks) : 0;
     const hasRankedSkill = definition ? getWeaponSkillNames(definition).some((skill) => Object.prototype.hasOwnProperty.call(skillRanks, skill)) : false;
     const minimumRank = Number(definition?.minRank || 0);

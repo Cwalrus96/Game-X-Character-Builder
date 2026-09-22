@@ -620,6 +620,8 @@ Evidence:
 
 ### `WPE-DOMAIN-MIGRATION`
 
+September 22 Class-choice repair is deployed: unavailable options start hidden, empty groups and aggregate unavailable headings are omitted, and Soulbound weapon input now creates a complete source-owned schema-v6 answer. Clearing a granted weapon reviews removal safely. The exact eleven-file Hosting patch preserves the published catalogue and excludes separately developed feat-picker/source-readiness changes. Local browser save/reload and cancellation checks pass for level-2 Weapon Master; level-12 Metamorph opt-in visibility also passes. See [the repair record](class-choice-repair-2026-09-22.md) for verification and release evidence. This closes the two reported defects, not the remaining domain-migration work.
+
 Status: `active`
 
 September 22 class-feature ordering follow-up is complete: Class-page features and choice groups, plus source-owned class abilities on the character sheet, display from lowest required level to highest. Nested options inherit their parent's minimum level; sorting is a presentation projection with no saved-state or eligibility changes. Verification passes 456 unit tests, 20 emulator tests, 14 asset checks, the ten-artifact baseline, controlled ordering/nonmutation checks, and local browser review on both pages. The restarted local preview and separate Hosting boundary are recorded in [status.md](status.md); this does not complete the broader domain migration.

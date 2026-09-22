@@ -81,6 +81,8 @@ export class WeaponEnhancementChoiceWidget extends BuilderWidget {
     label.textContent = "Choose Weapon Enhancement";
 
     const select = document.createElement("select");
+    select.id = `${this.id}:enhancement`;
+    label.htmlFor = select.id;
     select.className = "input";
     select.disabled = !selectedWeaponKey;
     select.innerHTML = `<option value="">${selectedWeaponKey ? "Choose an enhancement..." : "Choose a weapon first..."}</option>` + options

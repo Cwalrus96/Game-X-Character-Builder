@@ -83,7 +83,6 @@ const classDetailsEl = document.getElementById("classDetails");
 const featuresEl = document.getElementById("features");
 const featureHintEl = document.getElementById("featureHint");
 const showUnavailableFeaturesEl = document.getElementById("showUnavailableFeatures");
-const featurePrereqNoticeEl = document.getElementById("featurePrereqNotice");
 
 const incompleteBannerEl = document.getElementById("classIncompleteBanner");
 const incompleteReasonEl = document.getElementById("classIncompleteReason");
@@ -196,7 +195,7 @@ function checkEntryPrerequisites(entry, { deferUnresolvedChoices = false } = {})
 }
 
 function showUnavailableFeatures() {
-  return showUnavailableFeaturesEl ? !!showUnavailableFeaturesEl.checked : true;
+  return !!showUnavailableFeaturesEl?.checked;
 }
 
 function compareByName(a, b) {
@@ -602,7 +601,6 @@ async function main() {
     classFeaturesWidget = new ClassFeaturesWidget(classPage, {
       containerEl: featuresEl,
       hintEl: featureHintEl,
-      prereqNoticeEl: featurePrereqNoticeEl,
       getClassKey: () => selectedClassKey,
       getLevel: () => clampLevel(selectedLevel),
       getSelectedFeatureOptionKeys: () => selectedFeatureOptionKeys,

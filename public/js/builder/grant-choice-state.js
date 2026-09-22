@@ -38,4 +38,13 @@ export class GrantChoiceState {
     this.setChoices(choices);
     this.onChange?.({ choiceId: id, choice: choices[id] || null });
   }
+
+  removeChoice(choiceId) {
+    const id = sanitizeText(choiceId, { maxLen: 96, collapse: true });
+    if (!id || !Object.prototype.hasOwnProperty.call(this.getChoices(), id)) return;
+    const choices = { ...this.getChoices() };
+    delete choices[id];
+    this.setChoices(choices);
+    this.onChange?.({ choiceId: id, choice: null });
+  }
 }

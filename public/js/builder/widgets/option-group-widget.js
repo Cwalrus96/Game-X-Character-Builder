@@ -30,7 +30,7 @@ export class OptionGroupWidget extends BuilderWidget {
     depth = 0,
     context = "feature",
     collapsedGroups,
-    showUnavailable = true,
+    showUnavailable = false,
     checkEntryPrerequisites,
     trackUnavailable,
     createGrantWidgets,
@@ -284,10 +284,12 @@ export class OptionGroupWidget extends BuilderWidget {
       list.append(row);
 
       if (checked && isOptionGroup(option)) {
-        list.append(this.renderChildGroup(option));
+        const childGroup = this.renderChildGroup(option);
+        if (childGroup) list.append(childGroup);
       }
     }
 
+    if (!list.children.length && !this.showUnavailable) return null;
     body.append(list);
     container.append(headerBtn, body);
     return container;

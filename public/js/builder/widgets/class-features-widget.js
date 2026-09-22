@@ -3,24 +3,10 @@ import { collectOptionGroups } from "../../core/option-groups.js";
 import { sortClassFeaturesByLevel } from "../../core/class-feature-display.js";
 import { BuilderWidget } from "./builder-widget.js";
 
-function setPrerequisiteNotice(el, unavailableCount, hiddenCount) {
-  if (!el) return;
-  if (!unavailableCount) {
-    el.style.display = "none";
-    el.textContent = "";
-    return;
-  }
-  el.style.display = "block";
-  el.textContent = hiddenCount
-    ? `${hiddenCount} unavailable option${hiddenCount === 1 ? "" : "s"} hidden by prerequisites.`
-    : `${unavailableCount} option${unavailableCount === 1 ? " is" : "s are"} unavailable because prerequisites are not met.`;
-}
-
 export class ClassFeaturesWidget extends BuilderWidget {
   constructor(page, {
     containerEl,
     hintEl = null,
-    prereqNoticeEl = null,
     getClassKey = null,
     getLevel = null,
     getSelectedFeatureOptionKeys = null,
@@ -35,7 +21,6 @@ export class ClassFeaturesWidget extends BuilderWidget {
     super(page, { id: "class-features", scope });
     this.containerEl = containerEl || null;
     this.hintEl = hintEl || null;
-    this.prereqNoticeEl = prereqNoticeEl || null;
     this.getClassKey = typeof getClassKey === "function" ? getClassKey : () => "";
     this.getLevel = typeof getLevel === "function" ? getLevel : () => 1;
     this.getSelectedFeatureOptionKeys = typeof getSelectedFeatureOptionKeys === "function"
@@ -45,7 +30,7 @@ export class ClassFeaturesWidget extends BuilderWidget {
       ? setSelectedFeatureOptionKeys
       : () => {};
     this.getAvailableFeatures = typeof getAvailableFeatures === "function" ? getAvailableFeatures : () => [];
-    this.showUnavailable = typeof showUnavailable === "function" ? showUnavailable : () => true;
+    this.showUnavailable = typeof showUnavailable === "function" ? showUnavailable : () => false;
     this.checkEntryPrerequisites = typeof checkEntryPrerequisites === "function"
       ? checkEntryPrerequisites
       : () => ({ ok: true, failureReasons: [] });
@@ -68,8 +53,6 @@ export class ClassFeaturesWidget extends BuilderWidget {
     this.page?.clearWidgets?.({ scope: "feature" });
     this.containerEl.replaceChildren();
 
-    let hiddenUnavailableCount = 0;
-    let unavailableCount = 0;
     const classKey = this.getClassKey();
     const level = this.getLevel();
     const selectedFeatureOptionKeys = this.selectedFeatureOptionKeys();
@@ -80,7 +63,7 @@ export class ClassFeaturesWidget extends BuilderWidget {
       message.textContent = "Choose a class to view features.";
       this.containerEl.append(message);
       if (this.hintEl) this.hintEl.textContent = "";
-      setPrerequisiteNotice(this.prereqNoticeEl, 0, 0);
+
       return this.containerEl;
     }
 
@@ -92,7 +75,7 @@ export class ClassFeaturesWidget extends BuilderWidget {
       message.className = "muted";
       message.textContent = "No features available.";
       this.containerEl.append(message);
-      setPrerequisiteNotice(this.prereqNoticeEl, 0, 0);
+
       return this.containerEl;
     }
 
@@ -122,10 +105,7 @@ export class ClassFeaturesWidget extends BuilderWidget {
         const groupId = buildGroupId(feature);
         const optionGroup = this.renderOptionGroup?.(feature, selectedFeatureOptionKeys, () => this.render(), 0, {
           context: "feature",
-          trackUnavailable: ({ hidden }) => {
-            if (hidden) hiddenUnavailableCount += 1;
-            else unavailableCount += 1;
-          },
+
           isActive: (dependencyContext = {}) => {
             const builder = dependencyContext.reconciledBuilder || dependencyContext.proposedBuilder || dependencyContext.builder || {};
             const visibleGroups = collectOptionGroups(this.getAvailableFeatures({
@@ -139,7 +119,6 @@ export class ClassFeaturesWidget extends BuilderWidget {
       }
     }
 
-    setPrerequisiteNotice(this.prereqNoticeEl, unavailableCount, hiddenUnavailableCount);
     this.setSelectedFeatureOptionKeys(selectedFeatureOptionKeys);
     return this.containerEl;
   }

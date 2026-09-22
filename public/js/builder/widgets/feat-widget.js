@@ -12,7 +12,7 @@ export class FeatWidget extends BuilderWidget {
     selectedFeatNames,
     selectedFeatOptionKeys,
     maxSlots = 0,
-    showUnavailable = true,
+    showUnavailable = false,
     checkEntryPrerequisites,
     renderOptionGroup,
     trackUnavailable,

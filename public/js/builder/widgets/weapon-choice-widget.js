@@ -59,6 +59,8 @@ export class WeaponChoiceWidget extends BuilderWidget {
     label.textContent = "Choose Weapon";
 
     const select = document.createElement("select");
+    select.id = `${this.id}:weapon`;
+    label.htmlFor = select.id;
     select.className = "input";
     select.innerHTML = `<option value="">Choose a weapon...</option>` + this.weaponBases
       .filter((weapon) => Number(weapon?.minRank || 0) <= rank)

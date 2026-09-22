@@ -4,24 +4,10 @@ import { getFeatSelectionState } from "../../core/feat-rules.js?v=wpe10";
 import { BuilderWidget } from "./builder-widget.js";
 import { FeatWidget } from "./feat-widget.js?v=wpe1";
 
-function setPrerequisiteNotice(el, unavailableCount, hiddenCount) {
-  if (!el) return;
-  if (!unavailableCount) {
-    el.style.display = "none";
-    el.textContent = "";
-    return;
-  }
-  el.style.display = "block";
-  el.textContent = hiddenCount
-    ? `${hiddenCount} unavailable option${hiddenCount === 1 ? "" : "s"} hidden by prerequisites.`
-    : `${unavailableCount} option${unavailableCount === 1 ? " is" : "s are"} unavailable because prerequisites are not met.`;
-}
-
 export class FeatsWidget extends BuilderWidget {
   constructor(page, {
     containerEl,
     hintEl = null,
-    prereqNoticeEl = null,
     getClassKey = null,
     getLevel = null,
     getSelectedFeatNames = null,
@@ -40,7 +26,6 @@ export class FeatsWidget extends BuilderWidget {
     super(page, { id: "feats", scope });
     this.containerEl = containerEl || null;
     this.hintEl = hintEl || null;
-    this.prereqNoticeEl = prereqNoticeEl || null;
     this.getClassKey = typeof getClassKey === "function" ? getClassKey : () => "";
     this.getLevel = typeof getLevel === "function" ? getLevel : () => 1;
     this.getSelectedFeatNames = typeof getSelectedFeatNames === "function" ? getSelectedFeatNames : () => new Set();
@@ -49,7 +34,7 @@ export class FeatsWidget extends BuilderWidget {
     this.setSelectedFeatOptionKeys = typeof setSelectedFeatOptionKeys === "function" ? setSelectedFeatOptionKeys : () => {};
     this.getGameData = typeof getGameData === "function" ? getGameData : () => ({});
     this.getBuilder = typeof getBuilder === "function" ? getBuilder : () => ({});
-    this.showUnavailable = typeof showUnavailable === "function" ? showUnavailable : () => true;
+    this.showUnavailable = typeof showUnavailable === "function" ? showUnavailable : () => false;
     this.checkEntryPrerequisites = typeof checkEntryPrerequisites === "function"
       ? checkEntryPrerequisites
       : () => ({ ok: true, failureReasons: [] });
@@ -77,8 +62,6 @@ export class FeatsWidget extends BuilderWidget {
     this.page?.clearWidgets?.({ scope: "feat" });
     this.containerEl.innerHTML = "";
 
-    let hiddenUnavailableCount = 0;
-    let unavailableCount = 0;
     const classKey = this.getClassKey();
     const level = this.getLevel();
     const selectedFeatNames = this.selectedFeatNames();
@@ -87,7 +70,7 @@ export class FeatsWidget extends BuilderWidget {
     if (!classKey) {
       this.containerEl.innerHTML = `<p class="muted">Choose a class to view feats.</p>`;
       if (this.hintEl) this.hintEl.textContent = "";
-      setPrerequisiteNotice(this.prereqNoticeEl, 0, 0);
+
       return this.containerEl;
     }
 
@@ -108,13 +91,13 @@ export class FeatsWidget extends BuilderWidget {
 
     if (maxSlots <= 0) {
       this.containerEl.innerHTML = `<p class="muted">No active feature currently grants a feat choice.</p>`;
-      setPrerequisiteNotice(this.prereqNoticeEl, 0, 0);
+
       return this.containerEl;
     }
 
     if (!visible.length) {
       this.containerEl.innerHTML = `<p class="muted">No published feats match the active explicit feat grants.</p>`;
-      setPrerequisiteNotice(this.prereqNoticeEl, 0, 0);
+
       return this.containerEl;
     }
 
@@ -132,10 +115,7 @@ export class FeatsWidget extends BuilderWidget {
         showUnavailable: this.showUnavailable(),
         checkEntryPrerequisites: this.checkEntryPrerequisites,
         renderOptionGroup: this.renderOptionGroup,
-        trackUnavailable: ({ hidden }) => {
-          if (hidden) hiddenUnavailableCount += 1;
-          else unavailableCount += 1;
-        },
+
         setStatus: this.setStatus,
         onChange: () => {
           this.setSelectedFeatNames(selectedFeatNames);
@@ -150,7 +130,7 @@ export class FeatsWidget extends BuilderWidget {
     if (!list.children.length) {
       this.containerEl.innerHTML = `<p class="muted">No selectable feats match the current filters.</p>`;
     }
-    setPrerequisiteNotice(this.prereqNoticeEl, unavailableCount, hiddenUnavailableCount);
+
     return this.containerEl;
   }
 }

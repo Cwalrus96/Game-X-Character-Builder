@@ -1,6 +1,6 @@
 # Builder flow
 
-Status: living current/transition contract. Class/Feat, Attributes, Equipment, Techniques, Origin, Skills, and Bonds/Keystones pages use `CharacterSession` plus the graph in local review. Static Trait Rules, widgets, schema-v6 choices and graph integration are implemented for explicit character-owned providers. The accepted source repairs and eight Origin providers are authored and stage successfully; Metamorph's three Trait choices import. Personal manual acceptance is deferred and nonblocking. A compatible reviewed data/application release remains separate; the deployed Class-only hotfix is recorded in `docs/status.md`.
+Status: living current/transition contract. Class/Feat, Attributes, Equipment, Techniques, Origin, Skills, and Bonds/Keystones pages use `CharacterSession` plus the graph in the deployed schema-v6 builder. Static Trait Rules, widgets and graph integration support explicit character-owned providers, including eight Origin providers and Metamorph's three Trait choices. Personal manual acceptance is deferred and nonblocking. Independently developed feat-picker refinements remain in local review; exact deployment scopes are recorded in `docs/status.md`.
 
 ## Step registry
 
@@ -71,6 +71,10 @@ Trait controls are mounted as independent widgets beside the Origin details and 
 Class features display in ascending required-level order on the Class page and character sheet. Equal-level features retain their existing relative order. Class-page choice groups remain with their nested controls; selected options on the sheet inherit at least their parent group's required level. Sorting changes only display lists, never source catalogue arrays, saved ability order, grant allocation, or eligibility.
 
 ## Proposed-change safety
+
+Class feature options are hidden by default when unavailable. “Show Unavailable Options” starts unchecked and explicitly reveals disabled options with their individual reasons. There is no aggregate unavailable-count heading, and groups with no visible options do not render an empty heading. Already-selected options remain visible so a player can inspect or remove them. The retained pooled Feats compatibility view follows the same default; the newer feature-owned feat pickers always list eligible candidates.
+
+Weapon-grant widgets produce complete canonical answers with stable source ownership and normalized compatibility tags. Additional enhancement choices preserve the original weapon owner and distinguish forced enhancements from optional ones. Clearing a weapon removes its answer instead of merging an empty key into an otherwise populated answer. The normal session/graph proposal reviews generated-weapon and dependent-choice removal; cancellation preserves the accepted weapon and selections.
 
 A migrated choice edit must follow this sequence:
 
