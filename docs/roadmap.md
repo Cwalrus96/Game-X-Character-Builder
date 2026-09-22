@@ -608,6 +608,8 @@ Evidence:
 
 Status: `active`
 
+September 22 feat-widget follow-up is complete in local review. Explicit class-feature feat grants now mount their own portable pickers with class/archetype/category/level filters and character prerequisites; replacements and dependent removals retain the session confirmation flow and existing saved arrays. Shared Rules and graph use stable source-key allocation. Verification passes 438 unit tests, 20 emulator tests, 14 asset checks, three installed-catalogue checks and the ten-artifact baseline. Browser checks cover Ninja and Magical Guardian, separated choices, unavailable/empty options, replacement cancellation/focus, class/level removal, and exact local save/reload. See [status.md](status.md) for the review URL and release boundary. This finishes the requested feature, not the entire domain-migration package; subsequent shared UI consolidation remains `WPF-UI-SYSTEM` after remaining domain acceptance.
+
 September 21 user direction supersedes the personal-acceptance blocker in the historical checkpoint below: "I'll perform manual acceptance soon, but not now. That should not be a blocker." Continue engineering and agent-performed browser verification now. Their testing remains a follow-up, not a release prerequisite. Existing-character compatibility, complete automated checks, and a concrete compatible builder/data release still need to be established; do not mark unperformed checks as passed.
 
 September 21 scope addition: Traits are a required first-class domain. Importing their records and accepting Trait prerequisite syntax does not complete their runtime implementation. The historical "all planned vertical slices" checkpoint below describes the earlier scope, before this addition.

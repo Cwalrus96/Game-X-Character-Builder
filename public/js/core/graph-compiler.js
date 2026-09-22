@@ -459,6 +459,7 @@ function deferredGrantHandler({
 
 function defaultFeatGrantHandler({
   grant,
+  sourceEntry,
   grantIndex,
   grantNodeId,
   sourceOwnerId,
@@ -470,6 +471,7 @@ function defaultFeatGrantHandler({
 }) {
   const slots = createFeatGrantSlots(grant, {
     sourceId: sourceOwnerId,
+    sourceKey: sourceEntry?.featureKey || sourceEntry?.featKey || sourceEntry?.originKey || sourceEntry?.key,
     sourceLabel: sourceName,
     grantId: grantNodeId,
     grantIndex,
@@ -1030,6 +1032,7 @@ function createCompilerContext({ character, gameData, registry, graph, classesBy
           sourceNodeId: source.nodeId,
           sourceOwnerId: source.nodeId,
           sourceName: source.label,
+          sourceEntry: source.entry,
           techniquesByKey,
           weaponBasesByKey,
           classesByKey,

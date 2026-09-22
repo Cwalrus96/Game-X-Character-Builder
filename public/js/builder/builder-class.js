@@ -18,7 +18,6 @@ import { CharacterSessionPage } from "./character-session-page.js?v=wpe10";
 import { GrantChoiceState } from "./grant-choice-state.js";
 import { ClassChoiceWidget } from "./widgets/class-choice-widget.js?v=wpe1";
 import { ClassFeaturesWidget } from "./widgets/class-features-widget.js";
-import { FeatsWidget } from "./widgets/feats-widget.js?v=wpe10";
 import { GrantChoicesWidget } from "./widgets/grant-choices-widget.js";
 import { createGrantWidgets } from "./widgets/grant-widget-factory.js?v=wpe8";
 import { LevelChoiceWidget } from "./widgets/level-choice-widget.js?v=wpe1";
@@ -81,13 +80,9 @@ const primaryEl = document.getElementById("primaryAttribute");
 const classDetailsEl = document.getElementById("classDetails");
 
 const featuresEl = document.getElementById("features");
-const featsEl = document.getElementById("feats");
 const featureHintEl = document.getElementById("featureHint");
-const featHintEl = document.getElementById("featHint");
 const showUnavailableFeaturesEl = document.getElementById("showUnavailableFeatures");
-const showUnavailableFeatsEl = document.getElementById("showUnavailableFeats");
 const featurePrereqNoticeEl = document.getElementById("featurePrereqNotice");
-const featPrereqNoticeEl = document.getElementById("featPrereqNotice");
 
 const incompleteBannerEl = document.getElementById("classIncompleteBanner");
 const incompleteReasonEl = document.getElementById("classIncompleteReason");
@@ -97,7 +92,6 @@ const saveAndOpenBtn = document.getElementById("saveAndOpenBtn");
 
 let primaryAttributeWidget = null;
 let classFeaturesWidget = null;
-let featsWidget = null;
 
 let classPage = null;
 const grantChoiceState = new GrantChoiceState({
@@ -110,7 +104,6 @@ const grantChoiceState = new GrantChoiceState({
     const result = await classPage?.requestCharacterCommand?.(null, SetGrantChoices(grantChoices));
     if (result && !result.ok) grantChoices = { ...acceptedChoices };
     renderFeatures();
-    renderFeats();
   },
 });
 
@@ -203,10 +196,6 @@ function checkEntryPrerequisites(entry, { deferUnresolvedChoices = false } = {})
 
 function showUnavailableFeatures() {
   return showUnavailableFeaturesEl ? !!showUnavailableFeaturesEl.checked : true;
-}
-
-function showUnavailableFeats() {
-  return showUnavailableFeatsEl ? !!showUnavailableFeatsEl.checked : true;
 }
 
 function compareByName(a, b) {
@@ -361,7 +350,12 @@ function createGrantChoiceWidgets(entry, options = {}) {
     getGrantChoices: () => grantChoices,
     getExistingWeapons: () => currentDoc?.builder?.weapons || [],
     sourceId,
-    scope: options.scope || "features",
+    scope: options.widgetScope || options.scope || "features",
+    showUnavailable: showUnavailableFeatures,
+    renderFeatOptions: (feat, widgetScope) => createOptionGroupElement(
+      feat, selectedFeatOptionKeys, updateUiForSelection, 0, { context: "feat", widgetScope },
+    ),
+    renderFeatGrants: (feat, widgetScope) => createGrantChoiceWidgets(feat, { scope: "feat", widgetScope }),
     onChange: () => {
       updateUiForSelection();
       renderNav();
@@ -378,6 +372,7 @@ function createGrantChoiceWidgets(entry, options = {}) {
 
 function createOptionGroupElement(group, selectedKeys, onChange, depth = 0, {
   context = "feature",
+  widgetScope = context,
   trackUnavailable = null,
   isActive = null,
 } = {}) {
@@ -389,10 +384,10 @@ function createOptionGroupElement(group, selectedKeys, onChange, depth = 0, {
     depth,
     context,
     collapsedGroups,
-    showUnavailable: context === "feat" ? showUnavailableFeats() : showUnavailableFeatures(),
+    showUnavailable: showUnavailableFeatures(),
     checkEntryPrerequisites,
     trackUnavailable,
-    createGrantWidgets: createGrantChoiceWidgets,
+    createGrantWidgets: (entry, options) => createGrantChoiceWidgets(entry, { ...options, widgetScope }),
     setStatus: (message) => setStatus(statusEl, message),
     isActive: typeof isActive === "function" ? isActive : (dependencyContext = {}) => {
       if (context !== "feat") return true;
@@ -400,16 +395,12 @@ function createOptionGroupElement(group, selectedKeys, onChange, depth = 0, {
       const selectedFeats = Array.isArray(builder.selectedFeats) ? builder.selectedFeats : [];
       return selectedFeats.includes(String(group?.featKey || "").trim());
     },
-    scope: context,
+    scope: widgetScope,
   }).element;
 }
 
 function renderFeatures() {
   classFeaturesWidget?.render();
-}
-
-function renderFeats() {
-  featsWidget?.render();
 }
 
 function updateUiForSelection() {
@@ -425,12 +416,10 @@ function updateUiForSelection() {
   if (saveBtn) saveBtn.disabled = false;
   if (saveAndOpenBtn) saveAndOpenBtn.disabled = false;
   if (featuresEl) featuresEl.style.opacity = dim ? "0.6" : "1";
-  if (featsEl) featsEl.style.opacity = dim ? "0.6" : "1";
 
   renderPrimaryOptions();
   renderClassDetails();
   renderFeatures();
-  renderFeats();
 }
 
 async function saveClassStep({ openSheetAfter = false, intent = "save" } = {}) {
@@ -631,38 +620,14 @@ async function main() {
       renderGrantWidgets: createGrantChoiceWidgets,
     });
 
-    featsWidget = new FeatsWidget(classPage, {
-      containerEl: featsEl,
-      hintEl: featHintEl,
-      prereqNoticeEl: featPrereqNoticeEl,
-      getClassKey: () => selectedClassKey,
-      getLevel: () => clampLevel(selectedLevel),
-      getSelectedFeatNames: () => selectedFeatNames,
-      setSelectedFeatNames: (next) => {
-        selectedFeatNames = next instanceof Set ? next : new Set(next || []);
-      },
-      getSelectedFeatOptionKeys: () => selectedFeatOptionKeys,
-      setSelectedFeatOptionKeys: (next) => {
-        selectedFeatOptionKeys = next instanceof Set ? next : new Set(next || []);
-      },
-      getGameData: () => gameData,
-      getBuilder: getClassStepBuilderState,
-      showUnavailable: showUnavailableFeats,
-      checkEntryPrerequisites,
-      renderOptionGroup: (group) => createOptionGroupElement(group, selectedFeatOptionKeys, renderFeats, 1, { context: "feat" }),
-      setStatus: (message) => setStatus(statusEl, message),
-      onChange: renderFeats,
-    });
-
     const traitMount = document.createElement("section");
     traitMount.className = "card";
     traitMount.setAttribute("aria-label", "Traits supplied by your features");
-    featsEl.closest("section").after(traitMount);
+    featuresEl.closest("section").after(traitMount);
     new TraitWidget(classPage, { gameData, mount: traitMount });
 
     // Wire events
     showUnavailableFeaturesEl?.addEventListener("change", renderFeatures);
-    showUnavailableFeatsEl?.addEventListener("change", renderFeats);
 
     saveBtn.addEventListener("click", () => saveClassStep({ openSheetAfter: false, intent: "save" }));
     saveAndOpenBtn.addEventListener("click", () => saveClassStep({ openSheetAfter: true, intent: "save" }));

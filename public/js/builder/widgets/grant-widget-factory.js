@@ -76,6 +76,9 @@ export function createGrantWidgets({
   getGrantChoices = null,
   getExistingWeapons = null,
   onChange = null,
+  showUnavailable = undefined,
+  renderFeatOptions = null,
+  renderFeatGrants = null,
   sourceId = "",
   scope = "dynamic",
   registry = DEFAULT_GRANT_WIDGET_REGISTRY,
@@ -164,6 +167,7 @@ export function createGrantWidgets({
       page, entry, grant, index, grantChoiceState, weaponBases, weaponEnhancements,
       grantContextEntries, getSelectedEntries, prerequisiteContext, gameData,
       getBuilder, getGrantChoices, getExistingWeapons, onChange, sourceId, scope,
+      showUnavailable, renderFeatOptions, renderFeatGrants,
     });
     if (Array.isArray(created)) widgets.push(...created.filter(Boolean));
     else if (created) widgets.push(created);

@@ -57,6 +57,7 @@ function classPrerequisiteLevel(feat, classKey = "") {
 
 export function createFeatGrantSlots(grant, {
   sourceId = "",
+  sourceKey = "",
   sourceLabel = "",
   grantId = "",
   grantIndex = 0,
@@ -70,6 +71,7 @@ export function createFeatGrantSlots(grant, {
     slots.push(Object.freeze({
       slotId: `feat-slot:${resolvedGrantId}:${slotIndex}`,
       sourceId: ownerId,
+      sourceKey: text(sourceKey) || ownerId,
       sourceLabel: text(sourceLabel) || ownerId,
       grantId: resolvedGrantId,
       grantIndex,
@@ -101,6 +103,7 @@ export function getExplicitFeatSlots(gameData, builder = {}) {
     grants.forEach((grant, grantIndex) => {
       slots.push(...createFeatGrantSlots(grant, {
         sourceId,
+        sourceKey: entryIdentity(entry, entryIndex),
         sourceLabel,
         grantId: `${sourceId}:${grantIndex}`,
         grantIndex,
@@ -143,7 +146,11 @@ export function allocateFeatsToExplicitSlots({
   feats = [],
   selectedFeatKeys = [],
 } = {}) {
-  const orderedSlots = Array.from(slots);
+  const orderedSlots = Array.from(slots).sort((left, right) =>
+    (left.maxLevel || Infinity) - (right.maxLevel || Infinity)
+    || left.sourceKey.localeCompare(right.sourceKey)
+    || left.grantIndex - right.grantIndex
+    || left.slotIndex - right.slotIndex);
   const featsByKey = new Map(
     Array.from(feats)
       .map((feat) => [text(feat?.featKey), feat])
@@ -156,7 +163,11 @@ export function allocateFeatsToExplicitSlots({
   const assign = (featKey, visitedSlotIds) => {
     const feat = featsByKey.get(featKey);
     if (!feat) return false;
-    for (const slot of orderedSlots) {
+    // Prefer a free matching slot before moving an earlier selection. This
+    // keeps ordinary additions stable while retaining maximum matching.
+    const candidates = orderedSlots.filter((slot) => !slotAssignments.has(slot.slotId))
+      .concat(orderedSlots.filter((slot) => slotAssignments.has(slot.slotId)));
+    for (const slot of candidates) {
       if (visitedSlotIds.has(slot.slotId) || !featMatchesExplicitSlot(feat, slot)) continue;
       visitedSlotIds.add(slot.slotId);
       const previousFeatKey = slotAssignments.get(slot.slotId);
@@ -210,4 +221,40 @@ export function getFeatSelectionState(gameData, builder = {}, { slots = null } =
   });
 
   return Object.freeze({ ...allocation, availableFeats: Object.freeze(availableFeats) });
+}
+
+/** Source-scoped controls use the same allocation and filters as the graph. */
+export function getFeatGrantChoices(gameData, builder = {}, { entry, grantIndex = 0 } = {}) {
+  const state = getFeatSelectionState(gameData, builder);
+  const feats = Array.isArray(gameData?.feats) ? gameData.feats : [];
+  const selected = Array.isArray(builder.selectedFeats) ? builder.selectedFeats : [];
+  return Object.freeze(state.slots
+    .filter((slot) => slot.sourceKey === entryIdentity(entry, 0) && slot.grantIndex === grantIndex)
+    .map((slot) => {
+      const featKey = state.assignments.find((assignment) => assignment.slotId === slot.slotId)?.featKey || "";
+      const remainingKeys = selected.filter((key) => key !== featKey);
+      const options = feats.filter((feat) => featMatchesExplicitSlot(feat, slot)).map((feat) => {
+        const key = text(feat.featKey);
+        const alreadySelected = remainingKeys.includes(key);
+        const prerequisites = checkPrerequisites(feat.prerequisites, {
+          gameData, builder: key === featKey ? builder : { ...builder, selectedFeats: remainingKeys },
+        });
+        const selectable = key === featKey || isGameDataRecordSelectable(feat);
+        const nextFeatKeys = selected.includes(featKey)
+          ? selected.map((current) => current === featKey ? key : current)
+          : [...selected, key];
+        return Object.freeze({
+          feat, featKey: key,
+          eligible: selectable && !alreadySelected && prerequisites.ok,
+          reason: !selectable ? "This feat is incomplete or unavailable."
+            : alreadySelected ? "Chosen by another feature."
+              : prerequisites.failureReasons?.join(" ") || "",
+          nextFeatKeys: Object.freeze(nextFeatKeys),
+        });
+      });
+      return Object.freeze({
+        ...slot, featKey, options: Object.freeze(options),
+        clearedFeatKeys: Object.freeze(remainingKeys),
+      });
+    }));
 }
