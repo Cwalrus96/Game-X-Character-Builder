@@ -601,6 +601,36 @@ textarea {
   gap: 6px;
 }
 
+.featChoiceHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.featChoiceHeader .label {
+  margin: 0;
+}
+
+.featOptions {
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+.featOptions .optionRow input[type="radio"] {
+  flex: none;
+  margin-top: 3px;
+}
+
+.featOptions .optionRow > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .builderItem {
   padding: 12px;
   margin: 10px 0;

@@ -9,7 +9,7 @@ export class FeatChoiceWidget {
   constructor(page, {
     entry, index = 0, sourceId, scope = "feature", gameData,
     getBuilder = () => page.getCharacter().builder,
-    showUnavailable = () => true, renderFeatOptions = null,
+    expandedChoices = new Set(), renderFeatOptions = null,
     renderFeatGrants = null, onChange = null, mount = null,
   } = {}) {
     this.id = `feat-choice:${sourceId}:${index}`;
@@ -20,7 +20,7 @@ export class FeatChoiceWidget {
     this.index = index;
     this.gameData = gameData;
     this.getBuilder = typeof getBuilder === "function" ? getBuilder : () => page.getCharacter().builder;
-    this.showUnavailable = showUnavailable;
+    this.expandedChoices = expandedChoices;
     this.renderFeatOptions = renderFeatOptions;
     this.renderFeatGrants = renderFeatGrants;
     this.onChange = onChange;
@@ -30,12 +30,30 @@ export class FeatChoiceWidget {
     this.enabled = true;
     this.error = "";
     this.changeHandler = (event) => this.change(event);
+    this.clickHandler = (event) => this.toggleExpanded(event);
     this.element.addEventListener("change", this.changeHandler);
+    this.element.addEventListener("click", this.clickHandler);
     page.registerWidget(this);
     this.render();
   }
 
   applyReconciledState() { this.render(); }
+
+  toggleExpanded(event) {
+    const index = event.target?.dataset?.featExpand;
+    if (index === undefined || event.target.dataset.featWidget !== this.id || this.busy || !this.enabled) return;
+    if (!this.choices[Number(index)]) return;
+    const key = `${this.id}:${index}`;
+    if (this.expandedChoices.has(key)) this.expandedChoices.delete(key);
+    else this.expandedChoices.add(key);
+    this.render();
+    this.element.querySelector(`[data-feat-expand="${index}"]`)?.focus();
+  }
+
+  focusChoice(index) {
+    const selector = `[data-feat-slot="${index}"]`;
+    (this.element.querySelector(`${selector}:checked`) || this.element.querySelector(selector))?.focus();
+  }
 
   async change(event) {
     const index = event.target?.dataset?.featSlot;
@@ -68,7 +86,7 @@ export class FeatChoiceWidget {
     // The coordinator refreshes newly granted choices and other feature cards.
     if (accepted) this.onChange?.();
     const replacement = this.page.widgets?.get(this.id);
-    replacement?.element?.querySelector(`[data-feat-slot="${index}"]`)?.focus();
+    replacement?.focusChoice(index);
   }
 
   render() {
@@ -80,29 +98,43 @@ export class FeatChoiceWidget {
       const type = Array.isArray(choice.filterType) ? "" : choice.filterType;
       const label = type === "class" ? "Choose a class feat" : type === "archetype" ? "Choose an archetype feat" : type === "general" ? "Choose a general feat" : "Choose a feat";
       const controlId = `${this.id}:${index}`;
-      const options = choice.options.filter((option) => this.showUnavailable() || option.eligible || option.featKey === choice.featKey);
-      return `<div class="builderItem"><label class="label" for="${escapeHtml(controlId)}">${label}${this.choices.length > 1 ? ` (${index + 1})` : ""}</label>
-        <select class="input" id="${escapeHtml(controlId)}" data-feat-widget="${escapeHtml(this.id)}" data-feat-slot="${index}"${disabled ? " disabled" : ""}>
-          <option value="">${choice.featKey ? "Remove selected feat" : `${label}…`}</option>
-          ${options.map((option) => `<option value="${escapeHtml(option.featKey)}"${option.featKey === choice.featKey ? " selected" : ""}${option.eligible ? "" : " disabled"}>${escapeHtml(option.feat.name)}${option.reason ? ` — ${escapeHtml(option.reason)}` : ""}</option>`).join("")}
-        </select>
-        ${choice.maxLevel ? `<p class="help">Level ${choice.maxLevel} or lower.</p>` : ""}
-        ${!choice.options.some((option) => option.eligible) ? '<p class="muted">No eligible feats are currently available for this feature.</p>' : ""}
-        <div data-feat-detail="${index}"></div></div>`;
+      const expanded = this.expandedChoices.has(controlId);
+      const options = choice.options.filter((option) => option.eligible);
+      const inputAttributes = `data-feat-widget="${escapeHtml(this.id)}" data-feat-slot="${index}"${disabled ? " disabled" : ""}`;
+      const radio = (value, name) => `<input type="radio" name="${escapeHtml(controlId)}" value="${escapeHtml(value)}" aria-label="${escapeHtml(name)}"${value === choice.featKey ? " checked" : ""} ${inputAttributes}>`;
+      const selector = expanded
+        ? `<fieldset class="featOptions optionList" id="${escapeHtml(controlId)}" aria-labelledby="${escapeHtml(controlId)}-label">
+            <label class="optionRow">${radio("", "No feat selected")}<span>No feat selected</span></label>
+            ${options.map((option) => {
+              const prerequisites = formatPrerequisites(option.feat.prerequisites);
+              return `<div class="featDescriptionOption"><label class="optionRow">${radio(option.featKey, option.feat.name)}
+                <div><div class="optionTitle">${escapeHtml(option.feat.name)}</div>
+                <div class="optionDesc">${escapeHtml(option.feat.description || "")}</div>
+                ${prerequisites ? `<p class="muted">Prerequisite: ${escapeHtml(prerequisites)}</p>` : ""}</div></label>
+                ${option.featKey === choice.featKey ? `<div data-feat-detail="${index}"></div>` : ""}</div>`;
+            }).join("")}
+          </fieldset>`
+        : `<select class="input" id="${escapeHtml(controlId)}" aria-labelledby="${escapeHtml(controlId)}-label" ${inputAttributes}>
+            <option value="">${choice.featKey ? "Remove selected feat" : `${label}…`}</option>
+            ${options.map((option) => `<option value="${escapeHtml(option.featKey)}"${option.featKey === choice.featKey ? " selected" : ""}>${escapeHtml(option.feat.name)}</option>`).join("")}
+          </select>`;
+      return `<div class="builderItem"><div class="featChoiceHeader">
+          <span class="label" id="${escapeHtml(controlId)}-label">${label}${this.choices.length > 1 ? ` (${index + 1})` : ""}</span>
+          <button type="button" class="btn secondary" data-feat-expand="${index}" data-feat-widget="${escapeHtml(this.id)}" aria-expanded="${expanded}" aria-controls="${escapeHtml(controlId)}"${disabled ? " disabled" : ""}>${expanded ? "Collapse" : "Expand"}</button>
+        </div>${selector}
+        ${!options.length ? '<p class="muted">No eligible feats are currently available for this feature.</p>' : ""}</div>`;
     }).join("")}`;
     this.choices.forEach((choice, index) => {
       const feat = choice.options.find((option) => option.featKey === choice.featKey)?.feat;
       const detail = this.element.querySelector(`[data-feat-detail="${index}"]`);
-      if (!feat || !detail) return;
-      const prerequisites = formatPrerequisites(feat.prerequisites);
-      detail.innerHTML = `<p class="optionDesc">${escapeHtml(feat.description || "")}</p>${prerequisites ? `<p class="muted">Prerequisite: ${escapeHtml(prerequisites)}</p>` : ""}`;
+      if (!this.expandedChoices.has(`${this.id}:${index}`) || !feat || !detail) return;
       const options = isOptionGroup(feat) ? this.renderFeatOptions?.(feat, this.childScope) : null;
       if (options) detail.append(options);
       const grants = this.renderFeatGrants?.(feat, this.childScope);
       if (grants) detail.append(grants);
     });
     if (!disabled && this.focusIndex !== undefined) {
-      this.element.querySelector(`[data-feat-slot="${this.focusIndex}"]`)?.focus();
+      this.focusChoice(this.focusIndex);
       this.focusIndex = undefined;
     }
     return this.element;
@@ -113,6 +145,7 @@ export class FeatChoiceWidget {
   destroy({ unregister = true } = {}) {
     this.page.clearWidgets?.({ scope: this.childScope });
     this.element.removeEventListener("change", this.changeHandler);
+    this.element.removeEventListener("click", this.clickHandler);
     this.element.remove?.();
     if (unregister) this.page.unregisterWidget(this);
   }

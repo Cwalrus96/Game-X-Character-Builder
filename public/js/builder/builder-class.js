@@ -67,6 +67,7 @@ let grantChoices = {};
 /** groupId -> collapsed? */
 /** @type {Map<string, boolean>} */
 const collapsedGroups = new Map();
+const expandedFeatChoices = new Set();
 
 // ---- DOM ----
 const signOutBtn = document.getElementById("signOutBtn");
@@ -351,6 +352,7 @@ function createGrantChoiceWidgets(entry, options = {}) {
     getExistingWeapons: () => currentDoc?.builder?.weapons || [],
     sourceId,
     scope: options.widgetScope || options.scope || "features",
+    expandedChoices: expandedFeatChoices,
     showUnavailable: showUnavailableFeatures,
     renderFeatOptions: (feat, widgetScope) => createOptionGroupElement(
       feat, selectedFeatOptionKeys, updateUiForSelection, 0, { context: "feat", widgetScope },
