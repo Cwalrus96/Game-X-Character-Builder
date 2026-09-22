@@ -141,15 +141,18 @@ test("Bond graph and widget share the pure Rules projection and stay independent
   assert.doesNotMatch(page, /loadCharacterDoc|saveCharacterPatch|buildBondsKeystonesUpdatePatch|getBondRulesState/);
 });
 
-test("published Artifact and Powerful Patron grants materialize their canonical Bonds", async () => {
-  const published = JSON.parse(await readFile(new URL("../public/data/game-x/game-x-data.json", import.meta.url), "utf8"));
+test("named Origin grants materialize Bonds with their declared ranks", () => {
+  const gameData = { ...GAME_DATA, origins: [
+    { originKey: "artifact", name: "Artifact", features: [{ type: "feature", featureKey: "artifact-bond", name: "Artifact Bond", grants: [{ type: "bond", choiceId: "artifact", rank: 2 }] }] },
+    { originKey: "powerful-patron", name: "Patron", features: [{ type: "feature", featureKey: "patron-bond", name: "Patron Bond", grants: [{ type: "bond", choiceId: "patron", rank: 1 }] }] },
+  ] };
   for (const [originKey, expectedName, expectedRank] of [
     ["artifact", "Artifact", "2"],
     ["powerful-patron", "Patron", "1"],
   ]) {
     const value = createDefaultCharacter({ ownerUid: `published_${originKey.replace(/-/g, "_")}` });
     value.builder.originKey = originKey;
-    const result = reconcileCharacterGraph({ character: value, gameData: published });
+    const result = reconcileCharacterGraph({ character: value, gameData });
     assert.equal(result.ok, true, `${originKey}: ${JSON.stringify(result.impacts)}`);
     const bond = result.character.builder.bonds.find((item) => item.bondId.startsWith("grant-bond:"));
     assert.equal(bond?.name, expectedName);

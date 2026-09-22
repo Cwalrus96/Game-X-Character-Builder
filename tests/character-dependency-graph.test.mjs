@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import fs from "node:fs";
 import test from "node:test";
 
 import { previewBuilderChange, summarizeDependencyRemovals } from "../public/js/core/builder-dependencies.js";
@@ -10,7 +9,9 @@ import { getChoiceCountState, getExpectedSelectionIssue } from "../public/js/cor
 import { buildGrantChoiceNodeId, resolveGrantChoiceAliases, resolveGrantChoiceId } from "../public/js/core/choice-identity.js";
 import { buildOptionKey, sanitizeGrantChoices } from "../public/js/core/data-sanitization.js";
 
-const gameData = JSON.parse(fs.readFileSync(new URL("../public/data/game-x/game-x-data.json", import.meta.url), "utf8"));
+import { makeLegacyChoiceGameData } from "./fixtures/unit-game-data.mjs";
+
+const gameData = makeLegacyChoiceGameData();
 
 function magicalGuardianAccessoryKey(optionName) {
   const group = gameData.classFeatures["magical-guardian"].find((entry) => entry.name === "Guardian Accessory");
@@ -82,7 +83,7 @@ test("dependency graph preview reconciles excess feat selections after a level d
     primaryAttribute: "attunement",
     attributes: { attunement: 1 },
     selectedClassFeatureOptions: [magicalGuardianAccessoryKey("Dazzling Wand")],
-    selectedFeats: ["Animal Transformation", "Celestial Knight Path Initiate"],
+    selectedFeats: ["Animal Transformation", "Instant Transformation"],
     selectedFeatOptions: [],
     selectedTechniques: [],
   }, {
@@ -94,12 +95,30 @@ test("dependency graph preview reconciles excess feat selections after a level d
   assert(preview.changes.some((change) => (
     change.type === "remove"
     && change.storagePath === "builder.selectedFeats"
-    && change.label === "Celestial Knight Path Initiate"
+    && change.label === "Instant Transformation"
   )));
 });
 
-test("dependency graph preview reports incomplete option groups from selected feats", () => {
-  const preview = previewBuilderChange(gameData, {
+test("dependency graph preview reports incomplete legacy option groups from selected feats", () => {
+  // Preserve the retired v2 either/or shape independently of current source content.
+  const legacyOptionData = {
+    ...gameData,
+    feats: gameData.feats.map((feat) => feat.featKey === "celestial-knight-path-initiate" ? {
+      featKey: feat.featKey,
+      name: feat.name,
+      type: "optionGroup",
+      featType: "class",
+      category: "magical-guardian",
+      chooseCount: 1,
+      grants: [],
+      prerequisites: [{ type: "class", key: "magical-guardian", level: 2 }],
+      options: [
+        { type: "option", featKey: "celestial-knight-melee-weapons", name: "Melee Weapons", grants: [{ type: "skill", name: "Melee Weapons", rank: 1, progression: "slow" }] },
+        { type: "option", featKey: "celestial-knight-targeting", name: "Targeting", grants: [{ type: "skill", name: "Targeting", rank: 1, progression: "slow" }] },
+      ],
+    } : feat),
+  };
+  const preview = previewBuilderChange(legacyOptionData, {
     classKey: "magical-guardian",
     level: 5,
     primaryAttribute: "attunement",
@@ -183,7 +202,7 @@ test("builder page blocks dependency removals when no confirmation handler is re
     primaryAttribute: "attunement",
     attributes: { attunement: 1 },
     selectedClassFeatureOptions: [magicalGuardianAccessoryKey("Dazzling Wand")],
-    selectedFeats: ["Animal Transformation", "Celestial Knight Path Initiate"],
+    selectedFeats: ["Animal Transformation", "Instant Transformation"],
     selectedFeatOptions: [],
     selectedTechniques: [],
     grantChoices: {},
@@ -256,7 +275,7 @@ test("builder page cancellation leaves working and widget state unchanged", asyn
     primaryAttribute: "attunement",
     attributes: { attunement: 1 },
     selectedClassFeatureOptions: [magicalGuardianAccessoryKey("Dazzling Wand")],
-    selectedFeats: ["Animal Transformation", "Celestial Knight Path Initiate"],
+    selectedFeats: ["Animal Transformation", "Instant Transformation"],
     selectedFeatOptions: [],
     selectedTechniques: [],
     grantChoices: {},
@@ -295,7 +314,7 @@ test("builder page applies the reconciled state after destructive confirmation",
     primaryAttribute: "attunement",
     attributes: { attunement: 1 },
     selectedClassFeatureOptions: [magicalGuardianAccessoryKey("Dazzling Wand")],
-    selectedFeats: ["Animal Transformation", "Celestial Knight Path Initiate"],
+    selectedFeats: ["Animal Transformation", "Instant Transformation"],
     selectedFeatOptions: [],
     selectedTechniques: [],
     grantChoices: {},
@@ -784,7 +803,7 @@ test("dependency graph removes draft techniques from normal and source-owned sel
     ...gameData,
     techniques: gameData.techniques.map((technique) => (
       technique.techniqueName === "Healing Light" || technique.techniqueName === "Bolstering Aegis"
-        ? { ...technique, selectionMode: "draft", selectable: false }
+        ? { ...technique, status: "draft", selectionMode: "draft", selectable: false }
         : technique
     )),
   };

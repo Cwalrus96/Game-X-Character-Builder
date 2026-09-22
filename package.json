@@ -5,6 +5,7 @@
   "scripts": {
     "test": "npm run test:unit",
     "test:unit": "node scripts/run-unit-tests.mjs",
+    "test:data": "node --test tests/release/published-data.test.mjs",
     "test:all": "npm run test:unit && npm run test:rules && npm run validate:assets",
     "local:start": "node scripts/firebase-local.mjs start",
     "local:stop": "node scripts/firebase-local.mjs stop",

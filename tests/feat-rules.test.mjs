@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import fs from "node:fs";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
@@ -13,11 +12,7 @@ import {
 import { parseGrantExpression } from "../public/js/core/game-data-expressions.js";
 import { compileCharacterGraph } from "../public/js/core/graph-compiler.js";
 import { GRAPH_GAME_DATA, makeGraphCharacter } from "./fixtures/graph-core.mjs";
-
-const published = JSON.parse(fs.readFileSync(
-  new URL("../public/data/game-x/game-x-data.json", import.meta.url),
-  "utf8",
-));
+import { makeLegacyChoiceGameData } from "./fixtures/unit-game-data.mjs";
 
 const lowFeat = {
   type: "feature",
@@ -68,7 +63,8 @@ test("explicit feat grants create typed slots and deterministic maximum matching
   }
 });
 
-test("published Magical Guardian capacity comes only from active explicit features", () => {
+test("feat capacity and filters come only from active explicit features", () => {
+  const gameData = makeLegacyChoiceGameData();
   const builder = {
     classKey: "magical-guardian",
     originKey: "",
@@ -76,11 +72,12 @@ test("published Magical Guardian capacity comes only from active explicit featur
     selectedFeats: [],
     selectedFeatOptions: [],
   };
-  assert.equal(getExplicitFeatSlots(published, { ...builder, level: 1 }).length, 0);
-  assert.equal(getExplicitFeatSlots(published, { ...builder, level: 2 }).length, 2);
-  assert.equal(getExplicitFeatSlots(published, { ...builder, level: 4 }).length, 3);
+  assert.equal(getExplicitFeatSlots(gameData, { ...builder, level: 1 }).length, 0);
+  assert.equal(getExplicitFeatSlots(gameData, { ...builder, level: 2 }).length, 2);
+  assert.equal(getExplicitFeatSlots(gameData, { ...builder, level: 3 }).length, 2);
+  assert.equal(getExplicitFeatSlots(gameData, { ...builder, level: 4 }).length, 3);
 
-  const state = getFeatSelectionState(published, { ...builder, level: 4 });
+  const state = getFeatSelectionState(gameData, { ...builder, level: 4 });
   assert.equal(state.slots.filter((slot) => slot.filterType === "class").length, 2);
   assert.equal(state.slots.filter((slot) => slot.filterType === "archetype").length, 1);
   assert(state.availableFeats.every((feat) => feat.featType === "class"));

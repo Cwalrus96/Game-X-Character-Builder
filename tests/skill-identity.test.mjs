@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import { createDefaultCharacter } from "../public/js/core/character-codec.js";
@@ -16,20 +15,21 @@ import { getWeaponSkillNames, getWeaponSkillRankCap, getWeaponSkillRanks, isEnha
 import { TechniquesWidget } from "../public/js/builder/widgets/techniques-widget.js";
 import { buildTechniqueChoicePatch } from "../public/js/builder/widgets/technique-choice-widget.js";
 import { MIGRATION_GAME_DATA, makeV4Character } from "./fixtures/character-schemas.mjs";
+import { makeLegacySkillGameData } from "./fixtures/unit-game-data.mjs";
 
-const legacyData = JSON.parse(await readFile(new URL("../public/data/game-x/game-x-data.json", import.meta.url), "utf8"));
+const legacyData = makeLegacySkillGameData();
 
-test("reviewed data projects the renamed skill while preserving generated data and entity identities", () => {
+test("skill projection preserves its input and entity identities while renaming skill references", () => {
   const before = JSON.stringify(legacyData);
   const projected = projectSkillNames(legacyData);
   assert.equal(JSON.stringify(legacyData), before);
   assert.deepEqual(projectSkillNames(projected), projected);
   assert(projected.classSkills.some((row) => row.skillKey === "ranged-weapons" && row.skillName === "Ranged Weapons"));
-  assert.equal(projected.classFeatures["henshin-hero"][2].options[0].featureKey, "heroic-combat-training-targeting");
-  assert.equal(projected.classFeatures["henshin-hero"][2].options[0].name, "Ranged Weapons");
+  assert.equal(projected.classFeatures["henshin-hero"][0].options[0].featureKey, "heroic-combat-training-targeting");
+  assert.equal(projected.classFeatures["henshin-hero"][0].options[0].name, "Ranged Weapons");
   assert.equal(projected.weaponEnhancements.find((row) => row.enhancementKey === "enhanced_targeting").name, "Enhanced Targeting");
-  assert.match(projected.classFeatures["henshin-hero"][2].description, /combat skills: Ranged Weapons, Melee Weapons/);
-  assert.doesNotMatch(projected.classFeatures["henshin-hero"][2].description, /Targeting/);
+  assert.match(projected.classFeatures["henshin-hero"][0].description, /combat skills: Ranged Weapons, Melee Weapons/);
+  assert.doesNotMatch(projected.classFeatures["henshin-hero"][0].description, /Targeting/);
   assert.deepEqual(projectSkillNames({ name: "Targeting Computer", description: "Targeting an enemy requires an attack roll." }), {
     name: "Targeting Computer", description: "Targeting an enemy requires an attack roll.",
   });
@@ -52,10 +52,14 @@ test("saved Targeting ranks remain effective for weapons, technique widgets, and
   const before = structuredClone(character);
   const granted = computeGrantedSkillsState(legacyData, character.builder);
   const ranks = getWeaponSkillRanks(character.builder, granted);
-  const rangedBase = legacyData.weaponBases.find((weapon) => weapon.profiles.some((profile) => profile.skill === "Targeting"));
+  // Keep the historical profile spelling explicit even after publication removes it.
+  const rangedBase = { weaponKey: "rifle", profiles: [{ profileType: "basicAttack", skill: "Targeting" }] };
+  const currentRangedBase = { weaponKey: "rifle", expressionSyntaxVersion: 3, profiles: [], techniqueSkills: ["Ranged Weapons"] };
   assert.deepEqual(getWeaponSkillNames(rangedBase), ["Ranged Weapons"]);
+  assert.deepEqual(getWeaponSkillNames(currentRangedBase), ["Ranged Weapons"]);
   assert.equal(ranks["Ranged Weapons"], 3);
   assert.equal(getWeaponSkillRankCap(rangedBase, ranks), 3);
+  assert.equal(getWeaponSkillRankCap(currentRangedBase, ranks), 3);
   assert.equal(getWeaponSkillRankCap(projectSkillNames(rangedBase), { Targeting: 3 }), 3);
   assert.equal(getCombatSkillRanks(legacyData, character.builder).get("ranged weapons"), 3);
   assert.equal(getSkillAllocationState(legacyData, character.builder).combat[0].name, "Ranged Weapons");
