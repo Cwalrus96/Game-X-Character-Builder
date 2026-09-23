@@ -88,7 +88,7 @@ test("v3 source aliases and positional archetypes normalize without changing v2"
   const recipient = parseGrantExpression("skill | choiceId=archive | count=3 | rank=1 | recipientRef=artifact", v3).value;
   assert.equal(recipient.recipientRef, "artifact");
   assert.equal(getExpressionRuntimeStatus("grant", recipient, v3), "stubbed");
-  assert.equal(getExpressionRuntimeStatus("grant", parseGrantExpression("choice | type=keystone | count=1", v3).value, v3), "stubbed");
+  assert.equal(getExpressionRuntimeStatus("grant", parseGrantExpression("choice | type=keystone | count=1", v3).value, v3), "implemented");
   assert.equal(parseGrantExpression("tag | tag=Flight | minRank=2", v3).value.minRank, 2);
 });
 

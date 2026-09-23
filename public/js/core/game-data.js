@@ -7,6 +7,7 @@ import { buildOptionKey, sanitizeText, sanitizeStringArray } from "./data-saniti
 import { projectSkillNames } from "./skill-identity.js";
 import { getEntryRequiredLevel } from "./option-groups.js";
 import { isGameDataRecordExecutable } from "./selection-rules.js";
+import { fetchRuntimeGameData } from "./local-game-data.js";
 import {
   getEntryGrants,
   sanitizeGrantType,
@@ -57,9 +58,7 @@ export async function loadGameXData({ cache = "default" } = {}) {
 
   _gameXDataPromise = (async () => {
     const dataUrl = new URL("../../data/game-x/game-x-data.json", import.meta.url);
-    const res = await fetch(dataUrl, { cache });
-    if (!res.ok) throw new Error(`Could not load game-x-data.json (${res.status})`);
-    const data = await res.json();
+    const data = await fetchRuntimeGameData(dataUrl, { cache });
     const validation = validateRuntimeGameData(data);
     if (!validation.ok) throw new Error(validation.diagnostics.map((item) => item.message).join(" "));
     return projectSkillNames(data);

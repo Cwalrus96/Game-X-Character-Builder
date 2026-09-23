@@ -14,7 +14,7 @@ import {
   GraphCompiler,
   createDefaultGraphHandlerRegistry,
   getUnmetRequirementNodeIds,
-} from "./graph-compiler.js?v=wpe14";
+} from "./graph-compiler.js?v=keystone1";
 
 const IMPACT_CATEGORY_ORDER = Object.freeze({
   error: 0,
@@ -1010,7 +1010,7 @@ function addInformationalImpacts(character, graph, impacts) {
         path: `builder.grantChoices.${node.metadata.choiceId}`,
         nodeId: node.id,
         label: node.label,
-        message: "This source-owned choice still needs an answer.",
+        message: node.metadata.answerType === "keystone" ? `${node.label}: add your Keystone text.` : "This source-owned choice still needs an answer.",
         before: 0,
         after: 1,
       });

@@ -15,23 +15,23 @@ import {
 
 import { renderBuilderNavMounts } from "./builder-nav.js";
 import { getBuilderStepInformationalMessages } from "./builder-step-impacts.js?v=wpe11";
-import { CharacterSessionPage } from "./character-session-page.js?v=wpe12";
+import { CharacterSessionPage } from "./character-session-page.js?v=keystone1";
 import { GrantChoiceState } from "./grant-choice-state.js";
 import { ClassChoiceWidget } from "./widgets/class-choice-widget.js?v=wpe1";
 import { ClassFeaturesWidget } from "./widgets/class-features-widget.js";
 import { GrantChoicesWidget } from "./widgets/grant-choices-widget.js";
-import { createGrantWidgets } from "./widgets/grant-widget-factory.js?v=wpe11";
+import { createGrantWidgets } from "./widgets/grant-widget-factory.js?v=keystone1";
 import { LevelChoiceWidget } from "./widgets/level-choice-widget.js?v=wpe1";
 import { OptionGroupWidget } from "./widgets/option-group-widget.js?v=wpe8";
 import { PrimaryAttributeWidget } from "./widgets/primary-attribute-widget.js?v=wpe1";
 
-import { loadGameXData, getGameXClasses, getGameXClassFeatures, getGameXWeaponBases, getGameXWeaponEnhancements } from "../core/game-data.js?v=wpe1";
+import { loadGameXData, getGameXClasses, getGameXClassFeatures, getGameXWeaponBases, getGameXWeaponEnhancements } from "../core/game-data.js?v=keystone1";
 
 import { ATTR_KEYS, clampLevel, coerceAttrKey, labelForAttrKey } from "../core/character-rules.js?v=wpe1";
 import { SetClass, SetGrantChoices, VisitBuilderStep } from "../core/character-commands.js?v=wpe1";
 import { readCharacter } from "../core/database-reader.js?v=wpe6";
 import { replaceCharacter } from "../core/database-writer.js?v=wpe1";
-import { reconcileCharacterGraph } from "../core/graph-reconciler.js?v=wpe14";
+import { reconcileCharacterGraph } from "../core/graph-reconciler.js?v=keystone1";
 import { sanitizeText } from "../core/data-sanitization.js";
 import { checkPrerequisites } from "../core/prerequisites.js";
 import {

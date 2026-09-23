@@ -1,3 +1,5 @@
+import { isKeystoneGrant } from "./keystone-rules.js";
+
 const field = (type, options = {}) => Object.freeze({ type, ...options });
 
 const string = (options = {}) => field("string", options);
@@ -289,6 +291,9 @@ export function getExpressionRuntimeStatus(kind, expression, options = {}) {
   if (Number(options.syntaxVersion) >= 3 && kind === "grant" && expression?.type === "trait") {
     return getTraitGrantDeferredReasons(expression).length ? "stubbed" : "implemented";
   }
-  if (Number(options.syntaxVersion) >= 3 && (expression?.recipientRef || (kind === "grant" && expression?.type === "choice" && filters.some((value) => String(value).toLowerCase() === "keystone")))) return "stubbed";
+  if (Number(options.syntaxVersion) >= 3 && expression?.recipientRef) return "stubbed";
+  if (kind === "grant" && expression?.type === "choice" && filters.some((value) => String(value).toLowerCase() === "keystone")) {
+    return isKeystoneGrant(expression) ? "implemented" : "stubbed";
+  }
   return getExpressionDefinition(kind, expression?.type, options)?.runtimeStatus || "unsupported";
 }

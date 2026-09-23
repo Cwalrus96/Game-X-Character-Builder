@@ -1,5 +1,7 @@
 # Architecture
 
+Feature-granted Keystone text follows the portable widget → `SetGrantChoices` → session/graph → existing persistence path. Its Rules resolve source-owned slots; the graph extension materializes and validates answers, and the shared sheet projection displays their text. The existing schema-v6 answer envelope gains a discriminated Keystone text variant without another character model. Local catalogue installation is separate from publishing: only loopback loading may use a fully validated candidate under the Hosting-excluded `public/local-review/` path.
+
 Status: living current-and-target architecture.
 
 Last updated: 2026-09-22.

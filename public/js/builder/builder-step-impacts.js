@@ -56,10 +56,17 @@ export function impactBelongsToBuilderStep(impact, stepId) {
 
 export function getBuilderStepInformationalMessages(reconciliation, stepId) {
   const impacts = Array.isArray(reconciliation?.impacts) ? reconciliation.impacts : [];
+  const nodes = new Map((reconciliation?.graph?.nodes || []).map((node) => [node.id, node]));
   return Object.freeze([...new Set(
     impacts
       .filter((impact) => impact?.category === "informational")
-      .filter((impact) => impactBelongsToBuilderStep(impact, stepId))
+      .filter((impact) => {
+        if (text(impact.path).startsWith("builder.grantChoices.")) {
+          const sourceId = nodes.get(impact.nodeId)?.sourceOwnerId || "";
+          if (/^origin(?:-feature)?:/.test(sourceId)) return stepId === "origin";
+        }
+        return impactBelongsToBuilderStep(impact, stepId);
+      })
       .map((impact) => text(impact?.message || impact?.code))
       .filter(Boolean),
   )]);

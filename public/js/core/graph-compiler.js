@@ -33,6 +33,7 @@ import { getOptionGroupCompletion } from "./option-choice-rules.js";
 import { initializeGrantedResource } from "./grants.js";
 import { getOriginSelectionState } from "./origin-rules.js";
 import { registerDefaultGraphExtensions } from "./graph-extensions.js";
+import { compileKeystoneAnswer } from "./keystone-graph.js";
 import { compileTraits, TRAIT_NODE_TYPES } from "./trait-graph.js";
 import { projectCharacterTraits, getTraitPrerequisiteEvidence } from "./trait-rules.js";
 import {
@@ -1573,6 +1574,10 @@ function compileGrantAnswers(context, character, techniquesByKey, weaponBasesByK
     const answer = answers[choiceId];
     if (!answer) continue;
     claimed.add(choiceId);
+    if (choiceSpec.answerType === "keystone") {
+      compileKeystoneAnswer(context, answer, choiceSpec, graph);
+      continue;
+    }
     const answerNodeId = `grant-answer:${choiceId}`;
     if (choiceSpec.answerType === "weapon") {
       const weaponKey = stableKey(answer.weaponKey);

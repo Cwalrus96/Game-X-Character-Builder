@@ -1,5 +1,7 @@
 # Character persistence contract
 
+Feature Keystones add a `type: "keystone"` variant to the existing schema-v6 `builder.grantChoices` envelope. Its `value` is nonempty canonical text of at most 400 characters; other answer types retain stable-key validation. Existing fields, versions and historical values are unchanged, so no stored-shape migration or read-time write is needed. Source/slot identity remains separate from prose, and the standard codec, session snapshot and revision-aware writer own the complete round trip. Ordinary Origin/Background/Bond Keystones keep their existing storage bindings.
+
 This document defines the page-facing Firebase boundary for saved characters. The existing `public/js/core/database-reader.js` and `public/js/core/database-writer.js` modules are the two halves of that single boundary. Do not add a parallel `CharacterRepository` implementation or let pages call Firestore directly for normal character persistence.
 
 `public/js/core/character-persistence.js` contains the shared, Firebase-free rules used by both halves: envelope decoding/encoding, metadata separation, patch ownership, revision comparison, and structured persistence errors. It is an internal contract, not a competing page-facing repository.

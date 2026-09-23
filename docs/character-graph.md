@@ -1,5 +1,7 @@
 # Character graph contract
 
+Free-text `choice | type=keystone` grants are implemented by `keystone-rules.js` and the registered `keystone-graph.js` adapter. Each slot has a stable source-scoped identity, a `grant-choice` node and a source-owned `grant-answer` backed by `builder.grantChoices`. Shared Rules identify supported grants and resolve slot identities; the graph validates ownership and reconciles invalid/orphaned answers through ordinary confirmation. Missing answers produce feature-named reminders on the owning Class or Origin step. Mixed catalogue filters, referenced choices and non-character recipients remain deferred.
+
 Status: Work Package D core is complete and Work Package E migration is active. The class/feat/technique, Equipment, Attributes, and Origin/Skills slices have typed commands, graph coverage, portable session-page controllers, and deployed page integration. Signed-in browser verification covers the released slices; broader domain work and deferred personal acceptance are tracked in `status.md`.
 
 Last updated: 2026-09-22.

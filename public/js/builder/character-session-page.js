@@ -1,5 +1,5 @@
 import { CharacterSession } from "../core/character-session.js?v=wpe1";
-import { createCharacterSessionGraphReconciler } from "../core/graph-reconciler.js?v=wpe14";
+import { createCharacterSessionGraphReconciler } from "../core/graph-reconciler.js?v=keystone1";
 import { describeCharacterChange } from "./character-impact-display.js";
 
 function messageForImpact(impact) {

@@ -1,5 +1,7 @@
 # Game-data source contract
 
+Runtime support includes free-text `choice | type=keystone | count=N`, with optional stable `choiceId` and note. Every slot is owned by the invoking feature or selected option/feat. Keystone catalogue keys/names, mixed filters, `choiceRef` and other recipients remain unsupported rather than being treated as free text. Restaging is required to update derived execution metadata after adding runtime support; generated production artifacts are not patched by hand.
+
 Status: living source/runtime contract. Canonical source schema v5 / expression syntax v3 is published as reviewed runtime schema v3. The v4/syntax-v2 compatibility path remains. Parsing and preserving a rule does not establish execution support; current release evidence is in [the September 22 release record](game-data-release-2026-09-22.md).
 
 Last updated: 2026-09-22.

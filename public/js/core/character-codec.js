@@ -307,7 +307,8 @@ function validateGrantChoice(value, path, diagnostics, mapChoiceId) {
   validateStableKey(value.type, `${path}.type`, diagnostics, { allowEmpty: false });
   validateStableId(value.sourceId, `${path}.sourceId`, diagnostics, { allowEmpty: false });
   validateCanonicalText(value.sourceLabel, `${path}.sourceLabel`, diagnostics, { maxLen: 200 });
-  validateStableKey(value.value, `${path}.value`, diagnostics);
+  if (value.type === "keystone") validateCanonicalText(value.value, `${path}.value`, diagnostics, { maxLen: 400, allowEmpty: false });
+  else validateStableKey(value.value, `${path}.value`, diagnostics);
   validateStableKey(value.techniqueKey, `${path}.techniqueKey`, diagnostics);
   validateStableKey(value.skillKey, `${path}.skillKey`, diagnostics);
   validateStableKey(value.weaponKey, `${path}.weaponKey`, diagnostics);

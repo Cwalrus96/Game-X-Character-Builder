@@ -1,5 +1,7 @@
 # Game-data pipeline: Google Sheet to reviewed JSON
 
+For local website review, `node scripts/local-game-data.mjs <staging-run-directory>` verifies the complete artifact list/hashes, source identity/provenance, validation and runtime acceptance before installing the candidate under ignored `public/local-review/`. The central loader reads that candidate only on loopback hosts, with no cache; an absent candidate falls back to published data, while another load error stays explicit. Hosting excludes `local-review/**`. This leaves `public/data/game-x` and the production baseline untouched and does not authorize publication. Removing the ignored local-review folder returns local browsing to published data.
+
 Status: living operational design. Source schema v5/syntax v3 adapts to the published runtime schema v3; the source-v4/runtime-v2 compatibility path remains. Publication and Hosting deployment are separate operations with recorded authorization.
 
 Last updated: 2026-09-22.

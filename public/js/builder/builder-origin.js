@@ -14,6 +14,7 @@ import { getBuilderStepInformationalMessages } from "./builder-step-impacts.js?v
 import { CharacterSessionPage } from "./character-session-page.js?v=wpe11";
 import { OriginWidget } from "./widgets/origin-widget.js?v=wpe6";
 import { createTraitGrantWidget } from "./widgets/trait-widget.js?v=wpe4";
+import { createKeystoneGrantWidgets } from "./widgets/keystone-choice-widget.js";
 import { VisitBuilderStep } from "../core/character-commands.js?v=wpe4";
 import { readCharacter } from "../core/database-reader.js?v=wpe6";
 import { replaceCharacter } from "../core/database-writer.js?v=wpe1";
@@ -112,9 +113,14 @@ async function main() {
     });
     new OriginWidget(page, {
       gameData, elements,
-      renderTraitGrants: (entry, scope) => createTraitGrantWidget(page, {
-        entry, scope, gameData, expandedChoices: expandedTraitChoices,
-      })?.element,
+      renderTraitGrants: (entry, scope) => {
+        const mount = document.createDocumentFragment();
+        const traits = createTraitGrantWidget(page, { entry, scope, gameData, expandedChoices: expandedTraitChoices });
+        if (traits) mount.append(traits.element);
+        const sourceId = entry?.featureKey ? `origin-feature:${entry.originKey}:${entry.featureKey}` : `origin:${entry?.originKey}`;
+        for (const widget of createKeystoneGrantWidgets(page, { entry, sourceId, scope })) mount.append(widget.element);
+        return mount;
+      },
     });
     const previewIssues = issues(reconcileCharacterGraph({ character: currentDoc, previousCharacter: currentDoc, gameData }));
     if (previewIssues.errors.length) {

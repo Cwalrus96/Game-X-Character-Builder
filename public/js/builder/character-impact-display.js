@@ -67,6 +67,8 @@ function describeImpact(impact, gameData, character) {
       kind = "Weapon"; name = text(before.customName) || recordName(gameData.weaponBases, "weaponKey", before.weaponKey, name);
     } else if (before?.type === "technique") {
       kind = "Technique"; name = recordName(gameData.techniques, "techniqueKey", before.techniqueKey, name);
+    } else if (before?.type === "keystone") {
+      kind = "Keystone"; name = text(before.sourceLabel) || name;
     } else {
       name = text(before?.value) || name;
     }

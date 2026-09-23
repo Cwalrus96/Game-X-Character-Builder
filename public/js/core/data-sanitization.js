@@ -202,7 +202,7 @@ export function sanitizeGrantChoices(value, { maxItems = 100 } = {}) {
     const type = normalizeEnumToken(choice.type, { maxLen: 64 });
     const sourceId = sanitizeText(choice.sourceId, { maxLen: 160, collapse: true });
     const sourceLabel = sanitizeText(choice.sourceLabel, { maxLen: 200, collapse: true });
-    const value = sanitizeText(choice.value, { maxLen: 200, collapse: true });
+    const value = sanitizeText(choice.value, { maxLen: type === "keystone" ? 400 : 200, collapse: true });
     const techniqueName = sanitizeText(choice.techniqueName, { maxLen: 200, collapse: true });
     const skill = sanitizeText(choice.skill, { maxLen: 96, collapse: true });
     const weaponKey = normalizeEnumToken(choice.weaponKey, { maxLen: 64 });
@@ -267,6 +267,12 @@ export function buildCharacterKeystoneEntries(builder) {
     });
   });
 
+  for (const [choiceId, answer] of Object.entries(src.grantChoices || {}).sort(([a], [b]) => a.localeCompare(b))) {
+    if (answer?.type !== "keystone" || !answer.value) continue;
+    out.push({ source: "grant", choiceId, sourceId: answer.sourceId,
+      title: sanitizeText(answer.sourceLabel || "Feature Keystone", { maxLen: 200, collapse: true }),
+      text: sanitizeText(answer.value, { maxLen: 400, collapse: true }) });
+  }
   return out;
 }
 export function buildGroupId(group) {

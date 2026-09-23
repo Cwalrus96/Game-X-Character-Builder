@@ -72,3 +72,4 @@ node_modules/
 
 # Generated game-data source snapshots and staging runs
 .staging/
+public/local-review/
