@@ -181,7 +181,7 @@ npm run baseline:data    # prove reviewed production JSON has not drifted
 
 ## Implementation and test discipline
 
-- When changing a UI behavior, review the user's earlier instructions and analogous controls on every page that shares the behavior. Apply clear cross-page carryovers through shared components, and record other affected locations and remaining inconsistencies rather than assuming a request applies only to the named screen.
+- Before narrowing any change to the named location, review the user's earlier instructions and ask where the same requirement applies elsewhere. Trace source content through adapters, Rules, widgets, all mounting pages, character-sheet presentation, display formulas, handbook outputs, migrations and tests as relevant. Apply clear carryovers within the authorized task through shared components; record verified gaps and genuine semantic exceptions. Do not ask the user to repeat an already settled decision. Separate a general policy from a particular game mechanic, preserve deliberate exceptions, and retain explicit source-edit and production-release boundaries. See [the instruction consistency review](docs/instruction-consistency-review.md) and [choice UI review](docs/choice-ui-review.md).
 - Prefer small pure modules over extending monolithic page or CLI files.
 - Keep parsing free of file I/O and `process.exit`; return structured diagnostics or throw typed errors at the CLI boundary.
 - Keep source-specific column aliases in adapters, never in graph/rules/runtime consumers.
