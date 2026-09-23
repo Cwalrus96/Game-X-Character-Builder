@@ -2,6 +2,7 @@ import { buildGroupId, sanitizeText } from "../../core/data-sanitization.js";
 import { collectOptionGroups } from "../../core/option-groups.js";
 import { sortClassFeaturesByLevel } from "../../core/class-feature-display.js";
 import { BuilderWidget } from "./builder-widget.js";
+import { appendRuleDetails } from "./rule-details.js";
 
 export class ClassFeaturesWidget extends BuilderWidget {
   constructor(page, {
@@ -95,6 +96,7 @@ export class ClassFeaturesWidget extends BuilderWidget {
         body.className = "builderItemBody";
         body.textContent = sanitizeText(feature.description || "", { maxLen: 2000 });
         card.append(title, meta, body);
+        appendRuleDetails(card, feature, { page: this.page, identity: `${this.id}:${classKey}:${feature.featureKey}` });
         const grantWidgets = this.renderGrantWidgets?.(feature, { scope: "feature" });
         if (grantWidgets) card.append(grantWidgets);
         this.containerEl.append(card);

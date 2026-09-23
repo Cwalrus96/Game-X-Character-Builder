@@ -5,6 +5,7 @@ import {
   isOptionGroup,
 } from "../../core/option-groups.js";
 import { BuilderWidget } from "./builder-widget.js";
+import { appendRuleDetails } from "./rule-details.js";
 
 export class FeatWidget extends BuilderWidget {
   constructor(page, {
@@ -154,6 +155,7 @@ export class FeatWidget extends BuilderWidget {
 
     row.append(cb, textWrap);
     fragment.append(row);
+    appendRuleDetails(fragment, this.feat, { page: this.page, identity: this.id });
 
     if (checked && isOptionGroup(this.feat)) {
       const childGroup = this.renderOptionGroup?.(this.feat);

@@ -3,6 +3,7 @@ import { projectCharacterTraits, traitSourceIdentity } from "../../core/trait-ru
 import { escapeHtml } from "../../core/data-sanitization.js";
 import { getTraitSourceDisplay, renderTraitCardHtml, renderTraitProjectionHtml } from "../../core/trait-display.js?v=wpe3";
 import { renderSelectedChoiceHtml } from "./selected-choice-display.js";
+import { renderRuleDetailsHtml, bindRuleDetails } from "./rule-details.js";
 
 /** A portable session client. Eligibility and ownership come entirely from Rules. */
 export class TraitWidget {
@@ -122,16 +123,19 @@ export class TraitWidget {
         const card = { ...definition, ...acquired, rank: choice.rank ?? option.rank, sourceLabel: "", sourceDescription: "" };
         return renderTraitCardHtml(card, { gameData: this.gameData, status: acquired ? "Acquired" : "Available" });
       };
+      const references = (option, view) => renderRuleDetailsHtml((this.gameData.traits || []).find((trait) => trait.traitKey === option?.traitKey), {
+        gameData: this.gameData, page: this.page, identity: `${choice.choiceId}:${view}:${option?.traitKey}`,
+      });
       const selected = (choice.options || []).find((option) => option.traitKey === choice.traitKey);
       const selectedDetail = renderSelectedChoiceHtml({
         choiceId: choice.choiceId, selectedKey: choice.traitKey, label: "Selected Trait",
-        contentHtml: selected ? renderCard(selected) : "",
+        contentHtml: selected ? renderCard(selected) + references(selected, "selected") : "",
       });
       const selector = expanded
         ? `<fieldset class="traitOptions optionList" id="${escapeHtml(controlId)}" aria-labelledby="${escapeHtml(controlId)}-label">
             <label class="optionRow">${radio("", "No Trait selected")}<span>No Trait selected</span></label>
             ${options.map((option) => {
-              return `<div class="traitDescriptionOption"><label class="optionRow">${radio(option.traitKey, option.name || option.traitKey)}<div>${renderCard(option)}</div></label></div>`;
+              return `<div class="traitDescriptionOption"><label class="optionRow">${radio(option.traitKey, option.name || option.traitKey)}<div>${renderCard(option)}</div></label>${references(option, "candidate")}</div>`;
             }).join("")}
           </fieldset>`
         : `<select class="input" id="${escapeHtml(controlId)}" aria-labelledby="${escapeHtml(controlId)}-label" ${inputAttributes}>
@@ -147,6 +151,7 @@ export class TraitWidget {
     // Each choice owns its selected description above; only automatic grants belong here.
     const summary = { ...this.projection, traits: (this.projection.traits || []).filter((trait) => !trait.choiceId), tags: [] };
     this.element.innerHTML = `<h3 class="h3">Traits</h3>${this.error ? `<p role="alert" class="error">${escapeHtml(this.error)}</p>` : ""}${choices}${renderTraitProjectionHtml(summary, { gameData: this.gameData, ...(this.sourceId || choices ? { emptyMessage: "" } : {}) })}`;
+    bindRuleDetails(this.element, this.page);
     if (!disabled && this.focusControl) {
       this.focusChoice(this.focusControl);
       this.focusControl = null;

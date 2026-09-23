@@ -3,6 +3,7 @@ import { getFeatGrantChoices } from "../../core/feat-rules.js";
 import { escapeHtml } from "../../core/data-sanitization.js";
 import { isOptionGroup } from "../../core/option-groups.js";
 import { renderSelectedChoiceHtml } from "./selected-choice-display.js";
+import { renderRuleDetailsHtml, bindRuleDetails } from "./rule-details.js";
 
 /** One portable picker for an answer-producing feat grant. */
 export class FeatChoiceWidget {
@@ -105,6 +106,7 @@ export class FeatChoiceWidget {
         choiceId: controlId, selectedKey: choice.featKey, label: "Selected feat",
         contentHtml: selected ? `<div class="optionTitle">${escapeHtml(selected.name)}</div>
           <div class="optionDesc">${escapeHtml(selected.description || "")}</div>
+          ${renderRuleDetailsHtml(selected, { gameData: this.gameData, page: this.page, identity: `${controlId}:selected:${choice.featKey}` })}
           <div data-feat-detail="${index}"></div>` : "",
       });
       const inputAttributes = `data-feat-widget="${escapeHtml(this.id)}" data-feat-slot="${index}"${disabled ? " disabled" : ""}`;
@@ -115,7 +117,8 @@ export class FeatChoiceWidget {
             ${options.map((option) => {
               return `<div class="featDescriptionOption"><label class="optionRow">${radio(option.featKey, option.feat.name)}
                 <div><div class="optionTitle">${escapeHtml(option.feat.name)}</div>
-                <div class="optionDesc">${escapeHtml(option.feat.description || "")}</div></div></label></div>`;
+                <div class="optionDesc">${escapeHtml(option.feat.description || "")}</div></div></label>
+                ${renderRuleDetailsHtml(option.feat, { gameData: this.gameData, page: this.page, identity: `${controlId}:candidate:${option.featKey}` })}</div>`;
             }).join("")}
           </fieldset>`
         : `<select class="input" id="${escapeHtml(controlId)}" aria-labelledby="${escapeHtml(controlId)}-label" ${inputAttributes}>
@@ -128,6 +131,7 @@ export class FeatChoiceWidget {
         </div>${selector}${selectedDetail}
         ${!options.length ? '<p class="muted">No eligible feats are currently available for this feature.</p>' : ""}</div>`;
     }).join("")}`;
+    bindRuleDetails(this.element, this.page);
     this.choices.forEach((choice, index) => {
       const feat = choice.options.find((option) => option.featKey === choice.featKey)?.feat;
       const detail = this.element.querySelector(`[data-feat-detail="${index}"]`);

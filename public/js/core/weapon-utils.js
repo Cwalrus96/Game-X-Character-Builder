@@ -222,15 +222,15 @@ export function renderEnhancementDetailHtml(enhancementDef, enhancement, { colla
     .map(([k, v]) => `${sanitizeText(k, { maxLen: 64, collapse: true })}: ${sanitizeText(v, { maxLen: 96, collapse: true })}`)
     .filter(Boolean);
   const bodyParts = [];
-  const description = sanitizeText(enhancementDef?.description || "", { maxLen: 1200, collapse: true });
-  const notes = sanitizeText(enhancementDef?.notes || "", { maxLen: 1200, collapse: true });
+  const description = sanitizeText(enhancementDef?.description || "", { maxLen: Number.MAX_SAFE_INTEGER, collapse: false });
+  const notes = sanitizeText(enhancementDef?.notes || "", { maxLen: Number.MAX_SAFE_INTEGER, collapse: false });
   if (description) bodyParts.push(description);
   if (notes) bodyParts.push(notes);
   if (selEntries.length) bodyParts.push(selEntries.join(" • "));
   const summary = `${label} • Rank ${rank}`;
   const body = bodyParts.join(" ");
   if (!collapsible) {
-    return `<div class="enhancement-detail"><div class="enhancement-detail-title">${safeHtmlText(summary, 220)}</div>${body ? `<div class="enhancement-detail-body">${safeHtmlText(body, 1500)}</div>` : ""}</div>`;
+    return `<div class="enhancement-detail"><div class="enhancement-detail-title">${safeHtmlText(summary, 220)}</div>${body ? `<div class="enhancement-detail-body">${safeHtmlText(body, Number.MAX_SAFE_INTEGER)}</div>` : ""}</div>`;
   }
-  return `<details class="enhancement-detail enhancement-detail-collapsible"><summary class="enhancement-detail-summary">${safeHtmlText(summary, 220)}</summary>${body ? `<div class="enhancement-detail-body">${safeHtmlText(body, 1500)}</div>` : ""}</details>`;
+  return `<details class="enhancement-detail enhancement-detail-collapsible"><summary class="enhancement-detail-summary">${safeHtmlText(summary, 220)}</summary>${body ? `<div class="enhancement-detail-body">${safeHtmlText(body, Number.MAX_SAFE_INTEGER)}</div>` : ""}</details>`;
 }

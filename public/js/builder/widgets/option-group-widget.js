@@ -7,6 +7,7 @@ import {
   isOptionGroup,
 } from "../../core/option-groups.js";
 import { BuilderWidget } from "./builder-widget.js";
+import { appendRuleDetails } from "./rule-details.js";
 
 export function getOptionStorageKey(group, option) {
   const stableKey = sanitizeText(option?.featureKey || option?.featKey || "", { maxLen: 128, collapse: true });
@@ -258,7 +259,6 @@ export class OptionGroupWidget extends BuilderWidget {
             sourceId: this.storagePath ? `choice:${this.storagePath}:${key}` : "",
           })
         : null;
-      if (grantWidgets) textWrap.append(grantWidgets);
       if (prereqText) {
         const prereqEl = document.createElement("div");
         prereqEl.className = "muted optionDesc";
@@ -272,7 +272,13 @@ export class OptionGroupWidget extends BuilderWidget {
         textWrap.append(failureEl);
       }
       row.append(cb, textWrap);
-      list.append(row);
+      const optionCard = document.createElement("div");
+      optionCard.className = "optionCard";
+      optionCard.append(row);
+      // Browsing and nested answers must not activate the parent choice label.
+      appendRuleDetails(optionCard, option, { page: this.page, identity: `${this.id}:${key}` });
+      if (grantWidgets) optionCard.append(grantWidgets);
+      list.append(optionCard);
 
       if (checked && isOptionGroup(option)) {
         const childGroup = this.renderChildGroup(option);

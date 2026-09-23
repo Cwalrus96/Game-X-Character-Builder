@@ -1,6 +1,11 @@
 import { escapeHtml, sanitizeText, safeHtmlText } from "./data-sanitization.js";
 import { canonicalSkillName } from "./skill-identity.js";
 
+// Catalogue text is already bounded by the data contract. Do not truncate mechanics
+// again in a display shared by choices, weapons and the character sheet.
+const mechanicText = (value) => sanitizeText(value || "", { maxLen: Number.MAX_SAFE_INTEGER, collapse: false });
+const mechanicHtml = (value) => escapeHtml(mechanicText(value));
+
 export function renderTagChipsHtml(tags, chipClass = "tagChip") {
   if (!Array.isArray(tags) || !tags.length) return "—";
   return tags.map((tag) => `<span class="${chipClass}">${escapeHtml(tag)}</span>`).join(", ");
@@ -46,10 +51,10 @@ function formatDefenseLabel(defense) {
   return /defense$/i.test(value) ? value : `${value} Defense`;
 }
 
-function formatAdditionalEnergyText(pump) {
-  const value = sanitizeText(pump, { maxLen: 160, collapse: true });
+function formatAdditionalEnergyText(pump, syntaxVersion) {
+  const value = mechanicText(pump);
   if (!value || value === "+0") return "";
-  if (/per energy/i.test(value) && !/(damage|ward|wards|range|reach|square|squares|target|targets|armor|healing|heal|speed|movement|die|dice|hit|hits)/i.test(value)) {
+  if (syntaxVersion !== 3 && /per energy/i.test(value) && !/(damage|ward|wards|range|reach|square|squares|target|targets|armor|healing|heal|speed|movement|die|dice|hit|hits)/i.test(value)) {
     return value.replace(/per energy/i, "Damage per Energy");
   }
   return value;
@@ -83,8 +88,8 @@ function getProfileDamageParts(profile, rankValue = 0) {
   const damageByRank = (profile?.damageByRank && typeof profile.damageByRank === "object") ? profile.damageByRank : null;
   const pumping = profile?.expressionSyntaxVersion === 3 ? profile.pumpingByRank : profile?.pumpDamageByRank;
   const pumpDamageByRank = pumping && typeof pumping === "object" ? pumping : null;
-  const damage = sanitizeText(damageByRank?.[rankKey] || profile?.damage || "", { maxLen: 160, collapse: true });
-  const additional = formatAdditionalEnergyText(pumpDamageByRank?.[rankKey] || "");
+  const damage = mechanicText(damageByRank?.[rankKey] || profile?.damage);
+  const additional = formatAdditionalEnergyText(pumpDamageByRank?.[rankKey] || "", profile?.expressionSyntaxVersion);
   return { damage, additional };
 }
 
@@ -106,38 +111,39 @@ export function renderTechniqueProfileHtml(profile, { rankValue = 0, heading = "
   const rank = Number.parseInt(String(profile?.rank ?? rankValue ?? 0), 10) || 0;
   const title = titleText ? `${titleText}${showRank && rank > 0 ? ` (Rank ${rank})` : ""}` : "";
   const tags = Array.isArray(profile?.tags) ? profile.tags.map((tag) => sanitizeText(tag, { maxLen: 64, collapse: true })).filter(Boolean) : [];
-  const trigger = sanitizeText(profile?.trigger, { maxLen: 240, collapse: true });
+  const trigger = mechanicText(profile?.trigger);
   const rollLine = formatRollLine(profile);
   const rangeTargetsLine = formatRangeTargetsLine(profile);
-  const description = sanitizeText(profile?.description || "", { maxLen: 1200, collapse: true });
-  const notes = sanitizeText(profile?.notes || "", { maxLen: 1200, collapse: true });
-  const bondEffect = sanitizeText(profile?.bondEffect || "", { maxLen: 400, collapse: true });
-  const onSuccess = sanitizeText(profile?.onSuccess || "", { maxLen: 400, collapse: true });
-  const onCritSuccess = sanitizeText(profile?.onCriticalSuccess || "", { maxLen: 400, collapse: true });
-  const onFailure = sanitizeText(profile?.onFailure || "", { maxLen: 400, collapse: true });
-  const onCritFailure = sanitizeText(profile?.onCriticalFailure || "", { maxLen: 400, collapse: true });
+  const description = mechanicText(profile?.description);
+  const notes = mechanicText(profile?.notes);
+  const bondEffect = mechanicText(profile?.bondEffect);
+  const onSuccess = mechanicText(profile?.onSuccess);
+  const onCritSuccess = mechanicText(profile?.onCriticalSuccess);
+  const onFailure = mechanicText(profile?.onFailure);
+  const onCritFailure = mechanicText(profile?.onCriticalFailure);
   const costLine = formatCostLine(profile);
   const dmg = getProfileDamageParts(profile, rankValue);
   const rows = [];
   if (tags.length) rows.push(`<div class="combat-profile-line combat-profile-tags">${renderTagChipsHtml(tags, "tagChip")}</div>`);
   if (costLine) rows.push(`<div class="combat-profile-line combat-profile-cost">${safeHtmlText(costLine, 240)}</div>`);
-  if (trigger) rows.push(`<div class="combat-profile-line"><strong>Trigger:</strong> ${safeHtmlText(trigger, 320)}</div>`);
+  if (trigger) rows.push(`<div class="combat-profile-line"><strong>Trigger:</strong> ${mechanicHtml(trigger)}</div>`);
   if (rollLine) rows.push(`<div class="combat-profile-line">${safeHtmlText(rollLine, 320)}</div>`);
   if (profile.expressionSyntaxVersion === 3 && profile.basicAttack?.length) rows.push(`<div class="combat-profile-line"><strong>Basic attack:</strong> ${safeHtmlText(formatBasicAttack(profile.basicAttack, gameData), 2000)}</div>`);
   if (rangeTargetsLine) rows.push(`<div class="combat-profile-line">${safeHtmlText(rangeTargetsLine, 320)}</div>`);
-  if (description) rows.push(`<div class="combat-profile-line">${safeHtmlText(description, 1200)}</div>`);
+  if (description) rows.push(`<div class="combat-profile-line">${mechanicHtml(description)}</div>`);
   if (dmg.damage) {
-    const damageText = dmg.additional ? `${dmg.damage}, ${dmg.additional}` : dmg.damage;
-    rows.push(`<div class="combat-profile-line"><strong>Damage:</strong> ${safeHtmlText(damageText, 240)}</div>`);
-  } else if (dmg.additional) {
-    rows.push(`<div class="combat-profile-line"><strong>Additional Energy:</strong> ${safeHtmlText(dmg.additional, 240)}</div>`);
+    const damageText = dmg.additional && profile.expressionSyntaxVersion !== 3 ? `${dmg.damage}, ${dmg.additional}` : dmg.damage;
+    rows.push(`<div class="combat-profile-line"><strong>Damage:</strong> ${mechanicHtml(damageText)}</div>`);
   }
-  if (onSuccess) rows.push(`<div class="combat-profile-line"><strong>Success:</strong> ${safeHtmlText(onSuccess, 500)}</div>`);
-  if (onCritSuccess) rows.push(`<div class="combat-profile-line"><strong>Critical Success:</strong> ${safeHtmlText(onCritSuccess, 500)}</div>`);
-  if (onFailure) rows.push(`<div class="combat-profile-line"><strong>Failure:</strong> ${safeHtmlText(onFailure, 500)}</div>`);
-  if (onCritFailure) rows.push(`<div class="combat-profile-line"><strong>Critical Failure:</strong> ${safeHtmlText(onCritFailure, 500)}</div>`);
-  if (bondEffect) rows.push(`<div class="combat-profile-line"><strong>Bond Effect:</strong> ${safeHtmlText(bondEffect, 500)}</div>`);
-  if (notes) rows.push(`<div class="combat-profile-line">${safeHtmlText(notes, 1200)}</div>`);
-  if (profile.expressionSyntaxVersion === 3 && profile.rankNotes) rows.push(`<div class="combat-profile-line">${safeHtmlText(profile.rankNotes, 4000)}</div>`);
+  if (dmg.additional && (profile.expressionSyntaxVersion === 3 || !dmg.damage)) {
+    rows.push(`<div class="combat-profile-line"><strong>${profile.expressionSyntaxVersion === 3 ? "Pumping" : "Additional Energy"}:</strong> ${mechanicHtml(dmg.additional)}</div>`);
+  }
+  if (onSuccess) rows.push(`<div class="combat-profile-line"><strong>Success:</strong> ${mechanicHtml(onSuccess)}</div>`);
+  if (onCritSuccess) rows.push(`<div class="combat-profile-line"><strong>Critical Success:</strong> ${mechanicHtml(onCritSuccess)}</div>`);
+  if (onFailure) rows.push(`<div class="combat-profile-line"><strong>Failure:</strong> ${mechanicHtml(onFailure)}</div>`);
+  if (onCritFailure) rows.push(`<div class="combat-profile-line"><strong>Critical Failure:</strong> ${mechanicHtml(onCritFailure)}</div>`);
+  if (bondEffect) rows.push(`<div class="combat-profile-line"><strong>Bond Effect:</strong> ${mechanicHtml(bondEffect)}</div>`);
+  if (notes) rows.push(`<div class="combat-profile-line">${mechanicHtml(notes)}</div>`);
+  if (profile.expressionSyntaxVersion === 3 && profile.rankNotes) rows.push(`<div class="combat-profile-line">${mechanicHtml(profile.rankNotes)}</div>`);
   return `<div class="combat-profile">${title ? `<${headingTag} class="${headingClass}">${safeHtmlText(title, 200)}</${headingTag}>` : ""}${rows.join("")}</div>`;
 }

@@ -1,6 +1,7 @@
 import { SetOrigin, SetOriginKeystone } from "../../core/character-commands.js?v=wpe4";
 import { sanitizeText, escapeHtml } from "../../core/data-sanitization.js";
 import { getOriginSelectionState } from "../../core/origin-rules.js";
+import { appendRuleDetails } from "./rule-details.js";
 
 function statusLabel(status) {
   if (status === "playable") return "Playable";
@@ -97,10 +98,12 @@ export class OriginWidget {
       : "";
     originDetails.innerHTML = `${selected.description ? `<section class="builderItem"><div class="builderItemTitle">Description</div><div class="builderItemBody">${escapeHtml(selected.description)}</div></section>` : ""}${features}${renderList("Roleplay Questions", selected.questions)}${renderList("Higher Level Upgrades", selected.futureUpgrades)}${selected.examples.length ? `<section class="builderItem"><div class="builderItemTitle">Examples</div><div class="builderItemBody">${escapeHtml(selected.examples.join(", "))}</div></section>` : ""}`;
     const origin = (this.gameData.origins || []).find((entry) => entry.originKey === state.originKey);
+    appendRuleDetails(originSummary, origin, { page: this.page, gameData: this.gameData, identity: `origin:${state.originKey}` });
     const directTraits = this.renderTraitGrants?.(origin, this.childScope);
     if (directTraits) originSummary.append(directTraits);
     (origin?.features || []).forEach((feature, index) => {
       const mount = originDetails.querySelector(`[data-origin-traits="${index}"]`);
+      if (mount) appendRuleDetails(mount, feature, { page: this.page, gameData: this.gameData, identity: `origin:${state.originKey}:${feature.featureKey}` });
       const traits = mount && this.renderTraitGrants?.(feature, this.childScope);
       if (traits) mount.append(traits);
     });

@@ -1187,3 +1187,10 @@ textarea {
     max-width: none;
   }
 }
+
+.ruleDetails { margin: 8px 0; border-left: 3px solid var(--builder-card-muted); padding-left: 10px; min-width: 0; }
+.ruleDetails > summary { cursor: pointer; font-weight: 700; overflow-wrap: anywhere; }
+.ruleDetails > summary:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.ruleDetailsBody { padding: 8px 0; }
+.ruleDetailsBody .optionDesc, .ruleDetailsBody .combat-profile-line { white-space: pre-wrap; overflow-wrap: anywhere; }
+.optionCard > .ruleReferences, .optionCard > .grantChoiceWidget { margin-left: 28px; }

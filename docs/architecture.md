@@ -122,6 +122,8 @@ Current transition modules include `public/js/builder/builder-page.js` and indiv
 
 ### Widgets
 
+Rule-reference browsing is shared presentation in `widgets/rule-details.js`. It resolves named Technique, Trait, Feat, Feature, Weapon and Enhancement references and composes the existing domain renderers behind native disclosures. Feature references respect their owner's scope; duplicate, missing, ambiguous and cyclic references never cause guessed acquisition. Page-local expansion is keyed by the owning card and reference path. The component has no commands, character model, eligibility calculations or database access.
+
 Each widget is a portable UI component for one choice type. It owns DOM rendering, accessibility, focus and interaction behavior, current-value display, local input parsing/errors, typed-command production, and presentation of injected structured impacts. State projections, allowed display data, and action callbacks are injected so the same widget can be mounted by another page or shell without importing that page.
 
 Choice widgets share `selected-choice-display.js` for the selected item's description region, keyed by the owning choice and placed directly after its selector. It composes escaped domain display HTML for Feats, Traits, Techniques, Weapons and Enhancements; expanded catalogue browsing never hides the chosen result or its follow-up controls. This presentation component has no commands, character state, eligibility or persistence authority. See the [builder flow](builder-flow.md) for the per-choice placement and preview contract.
