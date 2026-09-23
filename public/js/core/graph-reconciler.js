@@ -14,7 +14,7 @@ import {
   GraphCompiler,
   createDefaultGraphHandlerRegistry,
   getUnmetRequirementNodeIds,
-} from "./graph-compiler.js?v=wpe13";
+} from "./graph-compiler.js?v=wpe14";
 
 const IMPACT_CATEGORY_ORDER = Object.freeze({
   error: 0,
@@ -973,7 +973,7 @@ function addInformationalImpacts(character, graph, impacts) {
     if (node.type === "choice-group") {
       const selectedCount = Number(node.metadata.selectedCount || 0);
       const expectedCount = Number(node.metadata.expectedCount || 0);
-      if (selectedCount === expectedCount) continue;
+      if (!node.metadata.completionMessage) continue;
       addImpact(impacts, {
         category: "informational",
         type: "incomplete",
@@ -981,7 +981,7 @@ function addInformationalImpacts(character, graph, impacts) {
         path: node.storageBinding?.path || "builder.selectedClassFeatureOptions",
         nodeId: node.id,
         label: node.label,
-        message: `Expected ${expectedCount} class option${expectedCount === 1 ? "" : "s"}, but ${selectedCount} selected.`,
+        message: node.metadata.completionMessage,
         before: selectedCount,
         after: expectedCount,
       });
@@ -989,7 +989,7 @@ function addInformationalImpacts(character, graph, impacts) {
     if (node.type === "feat-choice-group") {
       const selectedCount = Number(node.metadata.selectedCount || 0);
       const expectedCount = Number(node.metadata.expectedCount || 0);
-      if (selectedCount === expectedCount) continue;
+      if (!node.metadata.completionMessage) continue;
       addImpact(impacts, {
         category: "informational",
         type: "incomplete",
@@ -997,7 +997,7 @@ function addInformationalImpacts(character, graph, impacts) {
         path: "builder.selectedFeatOptions",
         nodeId: node.id,
         label: node.label,
-        message: `Expected ${expectedCount} feat option${expectedCount === 1 ? "" : "s"}, but ${selectedCount} selected.`,
+        message: node.metadata.completionMessage,
         before: selectedCount,
         after: expectedCount,
       });

@@ -99,6 +99,8 @@ A migrated choice edit must follow this sequence:
 
 Incomplete but non-destructive expected selections may be informational. A migrated page presents only informational impacts whose exact storage path belongs to fields that page can edit. This current-page ownership is explicit and does not depend on `visitedSteps`, so an Attributes save does not warn about a missing Origin, feat, Bond, or another later-page choice. Destructive impacts caused by the current proposal and blocking structural errors are different structured categories; they are not suppressed by current-page informational scoping and must not be inferred by filtering warning strings.
 
+Class and Feat option-group reminders use the same shared availability Rules as their option cards. They ask only for currently selectable, unselected options, name the granting feature, and disappear when no eligible answer is available. The authored `chooseCount` and incomplete graph state remain intact; unfinished content is not treated as completed or made executable. Over-capacity notices and invalid selected-answer errors remain applicable.
+
 ### Choice rebinds
 
 A `choice-rebind` grant reopens an existing answer slot under new eligibility constraints without overwriting the answer originally stored for that slot. The proposed replacement is source-owned overlay state. Validation checks the original answer against its original grant and each overlay against the grant that created that overlay. The effective answer comes from the highest-precedence active overlay.

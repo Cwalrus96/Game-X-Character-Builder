@@ -99,6 +99,8 @@ Compilation is diagnostic-producing, not repairing. Missing game-data identities
 
 Every removal is represented in the reconciled character and reported as `confirmation-required`. Blocking diagnostics are always `error`; they are never converted into confirmable warnings. Incomplete but valid state is `informational` and does not block saving.
 
+Class and Feat option-group nodes retain their authored expected count and actual selected count. The compiler also records a completion message from `option-choice-rules.js`, which shares availability with `OptionGroupWidget`: unmet prerequisites or unavailable content cannot produce an instruction to select an inaccessible answer. Actionable messages name the feature and request at most the available unselected choices. Reconciliation reports that Rules result without recomputing availability or reducing capacity; unsupported-content diagnostics and invalid selected-answer errors remain explicit.
+
 The default maximum is 32 iterations. Exceeding the configured bound reports `graph-non-convergence`, returns the original proposed character rather than a partial intermediate value, and cannot be accepted by `CharacterSession`.
 
 Running reconciliation again on its reconciled character is character-idempotent. Informational impacts may remain because they describe the same still-incomplete valid state.

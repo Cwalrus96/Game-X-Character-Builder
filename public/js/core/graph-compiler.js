@@ -28,7 +28,8 @@ import {
   getClassUtilitySkillState,
   getSkillAllocationState,
 } from "./skill-rules.js?v=wpe13";
-import { createPrerequisiteContext, evaluatePrerequisite } from "./prerequisites.js";
+import { createPrerequisiteContext, evaluatePrerequisite, checkPrerequisites } from "./prerequisites.js";
+import { getOptionGroupCompletion } from "./option-choice-rules.js";
 import { initializeGrantedResource } from "./grants.js";
 import { getOriginSelectionState } from "./origin-rules.js";
 import { registerDefaultGraphExtensions } from "./graph-extensions.js";
@@ -1299,8 +1300,12 @@ function compileClassFeatures(context, character, gameData, graph) {
     const key = stableKey(group?.featureKey) || slug(path);
     const groupNodeId = `choice-group:${classKey}:${key}:${slug(ownerNodeId)}`;
     const options = Array.isArray(group?.options) ? group.options : [];
-    const selectedCount = options.filter((option) => context.selectedClassOptionKeys.has(stableKey(option?.featureKey))).length;
-    const expectedCount = Math.max(1, Number.parseInt(String(group?.chooseCount ?? 1), 10) || 1);
+    const completion = getOptionGroupCompletion(group, {
+      selectedKeys: context.selectedClassOptionKeys,
+      optionKey: (option) => stableKey(option?.featureKey),
+      checkPrerequisites: (option) => checkPrerequisites(option.prerequisites, { gameData, builder: character.builder }),
+    });
+    const { selectedCount, expectedCount } = completion;
     context.addTypedNode("choice-group", {
       id: groupNodeId,
       key,
@@ -1308,7 +1313,7 @@ function compileClassFeatures(context, character, gameData, graph) {
       state: selectedCount === expectedCount ? "available" : "incomplete",
       sourceOwnerId: ownerNodeId,
       storageBinding: { path: "builder.selectedClassFeatureOptions", kind: "ordered-key-array" },
-      metadata: { selectedCount, expectedCount, classKey, featureKey: key },
+      metadata: { selectedCount, expectedCount, classKey, featureKey: key, completionMessage: completion.message },
     }, path);
     graph.addEdge({ kind: "offers", from: ownerNodeId, to: groupNodeId }, { path });
     if (!isGameDataRecordExecutable(group)) {
@@ -1470,10 +1475,12 @@ function compileFeats(context, character, featsByKey, graph) {
 
     const options = Array.isArray(feat.options) ? feat.options : [];
     if (!options.length) continue;
-    const expectedCount = Math.max(1, Number.parseInt(String(feat.chooseCount ?? 1), 10) || 1);
-    const selectedCount = options.filter((option) => (
-      context.selectedFeatOptionKeys.has(stableKey(option?.featKey))
-    )).length;
+    const completion = getOptionGroupCompletion(feat, {
+      selectedKeys: context.selectedFeatOptionKeys,
+      optionKey: (option) => stableKey(option?.featKey),
+      checkPrerequisites: (option) => checkPrerequisites(option.prerequisites, { gameData: context.gameData, builder }),
+    });
+    const { selectedCount, expectedCount } = completion;
     const groupNodeId = `feat-choice-group:${featKey}`;
     context.addTypedNode("feat-choice-group", {
       id: groupNodeId,
@@ -1482,7 +1489,7 @@ function compileFeats(context, character, featsByKey, graph) {
       state: selectedCount === expectedCount ? "available" : "incomplete",
       sourceOwnerId: nodeId,
       storageBinding: { path: "builder.selectedFeatOptions", kind: "ordered-key-array" },
-      metadata: { featKey, selectedCount, expectedCount },
+      metadata: { featKey, selectedCount, expectedCount, completionMessage: completion.message },
     }, `gameData.feats.${featKey}.options`);
     graph.addEdge({ kind: "offers", from: nodeId, to: groupNodeId }, { path: `gameData.feats.${featKey}.options` });
 

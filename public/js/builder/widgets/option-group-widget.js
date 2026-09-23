@@ -2,7 +2,7 @@ import { getChoiceCountState } from "../../core/choice-capacity.js";
 import { SetClassFeatureOptions, SetFeatOptions } from "../../core/character-commands.js?v=wpe1";
 import { buildGroupId, buildOptionKey, sanitizeText } from "../../core/data-sanitization.js";
 import { formatPrerequisites } from "../../core/prerequisites.js";
-import { isGameDataRecordExecutable } from "../../core/selection-rules.js";
+import { getOptionAvailability } from "../../core/option-choice-rules.js";
 import {
   isOptionGroup,
 } from "../../core/option-groups.js";
@@ -85,19 +85,7 @@ export class OptionGroupWidget extends BuilderWidget {
   }
 
   checkAvailability(option) {
-    if (!isGameDataRecordExecutable(this.group) || !isGameDataRecordExecutable(option)) {
-      const unavailable = !isGameDataRecordExecutable(this.group) ? this.group : option;
-      const reasons = unavailable?.runtimeSupport?.reasons || [];
-      const message = reasons.includes("draft-record-granted")
-        ? "Unavailable: a granted technique is not marked playable."
-        : reasons.includes("record-unready")
-          ? "Unavailable: this option is missing readiness information."
-          : reasons.includes("incomplete-content")
-            ? "Unavailable: this option has incomplete content."
-            : "Unavailable: this option needs builder support for its rules.";
-      return { ok: false, failureReasons: [message] };
-    }
-    return this.checkEntryPrerequisites(option);
+    return getOptionAvailability(this.group, option, this.checkEntryPrerequisites);
   }
 
   renderChildGroup(option) {
