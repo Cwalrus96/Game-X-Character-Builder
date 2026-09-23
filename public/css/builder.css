@@ -9,7 +9,7 @@
   --builder-card-text: #171920;
   --builder-muted: rgba(248, 243, 232, 0.76);
   --builder-card-muted: #595d67;
-  --builder-accent: #da3b31;
+  --builder-accent: #b42318;
   --builder-accent-soft: #f28f79;
   --builder-danger: #b42318;
   --builder-warn: #8c4600;
@@ -193,7 +193,8 @@ textarea {
 }
 
 .error {
-  color: #ffd0c8;
+  color: #8f1e15;
+  background: #fff0ee;
 }
 
 .warn {
@@ -411,7 +412,7 @@ textarea {
 }
 
 .pill strong {
-  color: #ffffff;
+  color: inherit;
 }
 
 .pill.danger {
@@ -547,12 +548,12 @@ textarea {
 .optionRow.isUnavailable {
   background: rgba(240, 240, 240, 0.58);
   border-color: rgba(23, 25, 32, 0.12);
-  color: rgba(23, 25, 32, 0.58);
+  color: var(--builder-card-muted);
 }
 
 .optionRow.isUnavailable .optionTitle,
 .optionRow.isUnavailable .optionDesc {
-  color: rgba(23, 25, 32, 0.58);
+  color: var(--builder-card-muted);
 }
 
 .optionRow.isUnavailable input[type="checkbox"] {

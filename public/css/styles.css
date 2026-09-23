@@ -160,14 +160,15 @@
     align-items: center;
     justify-content: flex-end;
     gap: 8px;
-    color: var(--panel-text-color);
+    background: var(--site-bg-deep);
+    color: var(--site-text);
     font-family: var(--body-font);
     font-size: 0.85rem;
   }
 
   .sheet-save-status[data-state="dirty"],
   .sheet-save-status[data-state="saving"] {
-    color: var(--accent-color);
+    color: inherit;
   }
 
   .sheet-save-status[data-state="error"] {
@@ -177,19 +178,23 @@
 
   .sheet-save-retry {
     min-height: 30px;
-    border: 1px solid var(--accent-color);
+    border: 1px solid currentColor;
     border-radius: 4px;
     padding: 4px 10px;
     background: transparent;
-    color: var(--panel-text-color);
+    color: inherit;
     cursor: pointer;
     font: inherit;
   }
 
   .sheet-save-retry:hover,
   .sheet-save-retry:focus-visible {
-    background: var(--accent-color);
-    color: var(--panel-bg-color);
+    background: var(--site-text);
+    color: #171920;
+  }
+
+  .sheet-footer {
+    color: var(--body-text-color);
   }
 
   /* Decorative corner flourishes */
@@ -287,9 +292,6 @@
     outline: none;
     color: var(--panel-text-color);
   }
-  .identity-field input::placeholder {
-    color: var(--accent-color);
-  }
   .sheet-readonly-value {
     min-height: 1.8em;
     border-bottom: 1px solid var(--input-border-color);
@@ -328,7 +330,7 @@
   }
   .portrait-placeholder {
     font-size: 0.8em;
-    color: var(--accent-color);
+    color: #333333;
     text-align: center;
     padding: 8px;
     user-select: none;
@@ -345,7 +347,7 @@
     border: 1px solid var(--primary-color);
     border-radius: 4px;
     background: rgba(255,255,255,0.92);
-    color: var(--panel-text-color);
+    color: #333333;
     font-size: 18px;
     line-height: 22px;
     padding: 0;
@@ -394,9 +396,6 @@
     background: transparent;
     outline: none;
     color: var(--panel-text-color);
-  }
-  .skill-name-input::placeholder {
-    color: var(--accent-color);
   }
 
   /* Selects styled like inputs */
@@ -458,7 +457,7 @@
     line-height: 1.2;
   }
   .skill-chip-readonly-empty {
-    color: var(--accent-color);
+    color: var(--panel-text-color);
     font-style: italic;
   }
 
@@ -495,8 +494,10 @@
     font-family: var(--body-font);
     background: transparent;
   }
+  #sheet input::placeholder,
   textarea::placeholder {
-    color: var(--accent-color);
+    color: var(--panel-text-color);
+    opacity: 1;
   }
 
   /*
@@ -610,43 +611,42 @@
    * Elementalist per-section header colours. Each section header gets
    * a distinct colour representing a different element. We also set the
    * border colour to match so the panel integrates with the theme. The
-   * text colour is white to ensure readability on the saturated
-   * backgrounds.
+   * dark text preserves contrast on each bright element background.
    */
   [data-theme="elementalist"] #identity h2 {
     background-color: #e67300; /* Fire */
     border-color: #e67300;
-    color: #ffffff;
+    color: #171920;
   }
   [data-theme="elementalist"] #attributes h2 {
     background-color: #3fa9f5; /* Water */
     border-color: #3fa9f5;
-    color: #ffffff;
+    color: #171920;
   }
   [data-theme="elementalist"] #resources h2 {
     background-color: #7cb342; /* Earth */
     border-color: #7cb342;
-    color: #ffffff;
+    color: #171920;
   }
   [data-theme="elementalist"] #skills h2 {
     background-color: #b39ddb; /* Air */
     border-color: #b39ddb;
-    color: #ffffff;
+    color: #171920;
   }
   [data-theme="elementalist"] #abilities h2 {
     background-color: #e7bb41; /* Spirit */
     border-color: #e7bb41;
-    color: #ffffff;
+    color: #171920;
   }
   [data-theme="elementalist"] #bonds h2 {
     background-color: #f06292; /* Love */
     border-color: #f06292;
-    color: #ffffff;
+    color: #171920;
   }
   [data-theme="elementalist"] #notes h2 {
     background-color: #9575cd; /* Magic */
     border-color: #9575cd;
-    color: #ffffff;
+    color: #171920;
   }
 
   /* Checkbox styling for resource overstrained indicator */
@@ -828,7 +828,7 @@
     border: 1px solid var(--input-border-color);
     border-radius: 999px;
     font-size: 0.85em;
-    color: var(--accent-color);
+    color: var(--panel-text-color);
     white-space: nowrap;
   }
 
@@ -1250,7 +1250,7 @@
 
 .weapon-card-meta {
   margin-top: 4px;
-  color: var(--muted-text-color, #666);
+  color: var(--panel-text-color);
 }
 
 .weapon-card-subsection {
