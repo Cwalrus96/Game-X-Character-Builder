@@ -22,15 +22,15 @@ Thirteen Rank 2 Techniques were added to [Techniques!A156:AD168](https://docs.go
 
 Costs, timing, targets, triggers, outcomes, rank benefits and damage occupy their existing columns. Driving Barrage, Rising Dragon Counter, Divergent Fist and Piledriver reference `unarmed-strike` through `basicAttack`, use `rollRequired=N`, and leave independent-roll details blank. Their attack counts and modifiers remain in descriptions. Damage growth does not name a particular skill. No pumping is invented. Cast Off Armor's active-transformation restriction stays a gameplay use condition in its description, not a static acquisition prerequisite. Block the Blast uses the incoming attack's ordinary defense roll; it introduces no additional Technique roll.
 
-## Mechanics needing clarification
+## Resolved mechanical questions
 
-The source retains the following authored meanings or blanks; import success does not decide these game-design questions.
+The original migration preserved these ambiguities rather than inventing rules. Living Shield was resolved by the earlier consistency follow-through; the user subsequently resolved the remaining four questions. All decisions are applied through the source, displays and handbook; see [the clarification record](technique-mechanics-2026-09-22.md) for exact cells and verification.
 
-1. **Living Shield:** Martial Arts access, but the roll explicitly says Strength (Melee Weapons). `associatedSkill=Melee Weapons` preserves that override pending confirmation.
-2. **Driving Barrage:** the target line requires a creature grappled by the user. Confirm whether that requirement is intentional.
-3. **Lotus Lock:** Action or Reaction is explicit, but no Reaction trigger is supplied. The trigger cell remains blank.
-4. **Hurricane Kick:** attacks are specified without identifying their damage or saying they are Unarmed Strikes. The authored Primary-versus-Physical roll is retained; damage and `basicAttack` remain blank.
-5. **Block the Blast:** ordinary success improves one ally's result, while critical success protects all allies. Confirm whether the singular ordinary-success target is intentional.
+1. **Living Shield:** the copied Melee Weapons override is removed; its chosen skill supplies the roll context.
+2. **Driving Barrage:** targets one creature in melee, without a grapple requirement.
+3. **Lotus Lock:** uses one Action only; no Reaction trigger is needed.
+4. **Hurricane Kick:** makes Unarmed Strikes through `basicAttack`; it adds no independent roll or duplicate damage rule.
+5. **Block the Blast:** both success and critical success affect all allies in the triggering area, retaining their different degrees of protection.
 
 ## Verification and operational evidence
 
@@ -45,4 +45,4 @@ The source retains the following authored meanings or blanks; import success doe
 - Source modification time: `2026-09-23T00:04:11.190Z`; Drive version unavailable/null. Native XLSX SHA-256: `8186897e302e814ef05785132cb2d6ce8d7d83ab84ecd48bb926591a5495db5b`; 472,886 bytes. Source ID is the canonical contract ID. Snapshot, provenance, before/after comparisons and proposal evidence are ignored under `.staging/handbook-techniques/`.
 - Final production baseline and `git diff --check` pass. Concurrent Class/Origin/Trait UI work and AGENTS guidance edits are separate and preserved.
 
-Next data release boundary remains `WPB-REQUIRED-CELLS-RELEASE`: review the complete candidate, resolve or explicitly retain these unfinished mechanics, and obtain the user's production instruction before publishing the matching data and website. Existing `WPE-DOMAIN-MIGRATION` implementation work is separate.
+Next data release boundary remains `WPB-REQUIRED-CELLS-RELEASE`: review the complete candidate, account for other unfinished content, and obtain the user's production instruction before publishing the matching data and website. Existing `WPE-DOMAIN-MIGRATION` implementation work is separate.
