@@ -1,5 +1,7 @@
 # Architecture
 
+Skill Rules owns universal Core Combat membership and its allocation/display projection. Martial Arts, Melee Weapons, and Ranged Weapons remain in Combat rank consumers and named paid-rank storage while both Skills UI surfaces place them under Core Skills. The existing fixed Core field list is a storage binding list, not the complete gameplay category. No new character format, grant policy or persistence boundary is introduced; see [the September 23 decision](core-combat-skills-2026-09-23.md).
+
 Feature-granted Keystone text follows the portable widget → `SetGrantChoices` → session/graph → existing persistence path. Its Rules resolve source-owned slots; the graph extension materializes and validates answers, and the shared sheet projection displays their text. The existing schema-v6 answer envelope gains a discriminated Keystone text variant without another character model. Local catalogue installation is separate from publishing: only loopback loading may use a fully validated candidate under the Hosting-excluded `public/local-review/` path.
 
 Status: living current-and-target architecture.

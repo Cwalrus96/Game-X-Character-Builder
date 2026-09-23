@@ -1,6 +1,10 @@
 # Current implementation status
 
-Last updated: 2026-09-22
+Core Combat Skills follow-up (September 23) is complete locally. Martial Arts, Melee Weapons and Ranged Weapons remain Combat Skills and now have permanent Core rank controls for every character. Free grants, paid-rank storage, caps/budget, dependent-change confirmation and historical Targeting compatibility are preserved. Both Skills and the character sheet use shared Rules projections. Five handbook paragraphs are updated and native preservation checks pass across four tabs and 49 unchanged tables; no source spreadsheet edit is needed.
+
+Verification: preflight **503 unit tests**; seven new controlled regressions pass; full workspace `npm run test:all` passes **517 unit tests, 20 emulator tests and 14 asset checks**. All ten production artifacts match the baseline. Authenticated local reader/writer checks and browser purchases, extra-skill preservation and save/reload pass on a new Magical Guardian fixture. Firebase restart preserved local data. Fresh no-cache review: **http://127.0.0.1:5027/builder/builder-skills.html?charId=hKsk4AbOehinp7GJbEO2**. See [the complete evidence and scope](core-combat-skills-2026-09-23.md). Pre-existing/concurrent edits remain separate; production is unchanged. Remaining `WPE-DOMAIN-MIGRATION` acceptance precedes `WPF-UI-SYSTEM` shared controls/accessibility. Any production deployment still requires explicit instruction, and the complete data candidate retains its separate `WPB-REQUIRED-CELLS-RELEASE` approval boundary.
+
+Last updated: 2026-09-23
 
 Current branch at update: `codex/work-package-b-data-contract`
 

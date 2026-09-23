@@ -23,9 +23,17 @@ import {
 } from "./game-data.js";
 import { getGrantName, getGrantNotes, normalizeSkillProgression } from "./grants.js";
 import { collectSelectedEntries } from "./option-groups.js";
-import { canonicalSkillName, RANGED_WEAPONS_SKILL } from "./skill-identity.js";
+import { canonicalSkillKey, canonicalSkillName, RANGED_WEAPONS_SKILL } from "./skill-identity.js";
 
 export const CLASS_UTILITY_SKILL_CHOICE_COUNT = 2;
+
+// Core describes universal training access, independently of Combat category.
+// Paid ranks retain their existing named-row storage and Combat dependencies.
+export const CORE_COMBAT_SKILLS = Object.freeze(["Martial Arts", "Melee Weapons", RANGED_WEAPONS_SKILL]);
+const CORE_COMBAT_SKILL_KEYS = new Set(CORE_COMBAT_SKILLS.map(canonicalSkillKey));
+export function isCoreCombatSkill(name) {
+  return CORE_COMBAT_SKILL_KEYS.has(canonicalSkillKey(name));
+}
 
 const DEFENSE_FIELD_BY_NAME = new Map([
   ["Physical Defense", "rank_physdef"],
@@ -148,7 +156,7 @@ export function computeKnownCombatSkillsAndGrants(gameData, builder) {
   const data = gameData && typeof gameData === "object" ? gameData : {};
   const state = builder && typeof builder === "object" ? builder : {};
   const collection = skillGrantCollection(data, state);
-  const knownCombatSkills = new Set(["Martial Arts", "Melee Weapons", RANGED_WEAPONS_SKILL]);
+  const knownCombatSkills = new Set(CORE_COMBAT_SKILLS);
   const grantedTechniqueNames = new Set();
   const cls = getGameXClasses(data).find((entry) => entry?.classKey === state.classKey);
   if (cls) {
@@ -169,7 +177,7 @@ export function computeGrantedSkillsState(gameData, builder) {
   const fixedRanks = { rank_physdef: "", rank_mentdef: "", rank_spiritdef: "" };
   const grantedSkillNames = new Set();
   const grantedCombatSkills = new Map();
-  ["Martial Arts", "Melee Weapons", RANGED_WEAPONS_SKILL].forEach((name) => pushGrantedSkill(grantedCombatSkills, name, "0", "Common"));
+  CORE_COMBAT_SKILLS.forEach((name) => pushGrantedSkill(grantedCombatSkills, name, "0", "Core"));
 
   const cls = getGameXClasses(data).find((entry) => entry?.classKey === state.classKey);
   if (cls) {
@@ -294,6 +302,14 @@ function allocationRecords(gameData, builder, granted) {
     const grantedRank = grantedRankFor(row.skill);
     return { domain: "combat", key: row.skill.toLowerCase(), name: canonicalSkillName(row.skill), rank: Math.max(grantedRank, numericRank(row.rank)), storedRank: normalizeSkillRank(row.rank, { allowBlank: true }), grantedRank, editable: true, cap: Math.max(grantedRank, capFor(row.skill)), path: `builder.sheet.repeatables.combatSkillsExtra.${index}.rank`, index };
   });
+  // Unpurchased Core ranks are display projections, not invented saved answers.
+  const coreCombat = CORE_COMBAT_SKILLS.map((name) => {
+    const existing = combat.find((record) => canonicalSkillKey(record.name) === canonicalSkillKey(name));
+    if (existing) return { ...existing, name };
+    const grantedRank = grantedRankFor(name);
+    return { domain: "combat", key: name.toLowerCase(), name, rank: grantedRank, storedRank: "", grantedRank,
+      editable: true, cap: Math.max(grantedRank, capFor(name)), path: "builder.sheet.repeatables.combatSkillsExtra", index: -1 };
+  });
   const utilityOptionByKey = new Map(utility.options.map((option) => [option.key, option]));
   const nonCoreUtilityKeys = new Set(utility.selected.filter((key) => !CORE_FIELD_BY_SKILL_KEY.has(key)));
   const representedUtilityKeys = new Set();
@@ -308,7 +324,7 @@ function allocationRecords(gameData, builder, granted) {
     const name = utilityOptionByKey.get(utilityKey)?.label || utilityKey;
     setting.push({ domain: "setting", key: name.toLowerCase(), name, rank: 1, storedRank: "", grantedRank: 1, editable: true, cap: capFor(name), path: "builder.sheet.repeatables.settingSkills", index: -1, virtual: true });
   }
-  return { fixed, combat, setting, utility, baseCap };
+  return { fixed, combat, coreCombat, setting, utility, baseCap };
 }
 
 export function getSkillAllocationState(gameData, builder) {
@@ -329,6 +345,7 @@ export function getSkillAllocationState(gameData, builder) {
     utility: records.utility,
     fixed: records.fixed.map(withMaximum),
     combat: records.combat.map(withMaximum),
+    coreCombat: records.coreCombat.map(withMaximum),
     setting: records.setting.map(withMaximum),
     defense: DEFENSE_SKILL_FIELDS.map(({ key, label }) => ({ key, name: label, rank: normalizeSkillRank(granted.fixedRanks[key], { allowBlank: true }) })),
     grantedCombatSkills: granted.grantedCombatSkills,
@@ -391,6 +408,7 @@ export function getSkillDisplayState(gameData, builder) {
   }
   return freeze({
     fields,
+    coreCombatSkills: allocation.coreCombat.map((record) => ({ skill: record.name, rank: String(record.rank) })),
     repeatables: {
       combatSkillsExtra: [...combat.values()].sort((a, b) => a.skill.localeCompare(b.skill)),
       settingSkills: allocation.setting.map((record) => ({ skill: record.name, rank: displayRank(record) })),

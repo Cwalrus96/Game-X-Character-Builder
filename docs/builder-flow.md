@@ -1,5 +1,7 @@
 # Builder flow
 
+Core Combat Skills: Martial Arts, Melee Weapons, and Ranged Weapons have permanent editable controls under Core Skills for every character. They remain Combat Skills, using the existing named paid-rank storage, free grant floors, shared caps/budget and reviewed dependencies. The read-only sheet uses the same ranks and placement. See [the September 23 decision and verification](core-combat-skills-2026-09-23.md).
+
 Feature-granted free-text Keystones use `KeystoneChoiceWidget` through the shared grant registry on Class/Feat controls and the same component on Origin features. Each declared slot owns its input and accepted text directly beneath it. Editing/clearing submits `SetGrantChoices`; cancellation restores the accepted text. Feature removal reviews the owned answer, and the character sheet includes it in the Keystone list. The 400-character text limit matches ordinary Keystones; no extra Background Keystone slot is consumed.
 
 Status: living current/transition contract. Class/Feat, Attributes, Equipment, Techniques, Origin, Skills, and Bonds/Keystones pages use `CharacterSession` plus the graph in the deployed schema-v6 builder. Static Trait Rules, widgets and graph integration support explicit character-owned providers, including eight Origin providers and Metamorph's three Trait choices. Personal manual acceptance is deferred and nonblocking. Independently developed feat-picker refinements remain in local review; exact deployment scopes are recorded in `docs/status.md`.

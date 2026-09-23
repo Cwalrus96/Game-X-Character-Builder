@@ -6,7 +6,8 @@ import {
 } from "../../core/character-commands.js?v=wpe4";
 import { SKILL_RANK_OPTIONS } from "../../core/character-rules.js";
 import { escapeHtml, sanitizeText } from "../../core/data-sanitization.js";
-import { getSkillAllocationState } from "../../core/skill-rules.js?v=wpe13";
+import { getSkillAllocationState, isCoreCombatSkill } from "../../core/skill-rules.js?v=core-combat1";
+import { canonicalSkillKey } from "../../core/skill-identity.js";
 
 function rankOptions(selected, maximum, { locked = false, minimum = 0 } = {}) {
   return SKILL_RANK_OPTIONS.map(({ value, label }) => {
@@ -62,6 +63,7 @@ export class SkillsWidget {
     const containers = [
       this.elements.classUtilitySkillOptions,
       this.elements.coreSkillGrid,
+      this.elements.coreCombatSkillGrid,
       this.elements.combatSkillGrid,
       this.elements.settingSkillGrid,
     ];
@@ -86,9 +88,26 @@ export class SkillsWidget {
     return this.#submit(SetSkillRank(event.currentTarget.dataset.fieldKey, storedRank));
   }
 
+  #coreCombatRankChanged(event) {
+    const input = event.currentTarget;
+    const record = getSkillAllocationState(this.gameData, this.character.builder).coreCombat
+      .find((skill) => skill.key === input.dataset.coreCombatKey);
+    if (!record) return;
+    const rows = [...(this.character.builder.sheet?.repeatables?.combatSkillsExtra || [])];
+    const index = rows.findIndex((row) => canonicalSkillKey(row.skill) === canonicalSkillKey(record.name));
+    if (Number(input.value || 0) <= record.grantedRank) {
+      if (index >= 0) rows.splice(index, 1);
+    } else {
+      const next = { skill: record.name, rank: input.value };
+      if (index >= 0) rows[index] = next;
+      else rows.push(next);
+    }
+    return this.#submit(SetCombatSkills(rows));
+  }
+
   #readRows(domain, { excluding = null } = {}) {
     const container = domain === "combat" ? this.elements.combatSkillGrid : this.elements.settingSkillGrid;
-    return [...container.querySelectorAll("[data-editable-skill-row]")]
+    const rows = [...container.querySelectorAll("[data-editable-skill-row]")]
       .filter((row) => row !== excluding)
       .map((row) => {
         const skill = sanitizeText(row.querySelector('[data-field="skill"]')?.value, { maxLen: 96, collapse: true });
@@ -98,6 +117,13 @@ export class SkillsWidget {
         return { skill, rank };
       })
       .filter((row) => row?.skill);
+    if (domain !== "combat") return rows;
+    // Core controls live in their own grid; an extra-skill edit must preserve
+    // those paid answers and must not create a second Core row by name.
+    return [
+      ...(this.character.builder.sheet?.repeatables?.combatSkillsExtra || []).filter((row) => isCoreCombatSkill(row.skill)),
+      ...rows.filter((row) => !isCoreCombatSkill(row.skill)),
+    ];
   }
 
   #commitRows(domain, options = {}) {
@@ -140,12 +166,14 @@ export class SkillsWidget {
     this.elements.defenseSkillGrid.innerHTML = allocation.defense.map((record) => staticSkillRow(record)).join("");
     this.elements.coreSkillGrid.innerHTML = allocation.fixed.map((record) => `<label class="skill-chip skill-chip-static"><span class="skill-chip-label">${escapeHtml(record.name)}</span><select aria-label="${escapeHtml(record.name)} rank" class="skill-rank-select" data-field-key="${escapeHtml(record.key)}" data-granted-floor="${record.grantedRank}"${record.editable && !this.busy ? "" : " disabled"}>${rankOptions(record.grantedRank ? String(record.rank) : record.storedRank, record.maximumAssignable, { locked: !record.editable, minimum: record.minimumAssignable })}</select></label>`).join("");
     for (const select of this.elements.coreSkillGrid.querySelectorAll("select[data-field-key]:not([disabled])")) select.addEventListener("change", (event) => this.#fixedRankChanged(event));
+    this.elements.coreCombatSkillGrid.innerHTML = allocation.coreCombat.map((record) => `<label class="skill-chip skill-chip-static"><span class="skill-chip-label">${escapeHtml(record.name)}</span><select aria-label="${escapeHtml(record.name)} rank" class="skill-rank-select" data-core-combat-key="${escapeHtml(record.key)}"${this.busy ? " disabled" : ""}>${rankOptions(String(record.rank), record.maximumAssignable, { minimum: record.minimumAssignable })}</select></label>`).join("");
+    for (const select of this.elements.coreCombatSkillGrid.querySelectorAll("select[data-core-combat-key]")) select.addEventListener("change", (event) => this.#coreCombatRankChanged(event));
   }
 
   #renderRepeatable(domain, allocation) {
     const container = domain === "combat" ? this.elements.combatSkillGrid : this.elements.settingSkillGrid;
-    const granted = domain === "combat" ? allocation.grantedCombatSkills : allocation.grantedSettingSkills;
-    const rows = domain === "combat" ? allocation.combat : allocation.setting;
+    const granted = domain === "combat" ? allocation.grantedCombatSkills.filter((record) => !isCoreCombatSkill(record.skill)) : allocation.grantedSettingSkills;
+    const rows = domain === "combat" ? allocation.combat.filter((record) => !isCoreCombatSkill(record.name)) : allocation.setting;
     container.innerHTML = granted.map((record) => staticSkillRow(record, "data-granted-skill")).join("");
     for (const record of rows) {
       const node = document.importNode(this.elements.skillChipTemplate.content, true);

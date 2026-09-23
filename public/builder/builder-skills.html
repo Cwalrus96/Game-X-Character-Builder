@@ -59,9 +59,11 @@
       <section class="card">
         <div class="cardHeaderRow">
           <h2>Core Skills</h2>
-          <span class="muted">Set your starting ranks for the core shared skills.</span>
+          <span class="muted">Every character can spend Skill Points to improve these skills up to the current rank cap.</span>
         </div>
         <div class="skill-grid" id="coreSkillGrid"></div>
+        <p class="muted">Martial Arts, Melee Weapons, and Ranged Weapons are Core Combat Skills. Any ranks granted by your class or features are free; pay only for ranks above that grant.</p>
+        <div class="skill-grid" id="coreCombatSkillGrid" aria-label="Core Combat Skills"></div>
       </section>
 
       <section class="card">
@@ -69,7 +71,7 @@
           <h2>Combat &amp; Class Skills</h2>
           <button class="btn secondary" id="addCombatSkillBtn" type="button">Add Skill</button>
         </div>
-        <p class="muted">Granted combat skills appear in the same grid as any extra combat or class skills you add. Only add extra combat or class skills here when they come from a source that is not already granted automatically.</p>
+        <p class="muted">Other granted combat and class skills appear here. Use Add Skill for extra skills supplied by another source. Train Martial Arts, Melee Weapons, and Ranged Weapons in Core Skills above.</p>
         <div class="skill-grid" id="combatSkillGrid"></div>
       </section>
 
@@ -98,6 +100,6 @@
       </div>
     </template>
 
-    <script type="module" src="/js/builder/builder-skills.js?v=wpe13"></script>
+    <script type="module" src="/js/builder/builder-skills.js?v=core-combat1"></script>
   </body>
 </html>

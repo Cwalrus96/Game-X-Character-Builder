@@ -12,7 +12,7 @@ import {
 import { renderBuilderNavMounts } from "./builder-nav.js";
 import { getBuilderStepInformationalMessages } from "./builder-step-impacts.js?v=wpe11";
 import { CharacterSessionPage } from "./character-session-page.js?v=wpe13";
-import { SkillsWidget } from "./widgets/skills-widget.js?v=wpe13";
+import { SkillsWidget } from "./widgets/skills-widget.js?v=core-combat1";
 import { VisitBuilderStep } from "../core/character-commands.js?v=wpe4";
 import { readCharacter } from "../core/database-reader.js?v=wpe6";
 import { replaceCharacter } from "../core/database-writer.js?v=wpe1";
@@ -42,6 +42,7 @@ const elements = {
   classUtilitySkillOptions: document.getElementById("classUtilitySkillOptions"),
   defenseSkillGrid: document.getElementById("defenseSkillGrid"),
   coreSkillGrid: document.getElementById("coreSkillGrid"),
+  coreCombatSkillGrid: document.getElementById("coreCombatSkillGrid"),
   combatSkillGrid: document.getElementById("combatSkillGrid"),
   settingSkillGrid: document.getElementById("settingSkillGrid"),
   skillChipTemplate: document.getElementById("skillChipTemplate"),

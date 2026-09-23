@@ -30,7 +30,7 @@ import {
   buildTechniqueIndexes,
   resolveTechniqueRef,
 } from "../core/game-data.js";
-import { computeKnownCombatSkillsAndGrants, computeGrantedSkillsState, getSkillDisplayState } from "../core/skill-rules.js";
+import { computeKnownCombatSkillsAndGrants, computeGrantedSkillsState, getSkillDisplayState, isCoreCombatSkill } from "../core/skill-rules.js?v=core-combat1";
 import { canonicalSkillName } from "../core/skill-identity.js";
 import {
   computeWeaponSlotCost,
@@ -283,7 +283,8 @@ import {
 
     renderReadOnlyFixedSkillGrid('defenseSkillGrid', DEFENSE_SKILL_FIELDS, readOnlySkillFields);
     renderReadOnlyFixedSkillGrid('coreSkillGrid', CORE_SKILL_FIELDS, readOnlySkillFields);
-    renderReadOnlyNamedSkillGrid('combatSkillGrid', readOnlySkillRepeatables.combatSkillsExtra, { minRows: READ_ONLY_SKILL_MIN_ROWS.combatSkillsExtra });
+    renderReadOnlyNamedSkillGrid('coreCombatSkillGrid', projected.coreCombatSkills);
+    renderReadOnlyNamedSkillGrid('combatSkillGrid', readOnlySkillRepeatables.combatSkillsExtra.filter((row) => !isCoreCombatSkill(row.skill)), { minRows: READ_ONLY_SKILL_MIN_ROWS.combatSkillsExtra });
     renderReadOnlyNamedSkillGrid('settingSkillGrid', readOnlySkillRepeatables.settingSkills, { minRows: READ_ONLY_SKILL_MIN_ROWS.settingSkills });
   }
 
