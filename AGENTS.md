@@ -181,6 +181,7 @@ npm run baseline:data    # prove reviewed production JSON has not drifted
 
 ## Implementation and test discipline
 
+- When changing a UI behavior, review the user's earlier instructions and analogous controls on every page that shares the behavior. Apply clear cross-page carryovers through shared components, and record other affected locations and remaining inconsistencies rather than assuming a request applies only to the named screen.
 - Prefer small pure modules over extending monolithic page or CLI files.
 - Keep parsing free of file I/O and `process.exit`; return structured diagnostics or throw typed errors at the CLI boundary.
 - Keep source-specific column aliases in adapters, never in graph/rules/runtime consumers.

@@ -601,7 +601,8 @@ textarea {
   gap: 6px;
 }
 
-.featChoiceHeader {
+.featChoiceHeader,
+.traitChoiceHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -610,23 +611,27 @@ textarea {
   margin-bottom: 8px;
 }
 
-.featChoiceHeader .label {
+.featChoiceHeader .label,
+.traitChoiceHeader .label {
   margin: 0;
 }
 
-.featOptions {
+.featOptions,
+.traitOptions {
   min-width: 0;
   padding: 0;
   margin: 0;
   border: 0;
 }
 
-.featOptions .optionRow input[type="radio"] {
+.featOptions .optionRow input[type="radio"],
+.traitOptions .optionRow input[type="radio"] {
   flex: none;
   margin-top: 3px;
 }
 
-.featOptions .optionRow > div {
+.featOptions .optionRow > div,
+.traitOptions .optionRow > div {
   min-width: 0;
   overflow-wrap: anywhere;
 }

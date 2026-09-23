@@ -7,7 +7,7 @@ import { GrantWidgetRegistry } from "../public/js/builder/widgets/grant-widget-r
 import { createGrantWidgets } from "../public/js/builder/widgets/grant-widget-factory.js";
 import { traitData, traitCharacter } from "./fixtures/traits.mjs";
 
-function harness({ result = { ok: true }, projection = {}, character = { builder: {} }, gameData = {}, project = null } = {}) {
+function harness({ result = { ok: true }, projection = {}, character = { builder: {} }, gameData = {}, project = null, widgetOptions = {} } = {}) {
   const events = new Map();
   let focused = 0;
   const mount = {
@@ -30,8 +30,10 @@ function harness({ result = { ok: true }, projection = {}, character = { builder
     activations: [{ activationId: "activation:one", sourceId: "feature:one", label: "Activate form", active: false, hasOverride: false, eligible: true, costText: "1 Action + 2 Energy", durationText: "While in this form" }],
     traits: [], ...projection,
   };
-  const widget = new TraitWidget(page, { mount, gameData, project: project || (() => state) });
-  return { widget, mount, character, commands, widgets, state, events, focused: () => focused };
+  const options = { mount, gameData, project: project || (() => state), expandedChoices: new Set(), ...widgetOptions };
+  const widget = new TraitWidget(page, options);
+  const toggle = (index = 0) => events.get("click")({ target: { dataset: { traitExpand: String(index), traitWidget: widget.id } } });
+  return { widget, mount, character, commands, widgets, state, events, toggle, page, options, focused: () => focused };
 }
 
 test("TraitWidget sends only static source-owned choices without mutating character state", async () => {
@@ -55,8 +57,7 @@ test("TraitWidget respects eligibility and disabled state and restores cancelled
   const h = harness({ result: { ok: false, reason: "cancelled", errors: [] } });
   await h.events.get("change")({ target: { dataset: { traitChoice: "0" }, value: "" } });
   assert.equal(h.commands.length, 0, "an unanswered choice cannot submit a stale removal");
-  assert.equal(h.events.has("click"), false, "there are no activation/reset controls");
-  assert.doesNotMatch(h.mount.innerHTML, /data-reset-trait-activation/);
+  assert.doesNotMatch(h.mount.innerHTML, /data-trait-activation|data-reset-trait-activation/);
   await h.events.get("change")({ target: { dataset: { traitChoice: "0" }, value: "unknown" } });
   assert.equal(h.commands.length, 0);
   h.widget.disable();
@@ -161,4 +162,72 @@ test("Trait grant widgets exist only for explicit grants and group each feature'
   firstWidget.destroy();
   assert.equal(registered.size, 1);
   assert.equal(Object.keys(firstWidget.element.events).length, 0);
+});
+
+test("compact and expanded Trait choices hide over-rank, unmet and incomplete options and keep full text", () => {
+  const gameData = traitData();
+  const character = traitCharacter();
+  const feature = gameData.origins[0].features[0];
+  feature.grants[0].rank = 1;
+  const wings = gameData.traits.find((trait) => trait.traitKey === "wings");
+  wings.description = 'Full wings description.\n<script>escaped</script>';
+  wings.rankNotes = "Extra benefit at rank 2.";
+  const h = harness({ character, gameData, project: projectCharacterTraits });
+  const before = structuredClone(character);
+  assert.match(h.mount.innerHTML, /value="wings" selected>wings<\/option>/);
+  assert.doesNotMatch(h.mount.innerHTML, /Rank 1|Full wings description|value="advanced"|value="storage"|value="unfinished"/);
+  h.toggle();
+  assert.match(h.mount.innerHTML, /aria-expanded="true"/);
+  assert.match(h.mount.innerHTML, /value="wings" aria-label="wings" checked/);
+  assert.match(h.mount.innerHTML, /Full wings description\.\n&lt;script&gt;escaped&lt;\/script&gt;/);
+  assert.match(h.mount.innerHTML, /Extra benefit at rank 2/);
+  assert.match(h.mount.innerHTML, /liquid benefit/);
+  assert.doesNotMatch(h.mount.innerHTML, /<select|<script>|advanced benefit|storage benefit|unfinished benefit|Prerequisite:/);
+  h.toggle();
+  assert.match(h.mount.innerHTML, /value="wings" selected>wings<\/option>/);
+  assert.doesNotMatch(h.mount.innerHTML, /Full wings description|type="radio"/);
+  assert.deepEqual(character, before);
+  assert.deepEqual(h.commands, [], "display toggles do not change the character");
+});
+
+test("Trait radio selections retain cancellation, eligibility checks and expansion through widget recreation", async () => {
+  const h = harness({ result: { ok: false, reason: "cancelled" } });
+  h.toggle();
+  await h.events.get("change")({ target: { dataset: { traitChoice: "0" }, value: "unknown" } });
+  assert.equal(h.commands.length, 0);
+  await h.events.get("change")({ target: { dataset: { traitChoice: "0" }, value: "wings" } });
+  assert.deepEqual(h.commands, [SetTraitChoice({ choiceId: "trait-choice:one", sourceId: "feature:one", recipientId: "character", traitKey: "wings" })]);
+  assert.match(h.mount.innerHTML, /value="" aria-label="No Trait selected" checked/);
+  assert.match(h.mount.innerHTML, /aria-expanded="true"/);
+  assert.doesNotMatch(h.mount.innerHTML, /role="alert"/);
+  assert.ok(h.focused() > 0);
+  h.widget.destroy();
+  const replacement = new TraitWidget(h.page, h.options);
+  assert.match(h.mount.innerHTML, /aria-expanded="true"/);
+  replacement.disable();
+  h.toggle();
+  assert.match(h.mount.innerHTML, /aria-expanded="true"/);
+  replacement.destroy();
+  assert.equal(h.events.size, 0);
+});
+
+test("Trait eligibility updates when requirements change and gives an honest empty state", () => {
+  const gameData = traitData(), character = traitCharacter();
+  gameData.origins[0].features[0].grants[0].rank = 1;
+  const h = harness({ character, gameData, project: projectCharacterTraits });
+  assert.doesNotMatch(h.mount.innerHTML, /value="storage"|value="advanced"/);
+  const choice = Object.values(character.builder.traitChoices)[0];
+  choice.traitKey = "liquid";
+  h.widget.applyReconciledState(character);
+  // Replacing the source of Liquid cannot use that same Liquid Trait as its prerequisite.
+  assert.doesNotMatch(h.mount.innerHTML, /value="storage"/);
+  gameData.origins[0].features[0].grants.push({ type: "trait", key: "liquid" });
+  gameData.origins[0].features[0].grants[0].rank = 3;
+  h.widget.applyReconciledState(character);
+  assert.match(h.mount.innerHTML, /value="storage"/);
+  assert.match(h.mount.innerHTML, /value="advanced"/);
+  gameData.origins[0].features[0].grants[0].tag = "Unmatched category";
+  h.widget.applyReconciledState(character);
+  assert.match(h.mount.innerHTML, /No eligible Traits are currently available/);
+  assert.doesNotMatch(h.mount.innerHTML, /<option value="(?:wings|liquid|advanced|storage|unfinished)"/);
 });

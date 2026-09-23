@@ -1,0 +1,18 @@
+# Character choice UI review
+
+Reviewed September 22, 2026, against the user's requests for eligible-only choices, compact names/expanded full text, conditional prerequisite lines, and controls inside their granting features. This is an implementation inventory, not authorization to change game rules or publish data.
+
+| Location | Finding and disposition |
+| --- | --- |
+| Class and archetype feat grants | Already filtered by grant type/category/level and character eligibility in both views. Compact names, expanded full descriptions, source-owned placement and hidden satisfied prerequisites are implemented. |
+| Trait choices in Class features, selected feature options and feats | Corrected: ineligible choices are omitted rather than shown disabled. Compact names and expanded full descriptions/rank notes use the same Rules result. Selection/cancellation retains expansion and focus. |
+| Origin Trait grants | The same filtering and expansion apply. The formerly separate whole-character Trait summary is replaced by controls inside each granting Origin feature. Direct Origin grants remain within the Origin summary. Inactive future features and reference-only entries create no widget. |
+| Feature and feat option cards | Satisfied prerequisite lines are already omitted. Unavailable cards are hidden by default and can be deliberately revealed with Show Unavailable Options. Their full text is shown, and groups can collapse; this is an explicit browsing control, separate from eligible-only acquisition dropdowns. A names-only selection view would be additional UI work. |
+| Granted Technique choices | Readiness, skill/rank and prerequisites already filter the dropdown. Descriptions are currently shown only for the selected Technique, and dropdown labels still include rank. The compact names/expanded full-catalogue pattern should also be applied here. |
+| Granted Weapon and Enhancement choices | These remain compact dropdowns with minimum-rank labels. Weapon grants filter by rank, but lack the explicit readiness filter used on the Equipment page; enhancement grants also use compatibility checks. Weapons show selected tags; enhancements show only the selected description. Follow-up should unify eligible-option projections with Equipment Rules and add full-text browsing of eligible choices. |
+| Equipment page | Ordinary weapon/enhancement lists use readiness/rank/compatibility filters. Existing owned items can remain visible for inspection/removal. Details are tied to the selected item; compact names/expanded candidate descriptions are a further consistency improvement. |
+| Technique catalogue page | Existing full-text cards are grouped by rank with collapse controls. Current schema-3 ordinary choices pass access and prerequisite Rules; automatic/source-owned entries remain visible as acquired items. This multi-select catalogue is not currently a names-only dropdown. |
+| Class and Origin selection | Class intentionally exposes Coming Soon previews; Origin shows disabled unready entries and status labels. These differ from eligible-only choice pickers. A future shared selection UI should separate optional catalogue previews from acquisition controls, without silently losing unavailable saved selections. |
+| Character sheet | Read-only acquired/reference cards are not acquisition pickers. Full Trait descriptions and reference status remain useful here; the builder's collapsed-choice view should not remove them. |
+
+Future UI work should review all mounting pages whenever a shared choice behavior changes. Preserve the same Rules and session-command boundaries; view controls must not introduce new ownership, eligibility, saved fields or automatic gameplay state.

@@ -11,16 +11,16 @@ import {
   confirmCharacterChange,
   ensureBuilderShellUi,
   markBuilderNavigationClean,
-} from "./builder-common.js";
+} from "./builder-common.js?v=wpe2";
 
 import { renderBuilderNavMounts } from "./builder-nav.js";
 import { getBuilderStepInformationalMessages } from "./builder-step-impacts.js?v=wpe11";
-import { CharacterSessionPage } from "./character-session-page.js?v=wpe10";
+import { CharacterSessionPage } from "./character-session-page.js?v=wpe11";
 import { GrantChoiceState } from "./grant-choice-state.js";
 import { ClassChoiceWidget } from "./widgets/class-choice-widget.js?v=wpe1";
 import { ClassFeaturesWidget } from "./widgets/class-features-widget.js";
 import { GrantChoicesWidget } from "./widgets/grant-choices-widget.js";
-import { createGrantWidgets } from "./widgets/grant-widget-factory.js?v=wpe9";
+import { createGrantWidgets } from "./widgets/grant-widget-factory.js?v=wpe10";
 import { LevelChoiceWidget } from "./widgets/level-choice-widget.js?v=wpe1";
 import { OptionGroupWidget } from "./widgets/option-group-widget.js?v=wpe7";
 import { PrimaryAttributeWidget } from "./widgets/primary-attribute-widget.js?v=wpe1";
@@ -67,7 +67,7 @@ let grantChoices = {};
 /** groupId -> collapsed? */
 /** @type {Map<string, boolean>} */
 const collapsedGroups = new Map();
-const expandedFeatChoices = new Set();
+const expandedGrantChoices = new Set();
 
 // ---- DOM ----
 const signOutBtn = document.getElementById("signOutBtn");
@@ -351,7 +351,7 @@ function createGrantChoiceWidgets(entry, options = {}) {
     getExistingWeapons: () => currentDoc?.builder?.weapons || [],
     sourceId,
     scope: options.widgetScope || options.scope || "features",
-    expandedChoices: expandedFeatChoices,
+    expandedChoices: expandedGrantChoices,
     showUnavailable: showUnavailableFeatures,
     renderFeatOptions: (feat, widgetScope) => createOptionGroupElement(
       feat, selectedFeatOptionKeys, updateUiForSelection, 0, { context: "feat", widgetScope },

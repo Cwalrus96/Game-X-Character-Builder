@@ -19,11 +19,10 @@ function techniqueLabel(key, gameData) {
 }
 
 /** Render static acquisition; gameplay timing remains in the authored prose. */
-export function renderTraitCardHtml(trait, { gameData = {}, reference = trait.referenceOnly === true } = {}) {
+export function renderTraitCardHtml(trait, { gameData = {}, reference = trait.referenceOnly === true, status = reference ? "Reference" : "Acquired" } = {}) {
   const definition = (gameData.traits || []).find((record) => record.traitKey === trait.traitKey) || {};
   const rank = trait.rank;
   const rankLabel = Number.isInteger(rank) && rank >= 0 ? `Rank ${rank}` : "Rank unknown";
-  const status = reference ? "Reference" : "Acquired";
   const name = text(trait.name) || text(definition.name) || text(trait.traitKey) || "Unknown Trait";
   const description = text(trait.description) || text(definition.description);
   const notes = text(trait.rankNotes) || text(definition.rankNotes);
@@ -33,7 +32,7 @@ export function renderTraitCardHtml(trait, { gameData = {}, reference = trait.re
   const source = text(trait.sourceLabel);
   return `<article class="builderItem ability-card traitCard" data-trait-key="${escapeHtml(trait.traitKey || "")}">
     <h3 class="optionTitle ability-name">${escapeHtml(name)}</h3>
-    <div class="help">${escapeHtml(rankLabel)} · ${status}${source ? ` · ${escapeHtml(source)}` : ""}</div>
+    <div class="help">${escapeHtml(rankLabel)} · ${escapeHtml(status)}${source ? ` · ${escapeHtml(source)}` : ""}</div>
     ${paragraph(description)}
     ${trait.sourceDescription ? paragraph(trait.sourceDescription, "help") : ""}
     ${notes ? `<div class="help" style="white-space:pre-wrap;">${escapeHtml(notes)}</div>` : ""}

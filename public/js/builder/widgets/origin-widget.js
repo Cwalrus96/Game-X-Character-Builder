@@ -15,13 +15,15 @@ function renderList(title, items) {
 }
 
 export class OriginWidget {
-  constructor(page, { gameData, elements, onRejected = null } = {}) {
+  constructor(page, { gameData, elements, onRejected = null, renderTraitGrants = null } = {}) {
     this.id = "origin";
     this.scope = "origin";
     this.page = page;
     this.gameData = gameData;
     this.elements = elements;
     this.onRejected = typeof onRejected === "function" ? onRejected : null;
+    this.renderTraitGrants = typeof renderTraitGrants === "function" ? renderTraitGrants : null;
+    this.childScope = "origin-traits";
     this.character = page.getCharacter();
     this.busy = false;
     this.onOriginChange = () => this.#setOrigin();
@@ -63,6 +65,7 @@ export class OriginWidget {
   }
 
   render() {
+    this.page.clearWidgets?.({ scope: this.childScope });
     const state = getOriginSelectionState(this.gameData, this.character.builder);
     const { originSelect, originKeystone, originSummary, originDetails, originStatusHint } = this.elements;
     originSelect.innerHTML = '<option value="">Select an origin…</option>';
@@ -90,12 +93,21 @@ export class OriginWidget {
     originSummary.innerHTML = `<div class="builderItemTitle">${escapeHtml(selected.name)}</div><div class="builderItemMeta">${escapeHtml(statusLabel(selected.status))}</div><div class="builderItemBody">${escapeHtml(selected.summary || selected.description)}</div>`;
     originStatusHint.textContent = statusLabel(selected.status);
     const features = selected.features.length
-      ? `<section class="builderItem"><div class="builderItemTitle">Features</div><div class="optionList" style="margin-top:8px;">${selected.features.map((feature) => `<div class="optionRow"><div><div class="optionTitle">${escapeHtml(feature.name)}</div><div class="optionDesc">${escapeHtml(feature.description)}</div></div></div>`).join("")}</div></section>`
+      ? `<section class="builderItem"><div class="builderItemTitle">Features</div><div class="optionList" style="margin-top:8px;">${selected.features.map((feature, index) => `<div class="optionRow"><div><div class="optionTitle">${escapeHtml(feature.name)}</div><div class="optionDesc">${escapeHtml(feature.description)}</div><div data-origin-traits="${index}"></div></div></div>`).join("")}</div></section>`
       : "";
     originDetails.innerHTML = `${selected.description ? `<section class="builderItem"><div class="builderItemTitle">Description</div><div class="builderItemBody">${escapeHtml(selected.description)}</div></section>` : ""}${features}${renderList("Roleplay Questions", selected.questions)}${renderList("Higher Level Upgrades", selected.futureUpgrades)}${selected.examples.length ? `<section class="builderItem"><div class="builderItemTitle">Examples</div><div class="builderItemBody">${escapeHtml(selected.examples.join(", "))}</div></section>` : ""}`;
+    const origin = (this.gameData.origins || []).find((entry) => entry.originKey === state.originKey);
+    const directTraits = this.renderTraitGrants?.(origin, this.childScope);
+    if (directTraits) originSummary.append(directTraits);
+    (origin?.features || []).forEach((feature, index) => {
+      const mount = originDetails.querySelector(`[data-origin-traits="${index}"]`);
+      const traits = mount && this.renderTraitGrants?.(feature, this.childScope);
+      if (traits) mount.append(traits);
+    });
   }
 
   destroy({ unregister = true } = {}) {
+    this.page.clearWidgets?.({ scope: this.childScope });
     this.elements.originSelect.removeEventListener("change", this.onOriginChange);
     this.elements.originKeystone.removeEventListener("change", this.onKeystoneChange);
     if (unregister) this.page.unregisterWidget(this);

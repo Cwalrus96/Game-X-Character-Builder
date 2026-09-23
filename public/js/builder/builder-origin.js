@@ -8,12 +8,12 @@ import {
   openCharacterSheet,
   setStatus,
   showError,
-} from "./builder-common.js";
+} from "./builder-common.js?v=wpe2";
 import { renderBuilderNavMounts } from "./builder-nav.js";
 import { getBuilderStepInformationalMessages } from "./builder-step-impacts.js?v=wpe11";
-import { CharacterSessionPage } from "./character-session-page.js?v=wpe10";
-import { OriginWidget } from "./widgets/origin-widget.js?v=wpe5";
-import { TraitWidget } from "./widgets/trait-widget.js";
+import { CharacterSessionPage } from "./character-session-page.js?v=wpe11";
+import { OriginWidget } from "./widgets/origin-widget.js?v=wpe6";
+import { createTraitGrantWidget } from "./widgets/trait-widget.js?v=wpe3";
 import { VisitBuilderStep } from "../core/character-commands.js?v=wpe4";
 import { readCharacter } from "../core/database-reader.js?v=wpe6";
 import { replaceCharacter } from "../core/database-writer.js?v=wpe1";
@@ -41,6 +41,7 @@ let ctx;
 let currentDoc;
 let gameData;
 let page;
+const expandedTraitChoices = new Set();
 
 function issues(reconciliation) {
   return {
@@ -109,11 +110,12 @@ async function main() {
       onCommandRejected: ({ errors }) => { showError(elements.error, errors.join(" ") || "That origin change is not valid."); setStatus(elements.status, "Change rejected."); },
       onStateChange: (state) => { currentDoc = state.working; clearError(elements.error); setStatus(elements.status, "Unsaved changes."); },
     });
-    new OriginWidget(page, { gameData, elements });
-    const traitMount = document.createElement("section");
-    traitMount.setAttribute("aria-label", "Traits supplied by your features");
-    elements.originDetails.after(traitMount);
-    new TraitWidget(page, { gameData, mount: traitMount });
+    new OriginWidget(page, {
+      gameData, elements,
+      renderTraitGrants: (entry, scope) => createTraitGrantWidget(page, {
+        entry, scope, gameData, expandedChoices: expandedTraitChoices,
+      })?.element,
+    });
     const previewIssues = issues(reconcileCharacterGraph({ character: currentDoc, previousCharacter: currentDoc, gameData }));
     if (previewIssues.errors.length) {
       showError(elements.error, `Stored origin data needs review. ${previewIssues.errors.join(" ")}`);

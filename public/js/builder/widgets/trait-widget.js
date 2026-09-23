@@ -1,13 +1,13 @@
 import { SetTraitChoice, RemoveTraitChoice } from "../../core/character-commands.js";
 import { projectCharacterTraits, traitSourceIdentity } from "../../core/trait-rules.js";
 import { escapeHtml } from "../../core/data-sanitization.js";
-import { getTraitSourceDisplay, renderTraitProjectionHtml } from "../../core/trait-display.js?v=wpe2";
+import { getTraitSourceDisplay, renderTraitCardHtml, renderTraitProjectionHtml } from "../../core/trait-display.js?v=wpe3";
 
 /** A portable session client. Eligibility and ownership come entirely from Rules. */
 export class TraitWidget {
   constructor(page, {
     id = "traits", scope = "traits", gameData, mount, documentRef = globalThis.document,
-    project = projectCharacterTraits, onRejected = null, sourceId = "", onAccepted = null,
+    project = projectCharacterTraits, onRejected = null, sourceId = "", onAccepted = null, expandedChoices = new Set(),
   } = {}) {
     if (!mount || typeof project !== "function") throw new TypeError("TraitWidget requires a mount and Trait projection.");
     this.id = id;
@@ -18,6 +18,7 @@ export class TraitWidget {
     this.documentRef = documentRef;
     this.project = project;
     this.sourceId = sourceId;
+    this.expandedChoices = expandedChoices;
     this.onAccepted = typeof onAccepted === "function" ? onAccepted : null;
     this.onRejected = typeof onRejected === "function" ? onRejected : null;
     this.character = page.getCharacter();
@@ -25,7 +26,9 @@ export class TraitWidget {
     this.enabled = true;
     this.error = "";
     this.onChange = (event) => this.#change(event);
+    this.onClick = (event) => this.#toggleExpanded(event);
     mount.addEventListener("change", this.onChange);
+    mount.addEventListener("click", this.onClick);
     page.registerWidget(this);
     this.render();
   }
@@ -33,6 +36,23 @@ export class TraitWidget {
   applyReconciledState(character) {
     this.character = character;
     this.render();
+  }
+
+  focusChoice(selector) {
+    (this.element.querySelector?.(`${selector}:checked`) || this.element.querySelector?.(selector))?.focus?.();
+  }
+
+  #toggleExpanded(event) {
+    const target = event.target;
+    if (this.busy || !this.enabled || target?.dataset?.traitExpand === undefined) return;
+    if (target.dataset.traitWidget !== this.id) return;
+    const index = Number(target.dataset.traitExpand);
+    const choice = this.projection.choices?.[index];
+    if (!choice) return;
+    if (this.expandedChoices.has(choice.choiceId)) this.expandedChoices.delete(choice.choiceId);
+    else this.expandedChoices.add(choice.choiceId);
+    this.render();
+    this.element.querySelector?.(`[data-trait-expand="${index}"]`)?.focus?.();
   }
 
   async #submit(command) {
@@ -60,16 +80,19 @@ export class TraitWidget {
     if (accepted) this.onAccepted?.();
     const replacement = this.page.widgets?.get(this.id);
     if (replacement && replacement !== this && focusControl) {
-      replacement.element.querySelector?.(focusControl)?.focus?.();
+      replacement.focusChoice(focusControl);
     }
   }
 
   #change(event) {
     if (this.busy || !this.enabled) return;
     const target = event.target;
+    if (target?.dataset?.traitWidget && target.dataset.traitWidget !== this.id) return;
     if (target?.dataset?.traitChoice !== undefined) {
+      this.character = this.page.getCharacter();
+      this.projection = this.getProjection();
       const choice = this.projection.choices?.[Number(target.dataset.traitChoice)];
-      if (!choice) return;
+      if (!choice || target.value === choice.traitKey) return;
       this.focusControl = `[data-trait-choice="${Number(target.dataset.traitChoice)}"]`;
       if (!target.value) return choice.traitKey ? this.#submit(RemoveTraitChoice(choice.choiceId)) : this.render();
       const option = choice.options?.find((option) => option.traitKey === target.value);
@@ -78,19 +101,45 @@ export class TraitWidget {
     }
   }
 
-  render() {
+  getProjection() {
     const projection = this.project(this.character, this.gameData);
-    this.projection = this.sourceId ? getTraitSourceDisplay(projection, this.sourceId) : projection;
+    return this.sourceId ? getTraitSourceDisplay(projection, this.sourceId) : projection;
+  }
+
+  render() {
+    this.projection = this.getProjection();
     const disabled = this.busy || !this.enabled;
     const choices = (this.projection.choices || []).map((choice, index) => {
       const controlId = `${this.id}-choice-${index}`;
-      const options = (choice.options || []).map((option) => `<option value="${escapeHtml(option.traitKey)}"${option.traitKey === choice.traitKey ? " selected" : ""}${option.eligible === true ? "" : " disabled"}>${escapeHtml(option.name || option.traitKey)}${Number.isInteger(option.rank) ? ` — Rank ${option.rank}` : ""}${option.reason ? ` — ${escapeHtml(option.reason)}` : ""}</option>`).join("");
-      return `<div class="builderItem"><label class="label" for="${escapeHtml(controlId)}">${escapeHtml(choice.label || "Choose a Trait")}</label><select class="input" id="${escapeHtml(controlId)}" data-trait-choice="${index}"${disabled ? " disabled" : ""}><option value="">Choose a Trait…</option>${options}</select></div>`;
+      const options = (choice.options || []).filter((option) => option.eligible === true);
+      const expanded = this.expandedChoices.has(choice.choiceId);
+      const inputAttributes = `data-trait-widget="${escapeHtml(this.id)}" data-trait-choice="${index}"${disabled ? " disabled" : ""}`;
+      const radio = (key, name) => `<input type="radio" name="${escapeHtml(controlId)}" value="${escapeHtml(key)}" aria-label="${escapeHtml(name)}"${key === choice.traitKey ? " checked" : ""} ${inputAttributes}>`;
+      const selector = expanded
+        ? `<fieldset class="traitOptions optionList" id="${escapeHtml(controlId)}" aria-labelledby="${escapeHtml(controlId)}-label">
+            <label class="optionRow">${radio("", "No Trait selected")}<span>No Trait selected</span></label>
+            ${options.map((option) => {
+              const definition = (this.gameData.traits || []).find((trait) => trait.traitKey === option.traitKey) || option;
+              const acquired = (this.projection.traits || []).find((trait) => trait.choiceId === choice.choiceId && trait.traitKey === option.traitKey);
+              const card = { ...definition, ...acquired, rank: choice.rank ?? option.rank, sourceLabel: "", sourceDescription: "" };
+              return `<div class="traitDescriptionOption"><label class="optionRow">${radio(option.traitKey, option.name || option.traitKey)}<div>${renderTraitCardHtml(card, { gameData: this.gameData, status: acquired ? "Acquired" : "Available" })}</div></label></div>`;
+            }).join("")}
+          </fieldset>`
+        : `<select class="input" id="${escapeHtml(controlId)}" aria-labelledby="${escapeHtml(controlId)}-label" ${inputAttributes}>
+            <option value="">${choice.traitKey ? "Remove selected Trait" : "Choose a Trait…"}</option>
+            ${options.map((option) => `<option value="${escapeHtml(option.traitKey)}"${option.traitKey === choice.traitKey ? " selected" : ""}>${escapeHtml(option.name || option.traitKey)}</option>`).join("")}
+          </select>`;
+      return `<div class="builderItem"><div class="traitChoiceHeader">
+          <span class="label" id="${escapeHtml(controlId)}-label">${escapeHtml(choice.label || "Choose a Trait")}</span>
+          <button type="button" class="btn secondary" data-trait-expand="${index}" data-trait-widget="${escapeHtml(this.id)}" aria-expanded="${expanded}" aria-controls="${escapeHtml(controlId)}"${disabled ? " disabled" : ""}>${expanded ? "Collapse" : "Expand"}</button>
+        </div>${selector}${!options.length ? '<p class="help">No eligible Traits are currently available for this choice.</p>' : ""}</div>`;
     }).join("");
     this.element.setAttribute("aria-busy", String(this.busy));
-    this.element.innerHTML = `<h3 class="h3">Traits</h3>${this.error ? `<p role="alert" class="error">${escapeHtml(this.error)}</p>` : ""}${choices}${renderTraitProjectionHtml(this.projection, { gameData: this.gameData, ...(this.sourceId ? { emptyMessage: "" } : {}) })}`;
+    // Choice descriptions belong to their expanded picker; automatic grants remain visible.
+    const summary = { ...this.projection, traits: (this.projection.traits || []).filter((trait) => !trait.choiceId), tags: [] };
+    this.element.innerHTML = `<h3 class="h3">Traits</h3>${this.error ? `<p role="alert" class="error">${escapeHtml(this.error)}</p>` : ""}${choices}${renderTraitProjectionHtml(summary, { gameData: this.gameData, ...(this.sourceId || choices ? { emptyMessage: "" } : {}) })}`;
     if (!disabled && this.focusControl) {
-      this.element.querySelector?.(this.focusControl)?.focus?.();
+      this.focusChoice(this.focusControl);
       this.focusControl = null;
     }
   }
@@ -100,21 +149,27 @@ export class TraitWidget {
 
   destroy({ unregister = true } = {}) {
     this.element.removeEventListener("change", this.onChange);
+    this.element.removeEventListener("click", this.onClick);
     this.element.innerHTML = "";
     if (unregister) this.page.unregisterWidget(this);
   }
 }
 
+export function createTraitGrantWidget(page, { entry, scope, gameData, onAccepted, expandedChoices, documentRef = globalThis.document } = {}) {
+  if (!entry?.grants?.some((grant) => grant.type === "trait")) return null;
+  const sourceId = traitSourceIdentity(entry);
+  if (!sourceId || !getTraitSourceDisplay(projectCharacterTraits(page.getCharacter(), gameData), sourceId).providers.length) return null;
+  const mount = documentRef.createElement("section");
+  mount.className = "traitWidget";
+  mount.setAttribute("aria-label", `Traits granted by ${entry.name || "this feature"}`);
+  return new TraitWidget(page, { id: `traits:${sourceId}`, sourceId, scope, gameData, mount, onAccepted, expandedChoices });
+}
+
 export function registerTraitWidgetExtension(registry, { documentRef = globalThis.document } = {}) {
-  registry.register("trait", ({ page, entry, index, scope, gameData, onChange }) => {
+  registry.register("trait", ({ page, entry, index, scope, gameData, onChange, expandedChoices }) => {
     // A feature's Trait grants share one widget, with separate source-owned choices.
     if (index !== entry.grants.findIndex((grant) => grant.type === "trait")) return null;
-    const sourceId = traitSourceIdentity(entry);
-    if (!sourceId) return null;
-    const mount = documentRef.createElement("section");
-    mount.className = "traitWidget";
-    mount.setAttribute("aria-label", `Traits granted by ${entry.name || "this feature"}`);
-    return new TraitWidget(page, { id: `traits:${sourceId}`, sourceId, scope, gameData, mount, onAccepted: onChange });
+    return createTraitGrantWidget(page, { entry, scope, gameData, documentRef, onAccepted: onChange, expandedChoices });
   });
   return registry;
 }
