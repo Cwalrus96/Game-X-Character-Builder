@@ -9,6 +9,7 @@ import { getTechniqueSelectionState, isGameDataRecordSelectable } from "../../co
 import { createPrerequisiteContext, meetsPrerequisites } from "../../core/prerequisites.js";
 import { renderTechniqueProfileHtml } from "../../core/technique-utils.js";
 import { BuilderWidget } from "./builder-widget.js";
+import { appendSelectedChoice } from "./selected-choice-display.js";
 
 function techniqueName(technique) {
   return sanitizeText(technique?.techniqueName || "", { maxLen: 200, collapse: true });
@@ -184,6 +185,8 @@ export class TechniqueChoiceWidget extends BuilderWidget {
     label.textContent = `Choose ${skillLabel} Technique`;
 
     const select = document.createElement("select");
+    select.id = `${this.id}:technique`;
+    label.htmlFor = select.id;
     select.className = "input";
     select.innerHTML = `<option value="">Choose a technique...</option>` + options
       .map((technique) => {
@@ -205,6 +208,16 @@ export class TechniqueChoiceWidget extends BuilderWidget {
 
     field.append(label, select);
 
+    const selectedTechnique = options.find((item) => techniqueKey(item) === selectedTechniqueKey);
+    appendSelectedChoice(field, {
+      choiceId: this.choiceId, selectedKey: selectedTechniqueKey, label: "Selected Technique",
+      contentHtml: selectedTechnique ? renderTechniqueProfileHtml(selectedTechnique, {
+        gameData: this.gameData,
+        rankValue: this.getTechniqueSkillRank(selectedTechnique, context),
+        heading: techniqueName(selectedTechnique), headingTag: "div", headingClass: "optionTitle", showRank: true,
+      }) : "",
+    });
+
     if (!options.length) {
       const help = document.createElement("div");
       help.className = "help";
@@ -217,23 +230,6 @@ export class TechniqueChoiceWidget extends BuilderWidget {
     help.className = "help";
     help.textContent = `Selected: ${countState.selectedCount}/${countState.expectedCount}`;
     field.append(help);
-
-    if (selectedTechniqueKey) {
-      const technique = options.find((item) => techniqueKey(item) === selectedTechniqueKey);
-      if (technique) {
-        const detail = document.createElement("div");
-        detail.className = "help";
-        detail.innerHTML = renderTechniqueProfileHtml(technique, {
-          gameData: this.gameData,
-          rankValue: this.getTechniqueSkillRank(technique, context),
-          heading: techniqueName(technique),
-          headingTag: "div",
-          headingClass: "optionTitle",
-          showRank: true,
-        });
-        field.append(detail);
-      }
-    }
 
     return field;
   }

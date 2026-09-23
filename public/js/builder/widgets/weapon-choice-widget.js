@@ -1,12 +1,10 @@
 import { escapeHtml, sanitizeText } from "../../core/data-sanitization.js";
 import { buildGeneratedWeaponsFromGrantChoices } from "../../core/grants.js";
 import {
-  getEffectiveTags,
   getEnhancementDef,
-  getWeaponDef,
-  renderTagChipsHtml,
 } from "../../core/weapon-utils.js";
 import { BuilderWidget } from "./builder-widget.js";
+import { renderSelectedWeaponHtml } from "./selected-choice-display.js";
 
 function compareByName(a, b) {
   return String(a?.name || "").localeCompare(String(b?.name || ""));
@@ -77,6 +75,14 @@ export class WeaponChoiceWidget extends BuilderWidget {
     });
 
     field.append(label, select);
+    field.insertAdjacentHTML("beforeend", renderSelectedWeaponHtml({
+      choiceId: this.choiceId, weaponBases: this.weaponBases,
+      weapon: {
+        weaponKey: selectedWeaponKey,
+        rank: Number(this.choice?.rank || rank),
+        enhancements: Array.isArray(this.choice?.enhancements) ? this.choice.enhancements : this.forcedEnhancements,
+      },
+    }));
 
     if (this.forcedEnhancements.length) {
       const forcedText = this.forcedEnhancements
@@ -87,20 +93,6 @@ export class WeaponChoiceWidget extends BuilderWidget {
       help.className = "help";
       help.textContent = `Granted enhancement: ${forcedText}`;
       field.append(help);
-    }
-
-    if (selectedWeaponKey) {
-      const weaponDef = getWeaponDef(this.weaponBases, selectedWeaponKey);
-      const weapon = {
-        weaponKey: selectedWeaponKey,
-        rank: Number(this.choice?.rank || rank),
-        enhancements: Array.isArray(this.choice?.enhancements) ? this.choice.enhancements : this.forcedEnhancements,
-      };
-      const tags = getEffectiveTags(weapon, this.weaponBases);
-      const meta = document.createElement("div");
-      meta.className = "help";
-      meta.innerHTML = `${escapeHtml(weaponDef?.name || selectedWeaponKey)} tags: ${renderTagChipsHtml(tags, "tagChip")}`;
-      field.append(meta);
     }
 
     return field;

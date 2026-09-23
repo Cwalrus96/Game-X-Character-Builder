@@ -2,6 +2,7 @@ import { SetTraitChoice, RemoveTraitChoice } from "../../core/character-commands
 import { projectCharacterTraits, traitSourceIdentity } from "../../core/trait-rules.js";
 import { escapeHtml } from "../../core/data-sanitization.js";
 import { getTraitSourceDisplay, renderTraitCardHtml, renderTraitProjectionHtml } from "../../core/trait-display.js?v=wpe3";
+import { renderSelectedChoiceHtml } from "./selected-choice-display.js";
 
 /** A portable session client. Eligibility and ownership come entirely from Rules. */
 export class TraitWidget {
@@ -115,14 +116,22 @@ export class TraitWidget {
       const expanded = this.expandedChoices.has(choice.choiceId);
       const inputAttributes = `data-trait-widget="${escapeHtml(this.id)}" data-trait-choice="${index}"${disabled ? " disabled" : ""}`;
       const radio = (key, name) => `<input type="radio" name="${escapeHtml(controlId)}" value="${escapeHtml(key)}" aria-label="${escapeHtml(name)}"${key === choice.traitKey ? " checked" : ""} ${inputAttributes}>`;
+      const renderCard = (option) => {
+        const definition = (this.gameData.traits || []).find((trait) => trait.traitKey === option.traitKey) || option;
+        const acquired = (this.projection.traits || []).find((trait) => trait.choiceId === choice.choiceId && trait.traitKey === option.traitKey);
+        const card = { ...definition, ...acquired, rank: choice.rank ?? option.rank, sourceLabel: "", sourceDescription: "" };
+        return renderTraitCardHtml(card, { gameData: this.gameData, status: acquired ? "Acquired" : "Available" });
+      };
+      const selected = (choice.options || []).find((option) => option.traitKey === choice.traitKey);
+      const selectedDetail = renderSelectedChoiceHtml({
+        choiceId: choice.choiceId, selectedKey: choice.traitKey, label: "Selected Trait",
+        contentHtml: selected ? renderCard(selected) : "",
+      });
       const selector = expanded
         ? `<fieldset class="traitOptions optionList" id="${escapeHtml(controlId)}" aria-labelledby="${escapeHtml(controlId)}-label">
             <label class="optionRow">${radio("", "No Trait selected")}<span>No Trait selected</span></label>
             ${options.map((option) => {
-              const definition = (this.gameData.traits || []).find((trait) => trait.traitKey === option.traitKey) || option;
-              const acquired = (this.projection.traits || []).find((trait) => trait.choiceId === choice.choiceId && trait.traitKey === option.traitKey);
-              const card = { ...definition, ...acquired, rank: choice.rank ?? option.rank, sourceLabel: "", sourceDescription: "" };
-              return `<div class="traitDescriptionOption"><label class="optionRow">${radio(option.traitKey, option.name || option.traitKey)}<div>${renderTraitCardHtml(card, { gameData: this.gameData, status: acquired ? "Acquired" : "Available" })}</div></label></div>`;
+              return `<div class="traitDescriptionOption"><label class="optionRow">${radio(option.traitKey, option.name || option.traitKey)}<div>${renderCard(option)}</div></label></div>`;
             }).join("")}
           </fieldset>`
         : `<select class="input" id="${escapeHtml(controlId)}" aria-labelledby="${escapeHtml(controlId)}-label" ${inputAttributes}>
@@ -132,10 +141,10 @@ export class TraitWidget {
       return `<div class="builderItem"><div class="traitChoiceHeader">
           <span class="label" id="${escapeHtml(controlId)}-label">${escapeHtml(choice.label || "Choose a Trait")}</span>
           <button type="button" class="btn secondary" data-trait-expand="${index}" data-trait-widget="${escapeHtml(this.id)}" aria-expanded="${expanded}" aria-controls="${escapeHtml(controlId)}"${disabled ? " disabled" : ""}>${expanded ? "Collapse" : "Expand"}</button>
-        </div>${selector}${!options.length ? '<p class="help">No eligible Traits are currently available for this choice.</p>' : ""}</div>`;
+        </div>${selector}${selectedDetail}${!options.length ? '<p class="help">No eligible Traits are currently available for this choice.</p>' : ""}</div>`;
     }).join("");
     this.element.setAttribute("aria-busy", String(this.busy));
-    // Choice descriptions belong to their expanded picker; automatic grants remain visible.
+    // Each choice owns its selected description above; only automatic grants belong here.
     const summary = { ...this.projection, traits: (this.projection.traits || []).filter((trait) => !trait.choiceId), tags: [] };
     this.element.innerHTML = `<h3 class="h3">Traits</h3>${this.error ? `<p role="alert" class="error">${escapeHtml(this.error)}</p>` : ""}${choices}${renderTraitProjectionHtml(summary, { gameData: this.gameData, ...(this.sourceId || choices ? { emptyMessage: "" } : {}) })}`;
     if (!disabled && this.focusControl) {

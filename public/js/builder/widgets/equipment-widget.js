@@ -18,7 +18,6 @@ import {
   computeEnhancementCapacity,
   computeTotalWeaponSlots,
   countPurchasedEnhancements,
-  getEffectiveTags,
   getEnhancementDef,
   getEnhancementSelectionSpecs,
   getWeaponDef,
@@ -26,9 +25,8 @@ import {
   getWeaponSkillRanks,
   isEnhancementCompatible,
   renderEnhancementDetailHtml,
-  renderTagChipsHtml,
-  summarizeWeaponProfilesHtml,
 } from "../../core/weapon-utils.js";
+import { renderSelectedChoiceHtml, renderSelectedWeaponHtml } from "./selected-choice-display.js";
 
 function id(prefix) {
   const token = globalThis.crypto?.randomUUID?.() || `${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
@@ -69,6 +67,7 @@ export class EquipmentWidget {
     elements.weaponList.addEventListener("click", this.onClick);
     elements.weaponList.addEventListener("change", this.onChange);
     elements.showOutOfRank.addEventListener("change", this.onChange);
+    elements.weaponBaseSelect.addEventListener("change", this.onChange);
     page.registerWidget(this);
     this.render();
   }
@@ -153,8 +152,8 @@ export class EquipmentWidget {
         <label class="label">Enhancement<select class="input" data-enhancement-key data-weapon-id="${escapeHtml(weapon.id)}" data-enhancement-id="${escapeHtml(enhancement.id)}"${sourceOwned ? " disabled" : ""}>${visible.sort((a, b) => String(a.name).localeCompare(String(b.name))).map((entry) => option(entry.enhancementKey, `${entry.name} (Rank ${Number(entry.minRank || 0)}+)`, entry.enhancementKey === enhancement.enhancementKey)).join("")}</select></label>
         <label class="label">Rank<select class="input" data-enhancement-rank data-weapon-id="${escapeHtml(weapon.id)}" data-enhancement-id="${escapeHtml(enhancement.id)}"${sourceOwned ? " disabled" : ""}>${rankOptions(minimum, Number(weapon.rank || 0), Number(enhancement.rank || minimum))}</select></label>
       </div>
+      ${renderSelectedChoiceHtml({ choiceId: `${weapon.id}:${enhancement.id}`, selectedKey: enhancement.enhancementKey, label: "Selected enhancement", contentHtml: renderEnhancementDetailHtml(definition, enhancement, { collapsible: false }) })}
       <div class="equipmentGrid equipmentGrid--enhancementSelections">${this.#renderSelectionFields(weapon, enhancement, sourceOwned)}</div>
-      ${renderEnhancementDetailHtml(definition, enhancement, { collapsible: false })}
       <button class="btn secondary" type="button" data-remove-enhancement data-weapon-id="${escapeHtml(weapon.id)}" data-enhancement-id="${escapeHtml(enhancement.id)}"${sourceOwned ? " disabled" : ""}>Remove</button>
     </div>`;
   }
@@ -166,7 +165,6 @@ export class EquipmentWidget {
     const minimum = Number(definition?.minRank || 0);
     const bases = this.#visibleWeapons();
     if (definition && !bases.some((entry) => entry.weaponKey === definition.weaponKey)) bases.push(definition);
-    const tags = getEffectiveTags(weapon, this.weaponBases);
     const enhancements = weapon.enhancements.map((entry) => this.#renderEnhancement(weapon, entry)).join("");
     return `<article class="optionRow equipmentWeaponRow">
       <div class="cardHeaderRow"><h3>${escapeHtml(weapon.customName || definition?.name || weapon.weaponKey)}</h3>${sourceOwned ? '<span class="pill">Source-owned</span>' : ""}</div>
@@ -176,8 +174,7 @@ export class EquipmentWidget {
         <label class="label">Rank<select class="input" data-weapon-rank data-weapon-id="${escapeHtml(weapon.id)}"${sourceOwned ? " disabled" : ""}>${rankOptions(minimum, Math.max(minimum, cap), weapon.rank)}</select></label>
         <label class="label">Custom Name<input class="input" value="${escapeHtml(weapon.customName)}" data-weapon-name data-weapon-id="${escapeHtml(weapon.id)}"${sourceOwned ? " disabled" : ""}></label>
       </div>
-      ${renderTagChipsHtml(tags)}
-      ${summarizeWeaponProfilesHtml(definition, weapon.rank)}
+      ${renderSelectedWeaponHtml({ choiceId: weapon.id, weapon, weaponBases: this.weaponBases })}
       <div class="cardHeaderRow"><h4>Enhancements</h4><button class="btn" type="button" data-add-enhancement data-weapon-id="${escapeHtml(weapon.id)}"${sourceOwned ? " disabled" : ""}>Add Enhancement</button></div>
       <div class="optionList">${enhancements || '<div class="emptyState emptyState--nested">No enhancements.</div>'}</div>
       <button class="btn secondary" type="button" data-remove-weapon data-weapon-id="${escapeHtml(weapon.id)}"${sourceOwned ? " disabled" : ""}>Remove Weapon</button>
@@ -199,6 +196,7 @@ export class EquipmentWidget {
     const visible = this.#visibleWeapons().sort((a, b) => String(a.name).localeCompare(String(b.name)));
     elements.weaponBaseSelect.innerHTML = option("", "Select a weapon...")
       + visible.map((weapon) => option(weapon.weaponKey, `${weapon.name} (Rank ${Number(weapon.minRank || 0)}+)`)).join("");
+    if (elements.weaponBaseDetail) elements.weaponBaseDetail.innerHTML = "";
     elements.weaponList.innerHTML = this.weapons.length
       ? this.weapons.map((weapon) => this.#renderWeapon(weapon)).join("")
       : '<div class="emptyState">No weapons selected.</div>';
@@ -234,6 +232,14 @@ export class EquipmentWidget {
 
   async #handleChange(event) {
     const target = event.target;
+    if (target === this.elements.weaponBaseSelect) {
+      const definition = getWeaponDef(this.weaponBases, target.value);
+      if (this.elements.weaponBaseDetail) this.elements.weaponBaseDetail.innerHTML = renderSelectedWeaponHtml({
+        choiceId: "equipment-new-weapon", weaponBases: this.weaponBases,
+        weapon: definition ? { weaponKey: definition.weaponKey, rank: Number(definition.minRank || 0), enhancements: [] } : null,
+      });
+      return;
+    }
     if (target === this.elements.showOutOfRank) {
       this.showOutOfRank = target.checked;
       this.render();
@@ -275,6 +281,7 @@ export class EquipmentWidget {
     this.elements.weaponList.removeEventListener("click", this.onClick);
     this.elements.weaponList.removeEventListener("change", this.onChange);
     this.elements.showOutOfRank.removeEventListener("change", this.onChange);
+    this.elements.weaponBaseSelect.removeEventListener("change", this.onChange);
     if (unregister) this.page.unregisterWidget(this);
   }
 }

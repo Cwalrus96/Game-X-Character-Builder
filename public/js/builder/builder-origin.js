@@ -13,7 +13,7 @@ import { renderBuilderNavMounts } from "./builder-nav.js";
 import { getBuilderStepInformationalMessages } from "./builder-step-impacts.js?v=wpe11";
 import { CharacterSessionPage } from "./character-session-page.js?v=wpe11";
 import { OriginWidget } from "./widgets/origin-widget.js?v=wpe6";
-import { createTraitGrantWidget } from "./widgets/trait-widget.js?v=wpe3";
+import { createTraitGrantWidget } from "./widgets/trait-widget.js?v=wpe4";
 import { VisitBuilderStep } from "../core/character-commands.js?v=wpe4";
 import { readCharacter } from "../core/database-reader.js?v=wpe6";
 import { replaceCharacter } from "../core/database-writer.js?v=wpe1";

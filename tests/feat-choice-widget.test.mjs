@@ -44,7 +44,7 @@ test("feat picker sends narrow replacement intent and restores cancelled selecti
   const before = structuredClone(h.character);
   assert.match(h.mount.innerHTML, /Choose a class feat/);
   assert.doesNotMatch(h.mount.innerHTML, /value="archetype-a"/);
-  assert.doesNotMatch(h.mount.innerHTML, /class-a description/);
+  assert.match(h.mount.innerHTML, /class-a description/);
   await h.change("class-b");
   assert.deepEqual(h.commands, [SetFeatSelection(["class-b", "archetype-a"])]);
   assert.deepEqual(h.character, before);
@@ -62,7 +62,7 @@ test("compact and expanded feat choices always exclude unavailable feats even wh
   const before = structuredClone(h.character);
   assert.match(h.mount.innerHTML, /<select/);
   assert.match(h.mount.innerHTML, />class-a<\/option>/);
-  assert.doesNotMatch(h.mount.innerHTML, /needs-skill|unfinished|archetype-a|class-high|class-a description/);
+  assert.doesNotMatch(h.mount.innerHTML, /needs-skill|unfinished|archetype-a|class-high|class-b description/);
   assert.match(h.mount.innerHTML, /aria-expanded="false"/);
   h.toggle();
   assert.match(h.mount.innerHTML, /aria-expanded="true"/);
@@ -73,7 +73,8 @@ test("compact and expanded feat choices always exclude unavailable feats even wh
   assert.doesNotMatch(h.mount.innerHTML, /Prerequisite:/, "eligible feats must not repeat satisfied requirements");
   h.toggle();
   assert.match(h.mount.innerHTML, /value="class-a" selected/);
-  assert.doesNotMatch(h.mount.innerHTML, /class-a description|type="radio"/);
+  assert.match(h.mount.innerHTML, /class-a description/);
+  assert.doesNotMatch(h.mount.innerHTML, /class-b description|type="radio"/);
   assert.deepEqual(h.character, before);
   assert.deepEqual(h.commands, [], "view toggles must not submit character commands");
 });
@@ -144,4 +145,27 @@ test("feat picker refreshes accepted changes and scopes clearing to its assigned
   const focused = h.focused();
   h.widget.applyReconciledState();
   assert.equal(h.focused(), focused, "external updates must not steal focus");
+});
+
+test("selected feat text and follow-up choices stay beneath the selector in either view", () => {
+  const children = [];
+  const h = harness({ selected: ["class-a"], widgetOptions: {
+    renderFeatGrants(feat, scope) { children.push([feat.featKey, scope]); return {}; },
+  } });
+  assert.deepEqual(children.map(([key]) => key), ["class-a"]);
+  assert.match(h.mount.innerHTML, /<\/select><div class="selectedChoiceDetail"/);
+  assert.match(h.mount.innerHTML, /data-selected-key="class-a"/);
+  h.toggle();
+  assert.match(h.mount.innerHTML, /<\/fieldset><div class="selectedChoiceDetail"/);
+  h.character.builder.selectedFeats = ["class-b"];
+  h.widget.applyReconciledState();
+  h.toggle();
+  assert.match(h.mount.innerHTML, /data-selected-key="class-b"/);
+  assert.match(h.mount.innerHTML, /class-b description/);
+  assert.doesNotMatch(h.mount.innerHTML, /class-a description/);
+  assert.equal(children.at(-1)[0], "class-b");
+  assert.ok(children.every(([, scope]) => scope === h.widget.childScope));
+  h.character.builder.selectedFeats = [];
+  h.widget.applyReconciledState();
+  assert.doesNotMatch(h.mount.innerHTML, /selectedChoiceDetail|data-feat-detail/);
 });

@@ -3,8 +3,10 @@ import { buildGeneratedWeaponsFromGrantChoices } from "../../core/grants.js";
 import {
   getEnhancementDef,
   isEnhancementCompatible,
+  renderEnhancementDetailHtml,
 } from "../../core/weapon-utils.js";
 import { BuilderWidget } from "./builder-widget.js";
+import { appendSelectedChoice } from "./selected-choice-display.js";
 
 function compareByName(a, b) {
   return String(a?.name || "").localeCompare(String(b?.name || ""));
@@ -94,10 +96,10 @@ export class WeaponEnhancementChoiceWidget extends BuilderWidget {
 
     if (selectedEnhancement?.enhancementKey) {
       const enhancementDef = getEnhancementDef(this.weaponEnhancements, selectedEnhancement.enhancementKey);
-      const help = document.createElement("div");
-      help.className = "help";
-      help.textContent = enhancementDef?.description || enhancementDef?.name || selectedEnhancement.enhancementKey;
-      field.append(help);
+      appendSelectedChoice(field, {
+        choiceId: this.id, selectedKey: selectedEnhancement.enhancementKey, label: "Selected enhancement",
+        contentHtml: renderEnhancementDetailHtml(enhancementDef, selectedEnhancement, { collapsible: false }),
+      });
     }
 
     return field;

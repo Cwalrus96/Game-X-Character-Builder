@@ -122,6 +122,8 @@ Current transition modules include `public/js/builder/builder-page.js` and indiv
 
 Each widget is a portable UI component for one choice type. It owns DOM rendering, accessibility, focus and interaction behavior, current-value display, local input parsing/errors, typed-command production, and presentation of injected structured impacts. State projections, allowed display data, and action callbacks are injected so the same widget can be mounted by another page or shell without importing that page.
 
+Choice widgets share `selected-choice-display.js` for the selected item's description region, keyed by the owning choice and placed directly after its selector. It composes escaped domain display HTML for Feats, Traits, Techniques, Weapons and Enhancements; expanded catalogue browsing never hides the chosen result or its follow-up controls. This presentation component has no commands, character state, eligibility or persistence authority. See the [builder flow](builder-flow.md) for the per-choice placement and preview contract.
+
 A widget does not keep a second mutable character, decide whether a source/grant exists, reconcile dependent choices, or call Firebase/database modules. It may call shared pure Rules to explain or display constraints, but the graph remains the enforcement authority.
 
 Adding a new domain such as Boons requires a widget, rules/registry entries, node/grant factories, and tests—not edits to every page controller or traversal function. The implemented Boon proof registers an automatic `choice | filterType=boon` adapter through graph and grant-widget extension registries; it intentionally does not invent selectable Boon content or a persisted field absent from the canonical contracts.

@@ -175,7 +175,8 @@ test("compact and expanded Trait choices hide over-rank, unmet and incomplete op
   const h = harness({ character, gameData, project: projectCharacterTraits });
   const before = structuredClone(character);
   assert.match(h.mount.innerHTML, /value="wings" selected>wings<\/option>/);
-  assert.doesNotMatch(h.mount.innerHTML, /Rank 1|Full wings description|value="advanced"|value="storage"|value="unfinished"/);
+  assert.match(h.mount.innerHTML, /Full wings description/);
+  assert.doesNotMatch(h.mount.innerHTML, /liquid benefit|value="advanced"|value="storage"|value="unfinished"/);
   h.toggle();
   assert.match(h.mount.innerHTML, /aria-expanded="true"/);
   assert.match(h.mount.innerHTML, /value="wings" aria-label="wings" checked/);
@@ -185,7 +186,8 @@ test("compact and expanded Trait choices hide over-rank, unmet and incomplete op
   assert.doesNotMatch(h.mount.innerHTML, /<select|<script>|advanced benefit|storage benefit|unfinished benefit|Prerequisite:/);
   h.toggle();
   assert.match(h.mount.innerHTML, /value="wings" selected>wings<\/option>/);
-  assert.doesNotMatch(h.mount.innerHTML, /Full wings description|type="radio"/);
+  assert.match(h.mount.innerHTML, /Full wings description/);
+  assert.doesNotMatch(h.mount.innerHTML, /liquid benefit|type="radio"/);
   assert.deepEqual(character, before);
   assert.deepEqual(h.commands, [], "display toggles do not change the character");
 });
@@ -230,4 +232,34 @@ test("Trait eligibility updates when requirements change and gives an honest emp
   h.widget.applyReconciledState(character);
   assert.match(h.mount.innerHTML, /No eligible Traits are currently available/);
   assert.doesNotMatch(h.mount.innerHTML, /<option value="(?:wings|liquid|advanced|storage|unfinished)"/);
+});
+
+test("each of three Trait selections keeps its own description directly beneath its picker", () => {
+  const gameData = traitData(), character = traitCharacter();
+  gameData.origins[0].features[0].grants[0].count = 3;
+  character.builder.traitChoices = {};
+  const choices = projectCharacterTraits(character, gameData).choices;
+  const keys = ["wings", "liquid", "storage"];
+  choices.forEach(({ choiceId, sourceId, recipientId }, index) => {
+    character.builder.traitChoices[choiceId] = { choiceId, sourceId, recipientId, traitKey: keys[index] };
+  });
+  const h = harness({ character, gameData, project: projectCharacterTraits });
+  const verify = () => {
+    const parts = h.mount.innerHTML.split('<div class="traitChoiceHeader">').slice(1);
+    assert.equal(parts.length, 3);
+    parts.forEach((part, index) => {
+      assert.match(part, new RegExp(`</select><div class="selectedChoiceDetail" data-choice-selection="${choices[index].choiceId}"`));
+      assert.match(part, new RegExp(`${keys[index]} benefit`));
+      keys.filter((key) => key !== keys[index]).forEach((key) => assert.ok(!part.includes(`${key} benefit`)));
+      assert.equal(part.split(`${keys[index]} benefit`).length, 2, "no duplicate footer description");
+    });
+  };
+  verify();
+  h.toggle(1);
+  h.toggle(1);
+  verify();
+  delete character.builder.traitChoices[choices[2].choiceId];
+  h.widget.applyReconciledState(character);
+  assert.doesNotMatch(h.mount.innerHTML, /storage benefit/);
+  assert.match(h.mount.innerHTML, /liquid benefit/);
 });

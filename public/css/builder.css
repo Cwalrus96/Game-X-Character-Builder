@@ -601,6 +601,16 @@ textarea {
   gap: 6px;
 }
 
+.selectedChoiceDetail {
+  margin-top: 10px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.selectedChoiceDetail > .optionDesc {
+  white-space: pre-wrap;
+}
+
 .featChoiceHeader,
 .traitChoiceHeader {
   display: flex;

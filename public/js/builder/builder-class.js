@@ -20,7 +20,7 @@ import { GrantChoiceState } from "./grant-choice-state.js";
 import { ClassChoiceWidget } from "./widgets/class-choice-widget.js?v=wpe1";
 import { ClassFeaturesWidget } from "./widgets/class-features-widget.js";
 import { GrantChoicesWidget } from "./widgets/grant-choices-widget.js";
-import { createGrantWidgets } from "./widgets/grant-widget-factory.js?v=wpe10";
+import { createGrantWidgets } from "./widgets/grant-widget-factory.js?v=wpe11";
 import { LevelChoiceWidget } from "./widgets/level-choice-widget.js?v=wpe1";
 import { OptionGroupWidget } from "./widgets/option-group-widget.js?v=wpe7";
 import { PrimaryAttributeWidget } from "./widgets/primary-attribute-widget.js?v=wpe1";

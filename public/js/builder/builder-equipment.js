@@ -8,11 +8,11 @@ import {
   openCharacterSheet,
   setStatus,
   showError,
-} from "./builder-common.js";
+} from "./builder-common.js?v=wpe2";
 import { renderBuilderNavMounts } from "./builder-nav.js";
 import { getBuilderStepInformationalMessages } from "./builder-step-impacts.js?v=wpe11";
-import { CharacterSessionPage } from "./character-session-page.js?v=wpe10";
-import { EquipmentWidget } from "./widgets/equipment-widget.js?v=wpe2";
+import { CharacterSessionPage } from "./character-session-page.js?v=wpe11";
+import { EquipmentWidget } from "./widgets/equipment-widget.js?v=wpe3";
 import { VisitBuilderStep } from "../core/character-commands.js?v=wpe2";
 import { readCharacter } from "../core/database-reader.js?v=wpe6";
 import { replaceCharacter } from "../core/database-writer.js?v=wpe1";
@@ -36,6 +36,7 @@ const elements = {
   meleeSkillRankValue: document.getElementById("meleeSkillRankValue"),
   rangedWeaponsSkillRankValue: document.getElementById("rangedWeaponsSkillRankValue"),
   weaponBaseSelect: document.getElementById("weaponBaseSelect"),
+  weaponBaseDetail: document.getElementById("weaponBaseDetail"),
   addWeaponBtn: document.getElementById("addWeaponBtn"),
   weaponList: document.getElementById("weaponList"),
   showOutOfRank: document.getElementById("showOutOfRank"),

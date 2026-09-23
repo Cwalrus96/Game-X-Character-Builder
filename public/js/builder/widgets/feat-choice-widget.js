@@ -2,6 +2,7 @@ import { SetFeatSelection } from "../../core/character-commands.js";
 import { getFeatGrantChoices } from "../../core/feat-rules.js";
 import { escapeHtml } from "../../core/data-sanitization.js";
 import { isOptionGroup } from "../../core/option-groups.js";
+import { renderSelectedChoiceHtml } from "./selected-choice-display.js";
 
 /** One portable picker for an answer-producing feat grant. */
 export class FeatChoiceWidget {
@@ -99,6 +100,13 @@ export class FeatChoiceWidget {
       const controlId = `${this.id}:${index}`;
       const expanded = this.expandedChoices.has(controlId);
       const options = choice.options.filter((option) => option.eligible);
+      const selected = choice.options.find((option) => option.featKey === choice.featKey)?.feat;
+      const selectedDetail = renderSelectedChoiceHtml({
+        choiceId: controlId, selectedKey: choice.featKey, label: "Selected feat",
+        contentHtml: selected ? `<div class="optionTitle">${escapeHtml(selected.name)}</div>
+          <div class="optionDesc">${escapeHtml(selected.description || "")}</div>
+          <div data-feat-detail="${index}"></div>` : "",
+      });
       const inputAttributes = `data-feat-widget="${escapeHtml(this.id)}" data-feat-slot="${index}"${disabled ? " disabled" : ""}`;
       const radio = (value, name) => `<input type="radio" name="${escapeHtml(controlId)}" value="${escapeHtml(value)}" aria-label="${escapeHtml(name)}"${value === choice.featKey ? " checked" : ""} ${inputAttributes}>`;
       const selector = expanded
@@ -107,8 +115,7 @@ export class FeatChoiceWidget {
             ${options.map((option) => {
               return `<div class="featDescriptionOption"><label class="optionRow">${radio(option.featKey, option.feat.name)}
                 <div><div class="optionTitle">${escapeHtml(option.feat.name)}</div>
-                <div class="optionDesc">${escapeHtml(option.feat.description || "")}</div></div></label>
-                ${option.featKey === choice.featKey ? `<div data-feat-detail="${index}"></div>` : ""}</div>`;
+                <div class="optionDesc">${escapeHtml(option.feat.description || "")}</div></div></label></div>`;
             }).join("")}
           </fieldset>`
         : `<select class="input" id="${escapeHtml(controlId)}" aria-labelledby="${escapeHtml(controlId)}-label" ${inputAttributes}>
@@ -118,13 +125,13 @@ export class FeatChoiceWidget {
       return `<div class="builderItem"><div class="featChoiceHeader">
           <span class="label" id="${escapeHtml(controlId)}-label">${label}${this.choices.length > 1 ? ` (${index + 1})` : ""}</span>
           <button type="button" class="btn secondary" data-feat-expand="${index}" data-feat-widget="${escapeHtml(this.id)}" aria-expanded="${expanded}" aria-controls="${escapeHtml(controlId)}"${disabled ? " disabled" : ""}>${expanded ? "Collapse" : "Expand"}</button>
-        </div>${selector}
+        </div>${selector}${selectedDetail}
         ${!options.length ? '<p class="muted">No eligible feats are currently available for this feature.</p>' : ""}</div>`;
     }).join("")}`;
     this.choices.forEach((choice, index) => {
       const feat = choice.options.find((option) => option.featKey === choice.featKey)?.feat;
       const detail = this.element.querySelector(`[data-feat-detail="${index}"]`);
-      if (!this.expandedChoices.has(`${this.id}:${index}`) || !feat || !detail) return;
+      if (!feat || !detail) return;
       const options = isOptionGroup(feat) ? this.renderFeatOptions?.(feat, this.childScope) : null;
       if (options) detail.append(options);
       const grants = this.renderFeatGrants?.(feat, this.childScope);
