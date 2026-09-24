@@ -14,7 +14,7 @@ import {
   GraphCompiler,
   createDefaultGraphHandlerRegistry,
   getUnmetRequirementNodeIds,
-} from "./graph-compiler.js?v=keystone1";
+} from "./graph-compiler.js?v=dependency-review1";
 
 const IMPACT_CATEGORY_ORDER = Object.freeze({
   error: 0,
@@ -546,7 +546,17 @@ function reconcileWeaponRank(next, node, impacts) {
   const weapon = next.builder.weapons.find((entry) => entry.id === node.metadata.weaponId);
   if (!weapon) return false;
   const previous = weapon.rank;
-  const rank = Number(node.metadata.skillRankCap);
+  if (node.metadata.adjustedRank === null) {
+    next.builder.weapons = next.builder.weapons.filter(entry => entry.id !== weapon.id);
+    addImpact(impacts, {
+      category: "confirmation-required", type: "remove", code: "weapon-skill-prerequisite-removed",
+      path: "builder.weapons", nodeId: node.id, label: node.label,
+      message: `Weapon "${node.label}" and its enhancements will be removed because its governing skill no longer meets its minimum rank of ${node.metadata.minimumRank}.`,
+      before: weapon, after: undefined,
+    });
+    return true;
+  }
+  const rank = Number(node.metadata.adjustedRank);
   if (!Number.isSafeInteger(rank) || rank < 0 || rank === previous) return false;
   weapon.rank = rank;
   addImpact(impacts, {
@@ -563,11 +573,17 @@ function reconcileWeaponRank(next, node, impacts) {
   return true;
 }
 
+function synchronizeEnhancementAnswer(builder, weapon) {
+  if (!isSourceOwnedWeapon(weapon)) return;
+  const answer = sourceAnswerByChoice(builder, weapon.sourceChoiceId || weapon.choiceId);
+  if (answer) answer.enhancements = cloneGraphValue(weapon.enhancements);
+}
+
 function reconcileWeaponEnhancement(next, node, impacts) {
   if (node.type !== "weapon-enhancement" || node.metadata.valid !== false) return false;
   if (!["above-weapon-rank", "incompatible", "unavailable-definition"].includes(node.metadata.issue)) return false;
   const weapon = next.builder.weapons.find((entry) => entry.id === node.metadata.weaponId);
-  if (!weapon || isSourceOwnedWeapon(weapon)) return false;
+  if (!weapon) return false;
   const index = weapon.enhancements.findIndex((entry) => entry.id === node.metadata.enhancementId);
   if (index < 0) return false;
   const enhancement = weapon.enhancements[index];
@@ -575,6 +591,7 @@ function reconcileWeaponEnhancement(next, node, impacts) {
     && weapon.rank >= Number(node.metadata.minimumRank || 0)) {
     const previous = enhancement.rank;
     enhancement.rank = weapon.rank;
+    synchronizeEnhancementAnswer(next.builder, weapon);
     addImpact(impacts, {
       category: "confirmation-required",
       type: "change",
@@ -589,6 +606,7 @@ function reconcileWeaponEnhancement(next, node, impacts) {
     return true;
   }
   weapon.enhancements.splice(index, 1);
+  synchronizeEnhancementAnswer(next.builder, weapon);
   addImpact(impacts, {
     category: "confirmation-required",
     type: "remove",
@@ -601,6 +619,28 @@ function reconcileWeaponEnhancement(next, node, impacts) {
     after: undefined,
   });
   return true;
+}
+
+function reconcileEquipmentCapacity(next, node, graph, impacts) {
+  if (node.type !== "equipment-capacity") return false;
+  let changed = false;
+  for (const { weaponId, enhancementId } of node.metadata.excessEnhancements || []) {
+    const weapon = next.builder.weapons.find(entry => entry.id === weaponId);
+    const enhancement = weapon?.enhancements.find(entry => entry.id === enhancementId);
+    if (!enhancement) continue;
+    weapon.enhancements = weapon.enhancements.filter(entry => entry.id !== enhancementId);
+    synchronizeEnhancementAnswer(next.builder, weapon);
+    const enhancementNode = graph.nodes.find(entry => entry.type === "weapon-enhancement"
+      && entry.metadata.weaponId === weaponId && entry.metadata.enhancementId === enhancementId);
+    addImpact(impacts, {
+      category: "confirmation-required", type: "remove", code: "weapon-enhancement-capacity-removed",
+      path: "builder.weapons", nodeId: enhancementNode.id, label: enhancementNode.label,
+      message: `Enhancement "${enhancementNode.label}" will be removed because there are no longer enough enhancement slots.`,
+      before: enhancement, after: undefined,
+    });
+    changed = true;
+  }
+  return changed;
 }
 
 function reconcileUnavailableWeapon(next, node, impacts) {
@@ -628,6 +668,11 @@ function applyRemovalPolicies(character, graph, impacts, {
   previousGraph = null,
 } = {}) {
   const next = cloneGraphValue(character);
+  // Check direct edits and refresh source-owned projections before reconciling
+  // their enhancement answers, then compile their current state on the next pass.
+  if (synchronizeGeneratedWeapons(next, previousBuilder, impacts)) {
+    return { character: next, changed: true };
+  }
   let changed = false;
 
   for (const node of graph.nodes) {
@@ -826,6 +871,13 @@ function applyRemovalPolicies(character, graph, impacts, {
     }
   }
 
+  // Fit purchased enhancements only after sources, ranks and incompatibilities
+  // settle, so an intermediate capacity cannot discard an otherwise valid choice.
+  if (!changed) {
+    for (const node of graph.nodes) {
+      if (reconcileEquipmentCapacity(next, node, graph, impacts)) changed = true;
+    }
+  }
   return { character: next, changed };
 }
 

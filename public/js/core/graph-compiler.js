@@ -43,11 +43,10 @@ import {
   frozenGraphClone,
 } from "./graph-core.js";
 import { isSourceOwnedWeapon } from "./grants.js";
+import { getExcessWeaponEnhancements, getWeaponRankAfterSkillChange } from "./equipment-rules.js";
 import {
   MAX_WEAPON_SLOTS,
-  computeEnhancementCapacity,
   computeTotalWeaponSlots,
-  countPurchasedEnhancements,
   getEnhancementSelectionSpecs,
   getWeaponSkillRankCap,
   getWeaponSkillNames,
@@ -78,6 +77,7 @@ const DEFAULT_NODE_TYPES = Object.freeze([
   "technique-selection",
   "weapon",
   "weapon-enhancement",
+  "equipment-capacity",
   "requirement",
   "unsupported-answer",
   "deferred-grant-effect",
@@ -612,7 +612,8 @@ function compileEquipment(context, character, weaponBasesByKey, weaponEnhancemen
       state: valid && sourceActive ? (sourceOwned ? "automatic" : "selected") : "invalid",
       sourceOwnerId,
       storageBinding: { path: "builder.weapons", kind: "keyed-record", key: weapon.id },
-      metadata: { weaponId: weapon.id, weaponIndex, sourceOwned, sourceActive, valid, issue, reason, minimumRank, skillRankCap },
+      metadata: { weaponId: weapon.id, weaponIndex, sourceOwned, sourceActive, valid, issue, reason, minimumRank, skillRankCap,
+        adjustedRank: issue === "above-skill-rank" ? getWeaponRankAfterSkillChange(definition, weapon.rank, skillRanks) : null },
     }, path);
     if (sourceActive) {
       graph.addEdge({ kind: sourceOwned ? "materializes" : "owns", from: sourceOwnerId, to: nodeId }, { path });
@@ -677,7 +678,7 @@ function compileEquipment(context, character, weaponBasesByKey, weaponEnhancemen
         },
       }, enhancementPath);
       graph.addEdge({ kind: "owns", from: nodeId, to: enhancementNodeId }, { path: enhancementPath });
-      if (!enhancementValid && (sourceOwned || !["above-weapon-rank", "incompatible", "unavailable-definition"].includes(enhancementIssue))) {
+      if (!enhancementValid && !["above-weapon-rank", "incompatible", "unavailable-definition"].includes(enhancementIssue)) {
         context.addDiagnostic({ code: "invalid-weapon-enhancement", path: enhancementPath, nodeId: enhancementNodeId, message: enhancementReason });
       }
       for (const selection of getEnhancementSelectionSpecs(enhancement.enhancementKey)) {
@@ -702,15 +703,14 @@ function compileEquipment(context, character, weaponBasesByKey, weaponEnhancemen
       message: `Weapons use ${slotUsage} slots, exceeding the capacity of ${MAX_WEAPON_SLOTS}.`,
     });
   }
-  const enhancementUsage = countPurchasedEnhancements(builder.weapons);
-  const enhancementCapacity = computeEnhancementCapacity(builder.weapons, grantedEnhancementSlots);
-  if (enhancementUsage > enhancementCapacity) {
-    context.addDiagnostic({
-      code: "weapon-enhancement-capacity-exceeded",
-      path: "character.builder.weapons",
-      nodeId: "root:character",
-      message: `Purchased enhancements use ${enhancementUsage} slots, exceeding the capacity of ${enhancementCapacity}.`,
-    });
+  const excessEnhancements = getExcessWeaponEnhancements(builder.weapons, grantedEnhancementSlots);
+  if (excessEnhancements.length) {
+    context.addTypedNode("equipment-capacity", {
+      id: "equipment-capacity:enhancements", key: "enhancements", label: "Weapon enhancement capacity",
+      state: "invalid", sourceOwnerId: "root:character", storageBinding: null,
+      metadata: { excessEnhancements },
+    }, "character.builder.weapons");
+    graph.addEdge({ kind: "owns", from: "root:character", to: "equipment-capacity:enhancements" });
   }
 }
 

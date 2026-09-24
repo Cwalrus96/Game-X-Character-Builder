@@ -101,6 +101,8 @@ Compilation is diagnostic-producing, not repairing. Missing game-data identities
 
 Every removal is represented in the reconciled character and reported as `confirmation-required`. Blocking diagnostics are always `error`; they are never converted into confirmable warnings. Incomplete but valid state is `informational` and does not block saving.
 
+An existing choice losing a prerequisite or capacity is represented as a reconcilable node, not a compiler error. Equipment Rules project a weapon's legal reduced rank; when the governing skill falls below its minimum rank, reconciliation removes the weapon directly instead of producing an illegal intermediate rank. An `equipment-capacity` node records excess paid Enhancements. After source, rank and compatibility changes settle, shared Rules preserve earlier purchases in stored order and remove later excess purchases through confirmation. Free granted Enhancements consume no paid slots. Prerequisite/rank changes on feature-owned Enhancements update their source answer and generated projection together; source-owned weapon ranks retain their existing grant-defined behavior. Source projections are checked and refreshed before repairing their answers so direct edits cannot bypass ownership validation. The fixed-point review includes dependent Techniques, Feats, feature options and other supported choices. Malformed state, missing catalogue identities and ownership violations retain specific blocking diagnostics.
+
 Class and Feat option-group nodes retain their authored expected count and actual selected count. The compiler also records a completion message from `option-choice-rules.js`, which shares availability with `OptionGroupWidget`: unmet prerequisites or unavailable content cannot produce an instruction to select an inaccessible answer. Actionable messages name the feature and request at most the available unselected choices. Reconciliation reports that Rules result without recomputing availability or reducing capacity; unsupported-content diagnostics and invalid selected-answer errors remain explicit.
 
 The default maximum is 32 iterations. Exceeding the configured bound reports `graph-non-convergence`, returns the original proposed character rather than a partial intermediate value, and cannot be accepted by `CharacterSession`.
@@ -134,6 +136,7 @@ The adapter is installed in the local-review class/feat, Attributes, Equipment, 
 - `public/js/core/graph-core.js`: typed graph builder, handler registry, contract validation, deterministic freezing, and affected closure;
 - `public/js/core/graph-compiler.js`: exact-v6/schema-v2/v3 deterministic compiler and registered handlers;
 - `public/js/core/graph-reconciler.js`: bounded fixed-point policy, structured impacts, derived projections, and session adapter;
+- `public/js/core/equipment-rules.js`: pure legal weapon-rank and deterministic excess-Enhancement projections using shared equipment capacity Rules;
 - `public/js/core/skill-rules.js`: sole pure owner of skill progression, grants, caps, point budgets, utility capacity, allocation projections, and deterministic fitting;
 - `public/js/core/origin-rules.js`: shared pure Origin eligibility/presentation projection;
 - `public/js/core/selection-rules.js`: shared pure normal/granted-only/draft selection eligibility used by graph and widgets;
@@ -146,3 +149,4 @@ The adapter is installed in the local-review class/feat, Attributes, Equipment, 
 - `tests/fixtures/graph-core.mjs`: normalized valid/invalid class, feat, technique, weapon, resource, and utility-skill fixtures;
 - `tests/graph-core.test.mjs`: published-data coverage, deterministic examples, generated cases, convergence/idempotence, transitive closure, failure policy, session exactness/cancellation, and dependency purity;
 - `tests/character-session-page.test.mjs`: structured confirmation, cancellation, exact save/revision/conflict behavior, concurrent-save handling, and page/widget independence.
+- `tests/dependency-review.test.mjs`: cross-domain cascade review, cancellation/exact acceptance, lower-level skill caps, minimum-rank boundaries, alternative skills, paid/free feature-owned Enhancement consequences, idempotence and blocking missing identities.
