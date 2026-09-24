@@ -12,7 +12,7 @@ import {
 import { renderBuilderNavMounts } from "./builder-nav.js";
 import { getBuilderStepInformationalMessages } from "./builder-step-impacts.js?v=wpe11";
 import { CharacterSessionPage } from "./character-session-page.js?v=wpe13";
-import { SkillsWidget } from "./widgets/skills-widget.js?v=core-combat1";
+import { SkillsWidget } from "./widgets/skills-widget.js?v=skills-controls1";
 import { VisitBuilderStep } from "../core/character-commands.js?v=wpe4";
 import { readCharacter } from "../core/database-reader.js?v=wpe6";
 import { replaceCharacter } from "../core/database-writer.js?v=wpe1";
@@ -30,8 +30,6 @@ const elements = {
   error: document.getElementById("error"),
   saveBtn: document.getElementById("saveBtn"),
   saveAndOpenBtn: document.getElementById("saveAndOpenBtn"),
-  addCombatSkillBtn: document.getElementById("addCombatSkillBtn"),
-  addSettingSkillBtn: document.getElementById("addSettingSkillBtn"),
   skillPointsTotal: document.getElementById("skillPointsTotal"),
   skillPointsSpent: document.getElementById("skillPointsSpent"),
   skillPointsRemaining: document.getElementById("skillPointsRemaining"),

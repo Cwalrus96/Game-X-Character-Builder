@@ -33,10 +33,6 @@ export class SkillsWidget {
     this.onRejected = typeof onRejected === "function" ? onRejected : null;
     this.character = page.getCharacter();
     this.busy = false;
-    this.onAddCombat = () => this.#addDraftRow("combat");
-    this.onAddSetting = () => this.#addDraftRow("setting");
-    elements.addCombatSkillBtn.addEventListener("click", this.onAddCombat);
-    elements.addSettingSkillBtn.addEventListener("click", this.onAddSetting);
     page.registerWidget(this);
     this.render();
   }
@@ -70,8 +66,6 @@ export class SkillsWidget {
     for (const container of containers) {
       for (const input of container.querySelectorAll("input, select, button")) input.disabled = disabled;
     }
-    this.elements.addCombatSkillBtn.disabled = disabled;
-    this.elements.addSettingSkillBtn.disabled = disabled;
   }
 
   #utilityChanged(event) {
@@ -137,18 +131,6 @@ export class SkillsWidget {
     row.querySelector('[data-action="remove"]')?.addEventListener("click", () => this.#commitRows(domain, { excluding: row }));
   }
 
-  #addDraftRow(domain) {
-    const allocation = getSkillAllocationState(this.gameData, this.character.builder);
-    const container = domain === "combat" ? this.elements.combatSkillGrid : this.elements.settingSkillGrid;
-    const node = document.importNode(this.elements.skillChipTemplate.content, true);
-    const row = node.firstElementChild;
-    row.setAttribute("data-editable-skill-row", "");
-    row.querySelector('[data-field="rank"]').innerHTML = rankOptions("", Math.min(allocation.baseRankCap, Math.max(0, allocation.remaining)));
-    container.appendChild(node);
-    this.#bindEditableRow(row, domain);
-    row.querySelector('[data-field="skill"]')?.focus();
-  }
-
   #renderUtility(allocation) {
     const utility = allocation.utility;
     const selected = new Set(utility.selected);
@@ -208,13 +190,9 @@ export class SkillsWidget {
     this.#renderFixed(allocation);
     this.#renderRepeatable("combat", allocation);
     this.#renderRepeatable("setting", allocation);
-    this.elements.addCombatSkillBtn.disabled = this.busy || allocation.remaining <= 0;
-    this.elements.addSettingSkillBtn.disabled = this.busy || allocation.remaining <= 0;
   }
 
   destroy({ unregister = true } = {}) {
-    this.elements.addCombatSkillBtn.removeEventListener("click", this.onAddCombat);
-    this.elements.addSettingSkillBtn.removeEventListener("click", this.onAddSetting);
     if (unregister) this.page.unregisterWidget(this);
   }
 }

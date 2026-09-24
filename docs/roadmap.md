@@ -726,6 +726,8 @@ Acceptance:
 
 Consolidate shared UI primitives, CSS ownership, forms/status/dialog accessibility, app-wide save/navigation behavior, and character-sheet decomposition.
 
+September 24 Skills follow-up is complete locally: removed both manual Add Skill buttons and their draft-row plumbing, preserving granted and existing saved skills and all regular rank controls. Preflight and the 517-unit/20-emulator/14-asset full suite, production baseline and authenticated local browser review pass; see [status.md](status.md). This bounded cleanup does not complete the wider step or remaining domain acceptance; production deployment remains separately authorized.
+
 September 23 targeted contrast repair is complete locally: shared pill values inherit their status foreground, errors and accent buttons have readable color pairs, and sheet text/placeholder/save states respect light and dark surfaces across all themes. The 517-unit/20-emulator/14-asset workspace suite, ten-artifact baseline and local browser matrix pass; [the contrast review](color-contrast-review-2026-09-23.md) records exact ratios, scope and limitations. This completes the requested contrast follow-up, not the wider UI-system step, which still follows remaining `WPE-DOMAIN-MIGRATION` acceptance. Production deployment requires explicit instruction.
 
 ### `WPG-GOVERNANCE`

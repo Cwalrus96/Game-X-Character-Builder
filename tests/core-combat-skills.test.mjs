@@ -135,7 +135,7 @@ function element() {
   };
 }
 function widgetHarness(value = character()) {
-  const elements = Object.fromEntries(["addCombatSkillBtn", "addSettingSkillBtn", "classUtilitySkillOptions", "classUtilitySkillsCard", "classUtilitySkillsMeta", "coreSkillGrid", "coreCombatSkillGrid", "defenseSkillGrid", "combatSkillGrid", "settingSkillGrid", "skillPointsTotal", "skillPointsSpent", "skillPointsRemaining", "skillRankCap", "skillPointsRemainingPill"].map((key) => [key, element()]));
+  const elements = Object.fromEntries(["classUtilitySkillOptions", "classUtilitySkillsCard", "classUtilitySkillsMeta", "coreSkillGrid", "coreCombatSkillGrid", "defenseSkillGrid", "combatSkillGrid", "settingSkillGrid", "skillPointsTotal", "skillPointsSpent", "skillPointsRemaining", "skillRankCap", "skillPointsRemainingPill"].map((key) => [key, element()]));
   const commands = [];
   const page = { getCharacter: () => value, registerWidget() {}, async requestCharacterCommand(widget, command) { commands.push(command); return { ok: false, reason: "cancelled" }; } };
   const widget = new SkillsWidget(page, { gameData: data, elements });

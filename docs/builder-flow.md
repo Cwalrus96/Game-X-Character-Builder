@@ -1,5 +1,7 @@
 # Builder flow
 
+The Skills page does not offer manual Add Skill buttons for Combat & Class Skills or Setting Skills. Those grids show granted skills and existing saved entries; current ranks and existing user-owned rows retain their normal editing/removal behavior. Core skills and class utility choices keep their dedicated controls. Removing the add-row UI does not change skill Rules, commands or storage compatibility.
+
 Shared status text inherits its component's foreground, including bold numeric values inside pills. Success, danger and error messages pair explicit foregrounds with their backgrounds so they remain readable on both light cards and dark headers. Ordinary text targets at least 4.5:1 contrast; large text targets 3:1. Sheet labels, metadata and placeholders use the text token for their actual panel or outer-sheet surface, rather than decorative accents. Fixed white portrait and dark save-bar surfaces have explicit matching text colors. Review all themes and relevant states when changing shared colors; see [the September 23 contrast review](color-contrast-review-2026-09-23.md).
 
 Core Combat Skills: Martial Arts, Melee Weapons, and Ranged Weapons have permanent editable controls under Core Skills for every character. They remain Combat Skills, using the existing named paid-rank storage, free grant floors, shared caps/budget and reviewed dependencies. The read-only sheet uses the same ranks and placement. See [the September 23 decision and verification](core-combat-skills-2026-09-23.md).
