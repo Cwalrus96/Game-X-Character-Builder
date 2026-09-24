@@ -1091,6 +1091,42 @@ textarea {
   margin: 12px 0;
 }
 
+.equipmentGrid > .label {
+  min-width: 0;
+}
+
+.equipmentGrid > .label:has([data-weapon-rank], [data-enhancement-rank]) {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.equipmentGrid > .label:has([data-weapon-name]) {
+  grid-column: 1 / -1;
+}
+
+.equipmentWeaponRow,
+.equipmentEnhancementRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  min-width: 0;
+}
+
+.equipmentWeaponRow > .btn,
+.equipmentEnhancementRow > .btn {
+  justify-self: start;
+}
+
+.equipmentWeaponRow > .cardHeaderRow,
+.equipmentWeaponRow > .equipmentGrid,
+.equipmentEnhancementRow > .equipmentGrid {
+  margin: 0;
+}
+
+.equipmentGrid--enhancementSelections:empty {
+  display: none;
+}
+
 .equipmentGrid--enhancement,
 .equipmentGrid--enhancementSelections {
   grid-template-columns: minmax(0, 1fr) minmax(120px, 180px);
@@ -1110,7 +1146,7 @@ textarea {
 
 .equipmentMetaList {
   margin: 10px 0 0;
-  padding-left: 20px;
+  padding: 0;
 }
 
 .equipmentMetaList li + li {
@@ -1186,6 +1222,11 @@ textarea {
 
   .equipmentField--compact {
     max-width: none;
+  }
+
+  .equipmentGrid > .label:has([data-weapon-rank], [data-enhancement-rank]) {
+    grid-column: 1;
+    grid-row: auto;
   }
 }
 
