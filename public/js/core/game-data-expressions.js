@@ -144,6 +144,13 @@ function validateFields(kind, type, rawFields, { context = null, line = null, sy
     }
   }
 
+  if (kind === "grant" && Number(syntaxVersion) >= 3 && type === "technique" && value.weaponTag && !value.access) {
+    diagnostics.push(diagnostic(kind, "missing-field", "A technique grant's weaponTag requires an access rule.", { context, line, field: "access" }));
+  }
+  if (kind === "grant" && type === "skill-substitution" && (Array.isArray(value.toSkill) || /\s+OR\s+|[,;|]/i.test(value.toSkill || ""))) {
+    diagnostics.push(diagnostic(kind, "invalid-scalar", "Field \"toSkill\" must identify one skill.", { context, line, field: "toSkill" }));
+  }
+
   const ok = diagnostics.every((item) => item.severity !== "error");
   return { ok, value: ok ? finalizeValue(kind, value) : null, diagnostics };
 }

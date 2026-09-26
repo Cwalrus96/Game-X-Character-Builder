@@ -234,6 +234,16 @@ export const OBSERVED_UNSUPPORTED_PREREQUISITE_FIELDS = Object.freeze([]);
 const extend = (base, fields, options = {}) => definition({ ...base, fields: { ...base.fields, ...fields }, ...options });
 export const GRANT_EXPRESSION_REGISTRY_V3 = Object.freeze({
   ...GRANT_EXPRESSION_REGISTRY,
+  technique: extend(GRANT_EXPRESSION_REGISTRY.technique, {
+    access: reference({ minItems: 1 }), weaponTag: reference({ minItems: 1 }),
+  }, {
+    requiredAny: [["key", "name", "skill", "tag", "access"]],
+    mutuallyExclusive: ["key", "name", "skill", "tag", "count", "choiceId", "choiceRef"].map((key) => ["access", key]),
+  }),
+  "skill-substitution": definition({
+    fields: { fromSkill: reference({ minItems: 1 }), toSkill: string(), weaponTag: reference({ minItems: 1 }) },
+    required: ["fromSkill", "toSkill"], runtimeStatus: "stubbed",
+  }),
   skill: extend(GRANT_EXPRESSION_REGISTRY.skill, { recipientRef: string() }),
   tag: definition({ fields: { tag: reference(), minRank: integer({ min: 0 }), note: string() }, required: ["tag"] }),
   trait: definition({
@@ -288,6 +298,7 @@ export function getExpressionRuntimeStatus(kind, expression, options = {}) {
     return statuses.length && statuses.every((status) => status === "implemented" || status === "compatibility") ? "implemented" : "stubbed";
   }
   const filters = Array.isArray(expression?.filterType) ? expression.filterType : [expression?.filterType];
+  if (Number(options.syntaxVersion) >= 3 && kind === "grant" && expression?.type === "technique" && expression.access) return "stubbed";
   if (Number(options.syntaxVersion) >= 3 && kind === "grant" && expression?.type === "trait") {
     return getTraitGrantDeferredReasons(expression).length ? "stubbed" : "implemented";
   }

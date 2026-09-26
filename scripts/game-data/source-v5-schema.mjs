@@ -46,10 +46,14 @@ export const SOURCE_V5_ENUM_VALUES = Object.freeze(Object.fromEntries(Object.ent
   selectionMode: ["selectable", "granted-only", "draft"],
   energyCostKind: ["fixed", "variable", "conditional", "unassigned", "unspecified"],
   booleanYN: ["Y", "N"],
-  grantType: ["technique", "skill", "feat", "resource", "familiar", "weapon", "weapon-enhancement", "option", "choice", "bond", "specialization", "vehicle", "gadget", "rank", "choice-rebind", "tag", "feature", "trait"],
+  grantType: ["technique", "skill", "feat", "resource", "familiar", "weapon", "weapon-enhancement", "option", "choice", "bond", "specialization", "vehicle", "gadget", "rank", "choice-rebind", "tag", "feature", "trait", "skill-substitution"],
   prerequisiteType: ["class", "familiar", "feat", "choice", "weapon", "weapon-set", "trait", "technique", "tag", "text", "archetype", "attribute", "option", "skill"],
   expression: ["OR", "newline"],
   energyCostOptions: ["mode=value"],
   selection: ["skill names", "granted", "tag=Name", "weaponTag=Name"],
   actionType: ["ActionOrFreeReaction"],
 }).map(([domain, values]) => [domain, Object.freeze(values)])));
+
+// Earlier v5 snapshots remain valid when they do not use this additive rule.
+// A snapshot that authors the rule must also declare its enum and meaning.
+export const SOURCE_V5_ADDITIVE_ENUM_VALUES = Object.freeze({ grantType: Object.freeze(["skill-substitution"]) });

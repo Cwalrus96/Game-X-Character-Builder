@@ -1,6 +1,7 @@
 import { getExpressionRuntimeStatus, getTraitGrantDeferredReasons } from "../../public/js/core/game-data-contract.js";
 import { normalizeExpressionObject } from "../../public/js/core/game-data-expressions.js";
 import { usesRequiredCells } from "./required-cell-readiness.mjs";
+import { createTechniqueAccessReferences, validateTechniqueAccessReferences, validateDeferredNaturalWeapon } from "./technique-access-validation.mjs";
 
 const array = (value) => Array.isArray(value) ? value : value == null || value === "" ? [] : [value];
 const leaves = (expression) => expression?.type === "any" ? (Array.isArray(expression.alternatives) ? expression.alternatives : []).flatMap(leaves) : [expression];
@@ -26,6 +27,7 @@ export function validateV5Relationships(model, helpers) {
   const byFeatureKey = new Map();
   for (const row of featureRows) byFeatureKey.set(row.featureKey, [...(byFeatureKey.get(row.featureKey) || []), row]);
   const invocations = [];
+  const accessReferences = createTechniqueAccessReferences(model);
   const adjacency = new Map();
   const parentEdges = new Map();
   for (const row of [...featureRows, ...(model.feats || [])]) {
@@ -53,6 +55,7 @@ export function validateV5Relationships(model, helpers) {
   for (const row of [...expressionRows, ...(model.weaponBases || [])]) {
     const sourceKey = `${row.source?.sheet}:${row.source?.row}`;
     runtimeSupportBySource[sourceKey] ||= { status: "supported", reasons: [] };
+    if (row.weaponKey && !row.profileType) validateDeferredNaturalWeapon(row, add);
     if (row.status && row.status !== "playable") add("warning", "record-unready", `Record status "${row.status}" is retained and excluded from normal selection.`, row, "status");
     if (!usesRequiredCells(model.metadata) && incomplete(row)) add("warning", "incomplete-content", "Incomplete authored content is retained for review and cannot execute as a complete option.", row, "description");
     for (const key of row.traitKeys || []) requireReference(traits, key, { record: row, column: "traitKeys", kind: "Trait" });
@@ -65,6 +68,9 @@ export function validateV5Relationships(model, helpers) {
     for (const [index, grant] of (row.grants || []).entries()) {
       const normalized = normalizeExpressionObject("grant", grant, { syntaxVersion: 3 });
       for (const diagnostic of normalized.diagnostics) add(diagnostic.severity, diagnostic.code, diagnostic.message, row, "grants", { field: diagnostic.field, expressionIndex: index });
+      validateTechniqueAccessReferences(grant, row, index, accessReferences, add);
+      if (row.traitKey && grant.type === "weapon") add("warning", "trait-weapon-projection-deferred",
+        "Trait-owned weapons retain their source relationship; provider rank/skill inheritance and weapon projection are not implemented.", row, "grants", { expressionIndex: index });
       if (grant.type === "trait") {
         if (grant.key) requireReference(traits, grant.key, { record: row, column: "grants", kind: "Trait" });
         for (const reason of getTraitGrantDeferredReasons(normalized.value || grant)) {

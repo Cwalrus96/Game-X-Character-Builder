@@ -3,7 +3,7 @@ import {
   clean, nullable, diagnostic, rowObject, splitList, contextOf, requiredText, booleanValue,
   nestedKind, adaptMetadata, adaptSchema, adaptEnums, adaptClasses, adaptOrigins,
 } from "./source-v4.mjs";
-import { SOURCE_V5_TAB_HEADERS, SOURCE_V5_MODEL_TABS } from "./source-v5-schema.mjs";
+import { SOURCE_V5_TAB_HEADERS, SOURCE_V5_MODEL_TABS, SOURCE_V5_ADDITIVE_ENUM_VALUES } from "./source-v5-schema.mjs";
 import { usesRequiredCells, requiredCellReadiness, sourceV5Contract } from "./required-cell-readiness.mjs";
 import {
   canonicalSkillKey, canonicalTagKey, numericValue, selectionRoutes, pumpingMap,
@@ -241,6 +241,10 @@ function validateSchema(model, diagnostics) {
   }
   for (const [domain, values] of Object.entries(contractSet.enums)) {
     for (const value of values) if (!model.enums[domain]?.some((entry) => entry.value === value)) {
+      const additive = SOURCE_V5_ADDITIVE_ENUM_VALUES[domain]?.includes(value);
+      const used = domain === "grantType" && Object.values(SOURCE_V5_MODEL_TABS)
+        .some((collection) => (model[collection] || []).some((row) => (row.grants || []).some((grant) => grant.type === value)));
+      if (additive && !used) continue;
       diagnostics.push(diagnostic("missing-enum-value", `Enums does not declare ${domain}=${value}.`, { sheet: "Enums" }));
     }
   }

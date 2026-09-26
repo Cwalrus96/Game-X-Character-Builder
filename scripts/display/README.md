@@ -1,5 +1,7 @@
 # Authoring display and bulk formatter
 
+September 26: `weapon-display-formulas.mjs` excludes exact `Natural` weapon tags from the handbook Weapons catalogue and all six rank excerpts, while retaining the full base import and existing Trait/Technique catalogue rules. Its native fixtures occupy `Function_Tests!K60:N61`; access/substitution/fixed-weapon grant fixtures occupy `K62:N69`. The imported-base check derives its expected count from the canonical source, not a fixed catalogue size. Install the updated `GRANT_BLOCK` named function and manifest cell changes, run the bulk formatter, and verify native fixture and formatted results. See [the source update](../../docs/natural-weapons-source-2026-09-26.md).
+
 ## Current configuration: source schema v5, September 22, 2026
 
 The canonical [game-x-class-data](https://docs.google.com/spreadsheets/d/1TEdxuufglP8lFRNk8QD4N_351-0ihAUFLG2743ESjoI/edit) workbook owns the simplified authoring format. The [Game-X-Data-Display](https://docs.google.com/spreadsheets/d/106wXA3w52aubp0zCYqieHJME02C0bu4jdho9b_eBA8U/edit) workbook adapts that format for its existing display tabs and handbook bindings. This is an authoring/display migration; runtime import support and the frozen production release remain separate work.

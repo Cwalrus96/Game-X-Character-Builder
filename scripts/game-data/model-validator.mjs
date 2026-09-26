@@ -77,7 +77,7 @@ export function validateGameDataModel(model, { priorDiagnostics = [] } = {}) {
   const v5 = Number(model?.metadata?.sourceSchemaVersion) === 5;
   const requiredCells = v5 && usesRequiredCells(model.metadata);
   const runtimeSupportBySource = {};
-  const deferredCodes = new Set(["record-unready", "playable-record-incomplete", "draft-record-granted", "runtime-subsystem-stubbed", "manual-prerequisite", "runtime-prerequisite-deferred", "recipient-execution-deferred", "feature-invocation-deferred", "unassigned-selection", "incomplete-technique", "incomplete-content", "unresolved-rank-context", "trait-rank-context-missing", "trait-activation-missing", "trait-choice-id-missing", "trait-toggle-id-missing", "trait-recipient-deferred"]);
+  const deferredCodes = new Set(["record-unready", "playable-record-incomplete", "draft-record-granted", "runtime-subsystem-stubbed", "manual-prerequisite", "runtime-prerequisite-deferred", "recipient-execution-deferred", "feature-invocation-deferred", "unassigned-selection", "incomplete-technique", "incomplete-content", "unresolved-rank-context", "trait-rank-context-missing", "trait-activation-missing", "trait-choice-id-missing", "trait-toggle-id-missing", "trait-recipient-deferred", "trait-weapon-projection-deferred", "natural-weapon-projection-deferred", "dynamic-weapon-tag-deferred"]);
   let sequence = 0;
   const add = (severity, code, message, record = null, column = null, details = null) => {
     const source = record?.source || {};
