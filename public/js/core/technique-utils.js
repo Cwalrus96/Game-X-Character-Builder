@@ -105,7 +105,7 @@ function formatBasicAttack(clauses, gameData) {
   return (clauses || []).map(format).join("; ");
 }
 
-export function renderTechniqueProfileHtml(profile, { rankValue = 0, heading = "", headingTag = "div", headingClass = "combat-profile-title", showRank = false, gameData = null, performance = null } = {}) {
+export function renderTechniqueProfileHtml(profile, { rankValue = 0, heading = "", headingTag = "div", headingClass = "combat-profile-title", showRank = false, gameData = null, performance = null, rollButtonHtml = "" } = {}) {
   if (!profile) return "";
   if (performance) { profile = { ...profile, skill: performance.skillName }; rankValue = performance.rank; }
   const titleText = sanitizeText(heading || profile?.techniqueName || profile?.profileName || "", { maxLen: 160, collapse: true });
@@ -148,5 +148,9 @@ export function renderTechniqueProfileHtml(profile, { rankValue = 0, heading = "
   if (bondEffect) rows.push(`<div class="combat-profile-line"><strong>Bond Effect:</strong> ${mechanicHtml(bondEffect)}</div>`);
   if (notes) rows.push(`<div class="combat-profile-line">${mechanicHtml(notes)}</div>`);
   if (profile.expressionSyntaxVersion === 3 && profile.rankNotes) rows.push(`<div class="combat-profile-line">${mechanicHtml(profile.rankNotes)}</div>`);
-  return `<div class="combat-profile">${title ? `<${headingTag} class="${headingClass}">${safeHtmlText(title, 200)}</${headingTag}>` : ""}${rows.join("")}</div>`;
+  const titleHtml = title ? `<${headingTag} class="${headingClass}">${safeHtmlText(title, 200)}</${headingTag}>` : "";
+  const content = `${titleHtml}${rows.join("")}`;
+  return rollButtonHtml
+    ? `<div class="combat-profile sheet-technique-columns"><div class="sheet-technique-content">${content}</div>${rollButtonHtml}</div>`
+    : `<div class="combat-profile">${content}</div>`;
 }

@@ -39,11 +39,11 @@ import {
   renderTagChipsHtml,
   summarizeWeaponProfilesHtml,
   renderEnhancementDetailHtml,
-} from "../core/weapon-utils.js";
-import { renderTechniqueProfileHtml } from "../core/technique-utils.js";
+} from "../core/weapon-utils.js?v=sheet-rolls7";
+import { renderTechniqueProfileHtml } from "../core/technique-utils.js?v=sheet-rolls7";
 import { projectCharacterTraits, getActiveTraitTechniqueDetails } from "../core/trait-rules.js";
 import { getTechniqueSelectionState, getTechniquePerformance, createTechniqueContext } from "../core/technique-rules.js";
-import { renderGrantedWeaponHtml } from "../core/weapon-grant-display.js?v=natural-weapons2";
+import { renderGrantedWeaponHtml } from "../core/weapon-grant-display.js?v=sheet-rolls7";
 import { renderTraitProjectionHtml } from "../core/trait-display.js";
 import { sortClassFeatureAbilitiesByLevel } from "../core/class-feature-display.js";
 import { ensureAppTopNav } from "../core/app-nav.js";
@@ -68,6 +68,7 @@ import {
 import { createSaveCoordinator } from "../core/save-coordinator.js";
 import { getSaveStatusPresentation } from "../core/save-status.js";
 import { createSheetHpControl } from "./sheet-hp-control.js";
+import { createSheetRolls } from "./sheet-rolls.js?v=sheet-rolls6";
 import {
   createNavigationGuard,
   installNavigationGuard,
@@ -251,12 +252,7 @@ import {
     const container = document.getElementById(containerId);
     if (!container) return;
     container.innerHTML = (Array.isArray(items) ? items : [])
-      .map(({ key, label }) => `
-        <div class="skill-chip skill-chip-static">
-          <span class="skill-chip-label">${escapeHtml(label)}</span>
-          <span class="skill-chip-value">${escapeHtml(skillRankLabel(values?.[key] ?? '')) || '&mdash;'}</span>
-        </div>
-      `)
+      .map(({ key, label }) => sheetRolls.skillControl(label.replace(/ Training$/, ''), label, skillRankLabel(values?.[key] ?? '')))
       .join('');
   }
 
@@ -268,7 +264,7 @@ import {
     while (rows.length < minRows) rows.push({ skill: '', rank: '' });
 
     container.innerHTML = rows
-      .map((item) => `
+      .map((item) => item?.skill ? sheetRolls.skillControl(item.skill, item.skill, skillRankLabel(item.rank ?? '')) : `
         <div class="skill-chip skill-chip-static">
           <span class="skill-chip-label">${escapeHtml(String(item?.skill || '')) || '&mdash;'}</span>
           <span class="skill-chip-value">${escapeHtml(skillRankLabel(item?.rank ?? '')) || '&mdash;'}</span>
@@ -494,10 +490,8 @@ async function renderBuilderTechniquesReadOnly(builder) {
     function renderTechniqueCard({ source, tech }) {
       return `
         <article class="ability-card technique-card technique-card-readonly">
-          <div class="ability-card-head">
-            <div style="flex:1; min-width:0;">${renderTechniqueProfileHtml(tech, { gameData, performance: getTechniquePerformance(tech, techniqueContext, traitTechniqueDetails.get(tech.techniqueKey)), heading: String(tech?.techniqueName || 'Technique'), headingTag: 'div', headingClass: 'ability-name technique-title-static', showRank: true })}</div>
+            ${renderTechniqueProfileHtml(tech, { gameData, performance: getTechniquePerformance(tech, techniqueContext, traitTechniqueDetails.get(tech.techniqueKey)), rollButtonHtml: sheetRolls.buttonFor(tech, { provider: traitTechniqueDetails.get(tech.techniqueKey) }), heading: String(tech?.techniqueName || 'Technique'), headingTag: 'div', headingClass: 'ability-name technique-title-static', showRank: true })}
             <span class="technique-source-badge">${escapeHtml(source)}</span>
-          </div>
         </article>
       `;
     }
@@ -549,7 +543,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
       const tags = getEffectiveTags(weapon, weaponBases);
       const slotCost = computeWeaponSlotCost(weapon, weaponBases);
       const profilesHtml = weaponDef
-        ? summarizeWeaponProfilesHtml(weaponDef, weapon.rank).replace(/equipmentMetaList/g, 'weapon-profile-list')
+        ? summarizeWeaponProfilesHtml(weaponDef, weapon.rank, { renderRollButton: technique => sheetRolls.buttonFor(technique, { weaponId: weapon.id || `sheet-weapon-${index}` }) }).replace(/equipmentMetaList/g, 'weapon-profile-list')
         : '<div class="muted">Unknown weapon base.</div>';
       const enhancements = Array.isArray(weapon.enhancements) ? weapon.enhancements : [];
       const enhancementsHtml = enhancements.length
@@ -571,7 +565,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
           ${enhancementsHtml}
           <div class="weapon-card-subsection">${profilesHtml}</div>
         </article>`;
-    }).join('') + derived.map(weapon => renderGrantedWeaponHtml(weapon, { gameData, builder: b })).join('');
+    }).join('') + derived.map(weapon => renderGrantedWeaponHtml(weapon, { gameData, builder: b, renderRollButton: technique => sheetRolls.buttonFor(technique, { weaponId: weapon.id }) })).join('');
   } catch (e) {
     console.warn('renderBuilderWeaponsReadOnly failed', e);
   }
@@ -688,6 +682,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
         const sheetOnlyFields = pickSheetOnlyFields(sheetFields);
         const repeatables = (b?.sheet?.repeatables && typeof b.sheet.repeatables === 'object') ? b.sheet.repeatables : {};
         const gameData = await loadGameXData();
+        sheetRolls.setCharacter({ gameData, builder: { ...b, attributes: attrs } });
         applyReadOnlySkillState(gameData, b);
         const selectedTechniques = Array.isArray(b?.selectedTechniques) ? b.selectedTechniques : [];
         lockedAbilityNames = new Set(Array.isArray(b?.autoAbilityNames) ? b.autoAbilityNames.map((name) => String(name || '').trim()).filter(Boolean) : []);
@@ -730,6 +725,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
 
         cloudReady = true;
         hpControl.setEnabled(true);
+        sheetRolls.setReady(true);
         sheetSaveCoordinator?.markClean();
         return;
       }
@@ -761,6 +757,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
 
       await setDoc(cloudDocRef, baseline, { merge: true });
       currentDoc = baseline;
+      sheetRolls.setCharacter({ gameData: await loadGameXData(), builder: baseline.builder });
 
       renderBuilderTechniquesReadOnly((baseline && baseline.builder) ? baseline.builder : {});
       renderBuilderWeaponsReadOnly((baseline && baseline.builder) ? baseline.builder : {});
@@ -769,11 +766,13 @@ async function renderBuilderWeaponsReadOnly(builder) {
 
       cloudReady = true;
       hpControl.setEnabled(true);
+      sheetRolls.setReady(true);
       sheetSaveCoordinator?.markClean();
     } catch (e) {
       console.error('loadCloudOrInit error:', e);
       cloudReady = false;
       hpControl.setEnabled(false);
+      sheetRolls.setReady(false);
       renderSheetSaveState({
         status: 'error',
         dirty: false,
@@ -818,6 +817,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
       cloudDocRef = null;
       cloudReady = false;
       hpControl.setEnabled(false);
+      sheetRolls.setReady(false);
 
       if (!user) {
         // Require auth for editing (D&D Beyond-style flow)
@@ -859,6 +859,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
   const classSelect = document.getElementById('classSelect');
   const sheetSaveStatusEl = document.getElementById('sheetSaveStatus');
   const sheetSaveRetryEl = document.getElementById('sheetSaveRetry');
+  const sheetRolls = createSheetRolls();
   const hpControl = createSheetHpControl({
     input: document.getElementById('hpcur'),
     error: document.getElementById('hpError'),

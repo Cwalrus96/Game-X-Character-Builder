@@ -1,6 +1,6 @@
 import { sanitizeText, safeHtmlText } from "./data-sanitization.js";
 import { getEntryPrerequisites, meetsPrerequisites } from "./prerequisites.js";
-import { renderTagChipsHtml, renderTechniqueProfileHtml } from "./technique-utils.js";
+import { renderTagChipsHtml, renderTechniqueProfileHtml } from "./technique-utils.js?v=sheet-rolls7";
 import { canonicalSkillName, RANGED_WEAPONS_SKILL } from "./skill-identity.js";
 import { isGameDataRecordSelectable } from "./selection-rules.js";
 
@@ -199,7 +199,7 @@ export function formatAttackLine(profile, weaponRank) {
   return pump ? `${baseLine} ${pump}.` : baseLine;
 }
 
-export function summarizeWeaponProfilesHtml(weaponDef, weaponRank) {
+export function summarizeWeaponProfilesHtml(weaponDef, weaponRank, { renderRollButton = () => "" } = {}) {
   const profiles = Array.isArray(weaponDef?.profiles) ? weaponDef.profiles : [];
   const blocks = [];
 
@@ -209,7 +209,7 @@ export function summarizeWeaponProfilesHtml(weaponDef, weaponRank) {
     let heading = rawName || "Profile";
     if (type === "criticalEffect") heading = `Critical Effect — ${rawName || "Critical Effect"}`;
     if (type === "alternateUse") heading = `Alternate Use — ${rawName || "Alternate Use"}`;
-    blocks.push(renderTechniqueProfileHtml(profile, { rankValue: weaponRank, heading, headingTag: "div", headingClass: "combat-profile-title", showRank: false, gameData: { techniques: profiles } }));
+    blocks.push(renderTechniqueProfileHtml(profile, { rankValue: weaponRank, heading, headingTag: "div", headingClass: "combat-profile-title", showRank: false, gameData: { techniques: profiles }, rollButtonHtml: renderRollButton(profile) }));
   }
 
   if (!blocks.length && weaponDef?.description) {

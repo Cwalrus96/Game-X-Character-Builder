@@ -8,6 +8,7 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
 <link rel="stylesheet" href="/css/styles.css"/>
 <link rel="stylesheet" href="/css/builder-core.css"/>
+<link rel="stylesheet" href="/css/sheet-rolls.css?v=sheet-rolls7"/>
 </head>
 <body data-theme="na"><a class="skip-link" href="#charName">Skip to character name</a>
 <div class="topbar"></div>
@@ -95,21 +96,21 @@
 <div class="attribute-groups">
 <fieldset class="attribute-group"><legend class="attribute-group-header">Physical</legend>
 
-<label class="attribute-item"><span>Strength</span><input class="attr-input" id="strength" inputmode="numeric" name="strength" step="1" type="number"/></label>
-<label class="attribute-item"><span>Agility</span><input class="attr-input" id="agility" inputmode="numeric" name="agility" step="1" type="number"/></label>
-<label class="attribute-item"><span>Physical Defense</span><input class="attr-input" id="physdef" inputmode="numeric" name="physdef" readonly step="1" type="number"/></label>
+<div class="attribute-item"><button type="button" class="sheet-attribute-roll" data-roll-attribute="strength" aria-label="Roll Strength" disabled><span>Strength</span><span class="sheet-readonly-value" data-readonly-display-for="strength">—</span></button><input class="attr-input" id="strength" name="strength" type="number" hidden/></div>
+<div class="attribute-item"><button type="button" class="sheet-attribute-roll" data-roll-attribute="agility" aria-label="Roll Agility" disabled><span>Agility</span><span class="sheet-readonly-value" data-readonly-display-for="agility">—</span></button><input class="attr-input" id="agility" name="agility" type="number" hidden/></div>
+<div class="attribute-item"><button type="button" class="sheet-attribute-roll" data-roll-skill="physical-defense" aria-label="Roll Physical Defense" disabled><span>Physical Defense</span><span class="sheet-readonly-value" data-readonly-display-for="physdef">—</span></button><input class="attr-input" id="physdef" name="physdef" type="number" hidden/></div>
 </fieldset>
 <fieldset class="attribute-group"><legend class="attribute-group-header">Mental</legend>
 
-<label class="attribute-item"><span>Intellect</span><input class="attr-input" id="intellect" inputmode="numeric" name="intellect" step="1" type="number"/></label>
-<label class="attribute-item"><span>Willpower</span><input class="attr-input" id="willpower" inputmode="numeric" name="willpower" step="1" type="number"/></label>
-<label class="attribute-item"><span>Mental Defense</span><input class="attr-input" id="mentdef" inputmode="numeric" name="mentdef" readonly step="1" type="number"/></label>
+<div class="attribute-item"><button type="button" class="sheet-attribute-roll" data-roll-attribute="intellect" aria-label="Roll Intellect" disabled><span>Intellect</span><span class="sheet-readonly-value" data-readonly-display-for="intellect">—</span></button><input class="attr-input" id="intellect" name="intellect" type="number" hidden/></div>
+<div class="attribute-item"><button type="button" class="sheet-attribute-roll" data-roll-attribute="willpower" aria-label="Roll Willpower" disabled><span>Willpower</span><span class="sheet-readonly-value" data-readonly-display-for="willpower">—</span></button><input class="attr-input" id="willpower" name="willpower" type="number" hidden/></div>
+<div class="attribute-item"><button type="button" class="sheet-attribute-roll" data-roll-skill="mental-defense" aria-label="Roll Mental Defense" disabled><span>Mental Defense</span><span class="sheet-readonly-value" data-readonly-display-for="mentdef">—</span></button><input class="attr-input" id="mentdef" name="mentdef" type="number" hidden/></div>
 </fieldset>
 <fieldset class="attribute-group"><legend class="attribute-group-header">Spiritual</legend>
 
-<label class="attribute-item"><span>Attunement</span><input class="attr-input" id="attunement" inputmode="numeric" name="attunement" step="1" type="number"/></label>
-<label class="attribute-item"><span>Heart</span><input class="attr-input" id="heart" inputmode="numeric" name="heart" step="1" type="number"/></label>
-<label class="attribute-item"><span>Spiritual Defense</span><input class="attr-input" id="spiritdef" inputmode="numeric" name="spiritdef" readonly step="1" type="number"/></label>
+<div class="attribute-item"><button type="button" class="sheet-attribute-roll" data-roll-attribute="attunement" aria-label="Roll Attunement" disabled><span>Attunement</span><span class="sheet-readonly-value" data-readonly-display-for="attunement">—</span></button><input class="attr-input" id="attunement" name="attunement" type="number" hidden/></div>
+<div class="attribute-item"><button type="button" class="sheet-attribute-roll" data-roll-attribute="heart" aria-label="Roll Heart" disabled><span>Heart</span><span class="sheet-readonly-value" data-readonly-display-for="heart">—</span></button><input class="attr-input" id="heart" name="heart" type="number" hidden/></div>
+<div class="attribute-item"><button type="button" class="sheet-attribute-roll" data-roll-skill="spiritual-defense" aria-label="Roll Spiritual Defense" disabled><span>Spiritual Defense</span><span class="sheet-readonly-value" data-readonly-display-for="spiritdef">—</span></button><input class="attr-input" id="spiritdef" name="spiritdef" type="number" hidden/></div>
 </fieldset>
 </div>
 </div><div aria-labelledby="skills_title" class="section" id="skills">
@@ -219,6 +220,6 @@
 <div id="gxTooltip" class="gx-tooltip" role="tooltip" aria-hidden="true"></div>
 
 
-<script type="module" src="/js/pages/character-sheet.js?v=natural-weapons2"></script>
+<script type="module" src="/js/pages/character-sheet.js?v=sheet-rolls7"></script>
 </body>
 </html>

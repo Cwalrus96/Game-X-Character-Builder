@@ -1,0 +1,98 @@
+.sheet-roll-button, .roll-primary, .roll-history-item {
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  padding: 7px 12px;
+  background: var(--panel-bg-color, #fff);
+  color: var(--panel-text-color, #24384c);
+}
+.sheet-roll-button { margin: 0; font-size: .8rem; padding: 6px 9px; }
+.sheet-technique-columns { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 12px; }
+.sheet-technique-content { min-width: 0; }
+.sheet-technique-rolls { display: flex; flex-direction: column; gap: 5px; flex: 0 0 auto; }
+.sheet-quick-roll { background: var(--header-bg-color); font-weight: 700; }
+.sheet-skill-roll, .sheet-attribute-roll { cursor: pointer; font: inherit; text-align: left; }
+.sheet-skill-roll:hover, .sheet-attribute-roll:hover { background: var(--header-bg-color); }
+.sheet-skill-roll:focus-visible, .sheet-attribute-roll:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+.sheet-attribute-roll { display: flex; align-items: center; justify-content: space-between; width: 100%; border: 1px solid transparent; border-radius: 4px; padding: 5px 3px; color: inherit; background: transparent; }
+.attribute-item .sheet-attribute-roll > .sheet-readonly-value { flex: 0 0 auto; margin: 0; text-align: right; min-width: 24px; }
+.sheet-skill-roll:disabled, .sheet-attribute-roll:disabled { cursor: default; }
+.sheet-roll-button:disabled, .roll-primary:disabled { opacity: .55; cursor: default; }
+.sheet-roll-button:focus-visible, .roll-dialog :focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+.roll-dialog {
+  position: fixed;
+  inset: auto 16px 16px auto;
+  z-index: 12000;
+  margin: 0;
+  width: min(390px, calc(100vw - 24px));
+  max-width: calc(100vw - 24px);
+  max-height: min(620px, calc(100dvh - 32px));
+  overflow: auto;
+  box-sizing: border-box;
+  padding: 0;
+  border: 2px solid var(--primary-color, #536675);
+  border-radius: 10px;
+  box-shadow: 0 5px 24px rgb(0 0 0 / .25);
+  background: var(--panel-bg-color, #fff);
+  color: var(--panel-text-color, #24384c);
+  font-family: var(--body-font, sans-serif);
+  font-size: .85rem;
+}
+.roll-dialog [hidden] { display: none !important; }
+.roll-dialog.has-result { max-height: min(520px, calc(100dvh - 32px)); }
+.roll-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-bottom: 1px solid currentColor; position: sticky; top: 0; z-index: 1; background: var(--header-bg-color, #fff); }
+.roll-header h2 { margin: 0; padding: 0; border: 0; background: transparent; color: inherit; font-size: 1rem; }
+.roll-close { border: 0; background: transparent; color: inherit; font: inherit; font-size: 1.5rem; line-height: 1; cursor: pointer; padding: 3px 6px; }
+.roll-body { padding: 10px 12px; }
+.roll-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.roll-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; font-weight: 600; min-width: 0; }
+.roll-field input, .roll-field select {
+  width: 100%; min-width: 0; max-width: none; box-sizing: border-box;
+  font: inherit; color: inherit; background: transparent;
+  border: 1px solid currentColor; border-radius: 5px; padding: 6px;
+}
+.roll-field option { background: #fff; color: #24384c; }
+.roll-help, .roll-field small { font-size: .75rem; font-weight: 400; line-height: 1.4; }
+.roll-dialog p { margin: 7px 0; }
+.roll-dialog details { margin: 5px 0; }
+.roll-dialog summary { cursor: pointer; font-weight: 600; padding: 5px 0; font-size: .75rem; }
+.roll-pool { font-weight: 600; padding: 8px; border: 1px solid currentColor; border-radius: 6px; }
+.roll-pool:empty { display: none; }
+.roll-primary { width: 100%; font-weight: 700; padding: 9px; background: var(--header-bg-color); }
+.roll-error, .roll-notice { border-left: 4px solid currentColor; padding: 10px; line-height: 1.5; }
+#roll-result { margin: 0; padding: 0; }
+.roll-total { font-size: 1.65rem; font-weight: 700; }
+#roll-total:focus { outline: none; }
+.roll-faces { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-bottom: 10px; }
+.roll-die { display: inline-flex; align-items: center; justify-content: center; border: 1px solid currentColor; border-radius: 4px; padding: 2px; }
+.roll-die > span:first-child { font-family: sans-serif; font-size: 1.5rem; line-height: 1; }
+.roll-coin > span:first-child { border: 1px solid currentColor; border-radius: 50%; width: 1.2em; text-align: center; }
+.roll-automatic { font-size: .75rem; font-weight: 600; }
+.roll-tn { flex-direction: row; align-items: center; gap: 5px; }
+.roll-tn input { width: 80px; margin-left: auto; }
+.roll-damage-summary { display: flex; justify-content: space-between; align-items: baseline; gap: 5px; }
+.roll-damage-summary .roll-help { font-size: .65rem; }
+.roll-result-actions { display: flex; gap: 8px; margin: 8px 0; }
+.roll-table-wrap { overflow-x: auto; }
+.roll-dialog .roll-damage-table { width: 100%; border-collapse: collapse; color: inherit; table-layout: auto; }
+.roll-dialog .roll-damage-table { display: table; }
+.roll-dialog .roll-damage-table tbody { display: table-row-group; }
+.roll-dialog .roll-damage-table tr { display: table-row; }
+.roll-dialog .roll-damage-table th, .roll-dialog .roll-damage-table td { display: table-cell; width: auto; }
+.roll-dialog .roll-damage-table th, .roll-dialog .roll-damage-table td { padding: 5px 4px; text-align: left; border-bottom: 1px solid currentColor; background: transparent; color: inherit; font-size: .72rem; }
+.roll-damage-table small { display: block; white-space: pre-line; font-weight: 400; font-size: .8rem; margin-top: 5px; }
+.roll-dialog .roll-selected { outline: 2px solid currentColor; outline-offset: -2px; background: var(--chip-bg-color); }
+.roll-history-item { display: block; text-align: left; width: 100%; margin: 6px 0; }
+.roll-band-effects { white-space: pre-line; font-size: .85rem; line-height: 1.5; }
+#roll-rules-content p { white-space: pre-line; line-height: 1.5; }
+@media (max-width: 520px) {
+  .roll-grid { grid-template-columns: 1fr; gap: 0; }
+  .roll-dialog { right: 10px; bottom: 10px; max-height: min(580px, calc(100dvh - 20px)); }
+  .sheet-technique-columns { gap: 7px; }
+  .sheet-technique-rolls .sheet-roll-button { font-size: .68rem; padding: 6px; }
+  /* The sheet's mobile table rules must not turn result bands into cards. */
+  .roll-dialog .roll-damage-table tr { display: table-row; }
+  .roll-dialog .roll-damage-table th, .roll-dialog .roll-damage-table td { display: table-cell; width: auto; }
+  .roll-dialog .roll-damage-table td::before { content: none; }
+}
