@@ -67,6 +67,7 @@ import {
 } from "../core/sheet-state.js";
 import { createSaveCoordinator } from "../core/save-coordinator.js";
 import { getSaveStatusPresentation } from "../core/save-status.js";
+import { createSheetHpControl } from "./sheet-hp-control.js";
 import {
   createNavigationGuard,
   installNavigationGuard,
@@ -728,6 +729,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
         }
 
         cloudReady = true;
+        hpControl.setEnabled(true);
         sheetSaveCoordinator?.markClean();
         return;
       }
@@ -766,10 +768,12 @@ async function renderBuilderWeaponsReadOnly(builder) {
       renderSheetBuilderNav(baseline);
 
       cloudReady = true;
+      hpControl.setEnabled(true);
       sheetSaveCoordinator?.markClean();
     } catch (e) {
       console.error('loadCloudOrInit error:', e);
       cloudReady = false;
+      hpControl.setEnabled(false);
       renderSheetSaveState({
         status: 'error',
         dirty: false,
@@ -813,6 +817,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
       currentUser = user;
       cloudDocRef = null;
       cloudReady = false;
+      hpControl.setEnabled(false);
 
       if (!user) {
         // Require auth for editing (D&D Beyond-style flow)
@@ -854,6 +859,11 @@ async function renderBuilderWeaponsReadOnly(builder) {
   const classSelect = document.getElementById('classSelect');
   const sheetSaveStatusEl = document.getElementById('sheetSaveStatus');
   const sheetSaveRetryEl = document.getElementById('sheetSaveRetry');
+  const hpControl = createSheetHpControl({
+    input: document.getElementById('hpcur'),
+    error: document.getElementById('hpError'),
+    onCommit: scheduleSave,
+  });
 
   function renderSheetSaveState(state = {}) {
     const presentation = getSaveStatusPresentation(state);
@@ -1131,6 +1141,10 @@ async function renderBuilderWeaponsReadOnly(builder) {
       if (el.type === 'file') return;
       const key = el.name;
       if (!key) return;
+      if (key === 'hpcur') {
+        fields[key] = hpControl.getValue();
+        return;
+      }
       if (el.type === 'checkbox') {
         fields[key] = !!el.checked;
       } else {
@@ -1150,7 +1164,9 @@ async function renderBuilderWeaponsReadOnly(builder) {
       if (!(key in fields)) return;
 
       const val = fields[key];
-      if (el.type === 'checkbox') {
+      if (key === 'hpcur') {
+        hpControl.setValue(val);
+      } else if (el.type === 'checkbox') {
         el.checked = !!val;
       } else {
         el.value = (val ?? '');
@@ -1205,6 +1221,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
     }
 
     const mergedFields = {
+      hpcur: '',
       ...(state.fields && typeof state.fields === 'object' ? state.fields : {}),
       charName: sanitizeCharName(canon?.name || ''),
       playerName: editingUid === currentUser?.uid
@@ -1691,6 +1708,7 @@ if (classSelect) {
   if (sheetEl) {
     sheetEl.addEventListener('input', (e) => {
       const t = e.target;
+      if (t?.name === 'hpcur') return;
       if (t && t.tagName === 'INPUT' && t.type === 'file') return;
       updateDerivedDisplay();
       scheduleSave();
@@ -1698,6 +1716,7 @@ if (classSelect) {
 
     sheetEl.addEventListener('change', (e) => {
       const t = e.target;
+      if (t?.name === 'hpcur') return;
       if (t && t.tagName === 'INPUT' && t.type === 'file') return;
       updateDerivedDisplay();
       scheduleSave();
@@ -1714,6 +1733,7 @@ if (classSelect) {
 
   applyReadOnlySkillState();
   applySheetOwnershipMode();
+  hpControl.setEnabled(false);
 
   // Initialize tooltip text + behavior
   applyTooltipText();

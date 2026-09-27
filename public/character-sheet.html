@@ -67,10 +67,12 @@
 <tr>
 <td>
 <div class="resource-inline">
-<label class="visually-hidden" for="hpcur">HP current</label><input class="resource-input" id="hpcur" inputmode="numeric" min="0" name="hpcur" step="1" type="number"/>
+<label class="visually-hidden" for="hpcur">HP current</label><input aria-describedby="hpHelp hpError" autocomplete="off" class="resource-input" disabled enterkeyhint="done" id="hpcur" name="hpcur" spellcheck="false" type="text"/>
 <span class="resource-sep">/</span>
 <label class="visually-hidden" for="hpmax">HP maximum</label><input class="resource-input" id="hpmax" inputmode="numeric" min="0" name="hpmax" readonly step="1" type="number"/>
 </div>
+<p class="resource-help" id="hpHelp">Enter HP or +16 / -21. Press Enter or leave the field to apply.</p>
+<p class="resource-help resource-error" hidden id="hpError" role="status"></p>
 </td>
 <td>
 <div class="resource-inline">

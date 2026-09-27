@@ -9,6 +9,7 @@ import {
   runTransaction,
   serverTimestamp,
   setDoc,
+  updateDoc,
 } from "firebase/firestore";
 
 import { createCharacterMigrationReferences } from "../public/js/core/character-migrations.js";
@@ -19,7 +20,10 @@ import {
   createCharacter,
   patchCharacter,
   replaceCharacter,
+  sanitizeUpdatePatch,
 } from "../public/js/core/database-writer.js";
+import { buildTemporarySheetUpdatePatch } from "../public/js/core/sheet-state.js";
+import { parseHpInput } from "../public/js/pages/sheet-hp-control.js";
 import {
   MIGRATION_GAME_DATA,
   makeObservedLegacyV4Character,
@@ -69,6 +73,28 @@ async function seedLegacy(characterId = "legacy") {
   });
   return legacy;
 }
+
+test("sheet HP leaf autosaves survive a fresh authenticated session without changing builder state", async () => {
+  const original = await seedLegacy("sheet-hp");
+  const firestore = aliceFirestore();
+  const ref = doc(firestore, "users", ALICE_UID, "characters", "sheet-hp");
+  let current = "40";
+  for (const raw of ["40", "+16", "-21", "-100"]) {
+    const result = parseHpInput(raw, current);
+    assert.equal(result.ok, true);
+    const patch = sanitizeUpdatePatch(buildTemporarySheetUpdatePatch({ allFields: { hpcur: result.value } }));
+    // Same leaf update and timestamp used by the sheet's transitional writer.
+    await updateDoc(ref, { ...patch, updatedAt: serverTimestamp() });
+    const newSession = aliceFirestore();
+    const reloaded = (await getDoc(doc(newSession, "users", ALICE_UID, "characters", "sheet-hp"))).data();
+    assert.equal(reloaded.builder.sheet.fields.hpcur, result.value);
+    const expectedBuilder = structuredClone(original.builder);
+    expectedBuilder.sheet.fields.hpcur = result.value;
+    assert.deepEqual(reloaded.builder, expectedBuilder);
+    current = reloaded.builder.sheet.fields.hpcur;
+  }
+  assert.equal(current, "0");
+});
 
 test("repository entry points create and read exact v6 with resolved timestamps", async () => {
   const firestore = aliceFirestore();

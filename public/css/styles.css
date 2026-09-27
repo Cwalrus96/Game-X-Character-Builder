@@ -473,6 +473,21 @@
     flex: 1 1 0;
     min-width: 0;
   }
+  .resource-help {
+    margin: 6px 0 0;
+    font-family: var(--body-font);
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: var(--panel-text-color);
+    white-space: normal;
+  }
+  .resource-error {
+    font-weight: 600;
+  }
+  #hpcur[aria-invalid="true"] {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
   .resource-inline .check-inline {
     display: inline-flex;
     align-items: center;
