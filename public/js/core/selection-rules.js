@@ -17,6 +17,7 @@ export function isGameDataGrantExecutable(grant, { source = grant?.source, synta
 
 export function isGameDataRecordSelectable(record, { allowGrantedOnly = false } = {}) {
   if (!isGameDataRecordExecutable(record)) return false;
+  if (record?.weaponKey && (record.tags || []).some(tag => String(tag).toLowerCase() === "natural")) return false;
   if (record?.expressionSyntaxVersion === 3 && Array.isArray(record.selectionRoutes)) {
     if (record.status !== "playable" || !record.selectionRoutes.length) return false;
     return record.selectionRoutes.some((route) => route.type === "granted"

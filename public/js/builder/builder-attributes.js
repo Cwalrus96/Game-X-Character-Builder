@@ -8,16 +8,16 @@ import {
   openCharacterSheet,
   setStatus,
   showError,
-} from "./builder-common.js";
-import { renderBuilderNavMounts } from "./builder-nav.js";
+} from "./builder-common.js?v=wpe2";
+import { renderBuilderNavMounts } from "./builder-nav.js?v=natural-weapons2";
 import { getBuilderStepInformationalMessages } from "./builder-step-impacts.js?v=wpe11";
-import { CharacterSessionPage } from "./character-session-page.js?v=dependency-review1";
+import { CharacterSessionPage } from "./character-session-page.js?v=natural-weapons2";
 import { AttributesWidget } from "./widgets/attributes-widget.js?v=wpe3";
 import { VisitBuilderStep } from "../core/character-commands.js?v=wpe3";
 import { readCharacter } from "../core/database-reader.js?v=wpe6";
 import { replaceCharacter } from "../core/database-writer.js?v=wpe1";
 import { loadGameXData } from "../core/game-data.js";
-import { reconcileCharacterGraph } from "../core/graph-reconciler.js?v=dependency-review1";
+import { reconcileCharacterGraph } from "../core/graph-reconciler.js?v=natural-weapons2";
 
 const CURRENT_STEP_ID = "attributes";
 

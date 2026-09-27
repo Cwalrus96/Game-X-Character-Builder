@@ -19,7 +19,8 @@ import { RUNTIME_PREREQUISITE_TYPES, SUPPORTED_GRANT_TYPES, getExpressionDefinit
 import {
   createCharacterGrantCollection,
 } from "./game-data.js?v=wpe1";
-import { getTechniqueSelectionState, isGameDataRecordExecutable, isGameDataGrantExecutable, isGameDataRecordSelectable } from "./selection-rules.js";
+import { isGameDataRecordExecutable, isGameDataGrantExecutable, isGameDataRecordSelectable } from "./selection-rules.js";
+import { getTechniqueSelectionState, createTechniqueContext } from "./technique-rules.js";
 import { canonicalSkillName, canonicalSkillKey } from "./skill-identity.js";
 import {
   computeGrantedSkillsState,
@@ -148,6 +149,8 @@ function techniqueChoiceGrant(grant) {
 }
 
 function defaultTechniqueGrantHandler(context) {
+  // Access is represented by this grant node; it owns no free answer or slot.
+  if (context.grant.access) return;
   const {
     grant,
     grantIndex,
@@ -505,6 +508,7 @@ export function createDefaultGraphHandlerRegistry() {
   // Trait grants are materialized together so prerequisite order cannot change
   // eligibility and shared activations have one source-owned state record.
   registry.registerGrant("trait", () => {});
+  registry.registerGrant("skill-substitution", () => {});
   for (const type of SUPPORTED_GRANT_TYPES) {
     if (!registry.getGrant(type)) registry.registerGrant(type, deferredGrantHandler);
   }
@@ -977,6 +981,10 @@ function createCompilerContext({ character, gameData, registry, graph, classesBy
         for (const traitId of getTraitPrerequisiteEvidence(prerequisite, traitProjection)) {
           graph.addEdge({ kind: "satisfies", from: traitId, to: requirementNodeId }, { path: `${path}.${index}` });
         }
+        const usesWeapons = rule => ["weapon", "weapon-set"].includes(rule.type) || (rule.type === "any" && rule.alternatives.some(usesWeapons));
+        if (usesWeapons(prerequisite)) for (const weapon of traitProjection.weapons || []) {
+          graph.addEdge({ kind: "satisfies", from: weapon.id, to: requirementNodeId }, { path: `${path}.${index}` });
+        }
       }
       if (manual) {
         addDiagnostic({
@@ -1067,6 +1075,7 @@ function createCompilerContext({ character, gameData, registry, graph, classesBy
   return {
     gameData,
     traitProjection,
+    techniqueContext: createTechniqueContext({ gameData, builder: character.builder, traitProjection }),
     activeChoices,
     activeBondGrants,
     automaticTechniqueKeys,
@@ -1757,7 +1766,7 @@ function compileSelectedTechniques(context, character, techniquesByKey, graph) {
       continue;
     }
     const access = getTechniqueSelectionState(technique, {
-      ...createPrerequisiteContext({ gameData: context.gameData, builder: character.builder }),
+      ...context.techniqueContext,
       knownCombatSkills: known.knownCombatSkills,
       skillRanks: rankBySkill,
     });
@@ -1784,6 +1793,14 @@ function compileSelectedTechniques(context, character, techniquesByKey, graph) {
       },
     }, `character.builder.selectedTechniques.${index}`);
     graph.addEdge({ kind: "owns", from: "root:character", to: nodeId }, { path: `character.builder.selectedTechniques.${index}` });
+    if (access.evidence?.length) {
+      const requirementId = `requirement:${nodeId}:access`;
+      context.addTypedNode("requirement", { id: requirementId, key: "technique-access", label: "Technique access",
+        state: access.eligible ? "available" : "invalid", sourceOwnerId: nodeId, storageBinding: null,
+        metadata: { met: access.eligible, manual: false } });
+      graph.addEdge({ kind: "requires", from: nodeId, to: requirementId });
+      for (const sourceId of new Set(access.evidence)) if (graph.hasNode(sourceId)) graph.addEdge({ kind: "satisfies", from: sourceId, to: requirementId });
+    }
     context.compileRequirements(nodeId, technique.prerequisites, `gameData.techniques.${techniqueKey}.prerequisites`);
   }
 }

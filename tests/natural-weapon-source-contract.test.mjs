@@ -31,15 +31,15 @@ function sourceRecords() {
 
 const adapt = (records, headers) => adaptGameDataWorkbook(buildSchemaV5Workbook({ records, headers }));
 
-test("access and substitution round-trip as separate deferred grants without awarding free choices", () => {
+test("access and substitution round-trip as separate implemented grants without awarding free choices", () => {
   for (const text of [access, substitution, martial]) {
     const parsed = parseGrantExpression(text, v3);
     assert.equal(parsed.ok, true, JSON.stringify(parsed.diagnostics));
-    assert.equal(getExpressionRuntimeStatus("grant", parsed.value, v3), "stubbed");
+    assert.equal(getExpressionRuntimeStatus("grant", parsed.value, v3), "implemented");
     assert.equal(Object.hasOwn(parsed.value, "count"), false);
     assert.deepEqual(parseGrantExpression(serializeExpression("grant", parsed.value, v3).value, v3).value, parsed.value);
     assert.equal(parseGrantExpression(text).ok, false, "v2 remains unchanged");
-    assert.deepEqual(getEntryGrants({ expressionSyntaxVersion: 3, grants: [parsed.value] }), []);
+    assert.equal(getEntryGrants({ expressionSyntaxVersion: 3, grants: [parsed.value] }).length, 1);
   }
   assert.equal(parseGrantExpression(access, v3).value.type, "technique");
   assert.deepEqual(parseGrantExpression(martial, v3).value, { type: "skill-substitution", fromSkill: "Martial Arts", toSkill: "Metamorphosis" });
@@ -71,15 +71,15 @@ test("access rejects ambiguous award fields and malformed substitution fields wi
   }
 });
 
-test("natural weapon source relationships validate while execution and inherited context stay deferred", () => {
+test("natural weapon source relationships validate with runtime support", () => {
   const input = adapt(sourceRecords());
   const before = JSON.stringify(input.model);
   const result = validateAdaptedGameData(input);
   assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
   assert.equal(JSON.stringify(input.model), before);
-  assert.equal(result.runtimeSupportBySource["ClassFeatures:2"].status, "deferred");
-  assert.deepEqual(result.runtimeSupportBySource["Traits:3"].reasons, ["trait-weapon-projection-deferred"]);
-  assert.deepEqual(result.runtimeSupportBySource["WeaponBases:3"].reasons, ["natural-weapon-projection-deferred"]);
+  assert.equal(result.runtimeSupportBySource["ClassFeatures:2"].status, "supported");
+  assert.deepEqual(result.runtimeSupportBySource["Traits:3"].reasons, []);
+  assert.deepEqual(result.runtimeSupportBySource["WeaponBases:3"].reasons, []);
   assert.equal(result.runtimeSupportBySource["Traits:2"].status, "supported", "existing body tags and Technique links remain supported");
   assert.equal(result.runtimeSupportBySource["WeaponBases:2"].status, "supported", "ordinary weapons remain supported");
   assert.equal(input.model.traits[1].sourceValues.grants, "weapon | weaponKey=crushing-limbs | count=2");
@@ -129,6 +129,17 @@ test("dynamic Reach stays authored evidence with a precise unsupported execution
   assert.equal(input.model.weaponBases[1].traitsText, records.WeaponBases[1].traitsText);
   assert(result.diagnostics.some(item => item.code === "dynamic-weapon-tag-deferred" && item.cell === "E3" && item.details.tag === "Reach N" && item.deferred));
   assert.equal(result.diagnostics.some(item => item.code === "dynamic-weapon-tag-deferred" && item.row === 2), false, "numeric Reach 2 still works");
+});
+
+test("explicit Reach N equations normalize by rank without guessing unknown formulas", () => {
+  for (const offset of [0, 1]) {
+    const records = sourceRecords();
+    records.WeaponBases[1].tags += "; Reach N";
+    records.WeaponBases[1].traitsText = `Reach N: N equals ${offset ? "1 + " : ""}the associated skill rank.`;
+    const input = adapt(records), result = validateAdaptedGameData(input);
+    assert.equal(input.model.weaponBases[1].reachByRank[2], 2 + offset);
+    assert.equal(result.diagnostics.some(item => item.code === "dynamic-weapon-tag-deferred"), false);
+  }
 });
 
 test("the additive enum is optional for old snapshots and mandatory when its grant is used", () => {

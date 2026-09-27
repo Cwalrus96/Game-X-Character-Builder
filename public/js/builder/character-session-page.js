@@ -1,6 +1,6 @@
 import { CharacterSession } from "../core/character-session.js?v=wpe1";
-import { createCharacterSessionGraphReconciler } from "../core/graph-reconciler.js?v=dependency-review1";
-import { describeCharacterChange } from "./character-impact-display.js";
+import { createCharacterSessionGraphReconciler } from "../core/graph-reconciler.js?v=natural-weapons2";
+import { describeCharacterChange } from "./character-impact-display.js?v=natural-weapons2";
 
 function messageForImpact(impact) {
   if (impact?.message) return impact.message;

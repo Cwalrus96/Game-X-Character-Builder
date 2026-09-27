@@ -12,8 +12,9 @@ import {
 } from "../../core/game-data.js?v=wpe1";
 import { computeGrantedSkillsState, computeKnownCombatSkillsAndGrants, getCombatSkillRanks } from "../../core/skill-rules.js";
 import { canonicalSkillName } from "../../core/skill-identity.js";
-import { getTechniqueSelectionState, isGameDataRecordSelectable } from "../../core/selection-rules.js";
-import { createPrerequisiteContext, meetsPrerequisites } from "../../core/prerequisites.js";
+import { isGameDataRecordSelectable } from "../../core/selection-rules.js";
+import { getTechniqueSelectionState, getTechniquePerformance, createTechniqueContext } from "../../core/technique-rules.js";
+import { meetsPrerequisites } from "../../core/prerequisites.js";
 import { renderTechniqueProfileHtml } from "../../core/technique-utils.js";
 import { projectCharacterTraits, getActiveTraitTechniqueDetails } from "../../core/trait-rules.js";
 import { BuilderWidget } from "./builder-widget.js";
@@ -194,6 +195,7 @@ export class TechniquesWidget extends BuilderWidget {
     }
     return {
       builder: b,
+      rulesContext: createTechniqueContext({ gameData, builder: b }),
       primaryAttrKey,
       slots,
       knownCombatSkills: knownAndGrants.knownCombatSkills || new Set(),
@@ -267,7 +269,7 @@ export class TechniquesWidget extends BuilderWidget {
 
   getTechniqueAccess(technique, context, gameData = this.getGameData()) {
     return getTechniqueSelectionState(technique, {
-      ...createPrerequisiteContext({ gameData, builder: context.builder, grantedSkillState: context.grantedSkillState }),
+      ...(context.rulesContext || createTechniqueContext({ gameData, builder: context.builder, grantedSkillState: context.grantedSkillState })),
       knownCombatSkills: context.knownCombatSkills,
       skillRanks: getCombatSkillRanks(gameData, context.builder),
       allowGrantedOnly: this.isFreeTechniqueName(techniqueKey(technique), context),
@@ -598,6 +600,7 @@ export class TechniquesWidget extends BuilderWidget {
     const row = document.createElement("div");
     row.className = "optionRow";
     row.innerHTML = renderTechniqueProfileHtml(technique, {
+      performance: getTechniquePerformance(technique, context.rulesContext, context.traitTechniqueDetails?.get(techniqueKey(technique))),
       gameData: this.getGameData(),
       rankValue: this.getTechniqueSkillRank(technique, context),
       heading: techniqueName(technique) || "Technique",
@@ -673,6 +676,7 @@ export class TechniquesWidget extends BuilderWidget {
     const body = document.createElement("div");
     body.style.flex = "1";
     body.innerHTML = renderTechniqueProfileHtml(technique, {
+      performance: getTechniquePerformance(technique, context.rulesContext, context.traitTechniqueDetails?.get(key)),
       gameData: this.getGameData(),
       rankValue: skillRank,
       heading: name,

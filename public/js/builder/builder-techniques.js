@@ -11,17 +11,17 @@ import {
   confirmCharacterChange,
   ensureBuilderShellUi,
   markBuilderNavigationClean,
-} from "./builder-common.js";
+} from "./builder-common.js?v=wpe2";
 
-import { renderBuilderNavMounts } from "./builder-nav.js";
+import { renderBuilderNavMounts } from "./builder-nav.js?v=natural-weapons2";
 import { getBuilderStepInformationalMessages } from "./builder-step-impacts.js?v=wpe11";
-import { CharacterSessionPage } from "./character-session-page.js?v=dependency-review1";
-import { TechniquesWidget } from "./widgets/techniques-widget.js?v=wpe1";
+import { CharacterSessionPage } from "./character-session-page.js?v=natural-weapons2";
+import { TechniquesWidget } from "./widgets/techniques-widget.js?v=natural-weapons2";
 
 import { SetTechniqueSelection, VisitBuilderStep } from "../core/character-commands.js?v=wpe1";
 import { readCharacter } from "../core/database-reader.js?v=wpe6";
 import { replaceCharacter } from "../core/database-writer.js?v=wpe1";
-import { reconcileCharacterGraph } from "../core/graph-reconciler.js?v=dependency-review1";
+import { reconcileCharacterGraph } from "../core/graph-reconciler.js?v=natural-weapons2";
 import {
   loadGameXData,
   getGameXTechniques,

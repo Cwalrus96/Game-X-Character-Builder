@@ -16,6 +16,7 @@ export function createPrerequisiteContext(input = {}) {
     selectedTechniqueKeys: input.selectedTechniqueKeys ?? [...(input.builder?.selectedTechniques || []), ...projection.techniques.filter((technique) => technique.active).map((technique) => technique.techniqueKey)],
     tags: [...(input.tags || []), ...projection.tags],
     tagRanks,
+    weapons: input.weapons ?? [...rules.createPrerequisiteContext(input).weapons, ...(projection.weapons || [])],
   });
 }
 

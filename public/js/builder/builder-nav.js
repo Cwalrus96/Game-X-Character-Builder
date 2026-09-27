@@ -3,7 +3,7 @@ import { getEnabledSteps, getPrevNext } from "./builder-flow.js";
 import {
   buildBuilderUrl,
   installBuilderNavigationGuard,
-} from "./builder-common.js";
+} from "./builder-common.js?v=wpe2";
 
 /**
  * Render a step list (orientation) and prev/next controls.

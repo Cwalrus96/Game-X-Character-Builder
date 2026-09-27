@@ -37,7 +37,9 @@ function describeImpact(impact, gameData, character) {
   let name = text(impact.label);
   let detail = "";
 
-  if (impact.code === "source-owned-ability-removed") {
+  if (nodeId.startsWith("trait-weapon:")) {
+    kind = "Weapon"; detail = `weapon ${nodeId.split(":").at(-1)}`;
+  } else if (impact.code === "source-owned-ability-removed") {
     const kinds = { "class-feature": "Class feature", "class-option": "Class feature", "feat-selection": "Feat", "feat-option": "Feat option", "origin-feature": "Origin feature" };
     kind = kinds[sourceType] || "Ability";
     name = text(before?.name || name).replace(/^(?:Class Feature|Feat Option|Feat|Origin Feature)\s*-\s*/i, "");

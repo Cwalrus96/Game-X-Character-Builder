@@ -13,6 +13,8 @@ import {
 import { computeGrantedSkillsState } from "../../core/skill-rules.js";
 import { isGameDataRecordSelectable } from "../../core/selection-rules.js";
 import { isSourceOwnedWeapon } from "../../core/grants.js";
+import { projectCharacterTraits } from "../../core/trait-rules.js";
+import { renderGrantedWeaponHtml } from "../../core/weapon-grant-display.js?v=natural-weapons2";
 import {
   MAX_WEAPON_SLOTS,
   computeEnhancementCapacity,
@@ -183,23 +185,25 @@ export class EquipmentWidget {
 
   render() {
     const { elements } = this;
+    const derived = projectCharacterTraits(this.character, this.gameData).weapons;
     const slots = computeTotalWeaponSlots(this.weapons, this.weaponBases);
     const enhancements = countPurchasedEnhancements(this.weapons);
     const capacity = computeEnhancementCapacity(this.weapons, this.grantedEnhancementSlots);
-    elements.weaponCountValue.textContent = String(this.weapons.length);
+    elements.weaponCountValue.textContent = String(this.weapons.length + derived.length);
     elements.enhancementCountValue.textContent = `${enhancements} / ${capacity}`;
     elements.slotUsageValue.textContent = `${slots} / ${MAX_WEAPON_SLOTS}`;
     elements.slotUsagePill.classList.toggle("danger", slots > MAX_WEAPON_SLOTS);
     elements.meleeSkillRankValue.textContent = String(this.skillRanks["Melee Weapons"] || 0);
     elements.rangedWeaponsSkillRankValue.textContent = String(this.skillRanks["Ranged Weapons"] || 0);
-    elements.equipmentStatusHint.textContent = this.weapons.length ? "Ready." : "No weapons selected.";
+    elements.equipmentStatusHint.textContent = this.weapons.length || derived.length ? "Ready." : "No weapons selected.";
     const visible = this.#visibleWeapons().sort((a, b) => String(a.name).localeCompare(String(b.name)));
     elements.weaponBaseSelect.innerHTML = option("", "Select a weapon...")
       + visible.map((weapon) => option(weapon.weaponKey, `${weapon.name} (Rank ${Number(weapon.minRank || 0)}+)`)).join("");
     if (elements.weaponBaseDetail) elements.weaponBaseDetail.innerHTML = "";
     elements.weaponList.innerHTML = this.weapons.length
       ? this.weapons.map((weapon) => this.#renderWeapon(weapon)).join("")
-      : '<div class="emptyState">No weapons selected.</div>';
+      : derived.length ? "" : '<div class="emptyState">No weapons selected.</div>';
+    if (derived.length) elements.weaponList.innerHTML += `<h2>Granted weapons</h2>${derived.map(weapon => renderGrantedWeaponHtml(weapon, { gameData: this.gameData, builder: this.character.builder })).join("")}`;
   }
 
   async #handleClick(event) {

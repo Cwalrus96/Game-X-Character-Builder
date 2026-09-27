@@ -28,11 +28,9 @@ export function validateTechniqueAccessReferences(grant, row, index, references,
 }
 
 export function validateDeferredNaturalWeapon(weapon, add) {
-  if ((weapon.tags || []).some((tag) => tagIdentity(tag) === "natural")) add("warning", "natural-weapon-projection-deferred",
-    "Natural weapon acquisition and provider rank/skill projection are retained but not implemented.", weapon, "tags");
   for (const tag of weapon.tags || []) {
     const reach = String(tag).trim().match(/^reach(?:\s*[=+]\s*|\s+)(.+)$/i);
-    if (reach && !/^\d+$/.test(reach[1])) add("warning", "dynamic-weapon-tag-deferred",
+    if (reach && !/^\d+$/.test(reach[1]) && !(reach[1].toLowerCase() === "n" && weapon.reachByRank)) add("warning", "dynamic-weapon-tag-deferred",
       `Weapon tag "${tag}" is preserved; its dynamic reach cannot yet be evaluated.`, weapon, "tags", { tag });
   }
 }

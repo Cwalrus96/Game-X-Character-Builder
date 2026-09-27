@@ -31,7 +31,7 @@ export function countPurchasedEnhancements(weapons) {
 
 export function computeEnhancementCapacity(weapons, grantedSlots = 0) {
   return (Array.isArray(weapons) ? weapons : [])
-    .reduce((total, weapon) => total + Math.max(0, Number(weapon?.rank || 0)), 0)
+    .reduce((total, weapon) => total + (weapon.derived ? 0 : Math.max(0, Number(weapon?.rank || 0))), 0)
     + Math.max(0, Number(grantedSlots || 0));
 }
 
@@ -93,6 +93,7 @@ function parseReachBonusTag(tag) {
 }
 
 export function getEffectiveTags(weapon, weaponBases) {
+  if (weapon?.derived) return [...(weapon.effectiveTags || weapon.tags || [])];
   const weaponDef = getWeaponDef(weaponBases, weapon?.weaponKey);
   const baseTags = Array.isArray(weaponDef?.tags) ? weaponDef.tags : [];
   const tags = [...baseTags];
@@ -133,6 +134,7 @@ export function getEffectiveTags(weapon, weaponBases) {
 }
 
 export function computeWeaponSlotCost(weapon, weaponBases) {
+  if (weapon?.derived) return 0;
   const tags = getEffectiveTags(weapon, weaponBases);
   if (hasTag(tags, "heavy") || hasTag(tags, "two-handed")) return 3;
   if (hasTag(tags, "volley") || hasTag(tags, "concealed")) return 1;

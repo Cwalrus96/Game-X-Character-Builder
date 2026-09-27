@@ -316,7 +316,7 @@ export function createPrerequisiteContext(input = {}) {
       gameData,
     }),
     resources: collectResources(builder, source.resources),
-    weapons: collectWeapons(builder, gameData),
+    weapons: source.weapons ?? collectWeapons(builder, gameData),
     resolveChoice: typeof source.resolveChoice === "function" ? source.resolveChoice : null,
     deferUnresolvedChoices: !!source.deferUnresolvedChoices,
   };

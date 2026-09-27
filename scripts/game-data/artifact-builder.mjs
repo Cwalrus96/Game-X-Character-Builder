@@ -240,7 +240,7 @@ function buildWeaponBases(model, version) {
   const techniqueByKey = version === 3 ? new Map(buildTechniques(model, version).map((row) => [row.techniqueKey, row])) : null;
   return model.weaponBases.map((row) => cleanObject({
     ...authoringFields(row, version),
-    ...(version === 3 ? { techniqueKeys: row.techniqueKeys, traitsText: row.traitsText } : {}),
+    ...(version === 3 ? { techniqueKeys: row.techniqueKeys, traitsText: row.traitsText, reachByRank: row.reachByRank } : {}),
     weaponKey: row.weaponKey,
     name: row.name,
     description: row.description,

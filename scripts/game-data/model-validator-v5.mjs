@@ -69,7 +69,7 @@ export function validateV5Relationships(model, helpers) {
       const normalized = normalizeExpressionObject("grant", grant, { syntaxVersion: 3 });
       for (const diagnostic of normalized.diagnostics) add(diagnostic.severity, diagnostic.code, diagnostic.message, row, "grants", { field: diagnostic.field, expressionIndex: index });
       validateTechniqueAccessReferences(grant, row, index, accessReferences, add);
-      if (row.traitKey && grant.type === "weapon") add("warning", "trait-weapon-projection-deferred",
+      if (row.traitKey && grant.type === "weapon" && (typeof grant.key !== "string" || Object.keys(grant).some(key => !["type", "key", "count"].includes(key)))) add("warning", "trait-weapon-projection-deferred",
         "Trait-owned weapons retain their source relationship; provider rank/skill inheritance and weapon projection are not implemented.", row, "grants", { expressionIndex: index });
       if (grant.type === "trait") {
         if (grant.key) requireReference(traits, grant.key, { record: row, column: "grants", kind: "Trait" });

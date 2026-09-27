@@ -30,8 +30,7 @@ import {
   buildTechniqueIndexes,
   resolveTechniqueRef,
 } from "../core/game-data.js";
-import { computeKnownCombatSkillsAndGrants, computeGrantedSkillsState, getSkillDisplayState, isCoreCombatSkill } from "../core/skill-rules.js?v=core-combat1";
-import { canonicalSkillName } from "../core/skill-identity.js";
+import { computeKnownCombatSkillsAndGrants, getSkillDisplayState, isCoreCombatSkill } from "../core/skill-rules.js?v=core-combat1";
 import {
   computeWeaponSlotCost,
   getEffectiveTags,
@@ -43,6 +42,8 @@ import {
 } from "../core/weapon-utils.js";
 import { renderTechniqueProfileHtml } from "../core/technique-utils.js";
 import { projectCharacterTraits, getActiveTraitTechniqueDetails } from "../core/trait-rules.js";
+import { getTechniqueSelectionState, getTechniquePerformance, createTechniqueContext } from "../core/technique-rules.js";
+import { renderGrantedWeaponHtml } from "../core/weapon-grant-display.js?v=natural-weapons2";
 import { renderTraitProjectionHtml } from "../core/trait-display.js";
 import { sortClassFeatureAbilitiesByLevel } from "../core/class-feature-display.js";
 import { ensureAppTopNav } from "../core/app-nav.js";
@@ -54,7 +55,6 @@ import {
   toInt,
   escapeHtml,
   sanitizeSkillFields,
-  sanitizeNamedSkillList,
   sanitizeBondList,
   sanitizeWeaponList,
   buildCharacterKeystoneEntries,
@@ -451,35 +451,7 @@ async function renderBuilderTechniquesReadOnly(builder) {
     const knownAndGrants = computeKnownCombatSkillsAndGrants(gameData, b) || {};
     const grants = knownAndGrants.grantedTechniqueNames || new Set();
     const traitTechniqueDetails = getActiveTraitTechniqueDetails(projectCharacterTraits({ builder: b }, gameData));
-    const knownCombatSkills = knownAndGrants.knownCombatSkills || new Set();
-    const grantedSkillState = computeGrantedSkillsState(gameData, b);
-    const repeatables = (b?.sheet?.repeatables && typeof b.sheet.repeatables === "object") ? b.sheet.repeatables : {};
-    const extraCombatSkills = sanitizeNamedSkillList(repeatables.combatSkillsExtra, { maxItems: 50 });
-
-    function getTechniqueSkillRank(technique) {
-      const traitDetail = traitTechniqueDetails.get(technique?.techniqueKey);
-      if (traitDetail) return traitDetail.rank;
-      const skillName = canonicalSkillName(sanitizeText(technique?.skill, { maxLen: 96, collapse: true }));
-      if (!skillName) return Number(technique?.rank || 0);
-
-      let rank = 0;
-      const grantedCombat = Array.isArray(grantedSkillState?.grantedCombatSkills) ? grantedSkillState.grantedCombatSkills : [];
-      for (const row of grantedCombat) {
-        const skill = canonicalSkillName(sanitizeText(row?.skill, { maxLen: 96, collapse: true }));
-        if (skill !== skillName) continue;
-        const value = Number.parseInt(String(row?.rank || "0"), 10);
-        if (Number.isFinite(value)) rank = Math.max(rank, value);
-      }
-
-      for (const row of extraCombatSkills) {
-        const skill = canonicalSkillName(sanitizeText(row?.skill, { maxLen: 96, collapse: true }));
-        if (skill !== skillName) continue;
-        const value = Number.parseInt(String(row?.rank || "0"), 10);
-        if (Number.isFinite(value)) rank = Math.max(rank, value);
-      }
-
-      return rank;
-    }
+    const techniqueContext = createTechniqueContext({ gameData, builder: b });
 
     const origin = new Map();
     for (const ref of Array.from(grants)) origin.set(String(ref), 'Granted');
@@ -488,14 +460,15 @@ async function renderBuilderTechniquesReadOnly(builder) {
     const rankZeroBasics = getGameXTechniques(gameData)
       .filter((tech) => {
           const name = String(tech?.techniqueName || "").trim();
-          const skill = String(tech?.skill || "").trim();
           const rank = Number.parseInt(String(tech?.rank ?? 0), 10);
-          if (!name || !skill || rank !== 0) return false;
-          return knownCombatSkills.has(skill);
+          if (!name || rank !== 0) return false;
+          const access = getTechniqueSelectionState(tech, techniqueContext);
+          return access.eligible && access.prerequisitesMet !== false;
         });
     for (const tech of rankZeroBasics) {
       const name = String(tech?.techniqueName || "").trim();
-      if (name && !origin.has(name)) origin.set(name, 'Basic');
+      const key = tech.techniqueKey || name;
+      if (key && !origin.has(key)) origin.set(key, 'Basic');
     }
 
     const items = [];
@@ -521,7 +494,7 @@ async function renderBuilderTechniquesReadOnly(builder) {
       return `
         <article class="ability-card technique-card technique-card-readonly">
           <div class="ability-card-head">
-            <div style="flex:1; min-width:0;">${renderTechniqueProfileHtml(tech, { gameData, rankValue: getTechniqueSkillRank(tech), heading: String(tech?.techniqueName || 'Technique'), headingTag: 'div', headingClass: 'ability-name technique-title-static', showRank: true })}</div>
+            <div style="flex:1; min-width:0;">${renderTechniqueProfileHtml(tech, { gameData, performance: getTechniquePerformance(tech, techniqueContext, traitTechniqueDetails.get(tech.techniqueKey)), heading: String(tech?.techniqueName || 'Technique'), headingTag: 'div', headingClass: 'ability-name technique-title-static', showRank: true })}</div>
             <span class="technique-source-badge">${escapeHtml(source)}</span>
           </div>
         </article>
@@ -558,12 +531,13 @@ async function renderBuilderWeaponsReadOnly(builder) {
 
     const b = builder && typeof builder === "object" ? builder : {};
     const weapons = sanitizeWeaponList(b.weapons, { maxItems: 20 });
-    if (!weapons.length) {
+    const { gameData } = await ensureTechniqueData();
+    const derived = projectCharacterTraits({ builder: b }, gameData).weapons;
+    if (!weapons.length && !derived.length) {
       mount.innerHTML = '<article class="ability-card"><div class="muted">—</div></article>';
       return;
     }
 
-    const { gameData } = await ensureTechniqueData();
     const weaponBases = getGameXWeaponBases(gameData);
     const weaponEnhancements = getGameXWeaponEnhancements(gameData);
 
@@ -596,7 +570,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
           ${enhancementsHtml}
           <div class="weapon-card-subsection">${profilesHtml}</div>
         </article>`;
-    }).join('');
+    }).join('') + derived.map(weapon => renderGrantedWeaponHtml(weapon, { gameData, builder: b })).join('');
   } catch (e) {
     console.warn('renderBuilderWeaponsReadOnly failed', e);
   }

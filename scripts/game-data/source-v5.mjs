@@ -4,6 +4,7 @@ import {
   nestedKind, adaptMetadata, adaptSchema, adaptEnums, adaptClasses, adaptOrigins,
 } from "./source-v4.mjs";
 import { SOURCE_V5_TAB_HEADERS, SOURCE_V5_MODEL_TABS, SOURCE_V5_ADDITIVE_ENUM_VALUES } from "./source-v5-schema.mjs";
+import { weaponReachByRank } from "./weapon-rank-values.mjs";
 import { usesRequiredCells, requiredCellReadiness, sourceV5Contract } from "./required-cell-readiness.mjs";
 import {
   canonicalSkillKey, canonicalTagKey, numericValue, selectionRoutes, pumpingMap,
@@ -169,6 +170,7 @@ function adaptWeapon(sheet, rawRow, diagnostics, enhancement = false) {
   return Object.freeze({
     ...base, tags: Object.freeze(splitList(row.tags)), tagKeys: Object.freeze(splitList(row.tags).map(canonicalTagKey)),
     techniqueKeys: Object.freeze(splitList(row.techniqueKeys, /,/)), traitsText: nullable(row.traitsText),
+    reachByRank: weaponReachByRank(splitList(row.tags), row.traitsText),
   });
 }
 

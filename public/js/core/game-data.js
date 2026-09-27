@@ -328,7 +328,7 @@ export function createCharacterGrantCollection(gameData, builder) {
   }
 
   const getAll = (type = "") => {
-    const cleanType = type ? sanitizeGrantType(type, { name: "grant collection lookup" }) : "";
+    const cleanType = type ? sanitizeGrantType(type, { name: "grant collection lookup", expressionSyntaxVersion: 3 }) : "";
     return cleanType ? (byType.get(cleanType) || []) : grants;
   };
 
@@ -339,7 +339,7 @@ export function createCharacterGrantCollection(gameData, builder) {
     byType,
     getAll,
     skillGrants: byType.get("skill") || [],
-    techniqueGrants: byType.get("technique") || [],
+    techniqueGrants: (byType.get("technique") || []).filter(grant => !grant.access),
     techniqueChoiceGrants: byType.get("technique-choice") || [],
     weaponGrants: byType.get("weapon") || [],
     weaponEnhancementGrants: byType.get("weapon-enhancement") || [],

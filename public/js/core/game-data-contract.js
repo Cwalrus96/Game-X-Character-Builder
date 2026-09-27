@@ -242,7 +242,7 @@ export const GRANT_EXPRESSION_REGISTRY_V3 = Object.freeze({
   }),
   "skill-substitution": definition({
     fields: { fromSkill: reference({ minItems: 1 }), toSkill: string(), weaponTag: reference({ minItems: 1 }) },
-    required: ["fromSkill", "toSkill"], runtimeStatus: "stubbed",
+    required: ["fromSkill", "toSkill"], runtimeStatus: "implemented",
   }),
   skill: extend(GRANT_EXPRESSION_REGISTRY.skill, { recipientRef: string() }),
   tag: definition({ fields: { tag: reference(), minRank: integer({ min: 0 }), note: string() }, required: ["tag"] }),
@@ -298,7 +298,6 @@ export function getExpressionRuntimeStatus(kind, expression, options = {}) {
     return statuses.length && statuses.every((status) => status === "implemented" || status === "compatibility") ? "implemented" : "stubbed";
   }
   const filters = Array.isArray(expression?.filterType) ? expression.filterType : [expression?.filterType];
-  if (Number(options.syntaxVersion) >= 3 && kind === "grant" && expression?.type === "technique" && expression.access) return "stubbed";
   if (Number(options.syntaxVersion) >= 3 && kind === "grant" && expression?.type === "trait") {
     return getTraitGrantDeferredReasons(expression).length ? "stubbed" : "implemented";
   }

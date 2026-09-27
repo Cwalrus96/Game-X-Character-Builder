@@ -105,8 +105,9 @@ function formatBasicAttack(clauses, gameData) {
   return (clauses || []).map(format).join("; ");
 }
 
-export function renderTechniqueProfileHtml(profile, { rankValue = 0, heading = "", headingTag = "div", headingClass = "combat-profile-title", showRank = false, gameData = null } = {}) {
+export function renderTechniqueProfileHtml(profile, { rankValue = 0, heading = "", headingTag = "div", headingClass = "combat-profile-title", showRank = false, gameData = null, performance = null } = {}) {
   if (!profile) return "";
+  if (performance) { profile = { ...profile, skill: performance.skillName }; rankValue = performance.rank; }
   const titleText = sanitizeText(heading || profile?.techniqueName || profile?.profileName || "", { maxLen: 160, collapse: true });
   const rank = Number.parseInt(String(profile?.rank ?? rankValue ?? 0), 10) || 0;
   const title = titleText ? `${titleText}${showRank && rank > 0 ? ` (Rank ${rank})` : ""}` : "";
@@ -124,6 +125,8 @@ export function renderTechniqueProfileHtml(profile, { rankValue = 0, heading = "
   const costLine = formatCostLine(profile);
   const dmg = getProfileDamageParts(profile, rankValue);
   const rows = [];
+  if (performance?.skillName) rows.push(`<div class="combat-profile-line"><strong>Skill:</strong> ${escapeHtml(performance.skillName)} — Rank ${performance.rank}${performance.sourceLabel ? ` (${escapeHtml(performance.sourceLabel)})` : ""}</div>`);
+  if (performance?.alternatives?.length > 1) rows.push(`<div class="combat-profile-line">Other available rolls: ${performance.alternatives.slice(1).map(option => `${escapeHtml(option.skillName)} — Rank ${option.rank}${option.sourceLabel ? ` (${escapeHtml(option.sourceLabel)})` : ""}`).join("; ")}</div>`);
   if (tags.length) rows.push(`<div class="combat-profile-line combat-profile-tags">${renderTagChipsHtml(tags, "tagChip")}</div>`);
   if (costLine) rows.push(`<div class="combat-profile-line combat-profile-cost">${safeHtmlText(costLine, 240)}</div>`);
   if (trigger) rows.push(`<div class="combat-profile-line"><strong>Trigger:</strong> ${mechanicHtml(trigger)}</div>`);

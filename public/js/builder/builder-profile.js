@@ -12,8 +12,8 @@ import {
   confirmSaveWarnings,
   ensureBuilderShellUi,
   markBuilderNavigationClean,
-} from "./builder-common.js";
-import { renderBuilderNavMounts } from "./builder-nav.js";
+} from "./builder-common.js?v=wpe2";
+import { renderBuilderNavMounts } from "./builder-nav.js?v=natural-weapons2";
 import { getPortraitStoragePath } from "../core/database-writer.js";
 
 import {

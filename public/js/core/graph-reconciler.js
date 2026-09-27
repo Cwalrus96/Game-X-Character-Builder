@@ -14,7 +14,7 @@ import {
   GraphCompiler,
   createDefaultGraphHandlerRegistry,
   getUnmetRequirementNodeIds,
-} from "./graph-compiler.js?v=dependency-review1";
+} from "./graph-compiler.js?v=natural-weapons2";
 
 const IMPACT_CATEGORY_ORDER = Object.freeze({
   error: 0,
@@ -1175,6 +1175,15 @@ export function reconcileCharacterGraph({
   }
 
   const removedSources = removedSourceNodeIds(previousGraph, finalGraph);
+  const survivingWeapons = new Map(finalGraph.nodes.filter(node => node.type === "derived-weapon").map(node => [node.id, node]));
+  for (const weapon of previousGraph?.nodes.filter(node => node.type === "derived-weapon") || []) {
+    const next = survivingWeapons.get(weapon.id);
+    if (next && next.metadata.rank >= weapon.metadata.rank) continue;
+    addImpact(impacts, { category: "confirmation-required", type: next ? "change" : "remove",
+      code: next ? "derived-weapon-rank-reduced" : "derived-weapon-removed", path: "builder.traitChoices",
+      nodeId: weapon.id, label: weapon.label, before: weapon.metadata.rank, after: next?.metadata.rank,
+      message: next ? `${weapon.label} will become Rank ${next.metadata.rank}.` : `${weapon.label} will be removed with its Trait.` });
+  }
   const affectedNodeIds = previousGraph ? collectAffectedNodeIds(previousGraph, removedSources) : [];
   return frozenGraphClone({
     ok: true,

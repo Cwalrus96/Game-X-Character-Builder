@@ -13,9 +13,9 @@ import {
   markBuilderNavigationClean,
 } from "./builder-common.js?v=wpe2";
 
-import { renderBuilderNavMounts } from "./builder-nav.js";
+import { renderBuilderNavMounts } from "./builder-nav.js?v=natural-weapons2";
 import { getBuilderStepInformationalMessages } from "./builder-step-impacts.js?v=wpe11";
-import { CharacterSessionPage } from "./character-session-page.js?v=dependency-review1";
+import { CharacterSessionPage } from "./character-session-page.js?v=natural-weapons2";
 import { GrantChoiceState } from "./grant-choice-state.js";
 import { ClassChoiceWidget } from "./widgets/class-choice-widget.js?v=wpe1";
 import { ClassFeaturesWidget } from "./widgets/class-features-widget.js";
@@ -31,7 +31,7 @@ import { ATTR_KEYS, clampLevel, coerceAttrKey, labelForAttrKey } from "../core/c
 import { SetClass, SetGrantChoices, VisitBuilderStep } from "../core/character-commands.js?v=wpe1";
 import { readCharacter } from "../core/database-reader.js?v=wpe6";
 import { replaceCharacter } from "../core/database-writer.js?v=wpe1";
-import { reconcileCharacterGraph } from "../core/graph-reconciler.js?v=dependency-review1";
+import { reconcileCharacterGraph } from "../core/graph-reconciler.js?v=natural-weapons2";
 import { sanitizeText } from "../core/data-sanitization.js";
 import { checkPrerequisites } from "../core/prerequisites.js";
 import {

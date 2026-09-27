@@ -9,15 +9,15 @@ import {
   setStatus,
   showError,
 } from "./builder-common.js?v=wpe2";
-import { renderBuilderNavMounts } from "./builder-nav.js";
+import { renderBuilderNavMounts } from "./builder-nav.js?v=natural-weapons2";
 import { getBuilderStepInformationalMessages } from "./builder-step-impacts.js?v=wpe11";
-import { CharacterSessionPage } from "./character-session-page.js?v=dependency-review1";
-import { EquipmentWidget } from "./widgets/equipment-widget.js?v=wpe3";
+import { CharacterSessionPage } from "./character-session-page.js?v=natural-weapons2";
+import { EquipmentWidget } from "./widgets/equipment-widget.js?v=natural-weapons2";
 import { VisitBuilderStep } from "../core/character-commands.js?v=wpe2";
 import { readCharacter } from "../core/database-reader.js?v=wpe6";
 import { replaceCharacter } from "../core/database-writer.js?v=wpe1";
 import { loadGameXData } from "../core/game-data.js";
-import { reconcileCharacterGraph } from "../core/graph-reconciler.js?v=dependency-review1";
+import { reconcileCharacterGraph } from "../core/graph-reconciler.js?v=natural-weapons2";
 
 const CURRENT_STEP_ID = "equipment";
 

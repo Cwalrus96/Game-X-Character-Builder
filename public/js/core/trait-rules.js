@@ -4,6 +4,7 @@ import { createPrerequisiteContext, evaluatePrerequisite } from "./prerequisite-
 import { computeGrantedSkillsState, getCombatSkillRanks } from "./skill-rules.js";
 import { canonicalSkillKey } from "./skill-identity.js";
 import { isGameDataRecordExecutable, isGameDataRecordSelectable } from "./selection-rules.js";
+import { projectTraitWeapons } from "./weapon-grant-rules.js";
 
 const list = (value) => Array.isArray(value) ? value : value == null || value === "" ? [] : [value];
 const text = (value) => typeof value === "string" ? value.trim() : "";
@@ -58,7 +59,9 @@ function grantedTags(traits, definitions) {
 }
 
 function requirementsMet(prerequisites, context, traits, definitions) {
-  const next = { ...context, selectedTraits: traits, tags: grantedTags(traits, definitions) };
+  const weapons = projectTraitWeapons(traits.map(trait => ({ ...definitions.get(trait.traitKey), ...trait,
+    active: true, recipientId: "character", associatedSkill: trait.provider?.skill || "" })), context.gameData);
+  const next = { ...context, weapons: [...context.weapons, ...weapons], selectedTraits: traits, tags: grantedTags(traits, definitions) };
   return list(prerequisites).every((prerequisite) => evaluatePrerequisite(prerequisite, next).ok);
 }
 
@@ -86,11 +89,14 @@ function isAutomaticTraitTechnique(technique) {
 function readyTechniqueKeys(traits, definitions, context) {
   const keys = new Set(context.selectedTechniqueKeys);
   const links = traits.flatMap((trait) => (definitions.get(trait.traitKey)?.techniqueKeys || []).map((key) => ({ key, rank: trait.rank })));
+  const weapons = projectTraitWeapons(traits.map(trait => ({ ...definitions.get(trait.traitKey), ...trait,
+    active: true, recipientId: "character", associatedSkill: trait.provider?.skill || "" })), context.gameData);
+  links.push(...weapons.flatMap(weapon => weapon.techniqueKeys.map(key => ({ key, rank: weapon.rank, weapon }))));
   for (let pass = 0; pass <= links.length; pass += 1) {
     const before = keys.size;
     for (const link of links) {
       const technique = (context.gameData.techniques || []).find((item) => item.techniqueKey === link.key);
-      if (technique && isAutomaticTraitTechnique(technique) && isGameDataRecordSelectable(technique, { allowGrantedOnly: true }) && Number.isInteger(technique.rank)
+      if (technique && (link.weapon || isAutomaticTraitTechnique(technique)) && isGameDataRecordSelectable(technique, { allowGrantedOnly: true }) && Number.isInteger(technique.rank)
         && link.rank >= technique.rank && requirementsMet(technique.prerequisites, { ...context, selectedTechniqueKeys: [...keys] }, traits, definitions)) keys.add(link.key);
     }
     if (keys.size === before) break;
@@ -208,14 +214,24 @@ export function projectCharacterTraits(character, gameData = {}) {
       techniques.push({ techniqueKey, traitId: candidate.id, sourceId: provider.sourceId, recipientId: provider.recipientId,
         rank: candidate.rank, active: eligible, eligible, reason: eligible ? "" : "Technique is unfinished, above this rank, or has unmet prerequisites." });
     }
-    return { ...definition, id: candidate.id, sourceId: provider.sourceId, sourceLabel: provider.sourceLabel,
+    return { ...definition, id: candidate.id, sourceId: provider.sourceId, sourceLabel: provider.sourceLabel, associatedSkill: provider.skill,
       providerId: provider.id,
       recipientId: provider.recipientId, choiceId: candidate.choiceId, rank: candidate.rank, minimumRank: definition.rank,
       active: true, referenceOnly: false, sourceDescription: provider.description,
       classificationTags: definition.tags || [], tags: grantedTags([candidate], definitions) };
   });
+  const weapons = projectTraitWeapons(traits, gameData);
+  for (const weapon of weapons) for (const techniqueKey of weapon.techniqueKeys) {
+    const technique = (gameData.techniques || []).find(item => item.techniqueKey === techniqueKey);
+    const eligible = Boolean(technique && isGameDataRecordSelectable(technique, { allowGrantedOnly: true })
+      && Number.isInteger(technique.rank) && weapon.rank >= technique.rank
+      && list(technique.prerequisites).every(prerequisite => evaluatePrerequisite(prerequisite,
+        { ...context, selectedTraits: traits, tags: grantedTags(acquired, definitions), weapons: [weapon] }).ok));
+    techniques.push({ techniqueKey, traitId: weapon.traitId, weaponId: weapon.id, sourceId: weapon.sourceId,
+      recipientId: "character", rank: weapon.rank, active: eligible, eligible });
+  }
   return immutable({ providers: providers.map(({ entry, ...provider }) => provider), traits: [...traits, ...references].sort((a, b) => a.id.localeCompare(b.id)),
-    choices, tags: grantedTags(acquired, definitions), techniques, issues,
+    choices, tags: grantedTags(acquired, definitions), techniques, weapons, issues,
     deferred: providers.filter((provider) => !provider.implemented).map(({ entry, ...provider }) => provider) });
 }
 
@@ -229,7 +245,7 @@ export function getActiveTraitTechniqueDetails(projection) {
     const previous = details.get(technique.techniqueKey);
     if (previous && previous.rank >= technique.rank) continue;
     details.set(technique.techniqueKey, { rank: technique.rank, sourceLabel: trait.sourceLabel,
-      traitName: trait.name, sourceId: trait.sourceId });
+      traitName: trait.name, sourceId: trait.sourceId, skillName: trait.associatedSkill || "", weaponId: technique.weaponId || "" });
   }
   return details;
 }

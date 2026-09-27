@@ -1,6 +1,6 @@
 import { projectCharacterTraits } from "./trait-rules.js";
 
-export const TRAIT_NODE_TYPES = Object.freeze(["trait", "trait-choice"]);
+export const TRAIT_NODE_TYPES = Object.freeze(["trait", "trait-choice", "derived-weapon"]);
 
 /** Graph materialization uses only the shared Rules projection. */
 export function compileTraits(context, character, graph) {
@@ -36,13 +36,19 @@ export function compileTraits(context, character, graph) {
     if (graph.hasNode(ownerId)) graph.addEdge({ kind: "materializes", from: ownerId, to: trait.id });
     context.compileRequirements(trait.id, trait.prerequisites, `gameData.traits.${trait.traitKey}.prerequisites`);
   }
+  for (const weapon of projection.weapons || []) {
+    context.addTypedNode("derived-weapon", { id: weapon.id, key: weapon.weaponKey, label: weapon.name,
+      state: "automatic", sourceOwnerId: weapon.traitId, storageBinding: null, metadata: { ...weapon } });
+    graph.addEdge({ kind: "materializes", from: weapon.traitId, to: weapon.id });
+  }
   for (const technique of projection.techniques.filter((item) => item.active)) {
     const definition = context.gameData.techniques.find((item) => item.techniqueKey === technique.techniqueKey);
-    const id = `automatic-technique:${technique.traitId}:${technique.techniqueKey}`;
+    const owner = technique.weaponId || technique.traitId;
+    const id = `automatic-technique:${owner}:${technique.techniqueKey}`;
     context.addTypedNode("automatic-technique", { id, key: technique.techniqueKey, label: definition.techniqueName || definition.name || technique.techniqueKey,
-      state: "automatic", sourceOwnerId: technique.traitId, storageBinding: null,
+      state: "automatic", sourceOwnerId: owner, storageBinding: null,
       metadata: { techniqueKey: technique.techniqueKey, traitId: technique.traitId, recipientId: technique.recipientId, rank: technique.rank } });
-    graph.addEdge({ kind: "grants", from: technique.traitId, to: id });
+    graph.addEdge({ kind: "grants", from: owner, to: id });
     context.automaticTechniqueKeys.add(technique.techniqueKey);
   }
   return projection;

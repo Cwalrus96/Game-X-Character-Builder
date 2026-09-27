@@ -8,6 +8,7 @@ import { canonicalSkillName, canonicalStoredSkillKey } from "../../core/skill-id
 import { getTechniqueSelectionState, isGameDataRecordSelectable } from "../../core/selection-rules.js";
 import { createPrerequisiteContext, meetsPrerequisites } from "../../core/prerequisites.js";
 import { renderTechniqueProfileHtml } from "../../core/technique-utils.js";
+import { getTechniquePerformance } from "../../core/technique-rules.js";
 import { BuilderWidget } from "./builder-widget.js";
 import { appendSelectedChoice } from "./selected-choice-display.js";
 
@@ -213,6 +214,7 @@ export class TechniqueChoiceWidget extends BuilderWidget {
       choiceId: this.choiceId, selectedKey: selectedTechniqueKey, label: "Selected Technique",
       contentHtml: selectedTechnique ? renderTechniqueProfileHtml(selectedTechnique, {
         gameData: this.gameData,
+        performance: getTechniquePerformance(selectedTechnique, { gameData: this.gameData, builder: context.builder }),
         rankValue: this.getTechniqueSkillRank(selectedTechnique, context),
         heading: techniqueName(selectedTechnique), headingTag: "div", headingClass: "optionTitle", showRank: true,
       }) : "",
