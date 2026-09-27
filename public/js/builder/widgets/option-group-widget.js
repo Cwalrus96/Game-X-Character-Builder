@@ -138,6 +138,8 @@ export class OptionGroupWidget extends BuilderWidget {
     headerBtn.append(groupName, choiceCount);
 
     const body = document.createElement("div");
+    body.id = `${this.id}:body`;
+    headerBtn.setAttribute("aria-controls", body.id);
     body.className = "optionGroupBody";
     body.style.display = isCollapsed ? "none" : "block";
 

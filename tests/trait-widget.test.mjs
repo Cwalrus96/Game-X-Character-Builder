@@ -32,16 +32,18 @@ function harness({ result = { ok: true }, projection = {}, character = { builder
   };
   const options = { mount, gameData, project: project || (() => state), expandedChoices: new Set(), ...widgetOptions };
   const widget = new TraitWidget(page, options);
-  const toggle = (index = 0) => events.get("click")({ target: { dataset: { traitExpand: String(index), traitWidget: widget.id } } });
-  return { widget, mount, character, commands, widgets, state, events, toggle, page, options, focused: () => focused };
+  const toggle = (index = 0) => events.get("click")({ target: { dataset: { choiceToggle: widget.projection.choices[index].choiceId, choiceOwner: widget.id } } });
+  const change = value => events.get("change")({ target: { dataset: { choiceId: widget.projection.choices[0].choiceId, choiceOwner: widget.id }, value } });
+  return { widget, mount, character, commands, widgets, state, events, toggle, change, page, options, focused: () => focused };
 }
 
 test("TraitWidget sends only static source-owned choices without mutating character state", async () => {
   const h = harness();
   const before = structuredClone(h.character);
-  await h.events.get("change")({ target: { dataset: { traitChoice: "0" }, value: "wings" } });
+  await h.change("wings");
   h.state.choices[0].traitKey = "wings";
-  await h.events.get("change")({ target: { dataset: { traitChoice: "0" }, value: "" } });
+  h.widget.applyReconciledState(h.character);
+  await h.change("");
   await h.events.get("change")({ target: { dataset: { traitActivation: "0" }, checked: true } });
   assert.deepEqual(h.commands, [
     SetTraitChoice({ choiceId: "trait-choice:one", sourceId: "feature:one", recipientId: "character", traitKey: "wings" }),
@@ -55,16 +57,16 @@ test("TraitWidget sends only static source-owned choices without mutating charac
 
 test("TraitWidget respects eligibility and disabled state and restores cancelled selections", async () => {
   const h = harness({ result: { ok: false, reason: "cancelled", errors: [] } });
-  await h.events.get("change")({ target: { dataset: { traitChoice: "0" }, value: "" } });
+  await h.change("");
   assert.equal(h.commands.length, 0, "an unanswered choice cannot submit a stale removal");
   assert.doesNotMatch(h.mount.innerHTML, /data-trait-activation|data-reset-trait-activation/);
-  await h.events.get("change")({ target: { dataset: { traitChoice: "0" }, value: "unknown" } });
+  await h.change("unknown");
   assert.equal(h.commands.length, 0);
   h.widget.disable();
-  await h.events.get("change")({ target: { dataset: { traitChoice: "0" }, value: "wings" } });
+  await h.change("wings");
   assert.equal(h.commands.length, 0);
   h.widget.enable();
-  await h.events.get("change")({ target: { dataset: { traitChoice: "0" }, value: "wings" } });
+  await h.change("wings");
   assert.equal(h.commands.length, 1);
   assert.doesNotMatch(h.mount.innerHTML, /value="wings" selected|role="alert"/);
   assert.equal(h.mount.attributes["aria-busy"], "false");
@@ -77,10 +79,10 @@ test("TraitWidget prevents duplicate submissions while the session reviews a pro
   let finish;
   const result = new Promise((resolve) => { finish = resolve; });
   const h = harness({ result });
-  const pending = h.events.get("change")({ target: { dataset: { traitChoice: "0" }, value: "wings" } });
+  const pending = h.change("wings");
   assert.equal(h.mount.attributes["aria-busy"], "true");
-  assert.match(h.mount.innerHTML, /data-trait-choice="0" disabled/);
-  await h.events.get("change")({ target: { dataset: { traitChoice: "0" }, value: "wings" } });
+  assert.match(h.mount.innerHTML, /data-choice-id="trait-choice:one" disabled/);
+  await h.change("wings");
   assert.equal(h.commands.length, 1);
   finish({ ok: false, errors: ["The granting feature is no longer available."] });
   await pending;
@@ -155,13 +157,14 @@ test("Trait grant widgets exist only for explicit grants and group each feature'
   assert.deepEqual(secondWidget.projection.traits.map((trait) => trait.traitKey), ["wings"]);
   assert.doesNotMatch(firstWidget.element.innerHTML, /No Traits|wings benefit|test-origin/);
   const before = structuredClone(character);
-  await firstWidget.element.events.change({ target: { dataset: { traitChoice: "0" }, value: "wings" } });
+  await firstWidget.element.events.change({ target: { dataset: { choiceId: firstWidget.projection.choices[0].choiceId, choiceOwner: firstWidget.id }, value: "wings" } });
   assert.deepEqual(commands, [SetTraitChoice({ choiceId: "class-feature:test-class:first:body:1", sourceId: "class-feature:test-class:first", recipientId: "character", traitKey: "wings" })]);
   assert.deepEqual(character, before, "cancelled choices must not change the character");
   assert.doesNotMatch(firstWidget.element.innerHTML, /value="wings" selected/);
+  const oldMount = firstWidget.element;
   firstWidget.destroy();
   assert.equal(registered.size, 1);
-  assert.equal(Object.keys(firstWidget.element.events).length, 0);
+  assert.equal(Object.keys(oldMount.events).length, 0);
 });
 
 test("compact and expanded Trait choices hide over-rank, unmet and incomplete options and keep full text", () => {
@@ -175,7 +178,7 @@ test("compact and expanded Trait choices hide over-rank, unmet and incomplete op
   const h = harness({ character, gameData, project: projectCharacterTraits });
   const before = structuredClone(character);
   assert.match(h.mount.innerHTML, /value="wings" selected>wings<\/option>/);
-  assert.match(h.mount.innerHTML, /Full wings description/);
+  assert.doesNotMatch(h.mount.innerHTML, /Full wings description/);
   assert.doesNotMatch(h.mount.innerHTML, /liquid benefit|value="advanced"|value="storage"|value="unfinished"/);
   h.toggle();
   assert.match(h.mount.innerHTML, /aria-expanded="true"/);
@@ -186,7 +189,7 @@ test("compact and expanded Trait choices hide over-rank, unmet and incomplete op
   assert.doesNotMatch(h.mount.innerHTML, /<select|<script>|advanced benefit|storage benefit|unfinished benefit|Prerequisite:/);
   h.toggle();
   assert.match(h.mount.innerHTML, /value="wings" selected>wings<\/option>/);
-  assert.match(h.mount.innerHTML, /Full wings description/);
+  assert.doesNotMatch(h.mount.innerHTML, /Full wings description/);
   assert.doesNotMatch(h.mount.innerHTML, /liquid benefit|type="radio"/);
   assert.deepEqual(character, before);
   assert.deepEqual(h.commands, [], "display toggles do not change the character");
@@ -195,9 +198,9 @@ test("compact and expanded Trait choices hide over-rank, unmet and incomplete op
 test("Trait radio selections retain cancellation, eligibility checks and expansion through widget recreation", async () => {
   const h = harness({ result: { ok: false, reason: "cancelled" } });
   h.toggle();
-  await h.events.get("change")({ target: { dataset: { traitChoice: "0" }, value: "unknown" } });
+  await h.change("unknown");
   assert.equal(h.commands.length, 0);
-  await h.events.get("change")({ target: { dataset: { traitChoice: "0" }, value: "wings" } });
+  await h.change("wings");
   assert.deepEqual(h.commands, [SetTraitChoice({ choiceId: "trait-choice:one", sourceId: "feature:one", recipientId: "character", traitKey: "wings" })]);
   assert.match(h.mount.innerHTML, /value="" aria-label="No Trait selected" checked/);
   assert.match(h.mount.innerHTML, /aria-expanded="true"/);
@@ -234,7 +237,7 @@ test("Trait eligibility updates when requirements change and gives an honest emp
   assert.doesNotMatch(h.mount.innerHTML, /<option value="(?:wings|liquid|advanced|storage|unfinished)"/);
 });
 
-test("each of three Trait selections keeps its own description directly beneath its picker", () => {
+test("three Trait pickers show only names when compact and expand their rules independently", () => {
   const gameData = traitData(), character = traitCharacter();
   gameData.origins[0].features[0].grants[0].count = 3;
   character.builder.traitChoices = {};
@@ -245,21 +248,20 @@ test("each of three Trait selections keeps its own description directly beneath 
   });
   const h = harness({ character, gameData, project: projectCharacterTraits });
   const verify = () => {
-    const parts = h.mount.innerHTML.split('<div class="traitChoiceHeader">').slice(1);
+    const parts = h.mount.innerHTML.split('<div class="choiceHeader">').slice(1);
     assert.equal(parts.length, 3);
     parts.forEach((part, index) => {
-      assert.match(part, new RegExp(`</select><div class="selectedChoiceDetail" data-choice-selection="${choices[index].choiceId}"`));
-      assert.match(part, new RegExp(`${keys[index]} benefit`));
-      keys.filter((key) => key !== keys[index]).forEach((key) => assert.ok(!part.includes(`${key} benefit`)));
-      assert.equal(part.split(`${keys[index]} benefit`).length, 2, "no duplicate footer description");
+      assert.match(part, new RegExp(`value="${keys[index]}" selected`));
+      assert.doesNotMatch(part, / benefit|selectedChoiceDetail/);
     });
   };
   verify();
   h.toggle(1);
+  assert.equal(h.mount.innerHTML.split("liquid benefit").length, 2, "rules appear once in the expanded picker");
   h.toggle(1);
   verify();
   delete character.builder.traitChoices[choices[2].choiceId];
   h.widget.applyReconciledState(character);
   assert.doesNotMatch(h.mount.innerHTML, /storage benefit/);
-  assert.match(h.mount.innerHTML, /liquid benefit/);
+  assert.match(h.mount.innerHTML, /value="liquid" selected/);
 });

@@ -6,6 +6,7 @@ import {
 } from "../../core/character-commands.js?v=wpe5";
 import { getBondAllocationState } from "../../core/bond-rules.js?v=wpe5";
 import { sanitizeText } from "../../core/data-sanitization.js";
+import { KeystoneWidget } from "./text-choice-widget.js";
 
 function bondId() {
   if (globalThis.crypto?.randomUUID) return `bond:user:${globalThis.crypto.randomUUID()}`;
@@ -32,6 +33,16 @@ export class BondsKeystonesWidget {
     this.onRejected = typeof onRejected === "function" ? onRejected : null;
     this.character = page.getCharacter();
     this.busy = false;
+    this.bondKeystones = [];
+    this.backgroundKeystones = [elements.backgroundKeystone1, elements.backgroundKeystone2].map((mount, index) => new KeystoneWidget(page, {
+      id: `background-keystone:${index}`, label: `Background Keystone ${index + 1}`, mount, register: false,
+      getValue: () => page.getCharacter().builder.backgroundKeystones[index] || "",
+      onChange: value => {
+        const values = [...page.getCharacter().builder.backgroundKeystones, "", ""].slice(0, 2);
+        values[index] = value;
+        return page.requestCharacterCommand(this, SetBackgroundKeystones(values.filter(Boolean)));
+      }, onRejected,
+    }));
     this.onAdd = () => this.#submit(AddBond({ bondId: this.idFactory(), name: "", rank: "1", keystone: "" }));
     elements.addBondBtn.addEventListener("click", this.onAdd);
     page.registerWidget(this);
@@ -57,10 +68,9 @@ export class BondsKeystonesWidget {
   }
 
   #setDisabled(disabled) {
-    for (const input of this.elements.bondList.querySelectorAll("input, select, button")) input.disabled = disabled;
+    for (const input of this.elements.bondList.querySelectorAll("input, select, textarea, button")) input.disabled = disabled;
     this.elements.addBondBtn.disabled = disabled;
-    this.elements.backgroundKeystone1.disabled = disabled;
-    this.elements.backgroundKeystone2.disabled = disabled;
+    for (const widget of this.backgroundKeystones) { widget.enabled = !disabled; widget.render(); }
   }
 
   #updateBond(bondIdValue, field, value) {
@@ -69,15 +79,10 @@ export class BondsKeystonesWidget {
     return this.#submit(UpdateBond(bondIdValue, { [field]: normalized }));
   }
 
-  #setBackground() {
-    const keystones = [this.elements.backgroundKeystone1.value, this.elements.backgroundKeystone2.value]
-      .map((value) => sanitizeText(value, { maxLen: 400, collapse: true }))
-      .filter(Boolean);
-    return this.#submit(SetBackgroundKeystones(keystones));
-  }
-
   #renderBonds(allocation) {
     const { bondList, bondRowTemplate } = this.elements;
+    for (const widget of this.bondKeystones) widget.destroy();
+    this.bondKeystones = [];
     bondList.innerHTML = "";
     if (!allocation.bonds.length) {
       const empty = document.createElement("div");
@@ -94,16 +99,26 @@ export class BondsKeystonesWidget {
       const keystone = fragment.querySelector('[data-field="keystone"]');
       const remove = fragment.querySelector('[data-action="remove"]');
       row.dataset.bondId = record.bondId;
+      for (const [control, field] of [[name, "name"], [rank, "rank"]]) {
+        control.id = `${record.bondId}:${field}`;
+        control.parentElement.querySelector("label").htmlFor = control.id;
+      }
       name.value = record.name;
       rank.innerHTML = rankOptions(record.rank, record.maximumRank);
       rank.disabled = this.busy || record.sourceOwned;
       rank.title = record.sourceOwned ? "This rank is supplied by the granting feature." : "";
-      keystone.value = record.keystone;
+      const keystoneWidget = new KeystoneWidget(this.page, {
+        id: `bond-keystone:${record.bondId}`, label: "Bond Keystone", mount: keystone, register: false,
+        getValue: () => getBondAllocationState(this.page.getCharacter().builder).bonds.find(bond => bond.bondId === record.bondId)?.keystone || "",
+        onChange: value => this.page.requestCharacterCommand(this, UpdateBond(record.bondId, { keystone: value })), onRejected: this.onRejected,
+      });
+      keystoneWidget.enabled = !this.busy;
+      keystoneWidget.render();
+      this.bondKeystones.push(keystoneWidget);
       remove.disabled = this.busy || record.sourceOwned;
       remove.textContent = record.sourceOwned ? "Granted" : "Remove";
       name.addEventListener("change", () => this.#updateBond(record.bondId, "name", name.value));
       rank.addEventListener("change", () => this.#updateBond(record.bondId, "rank", rank.value));
-      keystone.addEventListener("change", () => this.#updateBond(record.bondId, "keystone", keystone.value));
       if (!record.sourceOwned) remove.addEventListener("click", () => this.#submit(RemoveBond(record.bondId)));
       bondList.append(fragment);
     }
@@ -120,19 +135,12 @@ export class BondsKeystonesWidget {
     this.elements.bondCountHelp.textContent = "Bonds granted by an active feature keep their source-defined rank and cannot be removed here; change the granting source instead.";
     this.elements.addBondBtn.disabled = this.busy || allocation.userBondRemaining <= 0;
     this.#renderBonds(allocation);
-    const background = [...this.character.builder.backgroundKeystones, "", ""];
-    this.elements.backgroundKeystone1.value = background[0];
-    this.elements.backgroundKeystone2.value = background[1];
-    this.elements.backgroundKeystone1.disabled = this.busy;
-    this.elements.backgroundKeystone2.disabled = this.busy;
-    this.elements.backgroundKeystone1.onchange = () => this.#setBackground();
-    this.elements.backgroundKeystone2.onchange = () => this.#setBackground();
+    for (const widget of this.backgroundKeystones) { widget.enabled = !this.busy; widget.render(); }
   }
 
   destroy({ unregister = true } = {}) {
     this.elements.addBondBtn.removeEventListener("click", this.onAdd);
-    this.elements.backgroundKeystone1.onchange = null;
-    this.elements.backgroundKeystone2.onchange = null;
+    for (const widget of [...this.backgroundKeystones, ...this.bondKeystones]) widget.destroy();
     if (unregister) this.page.unregisterWidget(this);
   }
 }

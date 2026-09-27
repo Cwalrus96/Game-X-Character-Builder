@@ -20,9 +20,9 @@ import { GrantChoiceState } from "./grant-choice-state.js";
 import { ClassChoiceWidget } from "./widgets/class-choice-widget.js?v=wpe1";
 import { ClassFeaturesWidget } from "./widgets/class-features-widget.js";
 import { GrantChoicesWidget } from "./widgets/grant-choices-widget.js";
-import { createGrantWidgets } from "./widgets/grant-widget-factory.js?v=keystone1";
+import { createGrantWidgets } from "./widgets/grant-widget-factory.js?v=choices5";
 import { LevelChoiceWidget } from "./widgets/level-choice-widget.js?v=wpe1";
-import { OptionGroupWidget } from "./widgets/option-group-widget.js?v=wpe8";
+import { OptionGroupWidget } from "./widgets/option-group-widget.js?v=choices4";
 import { PrimaryAttributeWidget } from "./widgets/primary-attribute-widget.js?v=wpe1";
 
 import { loadGameXData, getGameXClasses, getGameXClassFeatures, getGameXWeaponBases, getGameXWeaponEnhancements } from "../core/game-data.js?v=keystone1";
@@ -104,6 +104,7 @@ const grantChoiceState = new GrantChoiceState({
     const result = await classPage?.requestCharacterCommand?.(null, SetGrantChoices(grantChoices));
     if (result && !result.ok) grantChoices = { ...acceptedChoices };
     renderFeatures();
+    return result;
   },
 });
 

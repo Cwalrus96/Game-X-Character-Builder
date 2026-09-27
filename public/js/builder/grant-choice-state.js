@@ -36,7 +36,7 @@ export class GrantChoiceState {
     else choices[id] = next;
 
     this.setChoices(choices);
-    this.onChange?.({ choiceId: id, choice: choices[id] || null });
+    return this.onChange?.({ choiceId: id, choice: choices[id] || null });
   }
 
   removeChoice(choiceId) {
@@ -45,6 +45,6 @@ export class GrantChoiceState {
     const choices = { ...this.getChoices() };
     delete choices[id];
     this.setChoices(choices);
-    this.onChange?.({ choiceId: id, choice: null });
+    return this.onChange?.({ choiceId: id, choice: null });
   }
 }

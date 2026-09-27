@@ -34,8 +34,8 @@ function harness({ result = { ok: false, reason: "cancelled" }, selected = [], w
     onChange() { updates++; },
   };
   const widget = new FeatChoiceWidget(page, options);
-  const change = (value, owner = widget.id) => events.get("change")({ target: { dataset: { featSlot: "0", featWidget: owner }, value } });
-  const toggle = () => events.get("click")({ target: { dataset: { featExpand: "0", featWidget: widget.id } } });
+  const change = (value, owner = widget.id) => events.get("change")({ target: { dataset: { choiceId: `${widget.id}:0`, choiceOwner: owner }, value } });
+  const toggle = () => events.get("click")({ target: { dataset: { choiceToggle: `${widget.id}:0`, choiceOwner: widget.id } } });
   return { widget, mount, character, commands, widgets, events, change, toggle, details, page, options, focused: () => focused, updates: () => updates };
 }
 
@@ -44,7 +44,7 @@ test("feat picker sends narrow replacement intent and restores cancelled selecti
   const before = structuredClone(h.character);
   assert.match(h.mount.innerHTML, /Choose a class feat/);
   assert.doesNotMatch(h.mount.innerHTML, /value="archetype-a"/);
-  assert.match(h.mount.innerHTML, /class-a description/);
+  assert.doesNotMatch(h.mount.innerHTML, /class-a description/);
   await h.change("class-b");
   assert.deepEqual(h.commands, [SetFeatSelection(["class-b", "archetype-a"])]);
   assert.deepEqual(h.character, before);
@@ -73,7 +73,7 @@ test("compact and expanded feat choices always exclude unavailable feats even wh
   assert.doesNotMatch(h.mount.innerHTML, /Prerequisite:/, "eligible feats must not repeat satisfied requirements");
   h.toggle();
   assert.match(h.mount.innerHTML, /value="class-a" selected/);
-  assert.match(h.mount.innerHTML, /class-a description/);
+  assert.doesNotMatch(h.mount.innerHTML, /class-a description/);
   assert.doesNotMatch(h.mount.innerHTML, /class-b description|type="radio"/);
   assert.deepEqual(h.character, before);
   assert.deepEqual(h.commands, [], "view toggles must not submit character commands");
@@ -147,21 +147,22 @@ test("feat picker refreshes accepted changes and scopes clearing to its assigned
   assert.equal(h.focused(), focused, "external updates must not steal focus");
 });
 
-test("selected feat text and follow-up choices stay beneath the selector in either view", () => {
+test("feat rules appear once when expanded while follow-up choices stay visible in either view", () => {
   const children = [];
   const h = harness({ selected: ["class-a"], widgetOptions: {
     renderFeatGrants(feat, scope) { children.push([feat.featKey, scope]); return {}; },
   } });
   assert.deepEqual(children.map(([key]) => key), ["class-a"]);
-  assert.match(h.mount.innerHTML, /<\/select><div class="selectedChoiceDetail"/);
-  assert.match(h.mount.innerHTML, /data-selected-key="class-a"/);
+  assert.match(h.mount.innerHTML, /<\/select><div data-feat-detail="0"/);
+  assert.doesNotMatch(h.mount.innerHTML, /class-a description/);
   h.toggle();
-  assert.match(h.mount.innerHTML, /<\/fieldset><div class="selectedChoiceDetail"/);
+  assert.match(h.mount.innerHTML, /<\/fieldset><div data-feat-detail="0"/);
+  assert.equal(h.mount.innerHTML.split("class-a description").length, 2);
   h.character.builder.selectedFeats = ["class-b"];
   h.widget.applyReconciledState();
   h.toggle();
-  assert.match(h.mount.innerHTML, /data-selected-key="class-b"/);
-  assert.match(h.mount.innerHTML, /class-b description/);
+  assert.match(h.mount.innerHTML, /value="class-b" selected/);
+  assert.doesNotMatch(h.mount.innerHTML, /class-b description/);
   assert.doesNotMatch(h.mount.innerHTML, /class-a description/);
   assert.equal(children.at(-1)[0], "class-b");
   assert.ok(children.every(([, scope]) => scope === h.widget.childScope));

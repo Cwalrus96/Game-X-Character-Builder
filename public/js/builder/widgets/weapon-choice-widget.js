@@ -1,100 +1,29 @@
-import { escapeHtml, sanitizeText } from "../../core/data-sanitization.js";
+import { sanitizeText } from "../../core/data-sanitization.js";
 import { buildGeneratedWeaponsFromGrantChoices } from "../../core/grants.js";
-import {
-  getEnhancementDef,
-} from "../../core/weapon-utils.js";
-import { BuilderWidget } from "./builder-widget.js";
-import { renderSelectedWeaponHtml } from "./selected-choice-display.js";
+import { getEnhancementDef, getSelectableWeaponBases } from "../../core/weapon-utils.js";
+import { EquipmentChoiceWidget } from "./equipment-choice-widget.js?v=choices5";
 
-function compareByName(a, b) {
-  return String(a?.name || "").localeCompare(String(b?.name || ""));
-}
-
-export class WeaponChoiceWidget extends BuilderWidget {
-  constructor(page, {
-    grant,
-    choice,
-    weaponBases,
-    weaponEnhancements,
-    forcedEnhancements = [],
-    getGrantChoices = null,
-    getExistingWeapons = null,
-    onChange,
-    scope = "dynamic",
-  } = {}) {
+export class WeaponChoiceWidget extends EquipmentChoiceWidget {
+  constructor(page, { grant, choice, weaponBases, weaponEnhancements, forcedEnhancements = [], getGrantChoices = null, getExistingWeapons = null, onChange, scope = "dynamic" } = {}) {
     const choiceId = sanitizeText(grant?.choiceId || choice?.choiceId, { maxLen: 96, collapse: true });
-    super(page, { id: `weapon-choice:${choiceId}`, scope });
-    this.grant = grant || {};
-    this.choice = choice || null;
-    this.choiceId = choiceId;
-    this.weaponBases = Array.isArray(weaponBases) ? weaponBases : [];
-    this.weaponEnhancements = Array.isArray(weaponEnhancements) ? weaponEnhancements : [];
-    this.forcedEnhancements = Array.isArray(forcedEnhancements) ? forcedEnhancements : [];
-    this.getGrantChoices = typeof getGrantChoices === "function" ? getGrantChoices : null;
-    this.getExistingWeapons = typeof getExistingWeapons === "function" ? getExistingWeapons : null;
-    this.onChange = typeof onChange === "function" ? onChange : null;
-    this.element = this.render();
+    super(page, { id: `weapon-choice:${choiceId}`, scope, element: document.createElement("div") });
+    Object.assign(this, { grant, choice, choiceId, weaponBases, weaponEnhancements, forcedEnhancements, getGrantChoices, getExistingWeapons, onChange });
+    this.render();
   }
-
   getSavePatch({ currentDoc = {}, currentPatch = {}, grantChoices = null } = {}) {
     const choices = this.getGrantChoices?.() || grantChoices || {};
-    const existingWeapons = currentPatch["builder.weapons"] || this.getExistingWeapons?.() || currentDoc?.builder?.weapons || [];
-    return {
-      "builder.grantChoices": choices,
-      "builder.weapons": buildGeneratedWeaponsFromGrantChoices(choices, existingWeapons),
-    };
+    return { "builder.grantChoices": choices, "builder.weapons": buildGeneratedWeaponsFromGrantChoices(choices, currentPatch["builder.weapons"] || this.getExistingWeapons?.() || currentDoc?.builder?.weapons || []) };
   }
-
   render() {
+    this.beginChoices();
+    const choice = this.getGrantChoices ? this.getGrantChoices()?.[this.choiceId] : this.choice;
     const rank = Number.parseInt(String(this.grant?.rank ?? 1), 10) || 1;
-    const selectedWeaponKey = sanitizeText(this.choice?.weaponKey, { maxLen: 64, collapse: true });
-
-    const field = document.createElement("div");
-    field.className = "grantChoiceWidget";
-
-    const label = document.createElement("label");
-    label.className = "label";
-    label.textContent = "Choose Weapon";
-
-    const select = document.createElement("select");
-    select.id = `${this.id}:weapon`;
-    label.htmlFor = select.id;
-    select.className = "input";
-    select.innerHTML = `<option value="">Choose a weapon...</option>` + this.weaponBases
-      .filter((weapon) => Number(weapon?.minRank || 0) <= rank)
-      .slice()
-      .sort(compareByName)
-      .map((weapon) => `<option value="${escapeHtml(weapon.weaponKey)}"${selectedWeaponKey === weapon.weaponKey ? " selected" : ""}>${escapeHtml(weapon.name)} (Rank ${Number(weapon.minRank || 0)}+)</option>`)
-      .join("");
-    select.addEventListener("change", () => {
-      this.onChange?.({
-        type: "weapon",
-        weaponKey: sanitizeText(select.value, { maxLen: 64, collapse: true }),
-        rank,
-      });
+    const options = getSelectableWeaponBases(this.weaponBases, { maxRank: rank, allowGrantedOnly: true }).sort((a, b) => String(a.name).localeCompare(String(b.name)));
+    this.element.innerHTML = this.errorHtml() + this.renderWeaponChoice({ id: this.choiceId, options, weaponBases: this.weaponBases,
+      weapon: { ...choice, rank: Number(choice?.rank || rank), enhancements: choice?.enhancements || this.forcedEnhancements }, rank, enhancements: this.forcedEnhancements,
+      help: this.forcedEnhancements.length ? `Granted enhancement: ${this.forcedEnhancements.map(entry => getEnhancementDef(this.weaponEnhancements, entry.enhancementKey)?.name || entry.enhancementKey).join(", ")}` : "",
+      onChange: weaponKey => this.onChange?.({ type: "weapon", weaponKey, rank }),
     });
-
-    field.append(label, select);
-    field.insertAdjacentHTML("beforeend", renderSelectedWeaponHtml({
-      choiceId: this.choiceId, weaponBases: this.weaponBases,
-      weapon: {
-        weaponKey: selectedWeaponKey,
-        rank: Number(this.choice?.rank || rank),
-        enhancements: Array.isArray(this.choice?.enhancements) ? this.choice.enhancements : this.forcedEnhancements,
-      },
-    }));
-
-    if (this.forcedEnhancements.length) {
-      const forcedText = this.forcedEnhancements
-        .map((enhancement) => getEnhancementDef(this.weaponEnhancements, enhancement.enhancementKey)?.name || enhancement.enhancementKey)
-        .filter(Boolean)
-        .join(", ");
-      const help = document.createElement("div");
-      help.className = "help";
-      help.textContent = `Granted enhancement: ${forcedText}`;
-      field.append(help);
-    }
-
-    return field;
+    return this.element;
   }
 }

@@ -1,7 +1,7 @@
 import { escapeHtml } from "../../core/data-sanitization.js";
 import { getEffectiveTags, getWeaponDef, renderTagChipsHtml, summarizeWeaponProfilesHtml } from "../../core/weapon-utils.js";
 
-/** Shared, choice-owned result beneath a selector, independent of catalogue expansion.
+/** Shared, choice-owned detail region, currently composed into expanded weapon cards.
  * contentHtml must come from an escaping domain renderer, never raw authored text.
  */
 export function renderSelectedChoiceHtml({ choiceId, selectedKey, label = "Selected choice", contentHtml = "" } = {}) {
@@ -16,11 +16,11 @@ export function appendSelectedChoice(element, options) {
 }
 
 /** Ordinary and granted weapon choices show the same authored text and profiles. */
-export function renderSelectedWeaponHtml({ choiceId, weapon, weaponBases = [] } = {}) {
+export function renderSelectedWeaponHtml({ choiceId, weapon, weaponBases = [], label = "Selected weapon" } = {}) {
   if (!weapon?.weaponKey) return "";
   const definition = getWeaponDef(weaponBases, weapon.weaponKey);
   return renderSelectedChoiceHtml({
-    choiceId, selectedKey: weapon.weaponKey, label: "Selected weapon",
+    choiceId, selectedKey: weapon.weaponKey, label,
     contentHtml: `<div class="optionTitle">${escapeHtml(definition?.name || weapon.weaponKey)}</div>
       <div class="optionDesc">${escapeHtml(definition?.description || "")}</div>
       ${renderTagChipsHtml(getEffectiveTags(weapon, weaponBases))}

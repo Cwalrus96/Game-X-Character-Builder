@@ -1,10 +1,10 @@
 import { normalizeEnumToken, sanitizeText } from "../../core/data-sanitization.js";
 import { resolveGrantChoiceIds } from "../../core/choice-identity.js";
 import { getEffectiveTags } from "../../core/weapon-utils.js";
-import { TechniqueChoiceWidget } from "./technique-choice-widget.js?v=wpe9";
-import { WeaponChoiceWidget } from "./weapon-choice-widget.js?v=wpe1";
-import { WeaponEnhancementChoiceWidget } from "./weapon-enhancement-choice-widget.js?v=wpe1";
-import { createDefaultGrantWidgetRegistry } from "./grant-widget-extensions.js?v=keystone1";
+import { TechniqueChoiceWidget } from "./technique-choice-widget.js?v=choices5";
+import { WeaponChoiceWidget } from "./weapon-choice-widget.js?v=choices5";
+import { WeaponEnhancementChoiceWidget } from "./weapon-enhancement-choice-widget.js?v=choices5";
+import { createDefaultGrantWidgetRegistry } from "./grant-widget-extensions.js?v=choices5";
 
 const DEFAULT_GRANT_WIDGET_REGISTRY = createDefaultGrantWidgetRegistry();
 
@@ -57,14 +57,14 @@ export function buildWeaponChoicePatch({
   return next;
 }
 
-export function buildWeaponEnhancementChoicePatch({ choice, grant, enhancementKey, forcedEnhancements = [] } = {}) {
+export function buildWeaponEnhancementChoicePatch({ choice, grant, enhancementKey, forcedEnhancements = [], selections = {} } = {}) {
   const key = sanitizeText(enhancementKey, { maxLen: 96, collapse: true });
   const optional = key
     ? [{
         id: `${choice?.choiceId || grant?.choiceRef}-${key}`,
         enhancementKey: key,
         rank: Number.parseInt(String(grant?.rank ?? 1), 10) || 1,
-        selections: {},
+        selections: { ...selections },
         granted: false,
       }]
     : [];
@@ -113,9 +113,10 @@ export function createGrantWidgets({
           sourceId,
           sourceLabel: entry?.name || entry?.featureName || entry?.featKey || "",
           scope,
-          onChange: (patch) => {
-            grantChoiceState?.updateChoice(choiceId, patch);
+          onChange: async (patch) => {
+            const result = await grantChoiceState?.updateChoice(choiceId, patch);
             onChange?.();
+            return result;
           },
         }));
       }
@@ -134,13 +135,14 @@ export function createGrantWidgets({
         getGrantChoices,
         getExistingWeapons,
         scope,
-        onChange: (patch) => {
-          if (!patch.weaponKey) grantChoiceState?.removeChoice(choiceId);
-          else grantChoiceState?.updateChoice(choiceId, buildWeaponChoicePatch({
+        onChange: async (patch) => {
+          const result = await (!patch.weaponKey ? grantChoiceState?.removeChoice(choiceId)
+          : grantChoiceState?.updateChoice(choiceId, buildWeaponChoicePatch({
             choice: grantChoiceState?.getChoice(choiceId), patch, forcedEnhancements, weaponBases,
             sourceId, sourceLabel: entry?.name || entry?.featureName || "",
-          }));
+          })));
           onChange?.();
+          return result;
         },
       }));
       continue;
@@ -159,17 +161,18 @@ export function createGrantWidgets({
         getGrantChoices,
         getExistingWeapons,
         scope,
-        onChange: (enhancementKey) => {
+        onChange: async (enhancementKey, selections = {}) => {
           const choice = grantChoiceState?.getChoice(choiceId);
           if (!choice?.weaponKey) return;
-          const patch = buildWeaponEnhancementChoicePatch({ choice, grant, enhancementKey, forcedEnhancements });
-          grantChoiceState?.updateChoice(choiceId, buildWeaponChoicePatch({
+          const patch = buildWeaponEnhancementChoicePatch({ choice, grant, enhancementKey, forcedEnhancements, selections });
+          const result = await grantChoiceState?.updateChoice(choiceId, buildWeaponChoicePatch({
             choice,
             patch,
             forcedEnhancements,
             weaponBases,
           }));
           onChange?.();
+          return result;
         },
       }));
       continue;

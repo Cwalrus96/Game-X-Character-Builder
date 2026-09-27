@@ -1,11 +1,12 @@
 export class BuilderWidget {
-  constructor(page, { id = "", scope = "dynamic" } = {}) {
+  constructor(page, { id = "", scope = "dynamic", register = true } = {}) {
     this.page = page || null;
     this.id = id;
     this.scope = scope;
     this.enabled = true;
     this.element = null;
-    this.page?.registerWidget?.(this);
+    this.registered = register;
+    if (register) this.page?.registerWidget?.(this);
   }
 
   render() {
@@ -45,6 +46,6 @@ export class BuilderWidget {
   destroy({ unregister = true } = {}) {
     this.element?.remove?.();
     this.element = null;
-    if (unregister) this.page?.unregisterWidget?.(this);
+    if (unregister && this.registered) this.page?.unregisterWidget?.(this);
   }
 }

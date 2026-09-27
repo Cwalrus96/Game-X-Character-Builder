@@ -41,13 +41,14 @@ test("a fresh granted weapon passes the exact character codec and materializes t
 
 test("enhancement input preserves the weapon's original owner and required enhancement", () => {
   const { session, options, answer } = fixture();
-  const patch = buildWeaponEnhancementChoicePatch({ choice: answer, grant: { choiceRef: answer.choiceId, rank: 1 }, enhancementKey: "keen", forcedEnhancements: options.forcedEnhancements });
+  const patch = buildWeaponEnhancementChoicePatch({ choice: answer, grant: { choiceRef: answer.choiceId, rank: 1 }, enhancementKey: "keen", forcedEnhancements: options.forcedEnhancements, selections: { element: "Fire" } });
   const enhanced = buildWeaponChoicePatch({ ...options, sourceId: "class-feature:guardian:enhancement-feature", choice: answer, patch });
   assert.equal(enhanced.sourceId, answer.sourceId);
   assert.deepEqual(enhanced.enhancements.map(({ enhancementKey, granted }) => [enhancementKey, granted]), [["bound", true], ["keen", false]]);
   const proposal = session.propose(SetGrantChoices({ [answer.choiceId]: enhanced }));
   assert.equal(proposal.ok, true, JSON.stringify(proposal.impacts));
   assert.equal(validateCharacter(proposal.reconciled).ok, true);
+  assert.deepEqual(enhanced.enhancements.find(entry => !entry.granted).selections, { element: "Fire" });
   const cleared = buildWeaponEnhancementChoicePatch({ choice: enhanced, grant: { choiceRef: answer.choiceId }, enhancementKey: "", forcedEnhancements: options.forcedEnhancements });
   assert.deepEqual(cleared.enhancements, options.forcedEnhancements);
 });

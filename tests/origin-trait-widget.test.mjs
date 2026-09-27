@@ -46,7 +46,7 @@ test("Origin Traits mount at their own feature and disappear when a new Origin h
   character.builder.originKey = "plain";
   originWidget.applyReconciledState(character);
   assert.equal(widgets.size, 1, "only the Origin widget survives removal of its granting feature");
-  assert.equal(traitWidget.element.innerHTML, "");
+  assert.equal(traitWidget.element, null);
   assert.equal(elements.originDetails.innerHTML.includes("data-origin-traits"), false);
   originWidget.destroy();
   assert.equal(widgets.size, 0);

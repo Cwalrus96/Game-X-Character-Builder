@@ -1,5 +1,5 @@
 import { getChoiceCountState } from "../../core/choice-capacity.js";
-import { escapeHtml, sanitizeNamedSkillList, sanitizeText } from "../../core/data-sanitization.js";
+import { sanitizeNamedSkillList, sanitizeText } from "../../core/data-sanitization.js";
 import {
   getGameXTechniques,
 } from "../../core/game-data.js";
@@ -7,10 +7,8 @@ import { computeGrantedSkillsState, getCombatSkillRanks } from "../../core/skill
 import { canonicalSkillName, canonicalStoredSkillKey } from "../../core/skill-identity.js";
 import { getTechniqueSelectionState, isGameDataRecordSelectable } from "../../core/selection-rules.js";
 import { createPrerequisiteContext, meetsPrerequisites } from "../../core/prerequisites.js";
-import { renderTechniqueProfileHtml } from "../../core/technique-utils.js";
 import { getTechniquePerformance } from "../../core/technique-rules.js";
-import { BuilderWidget } from "./builder-widget.js";
-import { appendSelectedChoice } from "./selected-choice-display.js";
+import { TechniqueCatalogueWidget } from "./technique-catalogue-widget.js?v=choices5";
 
 function techniqueName(technique) {
   return sanitizeText(technique?.techniqueName || "", { maxLen: 200, collapse: true });
@@ -68,7 +66,7 @@ export function buildTechniqueChoicePatch(technique, {
   };
 }
 
-export class TechniqueChoiceWidget extends BuilderWidget {
+export class TechniqueChoiceWidget extends TechniqueCatalogueWidget {
   constructor(page, {
     grant,
     choice,
@@ -81,7 +79,7 @@ export class TechniqueChoiceWidget extends BuilderWidget {
     onChange = null,
     scope = "dynamic",
   } = {}) {
-    super(page, { id: `technique-choice:${choiceId}`, scope });
+    super(page, { id: `technique-choice:${choiceId}`, scope, element: document.createElement("div") });
     this.grant = grant || {};
     this.choice = choice || null;
     this.choiceId = sanitizeText(choiceId, { maxLen: 96, collapse: true });
@@ -91,7 +89,7 @@ export class TechniqueChoiceWidget extends BuilderWidget {
     this.sourceId = sanitizeText(sourceId, { maxLen: 260, collapse: true });
     this.sourceLabel = sanitizeText(sourceLabel, { maxLen: 200, collapse: true });
     this.onChange = typeof onChange === "function" ? onChange : null;
-    this.element = this.render();
+    this.render();
   }
 
   getSavePatch({ grantChoices = null } = {}) {
@@ -164,9 +162,10 @@ export class TechniqueChoiceWidget extends BuilderWidget {
   }
 
   render() {
+    this.beginChoices();
     const context = this.getContext();
     const options = this.getAvailableTechniques(context);
-    const selectedTechniqueKey = getTechniqueChoiceSelectionKey(this.choice);
+    const selectedTechniqueKey = getTechniqueChoiceSelectionKey(this.getGrantChoices ? this.getGrantChoices()?.[this.choiceId] : this.choice);
     const skillLabel = sanitizeText(this.grant?.skill || this.grant?.name || "Technique", {
       maxLen: 96,
       collapse: true,
@@ -178,61 +177,18 @@ export class TechniqueChoiceWidget extends BuilderWidget {
       noun: "technique",
     });
 
-    const field = document.createElement("div");
-    field.className = "grantChoiceWidget";
-
-    const label = document.createElement("label");
-    label.className = "label";
-    label.textContent = `Choose ${skillLabel} Technique`;
-
-    const select = document.createElement("select");
-    select.id = `${this.id}:technique`;
-    label.htmlFor = select.id;
-    select.className = "input";
-    select.innerHTML = `<option value="">Choose a technique...</option>` + options
-      .map((technique) => {
-        const name = techniqueName(technique);
-        const key = techniqueKey(technique);
-        const rank = techniqueRank(technique);
-        const selected = selectedTechniqueKey === key ? " selected" : "";
-        return `<option value="${escapeHtml(key)}"${selected}>${escapeHtml(name)} (Rank ${rank})</option>`;
-      })
-      .join("");
-    select.disabled = !this.choiceId || !options.length;
-    select.addEventListener("change", () => {
-      const selected = options.find((technique) => techniqueKey(technique) === select.value) || null;
-      this.onChange?.(buildTechniqueChoicePatch(selected, {
-        sourceId: this.sourceId,
-        sourceLabel: this.sourceLabel,
-      }));
+    const selectedTechnique = getGameXTechniques(this.gameData).find((item) => techniqueKey(item) === selectedTechniqueKey);
+    const retained = selectedTechnique && !options.includes(selectedTechnique);
+    this.element.innerHTML = this.errorHtml() + this.renderTechniqueChoice({ id: this.choiceId, value: selectedTechniqueKey, gameData: this.gameData,
+      options: [...options.map(technique => ({ technique })), ...(retained ? [{ technique: selectedTechnique, disabled: true }] : [])],
+      profileOptions: technique => ({
+        performance: getTechniquePerformance(technique, { gameData: this.gameData, builder: context.builder }),
+        rankValue: this.getTechniqueSkillRank(technique, context),
+      }),
+      disabled: !this.choiceId || (!options.length && !selectedTechniqueKey),
+      help: options.length ? `Selected: ${countState.selectedCount}/${countState.expectedCount}` : `No available ${skillLabel} techniques meet current prerequisites.`,
+      onChange: key => this.onChange?.(buildTechniqueChoicePatch(options.find(technique => techniqueKey(technique) === key) || null, { sourceId: this.sourceId, sourceLabel: this.sourceLabel })),
     });
-
-    field.append(label, select);
-
-    const selectedTechnique = options.find((item) => techniqueKey(item) === selectedTechniqueKey);
-    appendSelectedChoice(field, {
-      choiceId: this.choiceId, selectedKey: selectedTechniqueKey, label: "Selected Technique",
-      contentHtml: selectedTechnique ? renderTechniqueProfileHtml(selectedTechnique, {
-        gameData: this.gameData,
-        performance: getTechniquePerformance(selectedTechnique, { gameData: this.gameData, builder: context.builder }),
-        rankValue: this.getTechniqueSkillRank(selectedTechnique, context),
-        heading: techniqueName(selectedTechnique), headingTag: "div", headingClass: "optionTitle", showRank: true,
-      }) : "",
-    });
-
-    if (!options.length) {
-      const help = document.createElement("div");
-      help.className = "help";
-      help.textContent = `No available ${skillLabel} techniques meet current prerequisites.`;
-      field.append(help);
-      return field;
-    }
-
-    const help = document.createElement("div");
-    help.className = "help";
-    help.textContent = `Selected: ${countState.selectedCount}/${countState.expectedCount}`;
-    field.append(help);
-
-    return field;
+    return this.element;
   }
 }

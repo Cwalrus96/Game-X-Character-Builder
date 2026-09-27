@@ -114,11 +114,12 @@ test("the shared widget edits, clears and restores text without losing another g
   const entries = registry.get("choice")({ page, grant, entry: { name: "Personal Oath" }, sourceId, index: 0 });
   assert.equal(entries.length, 2);
   assert.ok(entries[0] instanceof KeystoneChoiceWidget);
-  const change = (widget, value) => widget.change({ target: { dataset: { keystoneChoice: widget.choice.choiceId }, value } });
+  const change = (widget, value) => widget.change({ target: { id: widget.field.id, value } });
   await change(entries[0], '  My <form> & "friends".  ');
   await change(entries[1], "Another oath.");
   assert.match(entries[0].element.innerHTML, /My &lt;form&gt; &amp; &quot;friends&quot;/);
-  assert.ok(entries[0].element.innerHTML.indexOf("selectedChoiceDetail") > entries[0].element.innerHTML.indexOf("</textarea>"));
+  assert.doesNotMatch(entries[0].element.innerHTML, /selectedChoiceDetail/);
+  assert.equal(entries[0].element.innerHTML.split("My &lt;form&gt;").length, 2, "free text has no duplicate preview");
   accept = false;
   await change(entries[0], "Cancelled replacement.");
   assert.ok(!entries[0].element.innerHTML.includes("Cancelled replacement"));

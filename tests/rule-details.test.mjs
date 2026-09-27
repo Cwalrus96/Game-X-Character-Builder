@@ -120,7 +120,7 @@ test("Class and Feat option cards show grant rules before selection, outside the
   }
 });
 
-test("Feat candidates and their selected result both expose the shared nested rules", (t) => {
+test("expanded Feat candidates expose shared nested rules once without a selected-result duplicate", (t) => {
   documentFor(t);
   const { gameData, character, classFeature } = makeFeatChoicesFixture();
   gameData.techniques = fixture().techniques;
@@ -129,10 +129,10 @@ test("Feat candidates and their selected result both expose the shared nested ru
   const page = { getCharacter: () => character, registerWidget() {} };
   const expandedChoices = new Set();
   const widget = new FeatChoiceWidget(page, { entry: classFeature, sourceId: "class-feature:ninja:class-feat-2", gameData, expandedChoices });
-  assert.match(widget.element.innerHTML, /Technique: Flight/);
+  assert.doesNotMatch(widget.element.innerHTML, /Technique: Flight/);
   expandedChoices.add(`${widget.id}:0`);
   widget.render();
-  assert.equal((widget.element.innerHTML.match(/<summary>Technique: Flight/g) || []).length, 2);
+  assert.equal((widget.element.innerHTML.match(/<summary>Technique: Flight/g) || []).length, 1);
   assert.match(widget.element.innerHTML, /<\/label>\s*<details/);
 });
 
@@ -142,7 +142,7 @@ test("Trait candidates and Origin features use the same rules details without ch
   const page = { gameData, getCharacter: () => character, registerWidget() {} };
   const mount = element();
   const trait = new TraitWidget(page, { mount, gameData });
-  assert.match(mount.innerHTML, /Technique: Flight/);
+  assert.doesNotMatch(mount.innerHTML, /Technique: Flight/);
   trait.expandedChoices.add(trait.projection.choices[0].choiceId);
   trait.render();
   assert.match(mount.innerHTML, /<\/label><details/);

@@ -14,9 +14,12 @@ function element(tagName = "div") {
     get innerHTML() { return this.children.map((child) => child.outerHTML).join(""); },
     get outerHTML() { return `<${tagName}>${this.textContent}${this.innerHTML}</${tagName}>`; },
     append(...children) { this.children.push(...children); },
+    replaceChildren(...children) { this.children = children; },
+    setAttribute() {},
     insertAdjacentHTML(position, html) { assert.equal(position, "beforeend"); this.children.push({ outerHTML: html }); },
     addEventListener(type, callback) { this.events.set(type, callback); },
     removeEventListener(type) { this.events.delete(type); },
+    querySelectorAll() { return []; },
   };
 }
 
@@ -30,7 +33,7 @@ function equipmentData() {
   const gameData = traitData();
   gameData.weaponBases = ["blade", "staff"].map((weaponKey) => ({
     weaponKey, name: weaponKey, description: `${weaponKey} description <safe>`, minRank: 1,
-    status: "playable", tags: [], profiles: [], skill: "Melee Weapons",
+    status: "playable", tags: [], profiles: [], expressionSyntaxVersion: 3, techniqueSkills: ["Melee Weapons"],
   }));
   gameData.weaponEnhancements = [{ enhancementKey: "keen", name: "Keen", description: "Keen edge <safe>", minRank: 1, status: "playable", prerequisites: [] }];
   return gameData;
@@ -44,7 +47,7 @@ test("the shared selected-description component is empty without an answer and e
   assert.match(html, /<p>Safe rendered content<\/p>/);
 });
 
-test("granted Technique text is directly after its own selector and changes or clears with its answer", (t) => {
+test("granted Technique rules appear only within the expanded catalogue and selection remains visible when compact", (t) => {
   documentFor(t);
   const gameData = traitData(), character = traitCharacter();
   character.builder.sheet.repeatables.combatSkillsExtra = [{ skill: "Training", rank: 2 }];
@@ -52,36 +55,42 @@ test("granted Technique text is directly after its own selector and changes or c
   const widget = new TechniqueChoiceWidget({ registerWidget() {} }, {
     grant: { skill: "Training", count: 1 }, choice: { techniqueKey: "first" }, choiceId: "technique-one", gameData, getBuilder: () => character.builder,
   });
-  assert.match(widget.element.innerHTML, /<\/select><div class="selectedChoiceDetail" data-choice-selection="technique-one"/);
-  assert.match(widget.element.innerHTML, /first technique &lt;safe&gt;/);
-  assert.doesNotMatch(widget.element.innerHTML, /second technique/);
+  assert.match(widget.element.innerHTML, /value="first" selected/);
+  assert.doesNotMatch(widget.element.innerHTML, /first technique|second technique|selectedChoiceDetail/);
+  widget.expandedChoices.add("technique-one");
+  widget.render();
+  assert.equal(widget.element.innerHTML.split("first technique &lt;safe&gt;").length, 2);
+  assert.equal(widget.element.innerHTML.split("second technique &lt;safe&gt;").length, 2);
+  widget.expandedChoices.clear();
   widget.choice = { techniqueKey: "second" };
-  assert.match(widget.render().innerHTML, /second technique &lt;safe&gt;/);
+  assert.match(widget.render().innerHTML, /value="second" selected/);
   assert.doesNotMatch(widget.render().innerHTML, /first technique/);
   widget.choice = null;
   assert.doesNotMatch(widget.render().innerHTML, /selectedChoiceDetail/);
 });
 
-test("granted weapon and enhancement descriptions belong directly to their own selectors", (t) => {
+test("granted weapons and enhancements reveal rules through expansion without a repeated selected description", (t) => {
   documentFor(t);
   const gameData = equipmentData();
   const page = { registerWidget() {} };
   const choice = { choiceId: "armament", weaponKey: "blade", rank: 1, enhancements: [{ enhancementKey: "keen", rank: 1, granted: false }] };
   const weapon = new WeaponChoiceWidget(page, { grant: { choiceId: "armament", rank: 1 }, choice, ...gameData });
   const enhancement = new WeaponEnhancementChoiceWidget(page, { grant: { choiceRef: "armament", rank: 1 }, choice, ...gameData });
-  assert.match(weapon.element.innerHTML, /<\/select><div class="selectedChoiceDetail" data-choice-selection="armament"/);
-  assert.match(weapon.element.innerHTML, /blade description &lt;safe&gt;/);
-  assert.doesNotMatch(weapon.element.innerHTML, /staff description|Keen edge/);
-  assert.match(enhancement.element.innerHTML, /<\/select><div class="selectedChoiceDetail"/);
-  assert.match(enhancement.element.innerHTML, /Keen edge &lt;safe&gt;/);
+  assert.doesNotMatch(weapon.element.innerHTML, /description|selectedChoiceDetail/);
+  assert.doesNotMatch(enhancement.element.innerHTML, /Keen edge|selectedChoiceDetail/);
+  weapon.expandedChoices.add("armament"); weapon.render();
+  enhancement.expandedChoices.add(enhancement.id); enhancement.render();
+  assert.equal(weapon.element.innerHTML.split("blade description &lt;safe&gt;").length, 2);
+  assert.equal(enhancement.element.innerHTML.split("Keen edge &lt;safe&gt;").length, 2);
+  weapon.expandedChoices.clear(); enhancement.expandedChoices.clear();
   weapon.choice = { ...choice, weaponKey: "staff" };
-  assert.match(weapon.render().innerHTML, /staff description/);
+  assert.match(weapon.render().innerHTML, /value="staff" selected/);
   assert.doesNotMatch(weapon.render().innerHTML, /blade description/);
   enhancement.choice = { ...choice, enhancements: [] };
   assert.doesNotMatch(enhancement.render().innerHTML, /selectedChoiceDetail/);
 });
 
-test("Equipment uses the same per-item descriptions and previews the Add Weapon choice without commands", async (t) => {
+test("Equipment shares expand-only rules and changing an Add Weapon draft never submits a command", async (t) => {
   documentFor(t);
   const gameData = equipmentData(), character = traitCharacter();
   character.builder.sheet.repeatables.combatSkillsExtra = [{ skill: "Melee Weapons", rank: 1 }];
@@ -89,17 +98,52 @@ test("Equipment uses the same per-item descriptions and previews the Add Weapon 
   const before = structuredClone(character);
   const elements = Object.fromEntries(["addWeaponBtn", "weaponList", "showOutOfRank", "weaponBaseSelect", "weaponBaseDetail", "weaponCountValue", "enhancementCountValue", "slotUsageValue", "slotUsagePill", "meleeSkillRankValue", "rangedWeaponsSkillRankValue", "equipmentStatusHint"].map((key) => [key, element()]));
   const widget = new EquipmentWidget({ getCharacter: () => character, registerWidget() {}, unregisterWidget() {}, requestCharacterCommand() { assert.fail("description preview must not submit commands"); } }, { gameData, elements });
-  assert.match(elements.weaponList.innerHTML, /data-choice-selection="owned" data-selected-key="blade"/);
-  assert.match(elements.weaponList.innerHTML, /data-choice-selection="owned:edge" data-selected-key="keen"/);
-  assert.match(elements.weaponList.innerHTML, /blade description &lt;safe&gt;/);
-  elements.weaponBaseSelect.value = "staff";
-  await elements.weaponBaseSelect.events.get("change")({ target: elements.weaponBaseSelect });
-  assert.match(elements.weaponBaseDetail.innerHTML, /staff description &lt;safe&gt;/);
-  assert.doesNotMatch(elements.weaponBaseDetail.innerHTML, /blade description/);
-  elements.weaponBaseSelect.value = "";
-  await elements.weaponBaseSelect.events.get("change")({ target: elements.weaponBaseSelect });
-  assert.equal(elements.weaponBaseDetail.innerHTML, "");
+  assert.match(elements.weaponList.innerHTML, /value="blade" selected/);
+  assert.match(elements.weaponList.innerHTML, /value="keen" selected/);
+  assert.doesNotMatch(elements.weaponList.innerHTML, /blade description|Keen edge|selectedChoiceDetail/);
+  const preview = value => elements.weaponBaseSelect.events.get("change")({ target: { dataset: { choiceOwner: widget.id, choiceId: "equipment-new-weapon" }, value } });
+  await preview("staff");
+  assert.match(elements.weaponBaseSelect.innerHTML, /value="staff" selected/);
+  assert.doesNotMatch(elements.weaponBaseSelect.innerHTML, /staff description/);
+  assert.doesNotMatch(elements.weaponBaseSelect.innerHTML, /blade description/);
+  widget.toggleCatalogue({ target: { dataset: { choiceOwner: widget.id, choiceToggle: "equipment-new-weapon" } } });
+  assert.equal(elements.weaponBaseSelect.innerHTML.split("staff description &lt;safe&gt;").length, 2);
+  widget.toggleCatalogue({ target: { dataset: { choiceOwner: widget.id, choiceToggle: "equipment-new-weapon" } } });
+  await preview("");
+  assert.doesNotMatch(elements.weaponBaseSelect.innerHTML, /selectedChoiceDetail/);
   assert.deepEqual(character, before);
   widget.destroy();
   assert.equal(elements.weaponBaseSelect.events.size, 0);
+});
+
+test("ordinary and granted Enhancements compose the same follow-up fields and preserve rejected answers", async (t) => {
+  documentFor(t);
+  const gameData = equipmentData(), character = traitCharacter();
+  const enhancementKey = "basic_elemental_infusion";
+  gameData.weaponEnhancements = [{ enhancementKey, name: "Elemental Infusion", description: "Choose an element.", status: "playable", minRank: 1, prerequisites: [] }];
+  character.builder.sheet.repeatables.combatSkillsExtra = [{ skill: "Melee Weapons", rank: 1 }];
+  const enhancement = { id: "edge", enhancementKey, rank: 1, selections: { element: "Water" }, granted: false };
+  character.builder.weapons = [{ id: "owned", weaponKey: "blade", rank: 1, enhancements: [enhancement] }];
+  const elements = Object.fromEntries(["addWeaponBtn", "weaponList", "showOutOfRank", "weaponBaseSelect", "weaponCountValue", "enhancementCountValue", "slotUsageValue", "slotUsagePill", "meleeSkillRankValue", "rangedWeaponsSkillRankValue", "equipmentStatusHint"].map(key => [key, element()]));
+  const commands = [], changes = [];
+  const page = { getCharacter: () => character, registerWidget() {}, async requestCharacterCommand(widget, command) { commands.push(command); return { ok: false, reason: "cancelled" }; } };
+  const ordinary = new EquipmentWidget(page, { gameData, elements });
+  const granted = new WeaponEnhancementChoiceWidget(page, { grant: { choiceRef: "armament", rank: 1 }, choice: { weaponKey: "blade", rank: 1, enhancements: [enhancement] }, ...gameData,
+    onChange: async (...args) => { changes.push(args); return { ok: false, reason: "cancelled" }; },
+  });
+  const [ordinaryId, ordinaryField] = [...ordinary.detailFields][0];
+  const [grantedId, grantedField] = [...granted.detailFields][0];
+  const normalized = field => field.field.render({ value: field.value }).replace(/(?:id|for|data-choice-owner|data-choice-field)="[^"]+"/g, 'binding="shared"');
+  assert.equal(normalized(ordinaryField), normalized(grantedField));
+  assert.doesNotMatch(ordinary.element.innerHTML, /Choose an element\./);
+  assert.doesNotMatch(granted.element.innerHTML, /Choose an element\./);
+  await granted.changeCatalogue({ target: { dataset: { choiceOwner: granted.id, choiceField: grantedId }, value: "Void" } });
+  assert.equal(changes.length, 0, "unknown follow-up options cannot emit commands");
+  await granted.changeCatalogue({ target: { dataset: { choiceOwner: granted.id, choiceField: grantedId }, value: "Fire" } });
+  await ordinary.changeCatalogue({ target: { dataset: { choiceOwner: ordinary.id, choiceField: ordinaryId }, value: "Fire" } });
+  assert.deepEqual(changes, [[enhancementKey, { element: "Fire" }]]);
+  assert.equal(commands[0].type, "UpdateWeaponEnhancement");
+  assert.deepEqual(commands[0].patch.selections, { element: "Fire" });
+  assert.match(granted.element.innerHTML, /value="Water" selected/);
+  assert.match(ordinary.element.innerHTML, /value="Water" selected/);
 });

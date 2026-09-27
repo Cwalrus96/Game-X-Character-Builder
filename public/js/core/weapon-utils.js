@@ -6,6 +6,11 @@ import { isGameDataRecordSelectable } from "./selection-rules.js";
 
 export const MAX_WEAPON_SLOTS = 4;
 
+export function getSelectableWeaponBases(weaponBases, { maxRank = null, skillRanks = {}, allowGrantedOnly = false, showOutOfRank = false } = {}) {
+  return (weaponBases || []).filter((weapon) => isGameDataRecordSelectable(weapon, { allowGrantedOnly })
+    && (showOutOfRank || Number(weapon.minRank || 0) <= (maxRank ?? getWeaponSkillRankCap(weapon, skillRanks))));
+}
+
 export const ENHANCEMENT_SELECTION_SPECS = Object.freeze({
   basic_elemental_infusion: Object.freeze([
     Object.freeze({ key: "element", label: "Element", type: "select", options: Object.freeze(["Water", "Fire", "Earth", "Wind"]) }),

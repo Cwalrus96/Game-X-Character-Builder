@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Game X — Character Builder (Bonds &amp; Keystones)</title>
     <link rel="stylesheet" href="/css/styles.css" />
-    <link rel="stylesheet" href="/css/builder.css" />
+    <link rel="stylesheet" href="/css/builder.css?v=choices4" />
   </head>
   <body>
     <div class="topbar"></div>
@@ -49,12 +49,10 @@
         </div>
         <div class="grid2" style="margin-top: 12px;">
           <div>
-            <label class="label" for="backgroundKeystone1">Background Keystone 1</label>
-            <input id="backgroundKeystone1" class="input" type="text" maxlength="400" placeholder="A short, double-edged character truth" />
+            <div id="backgroundKeystone1"></div>
           </div>
           <div>
-            <label class="label" for="backgroundKeystone2">Background Keystone 2</label>
-            <input id="backgroundKeystone2" class="input" type="text" maxlength="400" placeholder="A second background keystone" />
+            <div id="backgroundKeystone2"></div>
           </div>
         </div>
         <p class="help">Background Keystones should not describe your powers. They should be clear, useful, and easy to invoke or compel.</p>
@@ -81,14 +79,13 @@
             <select class="input" data-field="rank"></select>
           </div>
           <div style="grid-column: 1 / -1;">
-            <label class="label">Bond Keystone</label>
-            <input class="input" data-field="keystone" type="text" maxlength="400" placeholder="Describe the person and your relationship" />
+            <div data-field="keystone"></div>
           </div>
         </div>
         <button class="btn secondary" data-action="remove" type="button">Remove</button>
       </div>
     </template>
 
-    <script type="module" src="/js/builder/builder-bonds-keystones.js?v=natural-weapons2"></script>
+    <script type="module" src="/js/builder/builder-bonds-keystones.js?v=choices4"></script>
   </body>
 </html>

@@ -1,5 +1,7 @@
 # Widget consistency survey — September 27, 2026
 
+Historical before-state: the subsequent [implementation record](widget-consistency-2026-09-27.md) supersedes the Keystone/catalogue duplication and accessibility findings repaired in the authorized consistency follow-up.
+
 The Keystone editors do not share one field component. Transformation Keystone uses a different widget and presentation from Origin, Background and Bond Keystones. Other choice types have substantial shared rendering, but field construction and interaction handling are still split across implementations.
 
 This is an inspection of the current local workspace, including the existing uncommitted instruction-consistency changes. It records findings and recommended work; it does not change the UI, game data or saved characters, or complete `WPE-DOMAIN-MIGRATION` / `WPF-UI-SYSTEM`.

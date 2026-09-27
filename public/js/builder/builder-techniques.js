@@ -16,7 +16,7 @@ import {
 import { renderBuilderNavMounts } from "./builder-nav.js?v=natural-weapons2";
 import { getBuilderStepInformationalMessages } from "./builder-step-impacts.js?v=wpe11";
 import { CharacterSessionPage } from "./character-session-page.js?v=natural-weapons2";
-import { TechniquesWidget } from "./widgets/techniques-widget.js?v=natural-weapons2";
+import { TechniquesWidget } from "./widgets/techniques-widget.js?v=skill-groups1";
 
 import { SetTechniqueSelection, VisitBuilderStep } from "../core/character-commands.js?v=wpe1";
 import { readCharacter } from "../core/database-reader.js?v=wpe6";

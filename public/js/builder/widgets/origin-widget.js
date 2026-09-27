@@ -1,7 +1,8 @@
 import { SetOrigin, SetOriginKeystone } from "../../core/character-commands.js?v=wpe4";
-import { sanitizeText, escapeHtml } from "../../core/data-sanitization.js";
+import { escapeHtml } from "../../core/data-sanitization.js";
 import { getOriginSelectionState } from "../../core/origin-rules.js";
 import { appendRuleDetails } from "./rule-details.js";
+import { KeystoneWidget } from "./text-choice-widget.js";
 
 function statusLabel(status) {
   if (status === "playable") return "Playable";
@@ -28,9 +29,13 @@ export class OriginWidget {
     this.character = page.getCharacter();
     this.busy = false;
     this.onOriginChange = () => this.#setOrigin();
-    this.onKeystoneChange = () => this.#setKeystone();
     elements.originSelect.addEventListener("change", this.onOriginChange);
-    elements.originKeystone.addEventListener("change", this.onKeystoneChange);
+    this.keystoneWidget = new KeystoneWidget(page, {
+      id: "origin-keystone", label: "Origin Keystone", mount: elements.originKeystone, register: false,
+      help: "Your character gets one Origin Keystone at character creation.",
+      getValue: () => page.getCharacter().builder.originKeystone,
+      onChange: value => page.requestCharacterCommand(this, SetOriginKeystone(value)), onRejected,
+    });
     page.registerWidget(this);
     this.render();
   }
@@ -43,7 +48,7 @@ export class OriginWidget {
   async #submit(command, focusControl = null) {
     if (this.busy) return;
     const activeControl = focusControl || document.activeElement;
-    const restoreFocus = activeControl === this.elements.originSelect || activeControl === this.elements.originKeystone;
+    const restoreFocus = activeControl === this.elements.originSelect;
     this.busy = true;
     this.render();
     try {
@@ -60,15 +65,10 @@ export class OriginWidget {
     return this.#submit(SetOrigin(this.elements.originSelect.value), this.elements.originSelect);
   }
 
-  #setKeystone() {
-    const value = sanitizeText(this.elements.originKeystone.value, { maxLen: 400, collapse: true });
-    return this.#submit(SetOriginKeystone(value));
-  }
-
   render() {
     this.page.clearWidgets?.({ scope: this.childScope });
     const state = getOriginSelectionState(this.gameData, this.character.builder);
-    const { originSelect, originKeystone, originSummary, originDetails, originStatusHint } = this.elements;
+    const { originSelect, originSummary, originDetails, originStatusHint } = this.elements;
     originSelect.innerHTML = '<option value="">Select an origin…</option>';
     for (const origin of state.options) {
       const option = document.createElement("option");
@@ -79,8 +79,8 @@ export class OriginWidget {
     }
     originSelect.value = state.originKey;
     originSelect.disabled = this.busy;
-    originKeystone.value = this.character.builder.originKeystone;
-    originKeystone.disabled = this.busy;
+    this.keystoneWidget.enabled = !this.busy;
+    this.keystoneWidget.render();
 
     const selected = state.selected;
     if (!selected) {
@@ -112,7 +112,7 @@ export class OriginWidget {
   destroy({ unregister = true } = {}) {
     this.page.clearWidgets?.({ scope: this.childScope });
     this.elements.originSelect.removeEventListener("change", this.onOriginChange);
-    this.elements.originKeystone.removeEventListener("change", this.onKeystoneChange);
+    this.keystoneWidget.destroy();
     if (unregister) this.page.unregisterWidget(this);
   }
 }

@@ -13,6 +13,30 @@ const filterWeapons = (weapons, tags) => !tags ? weapons : weapons.filter(weapon
 const rankFor = (name, ranks) => Math.max(0, ...[...ranks].filter(([key]) => sameSkill(key, name)).map(([, rank]) => Number(rank) || 0));
 const requirementsMet = (technique, context) => list(technique.prerequisites).every(rule => evaluatePrerequisite(rule, context).ok);
 
+const uniqueSkills = names => [...new Map(names.filter(Boolean).map(name => [canonicalSkillKey(name), canonicalSkillName(name)])).values()];
+
+/** Acquisition labels come from parsed routes, never the combined compatibility text. */
+export function getTechniqueSkillNames(technique) {
+  return uniqueSkills(technique?.expressionSyntaxVersion === 3
+    ? (technique.selectionRoutes || []).filter(route => route.type === "skill").map(route => route.name)
+    : [technique?.skill]);
+}
+
+/** Project each qualifying route separately without changing access or roll/scaling rules. */
+export function getTechniqueCatalogueSkills(technique, input = {}) {
+  if (technique?.expressionSyntaxVersion !== 3) return getTechniqueSkillNames(technique);
+  const context = createTechniqueContext(input);
+  const names = (technique.selectionRoutes || []).filter(route => {
+    if (route.type !== "skill") return false;
+    const state = getTechniqueSelectionState({ ...technique, selectionRoutes: [route] }, context);
+    return state.eligible && state.prerequisitesMet;
+  }).map(route => route.name);
+  if (names.length) return uniqueSkills(names);
+  // Tag/granted routes may have an explicit skill; otherwise the UI uses Other.
+  const state = getTechniqueSelectionState(technique, context);
+  return state.eligible && state.prerequisitesMet ? uniqueSkills([state.skillName]) : [];
+}
+
 /** The same context supplies acquisition, performance and dependency evidence. */
 export function createTechniqueContext(input = {}) {
   if (input.techniqueRules) return input;
