@@ -1,0 +1,11 @@
+# Character Sheet source-owned Techniques — September 28, 2026
+
+The sheet previously collected normal selected Techniques, fixed grants, Trait grants and eligible Rank 0 basics, but omitted saved Technique answers in `builder.grantChoices`. Dazzling Wand correctly stored its selection there, so a level-2 Magical Guardian's Telepathic Link could be learned yet missing from the sheet.
+
+The new read-only projection includes those answers using the existing Character Dependency Graph. The sheet decodes the saved envelope through the existing persistence boundary; GraphCompiler supplies active ownership and answer validity. The projection excludes orphaned answers, wrong owners, mismatched filters, missing definitions and unmet static prerequisites. It uses the catalogue's source label, deduplicates all paths by stable Technique identity, and retains shared performance Rules and Trait context. It does not copy granted choices into normal selections, spend technique capacity, reconcile saved state or write character data.
+
+This applies to source-owned Technique grants generally, including class-feature options and Origins. The actual level-2 Dazzling Wand fixture displays Telepathic Link at Spellcasting rank 1, labelled **Granted by Dazzling Wand**. As a technique requiring no roll, it has no action buttons.
+
+Verification: 596-unit preflight; six controlled-fixture regressions; full `npm run test:all` passes **602 units, 21 emulator tests and 15 HTML asset checks**. Tests cover inclusion without mutation, inactive/level-locked sources, wrong class/owner, filters, missing records, prerequisites, multiple skill routes/effective rank, identity deduplication and Origin ownership. The ten-artifact production baseline is unchanged.
+
+Authenticated browser review on the disposable local `dazzling-wand-review-20260928` character verifies display and reload, zero roll buttons on Telepathic Link, no browser warnings/errors, and exact saved-document equality. The separate rolling layout refinement is recorded in [the rolling record](sheet-rolling-2026-09-27.md); desktop and 390px checks confirm its column layout and both roll controls. Local previews use http://localhost:5000. Production and canonical source data are unchanged. Wider roadmap acceptance and animated dice remain separate work.

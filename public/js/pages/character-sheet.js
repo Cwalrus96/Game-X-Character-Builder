@@ -23,14 +23,11 @@ import {
   loadGameXClasses,
   loadGameXData,
   loadGameXOrigins,
-  getGameXTechniques,
   getGameXWeaponBases,
   getGameXWeaponEnhancements,
   getOriginByKey,
-  buildTechniqueIndexes,
-  resolveTechniqueRef,
 } from "../core/game-data.js";
-import { computeKnownCombatSkillsAndGrants, getSkillDisplayState, isCoreCombatSkill } from "../core/skill-rules.js?v=core-combat1";
+import { getSkillDisplayState, isCoreCombatSkill } from "../core/skill-rules.js?v=core-combat1";
 import {
   computeWeaponSlotCost,
   getEffectiveTags,
@@ -41,8 +38,10 @@ import {
   renderEnhancementDetailHtml,
 } from "../core/weapon-utils.js?v=sheet-rolls7";
 import { renderTechniqueProfileHtml } from "../core/technique-utils.js?v=sheet-rolls7";
-import { projectCharacterTraits, getActiveTraitTechniqueDetails } from "../core/trait-rules.js";
-import { getTechniqueSelectionState, getTechniquePerformance, createTechniqueContext } from "../core/technique-rules.js";
+import { projectCharacterTraits } from "../core/trait-rules.js";
+import { projectSheetTechniques } from "../core/sheet-technique-projection.js";
+import { decodeStoredCharacter } from "../core/character-persistence.js?v=wpe6";
+import { createCharacterMigrationReferences } from "../core/character-migrations.js?v=wpe6";
 import { renderGrantedWeaponHtml } from "../core/weapon-grant-display.js?v=sheet-rolls7";
 import { renderTraitProjectionHtml } from "../core/trait-display.js";
 import { sortClassFeatureAbilitiesByLevel } from "../core/class-feature-display.js";
@@ -403,16 +402,12 @@ setNumberFieldByName('hpmax', hpmax);
   // ---- Techniques from Builder (read-only display) ----
 
   let _gameXDataForTechniques = null;
-  let _techniqueIndexes = null;
 
   async function ensureTechniqueData() {
     if (!_gameXDataForTechniques) {
       _gameXDataForTechniques = await loadGameXData({ cache: "no-store" });
     }
-    if (!_techniqueIndexes) {
-      _techniqueIndexes = buildTechniqueIndexes(_gameXDataForTechniques?.techniques);
-    }
-    return { gameData: _gameXDataForTechniques, indexes: _techniqueIndexes };
+    return { gameData: _gameXDataForTechniques };
   }
 
   async function renderBuilderTraitsReadOnly(character) {
@@ -436,61 +431,25 @@ setNumberFieldByName('hpmax', hpmax);
     }
   }
 
-async function renderBuilderTechniquesReadOnly(builder) {
+async function renderBuilderTechniquesReadOnly(character) {
   try {
     const mount = document.getElementById("selectedTechniquesFromBuilder");
     if (!mount) return;
 
-    const b = builder && typeof builder === "object" ? builder : {};
-    const selectedRefs = Array.isArray(b.selectedTechniques) ? b.selectedTechniques : [];
-
-    const { gameData, indexes } = await ensureTechniqueData();
-    const knownAndGrants = computeKnownCombatSkillsAndGrants(gameData, b) || {};
-    const grants = knownAndGrants.grantedTechniqueNames || new Set();
-    const traitTechniqueDetails = getActiveTraitTechniqueDetails(projectCharacterTraits({ builder: b }, gameData));
-    const techniqueContext = createTechniqueContext({ gameData, builder: b });
-
-    const origin = new Map();
-    for (const ref of Array.from(grants)) origin.set(String(ref), 'Granted');
-    for (const [key, detail] of traitTechniqueDetails) origin.set(key, `Granted by ${detail.traitName || detail.sourceLabel || "Trait"}`);
-    for (const ref of selectedRefs) if (!origin.has(String(ref))) origin.set(String(ref), 'Selected');
-    const rankZeroBasics = getGameXTechniques(gameData)
-      .filter((tech) => {
-          const name = String(tech?.techniqueName || "").trim();
-          const rank = Number.parseInt(String(tech?.rank ?? 0), 10);
-          if (!name || rank !== 0) return false;
-          const access = getTechniqueSelectionState(tech, techniqueContext);
-          return access.eligible && access.prerequisitesMet !== false;
-        });
-    for (const tech of rankZeroBasics) {
-      const name = String(tech?.techniqueName || "").trim();
-      const key = tech.techniqueKey || name;
-      if (key && !origin.has(key)) origin.set(key, 'Basic');
-    }
-
-    const items = [];
-    for (const [ref, source] of origin.entries()) {
-      const res = resolveTechniqueRef(ref, indexes);
-      if (!res?.ok || !res.technique) continue;
-      items.push({ source, tech: res.technique });
-    }
+    const { gameData } = await ensureTechniqueData();
+    const decoded = decodeStoredCharacter(character, { references: createCharacterMigrationReferences(gameData) });
+    if (!decoded.ok) console.warn("Technique display could not decode saved choices", decoded.diagnostics);
+    const items = projectSheetTechniques({ character: decoded.character || character, gameData });
 
     if (!items.length) {
       mount.innerHTML = '';
       return;
     }
 
-    items.sort((a, b) => {
-      const rankA = Number.parseInt(String(a.tech?.rank ?? 0), 10) || 0;
-      const rankB = Number.parseInt(String(b.tech?.rank ?? 0), 10) || 0;
-      if (rankA !== rankB) return rankA - rankB;
-      return String(a.tech?.techniqueName || '').localeCompare(String(b.tech?.techniqueName || ''));
-    });
-
-    function renderTechniqueCard({ source, tech }) {
+    function renderTechniqueCard({ source, tech, provider, performance }) {
       return `
         <article class="ability-card technique-card technique-card-readonly">
-            ${renderTechniqueProfileHtml(tech, { gameData, performance: getTechniquePerformance(tech, techniqueContext, traitTechniqueDetails.get(tech.techniqueKey)), rollButtonHtml: sheetRolls.buttonFor(tech, { provider: traitTechniqueDetails.get(tech.techniqueKey) }), heading: String(tech?.techniqueName || 'Technique'), headingTag: 'div', headingClass: 'ability-name technique-title-static', showRank: true })}
+            ${renderTechniqueProfileHtml(tech, { gameData, performance, rollButtonHtml: sheetRolls.buttonFor(tech, { provider }), heading: String(tech?.techniqueName || 'Technique'), headingTag: 'div', headingClass: 'ability-name technique-title-static', showRank: true })}
             <span class="technique-source-badge">${escapeHtml(source)}</span>
         </article>
       `;
@@ -714,7 +673,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
         renderBondsReadOnly(bonds);
         renderKeystonesReadOnly(b);
         // Render Builder-selected techniques (read-only).
-        renderBuilderTechniquesReadOnly(b);
+        renderBuilderTechniquesReadOnly(raw);
         renderBuilderWeaponsReadOnly(b);
         renderBuilderTraitsReadOnly(raw);
         renderSheetBuilderNav(raw);
@@ -759,7 +718,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
       currentDoc = baseline;
       sheetRolls.setCharacter({ gameData: await loadGameXData(), builder: baseline.builder });
 
-      renderBuilderTechniquesReadOnly((baseline && baseline.builder) ? baseline.builder : {});
+      renderBuilderTechniquesReadOnly(baseline);
       renderBuilderWeaponsReadOnly((baseline && baseline.builder) ? baseline.builder : {});
       renderBuilderTraitsReadOnly(baseline);
       renderSheetBuilderNav(baseline);
