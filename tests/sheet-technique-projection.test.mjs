@@ -71,7 +71,7 @@ test("techniques shared by selected, fixed and choice grants appear once using s
   const [item] = granted(input);
   assert.equal(granted(input).length, 1);
   assert.equal(item.tech.techniqueName, "Renamed Shroud");
-  assert.equal(item.source, "Granted by Moon Path");
+  assert.equal(item.source, "Granted by Shadow Training, Moon Path");
   assert(projectSheetTechniques(input).some(item => item.tech.techniqueKey === "stalk-prey"));
 });
 

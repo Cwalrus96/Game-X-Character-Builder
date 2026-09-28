@@ -13,7 +13,7 @@ import {
 import { computeGrantedSkillsState } from "../../core/skill-rules.js";
 import { isGameDataRecordSelectable } from "../../core/selection-rules.js";
 import { isSourceOwnedWeapon } from "../../core/grants.js";
-import { projectCharacterTraits } from "../../core/trait-rules.js";
+import { projectCharacterTraits } from "../../core/trait-projection.js";
 import { renderGrantedWeaponHtml } from "../../core/weapon-grant-display.js?v=natural-weapons2";
 import {
   MAX_WEAPON_SLOTS,

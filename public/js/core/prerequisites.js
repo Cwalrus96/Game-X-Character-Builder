@@ -1,11 +1,13 @@
 // The evaluator remains independent of Trait projection to avoid recursive reads.
 export * from "./prerequisite-rules.js";
 import * as rules from "./prerequisite-rules.js";
-import { projectCharacterTraits } from "./trait-rules.js";
+import { projectTechniqueOwnership } from "./technique-ownership.js";
 
 export function createPrerequisiteContext(input = {}) {
-  if (input.projectTraits === false || !input.gameData?.traits?.length) return rules.createPrerequisiteContext(input);
-  const projection = input.traitProjection || projectCharacterTraits({ builder: input.builder || input }, input.gameData);
+  const base = rules.createPrerequisiteContext(input);
+  const ownership = input.techniqueOwnership || projectTechniqueOwnership({ builder: input.builder || input,
+    gameData: input.gameData, projectTraits: input.projectTraits !== false });
+  const projection = input.traitProjection || ownership.traitProjection;
   const tagRanks = { ...(input.tagRanks || {}) };
   for (const trait of projection.traits.filter((item) => item.active)) {
     for (const tag of trait.tags) tagRanks[tag] = Math.max(tagRanks[tag] || 0, trait.rank);
@@ -13,10 +15,10 @@ export function createPrerequisiteContext(input = {}) {
   return rules.createPrerequisiteContext({
     ...input,
     selectedTraits: input.selectedTraits ?? projection.traits.filter((trait) => !trait.referenceOnly && trait.active),
-    selectedTechniqueKeys: input.selectedTechniqueKeys ?? [...(input.builder?.selectedTechniques || []), ...projection.techniques.filter((technique) => technique.active).map((technique) => technique.techniqueKey)],
+    selectedTechniqueKeys: input.selectedTechniqueKeys ?? [...new Set([...base.selectedTechniqueKeys, ...ownership.techniques.map(item => item.techniqueKey)])],
     tags: [...(input.tags || []), ...projection.tags],
     tagRanks,
-    weapons: input.weapons ?? [...rules.createPrerequisiteContext(input).weapons, ...(projection.weapons || [])],
+    weapons: input.weapons ?? [...base.weapons, ...(projection.weapons || [])],
   });
 }
 

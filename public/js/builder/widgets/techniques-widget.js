@@ -6,7 +6,6 @@ import { getChoiceCountState } from "../../core/choice-capacity.js";
 import { SetTechniqueSelection } from "../../core/character-commands.js?v=wpe1";
 import { escapeHtml, sanitizeNamedSkillList, sanitizeText } from "../../core/data-sanitization.js";
 import {
-  createCharacterGrantCollection,
   getGameXTechniques,
   resolveTechniqueRef,
 } from "../../core/game-data.js?v=wpe1";
@@ -15,7 +14,7 @@ import { canonicalSkillKey, canonicalSkillName } from "../../core/skill-identity
 import { isGameDataRecordSelectable } from "../../core/selection-rules.js";
 import { getTechniqueSelectionState, getTechniquePerformance, createTechniqueContext, getTechniqueSkillNames, getTechniqueCatalogueSkills } from "../../core/technique-rules.js?v=skill-groups1";
 import { meetsPrerequisites } from "../../core/prerequisites.js";
-import { projectCharacterTraits, getActiveTraitTechniqueDetails } from "../../core/trait-rules.js";
+import { projectTechniqueOwnership, getTechniqueOwnershipDetail } from "../../core/technique-ownership.js";
 import { TechniqueCatalogueWidget } from "./technique-catalogue-widget.js?v=choices5";
 
 function techniqueName(technique) {
@@ -33,85 +32,6 @@ function techniqueRank(technique) {
 
 function techniqueSkill(technique) {
   return canonicalSkillName(sanitizeText(technique?.skill, { maxLen: 96, collapse: true }));
-}
-
-function countForGrant(grant) {
-  const count = Number.parseInt(String(grant?.count ?? 1), 10);
-  return Number.isFinite(count) ? Math.max(0, count) : 1;
-}
-
-function getSourceOwnedTechniqueAnswerCounts(builder = {}, gameData = {}) {
-  const choices = (builder?.grantChoices && typeof builder.grantChoices === "object" && !Array.isArray(builder.grantChoices))
-    ? builder.grantChoices
-    : {};
-  const counts = new Map();
-
-  for (const choice of Object.values(choices)) {
-    if (choice?.type !== "technique") continue;
-    const technique = getGameXTechniques(gameData).find((entry) => techniqueKey(entry) === choice?.techniqueKey);
-    const skill = canonicalSkillName(sanitizeText(choice?.skillKey || technique?.skill, { maxLen: 96, collapse: true })).toLowerCase();
-    if (!choice?.techniqueKey || !skill) continue;
-    counts.set(skill, (counts.get(skill) || 0) + 1);
-  }
-
-  return counts;
-}
-
-function getSourceOwnedTechniqueDetails(builder = {}) {
-  const choices = (builder?.grantChoices && typeof builder.grantChoices === "object" && !Array.isArray(builder.grantChoices))
-    ? builder.grantChoices
-    : {};
-  const details = new Map();
-
-  for (const choice of Object.values(choices)) {
-    if (choice?.type !== "technique") continue;
-    const technique = sanitizeText(choice?.techniqueKey, { maxLen: 128, collapse: true });
-    if (!technique) continue;
-    const sourceLabel = sanitizeText(choice?.sourceLabel, { maxLen: 200, collapse: true });
-    details.set(technique, {
-      kind: "sourceOwned",
-      label: sourceLabel ? `Chosen from ${sourceLabel}` : "Chosen from feature",
-    });
-  }
-
-  return details;
-}
-
-function getGrantedTechniqueDetails(gameData, builder = {}) {
-  const details = new Map();
-  const collection = createCharacterGrantCollection(gameData, builder);
-  for (const grant of collection.techniqueGrants || []) {
-    const technique = sanitizeText(grant?.key, { maxLen: 128, collapse: true });
-    if (!technique) continue;
-    const sourceLabel = sanitizeText(grant?.source?.name || grant?.source?.featureName || grant?.source?.featKey, {
-      maxLen: 200,
-      collapse: true,
-    });
-    details.set(technique, {
-      kind: "granted",
-      label: sourceLabel ? `Granted by ${sourceLabel}` : "Granted",
-    });
-  }
-  return details;
-}
-
-function getRemainingTechniqueChoiceGrants(grants, sourceOwnedAnswerCounts = new Map()) {
-  const answeredBySkill = new Map(sourceOwnedAnswerCounts || []);
-  const out = [];
-
-  for (const grant of Array.isArray(grants) ? grants : []) {
-    const skill = canonicalSkillName(sanitizeText(grant?.skill || grant?.name || grant?.key, { maxLen: 96, collapse: true })).toLowerCase();
-    const total = countForGrant(grant);
-    if (!skill || total <= 0) continue;
-
-    const answered = Math.max(0, answeredBySkill.get(skill) || 0);
-    const consumed = Math.min(total, answered);
-    const remaining = total - consumed;
-    answeredBySkill.set(skill, answered - consumed);
-    if (remaining > 0) out.push({ ...grant, count: remaining });
-  }
-
-  return out;
 }
 
 export class TechniquesWidget extends TechniqueCatalogueWidget {
@@ -188,27 +108,22 @@ export class TechniquesWidget extends TechniqueCatalogueWidget {
     const b = builder && typeof builder === "object" ? builder : {};
     const { primaryAttrKey, slots } = computeTechniqueSlots(b.primaryAttribute, b.attributes);
     const knownAndGrants = computeKnownCombatSkillsAndGrants(gameData, b);
-    const sourceOwnedTechniqueDetails = getSourceOwnedTechniqueDetails(b);
-    const grantedTechniqueDetails = getGrantedTechniqueDetails(gameData, b);
-    const traitTechniqueDetails = getActiveTraitTechniqueDetails(projectCharacterTraits({ builder: b }, gameData));
-    for (const [key, detail] of traitTechniqueDetails) {
-      grantedTechniqueDetails.set(key, { kind: "granted", label: `Granted by ${detail.traitName || detail.sourceLabel || "Trait"}` });
+    const ownership = projectTechniqueOwnership({ gameData, builder: b });
+    const grantedTechniqueDetails = new Map(), traitTechniqueDetails = new Map();
+    for (const item of ownership.techniques) {
+      const detail = getTechniqueOwnershipDetail(item);
+      if (detail.free) grantedTechniqueDetails.set(item.techniqueKey, { kind: "granted", label: detail.label });
+      if (detail.provider) traitTechniqueDetails.set(item.techniqueKey, detail.provider);
     }
     return {
       builder: b,
-      rulesContext: createTechniqueContext({ gameData, builder: b }),
+      rulesContext: createTechniqueContext({ gameData, builder: b, techniqueOwnership: ownership }),
       primaryAttrKey,
       slots,
       knownCombatSkills: knownAndGrants.knownCombatSkills || new Set(),
       grantedTechniqueNames: new Set(grantedTechniqueDetails.keys()),
       grantedTechniqueDetails,
       traitTechniqueDetails,
-      sourceOwnedTechniqueNames: new Set(sourceOwnedTechniqueDetails.keys()),
-      sourceOwnedTechniqueDetails,
-      techniqueChoiceGrants: getRemainingTechniqueChoiceGrants(
-        Array.isArray(knownAndGrants.techniqueChoiceGrants) ? knownAndGrants.techniqueChoiceGrants : [],
-        getSourceOwnedTechniqueAnswerCounts(b, gameData),
-      ),
       grantedSkillState: computeGrantedSkillsState(gameData, b),
     };
   }
@@ -229,13 +144,6 @@ export class TechniquesWidget extends TechniqueCatalogueWidget {
       grantedSkillState: context.grantedSkillState,
       deferUnresolvedChoices: true,
     });
-  }
-
-  getTechniqueChoiceGrantCount(context) {
-    return context.techniqueChoiceGrants.reduce((total, grant) => {
-      const count = Number.parseInt(String(grant?.count ?? 1), 10);
-      return total + (Number.isFinite(count) ? Math.max(0, count) : 1);
-    }, 0);
   }
 
   getTechniqueSkillRank(technique, context) {
@@ -281,46 +189,8 @@ export class TechniquesWidget extends TechniqueCatalogueWidget {
     return getTechniqueSelectionState(technique, this.getTechniqueAccessContext(technique, context, gameData));
   }
 
-  grantMatchesTechniqueChoice(grant, technique, context) {
-    const grantSkill = canonicalSkillName(sanitizeText(grant?.skill || grant?.name || grant?.key, { maxLen: 96, collapse: true })).toLowerCase();
-    if (!grantSkill) return false;
-    const skill = techniqueSkill(technique).toLowerCase();
-    if (grantSkill !== skill) return false;
-    return this.getTechniqueSkillRank(technique, context) >= techniqueRank(technique);
-  }
-
-  countExtraTechniqueAssignments(refs, context, gameData = this.getGameData()) {
-    const selected = Array.from(refs || [])
-      .map((ref) => this.resolveRef(ref, gameData))
-      .filter(Boolean);
-    const remainingBySkill = new Map();
-
-    for (const grant of context.techniqueChoiceGrants) {
-      const skill = canonicalSkillName(sanitizeText(grant?.skill || grant?.name || grant?.key, { maxLen: 96, collapse: true })).toLowerCase();
-      if (!skill) continue;
-      const count = Number.parseInt(String(grant?.count ?? 1), 10);
-      remainingBySkill.set(skill, (remainingBySkill.get(skill) || 0) + (Number.isFinite(count) ? Math.max(0, count) : 1));
-    }
-
-    let assigned = 0;
-    for (const technique of selected) {
-      const skill = techniqueSkill(technique).toLowerCase();
-      const remaining = remainingBySkill.get(skill) || 0;
-      if (remaining <= 0) continue;
-      if (!context.techniqueChoiceGrants.some((grant) => this.grantMatchesTechniqueChoice(grant, technique, context))) continue;
-      remainingBySkill.set(skill, remaining - 1);
-      assigned += 1;
-    }
-
-    return assigned;
-  }
-
-  selectedTechniquesFitSlots(refs, context, gameData = this.getGameData()) {
-    const selected = this.getNormalSelectedTechniques(refs instanceof Set ? refs : new Set(refs || []), context);
-    const total = selected.size;
-    if (total <= context.slots) return true;
-    const extraNeeded = total - Math.max(0, context.slots);
-    return this.countExtraTechniqueAssignments(selected, context, gameData) >= extraNeeded;
+  selectedTechniquesFitSlots(refs, context) {
+    return this.getNormalSelectedTechniques(refs instanceof Set ? refs : new Set(refs || []), context).size <= context.slots;
   }
 
   canAddTechnique(key, context) {
@@ -333,7 +203,6 @@ export class TechniquesWidget extends TechniqueCatalogueWidget {
   isFreeTechniqueName(key, context) {
     return !!key && (
       context.grantedTechniqueNames?.has(key)
-      || context.sourceOwnedTechniqueNames?.has(key)
     );
   }
 
@@ -418,11 +287,9 @@ export class TechniquesWidget extends TechniqueCatalogueWidget {
 
     const normalSelected = this.getNormalSelectedTechniques(this.selectedTechniques(), context);
     const { total } = this.getSelectedCounts(normalSelected);
-    const extraSlots = this.getTechniqueChoiceGrantCount(context);
-    const maxTotal = context.slots + extraSlots;
     const countState = getChoiceCountState({
       selectedCount: total,
-      expectedCount: maxTotal,
+      expectedCount: context.slots,
       noun: "technique",
     });
 
@@ -430,13 +297,6 @@ export class TechniquesWidget extends TechniqueCatalogueWidget {
     pillSlots.className = "pill";
     pillSlots.textContent = `Slots: ${context.slots}`;
     this.slotPillsEl.append(pillSlots);
-
-    if (extraSlots > 0) {
-      const pillExtra = document.createElement("span");
-      pillExtra.className = "pill";
-      pillExtra.textContent = `Granted picks: ${extraSlots}`;
-      this.slotPillsEl.append(pillExtra);
-    }
 
     const pillSelected = document.createElement("span");
     pillSelected.className = "pill";
@@ -490,13 +350,11 @@ export class TechniquesWidget extends TechniqueCatalogueWidget {
   passesKnownSkillFilter(technique, context, gameData = this.getGameData()) {
     const key = techniqueKey(technique);
     if (key && context.grantedTechniqueNames.has(key)) return true;
-    if (key && context.sourceOwnedTechniqueNames?.has(key)) return true;
     if (!this.passesTechniquePrerequisites(technique, context, gameData)) return false;
     if (technique.expressionSyntaxVersion === 3) return this.getTechniqueAccess(technique, context, gameData).eligible;
     if (!this.filterKnownSkills) return true;
     const skill = techniqueSkill(technique);
     if (!skill) return false;
-    if (context.techniqueChoiceGrants.some((grant) => this.grantMatchesTechniqueChoice(grant, technique, context))) return true;
     if (!context.knownCombatSkills.has(skill)) return false;
     return this.getTechniqueSkillRank(technique, context) >= techniqueRank(technique);
   }
@@ -580,13 +438,13 @@ export class TechniquesWidget extends TechniqueCatalogueWidget {
     const normalSelected = this.getNormalSelectedTechniques(this.selectedTechniques(), context);
     const countState = getChoiceCountState({
       selectedCount: normalSelected.size,
-      expectedCount: context.slots + this.getTechniqueChoiceGrantCount(context),
+      expectedCount: context.slots,
       noun: "technique",
     });
     const options = items.map(technique => {
       const key = techniqueKey(technique);
-      const freeDetail = context.sourceOwnedTechniqueDetails?.get(key) || context.grantedTechniqueDetails?.get(key);
-      const automatic = rank === 0 || context.grantedTechniqueNames.has(key) || context.sourceOwnedTechniqueNames?.has(key);
+      const freeDetail = context.grantedTechniqueDetails?.get(key);
+      const automatic = rank === 0 || context.grantedTechniqueNames.has(key);
       const selected = automatic || this.selectedTechniques().has(key);
       if (selected) values.push(key);
       return { technique, disabled: automatic || this.getTechniqueSkillRank(technique, context) < techniqueRank(technique) || countState.expectedCount <= 0 || (!this.canAddTechnique(key, context) && !selected),

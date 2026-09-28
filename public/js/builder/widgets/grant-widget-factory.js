@@ -1,5 +1,6 @@
 import { normalizeEnumToken, sanitizeText } from "../../core/data-sanitization.js";
 import { resolveGrantChoiceIds } from "../../core/choice-identity.js";
+import { isTechniqueChoiceGrant } from "../../core/technique-grant-rules.js";
 import { getEffectiveTags } from "../../core/weapon-utils.js";
 import { TechniqueChoiceWidget } from "./technique-choice-widget.js?v=choices5";
 import { WeaponChoiceWidget } from "./weapon-choice-widget.js?v=choices5";
@@ -101,8 +102,8 @@ export function createGrantWidgets({
   const widgets = [];
 
   for (const [index, grant] of grants.entries()) {
-    if (grant?.type === "technique-choice") {
-      for (const [choiceIndex, choiceId] of resolveGrantChoiceIds(grant, { sourceId, index }).entries()) {
+    if (isTechniqueChoiceGrant(grant)) {
+      for (const [choiceIndex, choiceId] of resolveGrantChoiceIds({ ...grant, type: "technique-choice" }, { sourceId, index }).entries()) {
         widgets.push(new TechniqueChoiceWidget(page, {
           grant: { ...grant, count: 1, choiceNumber: choiceIndex + 1 },
           choice: grantChoiceState?.getChoice(choiceId),

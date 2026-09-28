@@ -1,5 +1,7 @@
 # Character Sheet source-owned Techniques — September 28, 2026
 
+The later [entity source consistency repair](entity-source-consistency-2026-09-28.md) supersedes the sheet-only collection mechanism below. The sheet and graph now both consume a shared pure ownership projection; the sheet no longer compiles its own graph just to collect Techniques. The behavior and save-isolation checks described here remain covered.
+
 The sheet previously collected normal selected Techniques, fixed grants, Trait grants and eligible Rank 0 basics, but omitted saved Technique answers in `builder.grantChoices`. Dazzling Wand correctly stored its selection there, so a level-2 Magical Guardian's Telepathic Link could be learned yet missing from the sheet.
 
 The new read-only projection includes those answers using the existing Character Dependency Graph. The sheet decodes the saved envelope through the existing persistence boundary; GraphCompiler supplies active ownership and answer validity. The projection excludes orphaned answers, wrong owners, mismatched filters, missing definitions and unmet static prerequisites. It uses the catalogue's source label, deduplicates all paths by stable Technique identity, and retains shared performance Rules and Trait context. It does not copy granted choices into normal selections, spend technique capacity, reconcile saved state or write character data.

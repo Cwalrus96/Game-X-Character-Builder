@@ -1,4 +1,4 @@
-import { getActiveGrantEntries } from "./game-data.js";
+import { getCharacterGrantSources, getActiveCharacterGrantSources, grantSourceIdentity } from "./grant-source-rules.js";
 import { getTraitGrantDeferredReasons } from "./game-data-contract.js";
 import { createPrerequisiteContext, evaluatePrerequisite } from "./prerequisite-rules.js";
 import { computeGrantedSkillsState, getCombatSkillRanks } from "./skill-rules.js";
@@ -21,16 +21,10 @@ const DEFERRED_MESSAGES = Object.freeze({
 });
 
 /** Stable ownership never uses display names or row positions. */
-export function traitSourceIdentity(entry) {
-  if (entry.originKey && entry.featureKey) return `origin-feature:${entry.originKey}:${entry.featureKey}`;
-  if (entry.classKey && entry.featureKey) return `${entry.type === "option" ? "class-option" : "class-feature"}:${entry.classKey}:${entry.featureKey}`;
-  if (entry.featKey) return `${entry.type === "option" ? "feat-option" : "feat-selection"}:${entry.featKey}`;
-  return entry.originKey ? `origin:${entry.originKey}` : "";
-}
+export const traitSourceIdentity = grantSourceIdentity;
 
-export function normalizeTraitProvider(grant, entry, index = 0) {
+export function normalizeTraitProvider(grant, entry, index = 0, { sourceId = traitSourceIdentity(entry) } = {}) {
   if (grant?.type !== "trait") return null;
-  const sourceId = traitSourceIdentity(entry);
   const keys = list(grant.key), filters = list(grant.tag);
   const choice = Boolean(grant.choiceId || filters.length || keys.length !== 1 || Number(grant.count || 1) > 1);
   let reason = !sourceId ? "Provider needs a stable source identity."
@@ -58,10 +52,14 @@ function grantedTags(traits, definitions) {
     .filter((grant) => grant.type === "tag" && trait.rank >= (grant.minRank ?? 1)).flatMap((grant) => list(grant.tag))));
 }
 
-function requirementsMet(prerequisites, context, traits, definitions) {
+function acquiredContext(context, traits, definitions) {
   const weapons = projectTraitWeapons(traits.map(trait => ({ ...definitions.get(trait.traitKey), ...trait,
     active: true, recipientId: "character", associatedSkill: trait.provider?.skill || "" })), context.gameData);
-  const next = { ...context, weapons: [...context.weapons, ...weapons], selectedTraits: traits, tags: grantedTags(traits, definitions) };
+  return { ...context, weapons: [...context.weapons, ...weapons], selectedTraits: traits, tags: grantedTags(traits, definitions) };
+}
+
+function requirementsMet(prerequisites, context, traits, definitions) {
+  const next = acquiredContext(context, traits, definitions);
   return list(prerequisites).every((prerequisite) => evaluatePrerequisite(prerequisite, next).ok);
 }
 
@@ -105,34 +103,20 @@ function readyTechniqueKeys(traits, definitions, context) {
 }
 
 /** Only source-owned choices persist; static rank, tags and access derive. */
-export function projectCharacterTraits(character, gameData = {}) {
+export function projectCharacterTraits(character, gameData = {}, { selectedTechniqueKeys } = {}) {
   const builder = character?.builder || character || {};
   const definitions = new Map((gameData.traits || []).map((trait) => [trait.traitKey, trait]));
-  const ancestry = new Map();
-  function remember(rows, parents = []) {
-    for (const entry of rows || []) {
-      ancestry.set(entry, parents);
-      remember(entry.options, [...parents, entry]);
-      remember(entry.features, [...parents, entry]);
-    }
-  }
-  const selectedClass = (gameData.classes || []).find((entry) => entry.classKey === builder.classKey);
-  const classRows = Array.isArray(gameData.classFeatures) ? gameData.classFeatures.filter((entry) => entry.classKey === builder.classKey) : gameData.classFeatures?.[builder.classKey] || [];
-  remember(classRows, selectedClass ? [selectedClass] : []);
-  remember(gameData.origins);
-  remember(gameData.feats);
   const providers = [], references = [], issues = [], choices = [];
   const seenSources = new Set();
-  for (const entry of getActiveGrantEntries(gameData, builder)) {
-    const parents = ancestry.get(entry) || [];
-    if ([entry, ...parents].some((ancestor) => Number(ancestor.level || 1) > Number(builder.level || 1))) continue;
-    const sourceId = traitSourceIdentity(entry);
+  for (const source of getCharacterGrantSources(gameData, builder)) {
+    if (!source.levelEligible) continue;
+    const { entry, sourceId } = source;
     if (!sourceId || seenSources.has(sourceId)) continue;
     seenSources.add(sourceId);
     const grants = list(entry.grants).filter((grant) => grant.type === "trait");
-    const providerEntry = { ...entry, prerequisites: [...parents.flatMap((parent) => list(parent.prerequisites)), ...list(entry.prerequisites)],
-      ...(!parents.every(isGameDataRecordExecutable) ? { runtimeSupport: { status: "deferred", reasons: ["parent-deferred"] } } : {}) };
-    grants.forEach((grant, index) => providers.push(normalizeTraitProvider(grant, providerEntry, index)));
+    const providerEntry = { ...entry, prerequisites: source.prerequisites,
+      ...(!source.available ? { runtimeSupport: { status: "deferred", reasons: ["parent-deferred"] } } : {}) };
+    grants.forEach((grant, index) => providers.push(normalizeTraitProvider(grant, providerEntry, index, { sourceId })));
     const referencedKeys = list(entry.traitKeys).filter((key) => !grants.some((grant) => list(grant.key).includes(key)));
     if (referencedKeys.length) {
       providers.push({ id: `${sourceId}:references`, sourceId, sourceLabel: entry.name, description: entry.description || "", traitKeys: referencedKeys, implemented: false, reason: "The provider's formal Trait grant is not defined." });
@@ -149,7 +133,7 @@ export function projectCharacterTraits(character, gameData = {}) {
     if (providerIds.has(provider.id)) issues.push({ severity: "error", code: "duplicate-trait-provider", path: provider.sourceId, message: "A source has conflicting Trait grants with the same identity." });
     providerIds.add(provider.id);
   }
-  const context = createPrerequisiteContext({ builder, gameData, syntaxVersion: 3,
+  const context = createPrerequisiteContext({ builder, gameData, syntaxVersion: 3, selectedTechniqueKeys,
     grantedSkillState: computeGrantedSkillsState(gameData, builder), skillRanks: getCombatSkillRanks(gameData, builder) });
   const candidates = [], desiredChoices = new Set();
   for (const provider of providers.filter((provider) => provider.implemented)) {
@@ -175,9 +159,10 @@ export function projectCharacterTraits(character, gameData = {}) {
   const acquired = [], pending = candidates.filter((candidate) => !candidate.reason);
   for (let pass = 0; pass <= candidates.length * 2 + 1; pass += 1) {
     let progress = false;
+    const activeSources = new Set(getActiveCharacterGrantSources(gameData, builder, acquiredContext(context, acquired, definitions)).map(source => source.sourceId));
     for (let index = 0; index < pending.length;) {
       const candidate = pending[index], { provider, definition } = candidate;
-      if (!requirementsMet(provider.entry.prerequisites, context, acquired, definitions)
+      if (!activeSources.has(provider.sourceId) || !requirementsMet(provider.entry.prerequisites, context, acquired, definitions)
         || !requirementsMet(definition.prerequisites, context, acquired, definitions)) { index += 1; continue; }
       if (candidate.choiceId && acquired.some((trait) => trait.provider.id === provider.id && trait.traitKey === candidate.traitKey)) candidate.reason = "This provider already grants that Trait.";
       else acquired.push(candidate);
@@ -195,7 +180,8 @@ export function projectCharacterTraits(character, gameData = {}) {
       const others = acquired.filter((trait) => trait.choiceId !== choice.choiceId);
       let reason = candidateReason(definition, choice.provider, choice.rank);
       if (!reason && others.some((trait) => trait.provider.id === choice.provider.id && trait.traitKey === definition.traitKey)) reason = "Already selected for this provider.";
-      if (!reason && (!requirementsMet(definition.prerequisites, context, others, definitions)
+      const sourceActive = getActiveCharacterGrantSources(gameData, builder, acquiredContext(context, others, definitions)).some(source => source.sourceId === choice.provider.sourceId);
+      if (!reason && (!sourceActive || !requirementsMet(definition.prerequisites, context, others, definitions)
         || !requirementsMet(choice.provider.entry.prerequisites, context, others, definitions))) reason = "Prerequisites are not met.";
       return { traitKey: definition.traitKey, name: definition.name, rank: definition.rank, eligible: !reason, reason };
     }).sort((a, b) => a.name.localeCompare(b.name));

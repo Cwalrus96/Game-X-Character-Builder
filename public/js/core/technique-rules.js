@@ -1,10 +1,9 @@
-import { getTechniqueSelectionState as ordinarySelection, isGameDataRecordExecutable } from "./selection-rules.js";
-import { getActiveGrantEntries } from "./game-data.js";
+import { getTechniqueSelectionState as ordinarySelection } from "./selection-rules.js";
+import { getActiveCharacterGrantSources } from "./grant-source-rules.js";
 import { createPrerequisiteContext } from "./prerequisites.js";
 import { evaluatePrerequisite } from "./prerequisite-rules.js";
 import { computeKnownCombatSkillsAndGrants, getCombatSkillRanks, computeGrantedSkillsState } from "./skill-rules.js";
 import { canonicalSkillKey, canonicalSkillName } from "./skill-identity.js";
-import { traitSourceIdentity } from "./trait-rules.js";
 
 const list = value => Array.isArray(value) ? value : value == null ? [] : [value];
 const sameSkill = (left, right) => canonicalSkillKey(left) === canonicalSkillKey(right);
@@ -42,20 +41,9 @@ export function createTechniqueContext(input = {}) {
   if (input.techniqueRules) return input;
   const gameData = input.gameData || {}, builder = input.builder || {};
   const context = createPrerequisiteContext({ ...input, grantedSkillState: input.grantedSkillState || computeGrantedSkillsState(gameData, builder) });
-  const parents = new Map();
-  const remember = (rows, ancestors = []) => { for (const row of rows || []) {
-    parents.set(row, ancestors); remember(row.options, [...ancestors, row]); remember(row.features, [...ancestors, row]);
-  } };
-  remember(Array.isArray(gameData.classFeatures) ? gameData.classFeatures : Object.values(gameData.classFeatures || {}).flat());
-  remember(gameData.feats); remember(gameData.origins);
-  const rules = getActiveGrantEntries(gameData, builder).flatMap(entry => {
-    const chain = [...(parents.get(entry) || []), entry];
-    const owningClass = entry.classKey && (gameData.classes || []).find(row => row.classKey === entry.classKey);
-    if (owningClass) chain.push(owningClass);
-    if (!chain.every(row => isGameDataRecordExecutable(row) && Number(row.level || 1) <= context.level && requirementsMet(row, context))) return [];
-    const sourceId = traitSourceIdentity(entry);
-    return (entry.grants || []).filter(grant => grant.type === "skill-substitution" || (grant.type === "technique" && grant.access))
-      .map(grant => ({ ...grant, sourceId, sourceLabel: entry.name }));
+  const rules = getActiveCharacterGrantSources(gameData, builder, context).flatMap(source => {
+    return (source.entry.grants || []).filter(grant => grant.type === "skill-substitution" || (grant.type === "technique" && grant.access))
+      .map(grant => ({ ...grant, sourceId: source.sourceId, sourceLabel: source.sourceLabel }));
   });
   return { ...context, techniqueRules: rules,
     knownCombatSkills: input.knownCombatSkills || computeKnownCombatSkillsAndGrants(gameData, builder).knownCombatSkills,

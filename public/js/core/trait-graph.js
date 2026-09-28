@@ -1,4 +1,4 @@
-import { projectCharacterTraits } from "./trait-rules.js";
+import { projectCharacterTraits } from "./trait-projection.js";
 
 export const TRAIT_NODE_TYPES = Object.freeze(["trait", "trait-choice", "derived-weapon"]);
 

@@ -208,7 +208,7 @@ export function computeGrantedSkillsState(gameData, builder) {
     const sourceName = sanitizeText(source?.name || source?.featureName, { maxLen: 96, collapse: true }) || "Granted";
     grantedSkillNames.add(skillName);
     const defenseField = DEFENSE_FIELD_BY_NAME.get(skillName);
-    if (defenseField) fixedRanks[defenseField] = rank;
+    if (defenseField) fixedRanks[defenseField] = String(Math.max(numericRank(fixedRanks[defenseField]), numericRank(rank)));
     else pushGrantedSkill(grantedCombatSkills, skillName, rank, sourceName);
   }
   return { fixedRanks, grantedSkillNames, grantedCombatSkills: [...grantedCombatSkills.values()].sort((a, b) => a.skill.localeCompare(b.skill)) };

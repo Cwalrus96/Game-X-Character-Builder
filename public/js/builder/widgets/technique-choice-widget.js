@@ -1,3 +1,4 @@
+import { getTechniqueGrantSelectionState } from "../../core/technique-grant-rules.js";
 import { getChoiceCountState } from "../../core/choice-capacity.js";
 import { sanitizeNamedSkillList, sanitizeText } from "../../core/data-sanitization.js";
 import {
@@ -5,7 +6,7 @@ import {
 } from "../../core/game-data.js";
 import { computeGrantedSkillsState, getCombatSkillRanks } from "../../core/skill-rules.js";
 import { canonicalSkillName, canonicalStoredSkillKey } from "../../core/skill-identity.js";
-import { getTechniqueSelectionState, isGameDataRecordSelectable } from "../../core/selection-rules.js";
+import { getTechniqueSelectionState } from "../../core/selection-rules.js";
 import { createPrerequisiteContext, meetsPrerequisites } from "../../core/prerequisites.js";
 import { getTechniquePerformance } from "../../core/technique-rules.js";
 import { TechniqueCatalogueWidget } from "./technique-catalogue-widget.js?v=choices5";
@@ -25,10 +26,6 @@ function techniqueRank(technique) {
 
 function techniqueSkill(technique) {
   return canonicalSkillName(sanitizeText(technique?.skill, { maxLen: 96, collapse: true }));
-}
-
-function normalizeSkill(value) {
-  return canonicalSkillName(sanitizeText(value, { maxLen: 96, collapse: true })).toLowerCase();
 }
 
 function compareTechniqueOptions(a, b) {
@@ -141,23 +138,11 @@ export class TechniqueChoiceWidget extends TechniqueCatalogueWidget {
   }
 
   getAvailableTechniques(context = this.getContext()) {
-    const grantSkill = normalizeSkill(this.grant?.skill || this.grant?.name || this.grant?.key);
-    if (!grantSkill) return [];
-
+    const rulesContext = createPrerequisiteContext({ gameData: this.gameData, builder: context.builder,
+      grantedSkillState: context.grantedSkillState, skillRanks: getCombatSkillRanks(this.gameData, context.builder) });
     return getGameXTechniques(this.gameData)
-      .filter((technique) => techniqueName(technique))
-      .filter((technique) => isGameDataRecordSelectable(technique, { allowGrantedOnly: true }))
-      .filter((technique) => technique.expressionSyntaxVersion === 3
-        ? technique.selectionRoutes?.some((route) => route.type === "skill" && normalizeSkill(route.name) === grantSkill)
-        : normalizeSkill(techniqueSkill(technique)) === grantSkill)
-      .filter((technique) => this.getTechniqueSkillRank(technique, context) >= techniqueRank(technique))
-      .filter((technique) => meetsPrerequisites(technique?.prerequisites, {
-        gameData: this.gameData,
-        builder: context.builder,
-        grantedSkillState: context.grantedSkillState,
-        deferUnresolvedChoices: true,
-      }))
-      .slice()
+      .filter(technique => techniqueName(technique) && getTechniqueGrantSelectionState(technique, this.grant, rulesContext).eligible)
+      .filter(technique => meetsPrerequisites(technique.prerequisites, rulesContext))
       .sort(compareTechniqueOptions);
   }
 

@@ -97,6 +97,7 @@ See [docs/architecture.md](docs/architecture.md) for current-versus-target detai
 
 - Every selected answer has a stable identity, source owner, and storage binding.
 - Every answer-producing grant owns its answer as source-owned state.
+- Entity behavior is independent of acquisition source. Techniques, Feats, Traits, Skills, Weapons and Keystones use the same domain Rules and display components whether learned normally or granted by a Class, Origin, Feat or nested option. Source identity records ownership, grant-defined context and slot accounting; it must not create a competing definition of what the entity is or whether the character knows it. Verify new acquisition paths across prerequisites, dependency review, builder display and the character sheet.
 - A UI change is proposed and reconciled in memory before committed state is mutated.
 - Validation errors cannot be confirmed away.
 - Destructive dependency changes require explicit confirmation; cancellation is side-effect free.

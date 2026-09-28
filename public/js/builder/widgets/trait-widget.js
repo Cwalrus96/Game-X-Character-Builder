@@ -1,5 +1,5 @@
 import { SetTraitChoice, RemoveTraitChoice } from "../../core/character-commands.js";
-import { projectCharacterTraits, traitSourceIdentity } from "../../core/trait-rules.js";
+import { projectCharacterTraits, traitSourceIdentity } from "../../core/trait-projection.js";
 import { getTraitSourceDisplay, renderTraitCardHtml, renderTraitProjectionHtml } from "../../core/trait-display.js?v=wpe3";
 import { renderRuleDetailsHtml, bindRuleDetails } from "./rule-details.js";
 import { CatalogueWidget } from "./catalogue-widget.js?v=choices5";

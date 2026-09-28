@@ -38,8 +38,9 @@ import {
   renderEnhancementDetailHtml,
 } from "../core/weapon-utils.js?v=sheet-rolls7";
 import { renderTechniqueProfileHtml } from "../core/technique-utils.js?v=sheet-rolls7";
-import { projectCharacterTraits } from "../core/trait-rules.js";
+import { projectCharacterTraits } from "../core/trait-projection.js";
 import { projectSheetTechniques } from "../core/sheet-technique-projection.js";
+import { projectCharacterKeystones } from "../core/keystone-projection.js";
 import { decodeStoredCharacter } from "../core/character-persistence.js?v=wpe6";
 import { createCharacterMigrationReferences } from "../core/character-migrations.js?v=wpe6";
 import { renderGrantedWeaponHtml } from "../core/weapon-grant-display.js?v=sheet-rolls7";
@@ -56,7 +57,6 @@ import {
   sanitizeSkillFields,
   sanitizeBondList,
   sanitizeWeaponList,
-  buildCharacterKeystoneEntries,
 } from "../core/data-sanitization.js";
 import {
   buildTemporarySheetUpdatePatch,
@@ -577,11 +577,12 @@ async function renderBuilderWeaponsReadOnly(builder) {
     }).join('');
   }
 
-  function renderKeystonesReadOnly(builder) {
+  async function renderKeystonesReadOnly(builder) {
     const mount = document.getElementById('keystoneCards');
     if (!mount) return;
 
-    const items = buildCharacterKeystoneEntries(builder).filter((entry) => entry.source !== 'bond');
+    const { gameData } = await ensureTechniqueData();
+    const items = projectCharacterKeystones({ builder, gameData });
     if (!items.length) {
       mount.innerHTML = '<article class="ability-card"><div class="muted">—</div></article>';
       return;

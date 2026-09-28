@@ -43,6 +43,10 @@ Every selected answer in the builder has a stable ID, source owner, and storage 
 
 Feat slot metadata includes the granting record's stable `sourceKey`, supplied by the compiler to shared Rules. Both the compiler and feature-local pickers allocate existing ordered feat keys using maximum level, source key, grant index and slot index, independently of catalogue traversal order. A free matching slot is preferred before moving an earlier answer; maximum matching still resolves overlapping restrictions. The widget's source-scoped projection additionally checks character prerequisites and builds replacement commands without giving the UI ownership of dependency removals. Persistence remains the existing ordered-key array; no saved-character migration or data-source change accompanies this UI update.
 
+Source activation uses shared `grant-source-rules.js`, including ancestor prerequisites/readiness, level, and Feats reachable through explicit slots. Feat grants are materialized before allocation, so Feat-to-Feat grants work without depending on catalogue order; nested Feat options and grants attached to Class option groups retain their real owner. Graph compilation records source/group requirements for dependency review and delegates Technique-choice filters/rank checks to `technique-grant-rules.js`.
+
+All known Techniques come from `technique-ownership.js`, including fixed grants and source-owned answers as well as ordinary selections and Trait/weapon links. Successful Technique prerequisites receive satisfaction edges from the actual answer/automatic-Technique nodes, allowing affected closure to follow the owner. Losing one of several providers retains the Technique and its valid dependents; losing the last qualifying provider reviews dependent removals. Granted choices never increase ordinary capacity or require copying keys into `selectedTechniques`. Shared read models are pure inputs to compilation, not another reconciliation authority. [The source matrix](entity-source-consistency-2026-09-28.md) records cross-source coverage and Cancel/Apply verification.
+
 ## Edge contract
 
 Registered edge kinds are:
