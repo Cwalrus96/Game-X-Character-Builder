@@ -21,6 +21,7 @@ import {
 } from "./choice-identity.js";
 import { canonicalSkillKey, canonicalStoredSkillKey, renameSkillText } from "./skill-identity.js";
 import { createContentMigrationPolicy, migrateReviewedCharacterContent } from "./character-content-migrations.js";
+import { migrateSourceChoiceBindings } from "./choice-content-migrations.js";
 
 export const LEGACY_UNVERSIONED_CHARACTER_SCHEMA = 0;
 export const RESERVED_CHARACTER_SCHEMA_VERSION = 2;
@@ -1252,6 +1253,7 @@ export function migrateCharacterDocument(value, { references = null } = {}) {
   }
 
   if (version === CHARACTER_SCHEMA_VERSION) {
+    migrateSourceChoiceBindings(current, references?.sourceChoiceAliases, context);
     const codecResult = validateCharacter(current);
     for (const diagnostic of codecResult.diagnostics) {
       diagnostics.push(Object.freeze({ ...diagnostic, fromVersion: classifiedVersion, toVersion: CHARACTER_SCHEMA_VERSION }));
@@ -1477,6 +1479,14 @@ export function createCharacterMigrationReferences(gameData = {}) {
     addReference(work, "techniques", key, key);
     addReference(work, "techniques", technique?.techniqueName ?? technique?.name, key);
   }
+  const sourceChoiceAliases = gameData.choiceIdentityVersion === 1 && Array.isArray(gameData.choiceAliases)
+    ? gameData.choiceAliases : [];
+  for (const alias of sourceChoiceAliases) {
+    const existing = [...(work.grantChoices.get(referenceAlias(alias.to))?.values() || [])]
+      .find(item => item.sourceId === alias.sourceId);
+    addGrantChoiceReference(work, alias.from, { ...existing, choiceId: alias.to, sourceId: alias.sourceId });
+    addGrantChoiceReference(work, alias.to, { ...existing, choiceId: alias.to, sourceId: alias.sourceId });
+  }
   const output = {};
   for (const kind of REFERENCE_KINDS) {
     output[kind] = Object.freeze(Object.fromEntries(
@@ -1493,6 +1503,7 @@ export function createCharacterMigrationReferences(gameData = {}) {
       )))]),
   ));
   output.contentMigrations = createContentMigrationPolicy(gameData);
+  output.sourceChoiceAliases = Object.freeze(sourceChoiceAliases.map(alias => Object.freeze({ ...alias })));
   return Object.freeze(output);
 }
 

@@ -1,9 +1,10 @@
 import { createHash } from "node:crypto";
+import { bindModelChoices } from "./choice-bindings.mjs";
 
 export const RUNTIME_ARTIFACT_SCHEMA_VERSION = 2;
 export const EXPORTER_VERSION = "2.0.1-wpb-staging";
 export const AUTHORING_V5_ARTIFACT_SCHEMA_VERSION = 3;
-export const AUTHORING_V5_EXPORTER_VERSION = "3.0.0-wpb-schema-v5";
+export const AUTHORING_V5_EXPORTER_VERSION = "3.1.0-source-owned-choices";
 
 export function artifactVersionsForModel(model) {
   return Number(model?.metadata?.sourceSchemaVersion) === 5
@@ -290,7 +291,9 @@ export function buildGameDataArtifacts({ model, validation, provenance }) {
   }
   const { schemaVersion: version, exporterVersion } = artifactVersionsForModel(model);
   const modelSha256 = sha256(canonicalJson(model));
+  let choiceAliases = [];
   if (version === 3) {
+    ({ model, aliases: choiceAliases } = bindModelChoices(model));
     const support = validation.runtimeSupportBySource || {};
     model = Object.fromEntries(Object.entries(model).map(([field, value]) => [field,
       Array.isArray(value) ? value.map((row) => {
@@ -316,7 +319,7 @@ export function buildGameDataArtifacts({ model, validation, provenance }) {
     schemaVersion: version,
     sourceSchemaVersion: Number(model.metadata.sourceSchemaVersion),
     exporterVersion,
-    ...(version === 3 ? { expressionSyntaxVersion: 3, diagnostics: cleanObject(validation.diagnostics || []) } : {}),
+    ...(version === 3 ? { expressionSyntaxVersion: 3, choiceIdentityVersion: 1, choiceAliases, diagnostics: cleanObject(validation.diagnostics || []) } : {}),
     sourceRevision: sourceRevision(provenance, modelSha256),
     ...collections,
   };

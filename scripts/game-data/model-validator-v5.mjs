@@ -20,7 +20,7 @@ const traitDeferralMessages = Object.freeze({
 
 /** Additional source-v5 relationships. Validating an invocation never executes it. */
 export function validateV5Relationships(model, helpers) {
-  const { add, requireReference, identityIndex, techniques, feats, expressionRows, choiceDefinitions, runtimeSupportBySource } = helpers;
+  const { add, requireReference, identityIndex, techniques, feats, expressionRows, choiceBindings, runtimeSupportBySource } = helpers;
   const traits = identityIndex(model.traits || [], { field: "traitKey", label: "Trait" });
   const archetypes = new Map((model.feats || []).filter((row) => row.archetypeKey).map((row) => [row.archetypeKey, row]));
   const featureRows = [...(model.classFeatures || []), ...(model.originFeatures || [])];
@@ -40,12 +40,13 @@ export function validateV5Relationships(model, helpers) {
   }
 
   const requireScopedChoice = (key, row, column, { recipient = false } = {}) => {
-    const definition = choiceDefinitions.get(key);
+    const matches = choiceBindings.resolve(key, row);
+    const definition = matches.length === 1 ? matches[0] : null;
     if (!definition) {
-      add("error", recipient ? "unresolved-recipient-reference" : "unresolved-choice-reference", `${recipient ? "Recipient" : "Choice"} reference "${key}" does not resolve.`, row, column, { key });
+      add("error", matches.length ? "ambiguous-choice-reference" : recipient ? "unresolved-recipient-reference" : "unresolved-choice-reference", `${recipient ? "Recipient" : "Choice"} reference "${key}" must resolve to one source-owned choice.`, row, column, { key, candidates: matches.map(item => item.id) });
       return null;
     }
-    if (recipient && (owner(row) !== owner(definition.record) || definition.kind !== "grant" || !(definition.record.grants || []).some((grant) => grant.choiceId === key && grant.type === "bond"))) {
+    if (recipient && (owner(row) !== owner(definition.record) || definition.kind !== "grant" || definition.grant?.type !== "bond")) {
       add("error", "recipient-scope-mismatch", `Recipient "${key}" must identify a bond granted in the same owning class or origin.`, row, column, { key, targetSource: definition.record.source });
       return null;
     }
@@ -109,7 +110,7 @@ export function validateV5Relationships(model, helpers) {
           const target = requireScopedChoice(prerequisite.groupKey, row, "prerequisites");
           if (target && target.kind !== "optionGroup") add("error", "invalid-option-reference", `Known-option prerequisite "${prerequisite.groupKey}" must refer to an option group.`, row, "prerequisites");
           if (target) {
-            const children = [...featureRows, ...(model.feats || [])].filter((candidate) => candidate.parentKey === prerequisite.groupKey && owner(candidate) === owner(target.record));
+            const children = [...featureRows, ...(model.feats || [])].filter((candidate) => candidate.parentKey === target.key && owner(candidate) === owner(target.record));
             if (prerequisite.count > children.length) add("error", "impossible-option-count", `Known-option count ${prerequisite.count} exceeds the ${children.length} authored options in "${prerequisite.groupKey}".`, row, "prerequisites");
           }
         }

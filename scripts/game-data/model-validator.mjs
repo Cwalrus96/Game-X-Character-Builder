@@ -2,6 +2,7 @@ import { getExpressionRuntimeStatus } from "../../public/js/core/game-data-contr
 import { SOURCE_TAB_HEADERS } from "./source-adapters.mjs";
 import { validateV5Relationships } from "./model-validator-v5.mjs";
 import { usesRequiredCells } from "./required-cell-readiness.mjs";
+import { createChoiceBindings } from "./choice-bindings.mjs";
 
 export const VALIDATION_SEVERITY_POLICY = Object.freeze({
   error: "Blocks artifact construction because source meaning is missing, ambiguous, inconsistent, or unresolved.",
@@ -423,6 +424,7 @@ export function validateGameDataModel(model, { priorDiagnostics = [] } = {}) {
   }
 
   const choiceDefinitions = new Map();
+  const choiceBindings = v5 ? createChoiceBindings(model) : null;
   const expressionRows = [
     ...collections.classFeatures,
     ...collections.techniques,
@@ -438,12 +440,13 @@ export function validateGameDataModel(model, { priorDiagnostics = [] } = {}) {
     if (!STABLE_KEY.test(key) && !LEGACY_WEAPON_KEY.test(key)) {
       add("error", "invalid-choice-id", `Choice identity "${key}" has an invalid stable-key format.`, record, column);
     }
-    if (choiceDefinitions.has(key)) {
+    const definitionKey = v5 ? `${choiceBindings.local(key, record)[0]?.sourceId}\u0000${key}` : key;
+    if (choiceDefinitions.has(definitionKey)) {
       add("error", "duplicate-choice-id", `Choice identity "${key}" is ambiguous.`, record, column, {
-        firstSource: choiceDefinitions.get(key).record.source,
+        firstSource: choiceDefinitions.get(definitionKey).record.source,
       });
     } else {
-      choiceDefinitions.set(key, { record, kind });
+      choiceDefinitions.set(definitionKey, { record, kind });
     }
   }
 
@@ -455,6 +458,13 @@ export function validateGameDataModel(model, { priorDiagnostics = [] } = {}) {
   }
 
   function requireChoice(value, record, column) {
+    if (v5 && value) {
+      const matches = choiceBindings.resolve(value, record);
+      if (matches.length !== 1) add("error", matches.length ? "ambiguous-choice-reference" : "unresolved-choice-reference",
+        `Choice reference "${value}" must resolve to one source-owned choice.`, record, column,
+        { key: value, candidates: matches.map(item => item.id) });
+      return matches.length === 1 ? matches[0] : null;
+    }
     if (value && !choiceDefinitions.has(value)) {
       add("error", "unresolved-choice-reference", `Choice reference "${value}" does not resolve.`, record, column, { key: value });
     }
@@ -526,7 +536,7 @@ export function validateGameDataModel(model, { priorDiagnostics = [] } = {}) {
 
   let featureInvocations = [];
   if (v5) {
-    featureInvocations = validateV5Relationships(model, { add, requireReference, identityIndex, techniques, feats, expressionRows, choiceDefinitions, runtimeSupportBySource });
+    featureInvocations = validateV5Relationships(model, { add, requireReference, identityIndex, techniques, feats, expressionRows, choiceBindings, runtimeSupportBySource });
   }
 
   const knownEnumValues = {

@@ -10,6 +10,16 @@ export function normalizeChoiceId(value) {
   return sanitizeText(value, { maxLen: 96, collapse: true });
 }
 
+/** Internal qualification must not leak into the player's prerequisite text. */
+export function choiceReferenceLabel(value, gameData = {}) {
+  const id = normalizeChoiceId(value);
+  const alias = (gameData.choiceAliases || []).find(item => item.to === id);
+  if (alias) return alias.from;
+  if (/^choice:[a-f0-9]{40}$/.test(id)) return "selected option";
+  if (/^(class-feature|class-option|origin-feature|feat-selection|feat-option|trait):/.test(id)) return id.split(":").at(-1);
+  return id;
+}
+
 function normalizeDerivedIdentity(value) {
   return normalizeChoiceId(value).toLowerCase();
 }

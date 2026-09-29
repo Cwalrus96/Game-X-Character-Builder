@@ -1,6 +1,7 @@
 import { ATTR_KEYS, CORE_SKILL_FIELDS, DEFENSE_SKILL_FIELDS, normalizeAttributes } from "./character-rules.js";
 import { sanitizeText, sanitizeStringArray } from "./data-sanitization.js";
 import { canonicalSkillName } from "./skill-identity.js";
+import { choiceReferenceLabel } from "./choice-identity.js";
 import { RUNTIME_PREREQUISITE_TYPES } from "./game-data-contract.js";
 import {
   formatExpressionDiagnostic,
@@ -38,11 +39,11 @@ function joinValue(value, joiner = " or ") {
   return String(value || "");
 }
 
-export function formatPrerequisite(prereq) {
+export function formatPrerequisite(prereq, context = {}) {
   const p = normalizePrerequisite(prereq, { syntaxVersion: 3 });
   if (!p) return "";
   if (p.type === "text") return p.text || "";
-  if (p.type === "any") return p.alternatives.map(formatPrerequisite).join(" OR ");
+  if (p.type === "any") return p.alternatives.map((item) => formatPrerequisite(item, context)).join(" OR ");
   if (p.type === "trait" || p.type === "technique") return `${p.type === "trait" ? "Trait" : "Technique"}: ${joinValue(p.key)}${p.minRank != null ? ` rank ${p.minRank}+` : ""}`;
   if (p.type === "archetype") return `Archetype: ${joinValue(p.key)} (${p.numFeats ?? 1}+ feats)`;
   if (p.type === "option") return `Know ${p.count} options from ${p.groupKey}`;
@@ -58,7 +59,7 @@ export function formatPrerequisite(prereq) {
     if (p.enhancement) checks.push(`enhancement ${joinValue(p.enhancement)}`);
     if (p.rank !== undefined) checks.push(`rank ${p.rank}+`);
     if (p.minRank !== undefined) checks.push(`rank ${p.minRank}+`);
-    return `Choice ${p.choiceRef}: ${checks.join(", ") || "selected"}`;
+    return `Choice ${choiceReferenceLabel(p.choiceRef, context.gameData || context)}: ${checks.join(", ") || "selected"}`;
   }
   if (p.type === "familiar") return `Familiar${p.minCount !== undefined ? ` count ${p.minCount}+` : ""}${p.minRank !== undefined ? ` rank ${p.minRank}+` : ""}`;
   if (p.type === "weapon" || p.type === "weapon-set") {
@@ -69,9 +70,9 @@ export function formatPrerequisite(prereq) {
   return "";
 }
 
-export function formatPrerequisites(value) {
+export function formatPrerequisites(value, context = {}) {
   const prereqs = normalizePrerequisites(value, { syntaxVersion: 3 });
-  return prereqs.map(formatPrerequisite).filter(Boolean).join("; ");
+  return prereqs.map((item) => formatPrerequisite(item, context)).filter(Boolean).join("; ");
 }
 
 function normalizeRef(value) {
@@ -390,7 +391,7 @@ export function evaluatePrerequisite(prerequisite, context = {}) {
     ? context
     : createPrerequisiteContext(context);
   const prereq = normalizePrerequisite(prerequisite, { syntaxVersion: ctx.syntaxVersion });
-  const label = formatPrerequisite(prereq);
+  const label = formatPrerequisite(prereq, ctx);
 
   if (!prereq) return { ok: true, manual: true, prerequisite: null, label: "", reason: "" };
   if (prereq.type === "text") {
@@ -460,9 +461,9 @@ export function evaluatePrerequisite(prerequisite, context = {}) {
     const choice = getChoice(ctx, prereq.choiceRef);
     if (!choice) {
       if (ctx.deferUnresolvedChoices && ctx.syntaxVersion < 3) {
-        return { ok: true, manual: true, prerequisite: prereq, label, reason: `Pending choice: ${prereq.choiceRef}.` };
+        return { ok: true, manual: true, prerequisite: prereq, label, reason: `Pending choice: ${choiceReferenceLabel(prereq.choiceRef, ctx.gameData)}.` };
       }
-      return { ok: false, prerequisite: prereq, label, reason: `Choose ${prereq.choiceRef} first.` };
+      return { ok: false, prerequisite: prereq, label, reason: `Choose ${choiceReferenceLabel(prereq.choiceRef, ctx.gameData)} first.` };
     }
 
     const requiredTag = prereq.tag;
