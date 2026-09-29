@@ -60,7 +60,7 @@ export function appearanceVariables(input) {
     "--primary-color": p.borderColor, "--input-border-color": p.borderColor, "--accent-color": p.borderColor,
     "--secondary-color": p.pageColor, "--panel-bg-color": p.panelColor, "--paper-color": p.panelColor,
     "--body-text-color": p.textColor, "--panel-text-color": p.textColor, "--header-text-color": p.textColor,
-    "--header-bg-color": p.headingColor, "--table-header-bg-color": p.headingColor, "--chip-bg-color": p.headingColor,
+    "--header-bg-color": p.headingColor, "--table-header-bg-color": p.headingColor, "--chip-bg-color": p.panelColor,
     "--title-font": p.dyslexiaFriendly ? DYSLEXIA_FONT : HEADING_FONTS[p.headingFont].css,
     "--body-font": p.dyslexiaFriendly ? DYSLEXIA_FONT : HEADING_FONTS.clean.css,
     "--sheet-text-size": { compact: "14px", standard: "16px", large: "18px" }[p.textSize],

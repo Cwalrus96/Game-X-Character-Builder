@@ -11,6 +11,13 @@ import { buildDicePool, resolveDicePool } from "../public/js/core/roll-rules.js"
 import { MIGRATION_GAME_DATA, makeV4Character, makeV5Character } from "./fixtures/character-schemas.mjs";
 const references = createCharacterMigrationReferences(MIGRATION_GAME_DATA);
 
+test("heading background is separate from card and control surfaces", () => {
+  const before = appearanceVariables({ panelColor: "#fffaf0" });
+  const after = appearanceVariables({ panelColor: "#fffaf0", headingColor: "#dd99bb" });
+  assert.deepEqual(Object.keys(after).filter(key => after[key] !== before[key]), ["--header-bg-color", "--table-header-bg-color"]);
+  assert.equal(after["--chip-bg-color"], "#fffaf0");
+});
+
 test("the actual settings preview uses roll rules: a 5 and 6 are each two Hits", () => {
   assert.deepEqual(DICE_STYLE_SAMPLE.dice, [{ face: 5, hits: 2 }, { face: 6, hits: 2 }, { face: 2, hits: 0 }]);
   assert.equal(DICE_STYLE_SAMPLE.coin, 1);

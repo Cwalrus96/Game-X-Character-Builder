@@ -60,6 +60,7 @@ export function buildWeaponChoicePatch({
 
 export function buildWeaponEnhancementChoicePatch({ choice, grant, enhancementKey, forcedEnhancements = [], selections = {} } = {}) {
   const key = sanitizeText(enhancementKey, { maxLen: 96, collapse: true });
+  const otherEnhancements = (choice?.enhancements || []).filter(entry => !entry.granted).slice(1);
   const optional = key
     ? [{
         id: `${choice?.choiceId || grant?.choiceRef}-${key}`,
@@ -72,7 +73,7 @@ export function buildWeaponEnhancementChoicePatch({ choice, grant, enhancementKe
   return {
     ...(choice || {}),
     type: "weapon",
-    enhancements: forcedEnhancements.concat(optional),
+    enhancements: forcedEnhancements.concat(optional, otherEnhancements),
   };
 }
 
@@ -124,28 +125,33 @@ export function createGrantWidgets({
       continue;
     }
 
-    if (grant?.type === "weapon" && grant.choiceId) {
-      const choiceId = sanitizeText(grant.choiceId, { maxLen: 96, collapse: true });
-      const forcedEnhancements = getForcedEnhancementsForChoice(choiceId, grantContextEntries, getSelectedEntries);
-      widgets.push(new WeaponChoiceWidget(page, {
-        grant,
-        choice: grantChoiceState?.getChoice(choiceId),
-        weaponBases,
-        weaponEnhancements,
-        forcedEnhancements,
-        getGrantChoices,
-        getExistingWeapons,
-        scope,
-        onChange: async (patch) => {
-          const result = await (!patch.weaponKey ? grantChoiceState?.removeChoice(choiceId)
-          : grantChoiceState?.updateChoice(choiceId, buildWeaponChoicePatch({
-            choice: grantChoiceState?.getChoice(choiceId), patch, forcedEnhancements, weaponBases,
-            sourceId, sourceLabel: entry?.name || entry?.featureName || "",
-          })));
-          onChange?.();
-          return result;
-        },
-      }));
+    if (grant?.type === "weapon") {
+      for (const choiceId of resolveGrantChoiceIds(grant, { sourceId, index })) {
+        const forcedEnhancements = getForcedEnhancementsForChoice(choiceId, grantContextEntries, getSelectedEntries);
+        if (grant.enhancement && !forcedEnhancements.some(item => item.enhancementKey === grant.enhancement)) {
+          forcedEnhancements.push({ id: `${choiceId}-${grant.enhancement}`, enhancementKey: grant.enhancement,
+            rank: Number(grant.rank || 1), selections: {}, granted: true });
+        }
+        widgets.push(new WeaponChoiceWidget(page, {
+          grant: { ...grant, choiceId },
+          choice: grantChoiceState?.getChoice(choiceId),
+          weaponBases,
+          weaponEnhancements,
+          forcedEnhancements,
+          getGrantChoices,
+          getExistingWeapons,
+          scope,
+          onChange: async (patch) => {
+            const result = await (!patch.weaponKey ? grantChoiceState?.removeChoice(choiceId)
+            : grantChoiceState?.updateChoice(choiceId, buildWeaponChoicePatch({
+              choice: grantChoiceState?.getChoice(choiceId), patch, forcedEnhancements, weaponBases,
+              sourceId, sourceLabel: entry?.name || entry?.featureName || "",
+            })));
+            onChange?.();
+            return result;
+          },
+        }));
+      }
       continue;
     }
 

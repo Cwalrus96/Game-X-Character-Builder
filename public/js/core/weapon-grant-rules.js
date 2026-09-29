@@ -1,5 +1,19 @@
 import { isGameDataRecordExecutable } from "./selection-rules.js";
 import { isTraitWeaponChoice, traitOptionLabel } from "./trait-option-rules.js";
+import { getWeaponSkillNames } from "./weapon-utils.js";
+import { canonicalSkillName } from "./skill-identity.js";
+
+/** The same grant restrictions apply in the picker and saved-answer validation. */
+export function weaponMatchesGrant(definition, grant) {
+  if (!definition) return false;
+  const values = value => Array.isArray(value) ? value : value ? [value] : [];
+  const keys = values(grant.key || grant.weaponKey);
+  if (keys.length && !keys.includes(definition.weaponKey)) return false;
+  const skills = values(grant.skill).map(canonicalSkillName);
+  if (skills.length && !skills.some(skill => getWeaponSkillNames(definition).includes(skill))) return false;
+  const tags = values(grant.tag).map(tag => String(tag).toLowerCase());
+  return !tags.length || tags.some(tag => (definition.tags || []).some(value => String(value).toLowerCase() === tag));
+}
 
 /** Automatic weapons are projections of their provider, never equipment purchases. */
 export function projectTraitWeapons(traits, gameData) {

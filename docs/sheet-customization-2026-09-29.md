@@ -8,6 +8,8 @@ Six dice themes are available to all characters: Classic, Magical Girl, Spirit W
 
 ## Persistence and compatibility
 
+The September 29 player-report follow-up confines Heading Background to section, table, Technique and combat-profile headings. Technique/card bodies, skill chips and roll controls use Panel Background. Changing a heading color therefore no longer recolors an entire Technique card or action button. The preference schema and persistence boundary are unchanged; see [the follow-up record](player-reported-fixes-2026-09-29.md).
+
 Preferences are optional validated leaves of `builder.sheet.appearance`, not local storage or class state. The exact schema-6 codec accepts this additive presentation record; old characters remain unchanged on read. Migrations and ordinary builder saves preserve it. The existing sheet coordinator tracks only changed preferences, and an older completed save cannot clear a newer edit. The existing writer transaction advances revision for patches containing preferences, so a stale builder replacement is rejected. Independent preference leaf edits preserve other settings. Owner/GM authorization is unchanged. Temporary-only saves still use the established sheet compatibility path; broader session migration is outside this feature.
 
 ## Verification

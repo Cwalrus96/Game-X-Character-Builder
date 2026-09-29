@@ -6,6 +6,8 @@ import { WeaponChoiceWidget } from "../public/js/builder/widgets/weapon-choice-w
 import { WeaponEnhancementChoiceWidget } from "../public/js/builder/widgets/weapon-enhancement-choice-widget.js";
 import { EquipmentWidget } from "../public/js/builder/widgets/equipment-widget.js";
 import { traitData, traitCharacter } from "./fixtures/traits.mjs";
+import { createGrantWidgets } from "../public/js/builder/widgets/grant-widget-factory.js";
+import { resolveGrantChoiceIds } from "../public/js/core/choice-identity.js";
 
 function element(tagName = "div") {
   return {
@@ -38,6 +40,27 @@ function equipmentData() {
   gameData.weaponEnhancements = [{ enhancementKey: "keen", name: "Keen", description: "Keen edge <safe>", minRank: 1, status: "playable", prerequisites: [] }];
   return gameData;
 }
+
+test("weapon grants without authored choice IDs render every slot and respect their skill filter", (t) => {
+  documentFor(t);
+  const gameData = equipmentData();
+  gameData.weaponBases.push({ ...gameData.weaponBases[0], weaponKey: "bow", name: "Bow", techniqueSkills: ["Ranged Weapons"] });
+  const grant = { type: "weapon", skill: "Ranged Weapons", rank: 1, count: 2 };
+  const sourceId = "class-option:guardian:ranged-training";
+  const updates = [];
+  const widgets = createGrantWidgets({ page: { registerWidget() {} }, entry: { name: "Ranged training", grants: [grant] }, sourceId, ...gameData,
+    grantChoiceState: { getChoice() { return null; }, updateChoice(...args) { updates.push(args); } },
+  });
+  assert.deepEqual(widgets.map(widget => widget.choiceId), resolveGrantChoiceIds(grant, { sourceId, index: 0 }));
+  for (const widget of widgets) {
+    assert.match(widget.element.innerHTML, /value="bow"/);
+    assert.doesNotMatch(widget.element.innerHTML, /value="blade"|value="staff"/);
+    widget.onChange({ type: "weapon", weaponKey: "bow", rank: 1 });
+  }
+  assert.equal(updates.length, 2);
+  assert.notEqual(updates[0][0], updates[1][0]);
+  assert.equal(updates[0][1].sourceId, sourceId);
+});
 
 test("the shared selected-description component is empty without an answer and escapes ownership labels", () => {
   assert.equal(renderSelectedChoiceHtml({ choiceId: "empty", contentHtml: "No selection" }), "");

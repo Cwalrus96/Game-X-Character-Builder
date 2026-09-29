@@ -5,6 +5,7 @@ import {
   normalizeSkillRank,
 } from "./character-rules.js?v=wpe1";
 import { sanitizeText } from "./data-sanitization.js";
+import { isSourceOwnedWeapon } from "./grants.js";
 import {
   assertCanonicalCharacter,
   BUILDER_STEP_IDS,
@@ -865,20 +866,33 @@ export function applyCharacterCommand(character, command) {
     const index = equipmentIndex(current.builder.weapons, decoded.weaponId, "weapon");
     Object.assign(current.builder.weapons[index], cloneValue(decoded.patch));
   } else if (decoded.type === CHARACTER_COMMAND_TYPES.ADD_WEAPON_ENHANCEMENT) {
-    const index = equipmentIndex(current.builder.weapons, decoded.weaponId, "weapon");
-    current.builder.weapons[index].enhancements.push(cloneValue(decoded.enhancement));
+    if (decoded.enhancement.granted === true) throw new CharacterCommandError("invalid-character-command", "Extra enhancements cannot be marked as automatically granted.");
+    enhancementCommandRecords(current.builder, decoded).push(cloneValue(decoded.enhancement));
   } else if (decoded.type === CHARACTER_COMMAND_TYPES.REMOVE_WEAPON_ENHANCEMENT) {
-    const weaponIndex = equipmentIndex(current.builder.weapons, decoded.weaponId, "weapon");
-    const enhancements = current.builder.weapons[weaponIndex].enhancements;
+    const enhancements = enhancementCommandRecords(current.builder, decoded);
     enhancements.splice(equipmentIndex(enhancements, decoded.enhancementId, "enhancement"), 1);
   } else if (decoded.type === CHARACTER_COMMAND_TYPES.UPDATE_WEAPON_ENHANCEMENT) {
-    const weaponIndex = equipmentIndex(current.builder.weapons, decoded.weaponId, "weapon");
-    const enhancements = current.builder.weapons[weaponIndex].enhancements;
+    const enhancements = enhancementCommandRecords(current.builder, decoded);
     Object.assign(enhancements[equipmentIndex(enhancements, decoded.enhancementId, "enhancement")], cloneValue(decoded.patch));
   } else if (decoded.type === CHARACTER_COMMAND_TYPES.VISIT_BUILDER_STEP) {
     if (!current.builder.visitedSteps.includes(decoded.stepId)) current.builder.visitedSteps.push(decoded.stepId);
   }
   return assertCanonicalCharacter(current);
+}
+
+/** Target the canonical answer behind a granted weapon, not its generated copy. */
+function enhancementCommandRecords(builder, command) {
+  const weapon = builder.weapons[equipmentIndex(builder.weapons, command.weaponId, "weapon")];
+  const owner = isSourceOwnedWeapon(weapon)
+    ? builder.grantChoices[weapon.sourceChoiceId || weapon.choiceId] : weapon;
+  if (!owner || (owner !== weapon && (owner.type !== "weapon" || owner.weaponKey !== weapon.weaponKey))) {
+    throw new CharacterCommandError("stale-character-command", "This weapon's granting choice has changed. Reload before editing its enhancements.");
+  }
+  if (command.enhancementId) {
+    const enhancement = owner.enhancements[equipmentIndex(owner.enhancements, command.enhancementId, "enhancement")];
+    if (enhancement.granted) throw new CharacterCommandError("source-owned-field", "This enhancement is supplied automatically by the weapon's feature and cannot be changed here.");
+  }
+  return owner.enhancements;
 }
 
 function equipmentIndex(records, id, noun) {

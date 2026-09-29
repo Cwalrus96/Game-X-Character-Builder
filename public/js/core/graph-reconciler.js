@@ -1055,6 +1055,10 @@ function addInformationalImpacts(character, graph, impacts) {
       });
     }
     if (node.type === "grant-choice" && !satisfiedChoiceIds.has(node.metadata.choiceId)) {
+      const source = graph.nodes.find(entry => entry.id === node.metadata.sourceNodeId);
+      const parent = graph.nodes.find(entry => entry.id === source?.sourceOwnerId);
+      const sourceName = parent?.type === "choice-group" && parent.label !== node.label ? `${parent.label} — ${node.label}` : node.label;
+      const skills = (node.metadata.skill || []).join(" or ");
       addImpact(impacts, {
         category: "informational",
         type: "incomplete",
@@ -1062,7 +1066,8 @@ function addInformationalImpacts(character, graph, impacts) {
         path: `builder.grantChoices.${node.metadata.choiceId}`,
         nodeId: node.id,
         label: node.label,
-        message: node.metadata.answerType === "keystone" ? `${node.label}: add your Keystone text.` : "This source-owned choice still needs an answer.",
+        message: node.metadata.answerType === "keystone" ? `${sourceName}: add your Keystone text.`
+          : `${sourceName}: choose ${node.metadata.answerType === "weapon" ? `a Rank ${node.metadata.rank} weapon${skills ? ` using ${skills}` : ""}` : "a technique"} in this feature's choices.`,
         before: 0,
         after: 1,
       });

@@ -128,7 +128,7 @@ export class EquipmentWidget extends EquipmentChoiceWidget {
   }
 
   #renderEnhancement(weapon, enhancement) {
-    const sourceOwned = isSourceOwnedWeapon(weapon);
+    const sourceOwned = enhancement.granted === true;
     const definition = getEnhancementDef(this.weaponEnhancements, enhancement.enhancementKey);
     const visible = this.#visibleEnhancements(weapon);
     if (definition && !visible.some((entry) => entry.enhancementKey === definition.enhancementKey)) visible.push(definition);
@@ -150,12 +150,13 @@ export class EquipmentWidget extends EquipmentChoiceWidget {
     const sourceOwned = isSourceOwnedWeapon(weapon);
     const cap = getWeaponSkillRankCap(definition, this.skillRanks);
     const minimum = Number(definition?.minRank || 0);
+    const enhancementCapacityReached = countPurchasedEnhancements(this.weapons) >= computeEnhancementCapacity(this.weapons, this.grantedEnhancementSlots);
     const bases = this.#visibleWeapons();
     if (definition && !bases.some((entry) => entry.weaponKey === definition.weaponKey)) bases.push(definition);
     const enhancements = weapon.enhancements.map((entry) => this.#renderEnhancement(weapon, entry)).join("");
     return `<article class="optionRow equipmentWeaponRow">
-      <div class="cardHeaderRow"><h3>${escapeHtml(weapon.customName || definition?.name || weapon.weaponKey)}</h3>${sourceOwned ? '<span class="pill">Source-owned</span>' : ""}</div>
-      ${sourceOwned ? '<p class="help">Change this weapon through the class, feat, or other choice that granted it.</p>' : ""}
+      <div class="cardHeaderRow"><h3>${escapeHtml(weapon.customName || definition?.name || weapon.weaponKey)}</h3>${sourceOwned ? '<span class="pill">Granted weapon</span>' : ""}</div>
+      ${sourceOwned ? '<p class="help">Weapon type and rank come from its granting feature. Add or change optional enhancements here.</p>' : ""}
       ${this.renderWeaponChoice({ id: `${weapon.id}:base`, options: bases, weapon, weaponBases: this.weaponBases, rank: weapon.rank, allowEmpty: false, disabled: sourceOwned,
         onChange: key => this.#changeWeaponBase(weapon.id, key),
       })}
@@ -163,7 +164,7 @@ export class EquipmentWidget extends EquipmentChoiceWidget {
         <label class="label">Rank<select class="input" data-weapon-rank data-weapon-id="${escapeHtml(weapon.id)}"${sourceOwned ? " disabled" : ""}>${rankOptions(minimum, Math.max(minimum, cap), weapon.rank)}</select></label>
         <label class="label">Custom Name<input class="input" value="${escapeHtml(weapon.customName)}" data-weapon-name data-weapon-id="${escapeHtml(weapon.id)}"${sourceOwned ? " disabled" : ""}></label>
       </div>
-      <div class="cardHeaderRow"><h4>Enhancements</h4><button class="btn" type="button" data-add-enhancement data-weapon-id="${escapeHtml(weapon.id)}"${sourceOwned ? " disabled" : ""}>Add Enhancement</button></div>
+      <div class="cardHeaderRow"><h4>Enhancements</h4><button class="btn" type="button" data-add-enhancement data-weapon-id="${escapeHtml(weapon.id)}"${enhancementCapacityReached ? ' disabled title="All enhancement slots are in use."' : ""}>Add Enhancement</button></div>
       <div class="optionList">${enhancements || '<div class="emptyState emptyState--nested">No enhancements.</div>'}</div>
       <button class="btn secondary" type="button" data-remove-weapon data-weapon-id="${escapeHtml(weapon.id)}"${sourceOwned ? " disabled" : ""}>Remove Weapon</button>
     </article>`;

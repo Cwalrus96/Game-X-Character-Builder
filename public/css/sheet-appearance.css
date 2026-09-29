@@ -21,6 +21,9 @@
 #sheet .sheet-readonly-value, #sheet .readonly-value { color: var(--panel-text-color); }
 #sheet .ability-card { min-width: 0; overflow-wrap: anywhere; }
 #sheet .technique-source-badge { white-space: normal; }
+#sheet .technique-title-static, #sheet .combat-profile-title { background: var(--header-bg-color); }
+#sheet .mini-btn, #sheet .sheet-quick-roll, #sheet .sheet-skill-roll:hover, #sheet .sheet-attribute-roll:hover,
+.character-sheet-page .roll-primary { background: var(--panel-bg-color); }
 #identity_title { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .sheet-settings-button { flex: 0 0 auto; display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 1px solid #222; border-radius: 4px; background: #fff; color: #111; font: 24px Arial, sans-serif; cursor: pointer; }
 .sheet-settings-button:disabled { opacity: .5; cursor: wait; }

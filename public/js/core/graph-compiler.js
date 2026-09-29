@@ -48,6 +48,7 @@ import {
 } from "./graph-core.js";
 import { isSourceOwnedWeapon } from "./grants.js";
 import { getExcessWeaponEnhancements, getWeaponRankAfterSkillChange } from "./equipment-rules.js";
+import { weaponMatchesGrant } from "./weapon-grant-rules.js";
 import {
   MAX_WEAPON_SLOTS,
   computeTotalWeaponSlots,
@@ -329,6 +330,7 @@ function defaultWeaponGrantHandler(context) {
         grantNodeId,
         rank: Number.parseInt(String(grant?.rank ?? 1), 10) || 1,
         enhancement: stableKey(grant?.enhancement),
+        skill: values(grant?.skill),
       },
     }, path);
     graph.addEdge({ kind: "grants", from: grantNodeId, to: choiceNodeId }, { path });
@@ -1648,6 +1650,9 @@ function compileGrantAnswers(context, character, techniquesByKey, weaponBasesByK
       } else if (!isGameDataRecordSelectable(weapon, { allowGrantedOnly: true })) {
         valid = false;
         reason = `Weapon "${weaponKey}" is unavailable to grants.`;
+      } else if (!weaponMatchesGrant(weapon, choiceSpec.grant)) {
+        valid = false;
+        reason = `${choiceSpec.sourceName}: ${weapon.name || weaponKey} does not match the granted weapon's skill, type or tags.`;
       } else if (Number(answer.rank) !== requiredRank) {
         valid = false;
         reason = `Weapon choice "${choiceId}" requires rank ${requiredRank}.`;
