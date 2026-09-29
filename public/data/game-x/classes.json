@@ -51,6 +51,11 @@
       "Agility",
       "Intellect"
     ],
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -68,8 +73,7 @@
         "combatTechniqueSkill",
         "combatSkills",
         "utilitySkillOptions",
-        "notes",
-        "status"
+        "notes"
       ],
       "row": 2,
       "sheet": "Classes"
@@ -85,7 +89,6 @@
       "pitch": "A character who uses spirit energy to enhance their stealth, deception, and infiltration. Ninjas are fast, tricky, mysterious, and deadly.",
       "primaryAttributeA": "Agility",
       "primaryAttributeB": "Intellect",
-      "status": "playable",
       "utilitySkillOptions": "Athletics; Deception; Medicine; Roguery; Nature"
     },
     "status": "playable",
@@ -149,6 +152,11 @@
       "Attunement",
       "Heart"
     ],
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -166,8 +174,7 @@
         "combatTechniqueSkill",
         "combatSkills",
         "utilitySkillOptions",
-        "notes",
-        "status"
+        "notes"
       ],
       "row": 3,
       "sheet": "Classes"
@@ -183,7 +190,6 @@
       "pitch": "The Magical Guardian uses spirit energy to defend, heal, and enhance their allies. They are primarily a support class, and their magic can provide a wide range of utility.",
       "primaryAttributeA": "Attunement",
       "primaryAttributeB": "Heart",
-      "status": "playable",
       "utilitySkillOptions": "Spirituality; Performance; Medicine; Influence; Nature"
     },
     "status": "playable",
@@ -247,6 +253,11 @@
       "Willpower",
       "Heart"
     ],
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -264,8 +275,7 @@
         "combatTechniqueSkill",
         "combatSkills",
         "utilitySkillOptions",
-        "notes",
-        "status"
+        "notes"
       ],
       "row": 4,
       "sheet": "Classes"
@@ -281,7 +291,6 @@
       "pitch": "A monster tamer shares a special bond with one or more creatures that helps them both to grow stronger.",
       "primaryAttributeA": "Willpower",
       "primaryAttributeB": "Heart",
-      "status": "playable",
       "utilitySkillOptions": "Medicine; Nature; Influence; Athletics; Stealth"
     },
     "status": "playable",
@@ -345,6 +354,11 @@
       "Strength",
       "Agility"
     ],
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -362,8 +376,7 @@
         "combatTechniqueSkill",
         "combatSkills",
         "utilitySkillOptions",
-        "notes",
-        "status"
+        "notes"
       ],
       "row": 5,
       "sheet": "Classes"
@@ -379,7 +392,6 @@
       "pitch": "A Spirit Warrior channels Spirit Energy to enhance their physical abilities, and can also release their Spirit Energy in various forms of attack. Focuses on close-combat against a single target. High single-target damage and good bulk. Struggles more with multiple targets and ranged abilities.",
       "primaryAttributeA": "Strength",
       "primaryAttributeB": "Agility",
-      "status": "playable",
       "utilitySkillOptions": "Spirituality; Athletics; Medicine; Culinary; Insight"
     },
     "status": "playable",
@@ -443,11 +455,16 @@
       "Attunement",
       "Willpower"
     ],
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
     },
-    "selectable": false,
+    "selectable": true,
     "sourceLocation": {
       "headers": [
         "classKey",
@@ -460,8 +477,7 @@
         "combatTechniqueSkill",
         "combatSkills",
         "utilitySkillOptions",
-        "notes",
-        "status"
+        "notes"
       ],
       "row": 6,
       "sheet": "Classes"
@@ -477,10 +493,9 @@
       "pitch": "The elementalist uses Spirit Energy to manipulate various forms of matter - traditionally water, fire, earth, and wind.",
       "primaryAttributeA": "Attunement",
       "primaryAttributeB": "Willpower",
-      "status": "incomplete",
       "utilitySkillOptions": null
     },
-    "status": "incomplete",
+    "status": "playable",
     "utilitySkillOptions": []
   },
   {
@@ -535,11 +550,16 @@
       "Intellect",
       "Agility"
     ],
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
     },
-    "selectable": false,
+    "selectable": true,
     "sourceLocation": {
       "headers": [
         "classKey",
@@ -552,8 +572,7 @@
         "combatTechniqueSkill",
         "combatSkills",
         "utilitySkillOptions",
-        "notes",
-        "status"
+        "notes"
       ],
       "row": 7,
       "sheet": "Classes"
@@ -569,10 +588,9 @@
       "pitch": "The Mech Pilot class revolves around channeling their spiritual energy through technology - particularly a piloted robotic vehicle known as a mech.",
       "primaryAttributeA": "Intellect",
       "primaryAttributeB": "Agility",
-      "status": "incomplete",
       "utilitySkillOptions": "Vehicles; Science; Technology; Society; Academics"
     },
-    "status": "incomplete",
+    "status": "playable",
     "utilitySkillOptions": [
       "Vehicles",
       "Science",
@@ -654,6 +672,11 @@
       "Strength",
       "Agility"
     ],
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -671,8 +694,7 @@
         "combatTechniqueSkill",
         "combatSkills",
         "utilitySkillOptions",
-        "notes",
-        "status"
+        "notes"
       ],
       "row": 8,
       "sheet": "Classes"
@@ -688,7 +710,6 @@
       "pitch": "The weapon master is a master of weapons and armor. They use spirit energy to enhance their abilities both offensively and defensively. They channel energy through their weapons to perform incredible feats, such as slicing a boulder in half, deflecting bullets in midair, or swinging weapons with ease that a normal person couldn’t even lift. The weapon master focuses on battlefield control and multi-target damage. Their single-target damage isn’t bad, but doesn’t match up to classes that focus on single combat.",
       "primaryAttributeA": "Strength",
       "primaryAttributeB": "Agility",
-      "status": "playable",
       "utilitySkillOptions": "Athletics; Society; Influence; Observation; Crafting"
     },
     "status": "playable",
@@ -752,6 +773,11 @@
       "Strength",
       "Heart"
     ],
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -769,8 +795,7 @@
         "combatTechniqueSkill",
         "combatSkills",
         "utilitySkillOptions",
-        "notes",
-        "status"
+        "notes"
       ],
       "row": 9,
       "sheet": "Classes"
@@ -786,7 +811,6 @@
       "pitch": "The Henshin Hero, similar to the Magical Guardian, has two forms. They spend most of their time in their average human forms, but transform for battle. The Henshin Hero is more combat oriented than the Magical Guardian, usually having some innate armor and weapons when they transform.",
       "primaryAttributeA": "Strength",
       "primaryAttributeB": "Heart",
-      "status": "playable",
       "utilitySkillOptions": "Athletics; Performance; Technology; Science; Vehicles"
     },
     "status": "playable",
@@ -850,11 +874,16 @@
       "Willpower",
       "Intellect"
     ],
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
     },
-    "selectable": false,
+    "selectable": true,
     "sourceLocation": {
       "headers": [
         "classKey",
@@ -867,8 +896,7 @@
         "combatTechniqueSkill",
         "combatSkills",
         "utilitySkillOptions",
-        "notes",
-        "status"
+        "notes"
       ],
       "row": 10,
       "sheet": "Classes"
@@ -884,10 +912,9 @@
       "pitch": "The psychic primarily uses spirit energy to enhance their minds, not their bodies. They can use their minds to manipulate objects, read and project thoughts, and eventually even stop time.",
       "primaryAttributeA": "Willpower",
       "primaryAttributeB": "Intellect",
-      "status": "incomplete",
       "utilitySkillOptions": null
     },
-    "status": "incomplete",
+    "status": "playable",
     "utilitySkillOptions": []
   },
   {
@@ -942,6 +969,11 @@
       "Strength",
       "Willpower"
     ],
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -959,8 +991,7 @@
         "combatTechniqueSkill",
         "combatSkills",
         "utilitySkillOptions",
-        "notes",
-        "status"
+        "notes"
       ],
       "row": 11,
       "sheet": "Classes"
@@ -976,7 +1007,6 @@
       "pitch": "The Metamorph uses spiritual energy to modify their own bodies - either whole or in part - into new forms. These new forms include elemental transformations, bestial or alien forms, growing giant, changing their body’s composition to have new material properties, etc.",
       "primaryAttributeA": "Strength",
       "primaryAttributeB": "Willpower",
-      "status": "playable",
       "utilitySkillOptions": "Nature; Spirituality; Deception; Performance; Roguery"
     },
     "status": "playable",
@@ -1006,9 +1036,20 @@
     "primaryAttributeA": null,
     "primaryAttributeB": null,
     "primaryAttributes": [],
+    "readiness": {
+      "complete": false,
+      "missingFields": [
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB"
+      ],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
-      "reasons": [],
-      "status": "supported"
+      "reasons": [
+        "record-unready"
+      ],
+      "status": "deferred"
     },
     "selectable": false,
     "sourceLocation": {
@@ -1023,8 +1064,7 @@
         "combatTechniqueSkill",
         "combatSkills",
         "utilitySkillOptions",
-        "notes",
-        "status"
+        "notes"
       ],
       "row": 12,
       "sheet": "Classes"
@@ -1040,7 +1080,6 @@
       "pitch": null,
       "primaryAttributeA": null,
       "primaryAttributeB": null,
-      "status": "incomplete",
       "utilitySkillOptions": null
     },
     "status": "incomplete",
@@ -1064,9 +1103,20 @@
     "primaryAttributeA": null,
     "primaryAttributeB": null,
     "primaryAttributes": [],
+    "readiness": {
+      "complete": false,
+      "missingFields": [
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB"
+      ],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
-      "reasons": [],
-      "status": "supported"
+      "reasons": [
+        "record-unready"
+      ],
+      "status": "deferred"
     },
     "selectable": false,
     "sourceLocation": {
@@ -1081,8 +1131,7 @@
         "combatTechniqueSkill",
         "combatSkills",
         "utilitySkillOptions",
-        "notes",
-        "status"
+        "notes"
       ],
       "row": 13,
       "sheet": "Classes"
@@ -1098,7 +1147,6 @@
       "pitch": null,
       "primaryAttributeA": null,
       "primaryAttributeB": null,
-      "status": "incomplete",
       "utilitySkillOptions": null
     },
     "status": "incomplete",
@@ -1122,9 +1170,20 @@
     "primaryAttributeA": null,
     "primaryAttributeB": null,
     "primaryAttributes": [],
+    "readiness": {
+      "complete": false,
+      "missingFields": [
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB"
+      ],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
-      "reasons": [],
-      "status": "supported"
+      "reasons": [
+        "record-unready"
+      ],
+      "status": "deferred"
     },
     "selectable": false,
     "sourceLocation": {
@@ -1139,8 +1198,7 @@
         "combatTechniqueSkill",
         "combatSkills",
         "utilitySkillOptions",
-        "notes",
-        "status"
+        "notes"
       ],
       "row": 14,
       "sheet": "Classes"
@@ -1156,7 +1214,6 @@
       "pitch": null,
       "primaryAttributeA": null,
       "primaryAttributeB": null,
-      "status": "incomplete",
       "utilitySkillOptions": null
     },
     "status": "incomplete",
@@ -1180,9 +1237,20 @@
     "primaryAttributeA": null,
     "primaryAttributeB": null,
     "primaryAttributes": [],
+    "readiness": {
+      "complete": false,
+      "missingFields": [
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB"
+      ],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
-      "reasons": [],
-      "status": "supported"
+      "reasons": [
+        "record-unready"
+      ],
+      "status": "deferred"
     },
     "selectable": false,
     "sourceLocation": {
@@ -1197,8 +1265,7 @@
         "combatTechniqueSkill",
         "combatSkills",
         "utilitySkillOptions",
-        "notes",
-        "status"
+        "notes"
       ],
       "row": 15,
       "sheet": "Classes"
@@ -1214,7 +1281,6 @@
       "pitch": null,
       "primaryAttributeA": null,
       "primaryAttributeB": null,
-      "status": "incomplete",
       "utilitySkillOptions": null
     },
     "status": "incomplete",
@@ -1238,9 +1304,20 @@
     "primaryAttributeA": null,
     "primaryAttributeB": null,
     "primaryAttributes": [],
+    "readiness": {
+      "complete": false,
+      "missingFields": [
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB"
+      ],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
-      "reasons": [],
-      "status": "supported"
+      "reasons": [
+        "record-unready"
+      ],
+      "status": "deferred"
     },
     "selectable": false,
     "sourceLocation": {
@@ -1255,8 +1332,7 @@
         "combatTechniqueSkill",
         "combatSkills",
         "utilitySkillOptions",
-        "notes",
-        "status"
+        "notes"
       ],
       "row": 16,
       "sheet": "Classes"
@@ -1272,7 +1348,6 @@
       "pitch": null,
       "primaryAttributeA": null,
       "primaryAttributeB": null,
-      "status": "incomplete",
       "utilitySkillOptions": null
     },
     "status": "incomplete",
@@ -1296,9 +1371,20 @@
     "primaryAttributeA": null,
     "primaryAttributeB": null,
     "primaryAttributes": [],
+    "readiness": {
+      "complete": false,
+      "missingFields": [
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB"
+      ],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
-      "reasons": [],
-      "status": "supported"
+      "reasons": [
+        "record-unready"
+      ],
+      "status": "deferred"
     },
     "selectable": false,
     "sourceLocation": {
@@ -1313,8 +1399,7 @@
         "combatTechniqueSkill",
         "combatSkills",
         "utilitySkillOptions",
-        "notes",
-        "status"
+        "notes"
       ],
       "row": 17,
       "sheet": "Classes"
@@ -1330,7 +1415,6 @@
       "pitch": null,
       "primaryAttributeA": null,
       "primaryAttributeB": null,
-      "status": "incomplete",
       "utilitySkillOptions": null
     },
     "status": "incomplete",
@@ -1354,9 +1438,20 @@
     "primaryAttributeA": null,
     "primaryAttributeB": null,
     "primaryAttributes": [],
+    "readiness": {
+      "complete": false,
+      "missingFields": [
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB"
+      ],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
-      "reasons": [],
-      "status": "supported"
+      "reasons": [
+        "record-unready"
+      ],
+      "status": "deferred"
     },
     "selectable": false,
     "sourceLocation": {
@@ -1371,8 +1466,7 @@
         "combatTechniqueSkill",
         "combatSkills",
         "utilitySkillOptions",
-        "notes",
-        "status"
+        "notes"
       ],
       "row": 18,
       "sheet": "Classes"
@@ -1388,7 +1482,6 @@
       "pitch": null,
       "primaryAttributeA": null,
       "primaryAttributeB": null,
-      "status": "incomplete",
       "utilitySkillOptions": null
     },
     "status": "incomplete",
@@ -1412,9 +1505,20 @@
     "primaryAttributeA": null,
     "primaryAttributeB": null,
     "primaryAttributes": [],
+    "readiness": {
+      "complete": false,
+      "missingFields": [
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB"
+      ],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
-      "reasons": [],
-      "status": "supported"
+      "reasons": [
+        "record-unready"
+      ],
+      "status": "deferred"
     },
     "selectable": false,
     "sourceLocation": {
@@ -1429,8 +1533,7 @@
         "combatTechniqueSkill",
         "combatSkills",
         "utilitySkillOptions",
-        "notes",
-        "status"
+        "notes"
       ],
       "row": 19,
       "sheet": "Classes"
@@ -1446,7 +1549,6 @@
       "pitch": null,
       "primaryAttributeA": null,
       "primaryAttributeB": null,
-      "status": "incomplete",
       "utilitySkillOptions": null
     },
     "status": "incomplete",
@@ -1470,9 +1572,20 @@
     "primaryAttributeA": null,
     "primaryAttributeB": null,
     "primaryAttributes": [],
+    "readiness": {
+      "complete": false,
+      "missingFields": [
+        "hpProgression",
+        "primaryAttributeA",
+        "primaryAttributeB"
+      ],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
-      "reasons": [],
-      "status": "supported"
+      "reasons": [
+        "record-unready"
+      ],
+      "status": "deferred"
     },
     "selectable": false,
     "sourceLocation": {
@@ -1487,8 +1600,7 @@
         "combatTechniqueSkill",
         "combatSkills",
         "utilitySkillOptions",
-        "notes",
-        "status"
+        "notes"
       ],
       "row": 20,
       "sheet": "Classes"
@@ -1504,7 +1616,6 @@
       "pitch": null,
       "primaryAttributeA": null,
       "primaryAttributeB": null,
-      "status": "incomplete",
       "utilitySkillOptions": null
     },
     "status": "incomplete",

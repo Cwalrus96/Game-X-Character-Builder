@@ -8,6 +8,11 @@
     "notes": null,
     "prerequisites": [],
     "prerequisitesRaw": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -38,7 +43,8 @@
       "prerequisites": null,
       "selectionMode": "granted-only",
       "sourceNote": null
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "A thrown weapon gains the Returning tag, letting it come back to the wielder after being thrown.",
@@ -54,6 +60,11 @@
       }
     ],
     "prerequisitesRaw": "weapon | tag=thrown",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -84,7 +95,8 @@
       "prerequisites": "weapon | tag=thrown",
       "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "Choose Water, Fire, Earth, or Wind; attacks made with the weapon gain that elemental tag and its related effects.",
@@ -95,6 +107,11 @@
     "notes": "See Elemental Subsystem for exact effects.",
     "prerequisites": [],
     "prerequisitesRaw": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -125,7 +142,8 @@
       "prerequisites": null,
       "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "A melee weapon's attack range increases beyond normal melee reach. Increase the weapon's reach by 1 square.",
@@ -141,6 +159,11 @@
       }
     ],
     "prerequisitesRaw": "weapon | tag=melee",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -171,7 +194,8 @@
       "prerequisites": "weapon | tag=melee",
       "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "The weapon is easier to line up for careful shots. Gain an additional +1D status bonus when taking the Aim action.",
@@ -182,6 +206,11 @@
     "notes": null,
     "prerequisites": [],
     "prerequisitesRaw": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -212,7 +241,8 @@
       "prerequisites": null,
       "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "The weapon is balanced for speed and finesse rather than brute force. Attack rolls and damage use Agility instead of Strength.",
@@ -228,6 +258,11 @@
       }
     ],
     "prerequisitesRaw": "weapon | tag=melee",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -258,7 +293,8 @@
       "prerequisites": "weapon | tag=melee",
       "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "The weapon is infused with spirit energy so it strikes at the soul instead of the body. Attacks made with the weapon target Spiritual Defense instead of Physical Defense.",
@@ -269,6 +305,11 @@
     "notes": null,
     "prerequisites": [],
     "prerequisitesRaw": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -299,7 +340,8 @@
       "prerequisites": null,
       "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "The weapon is deliberately built heavier to hit harder. Attacks deal +2 damage on a success, but the weapon gains the Heavy tag.",
@@ -310,6 +352,11 @@
     "notes": null,
     "prerequisites": [],
     "prerequisitesRaw": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -340,7 +387,8 @@
       "prerequisites": null,
       "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "The weapon is made from a lighter material without losing its edge or durability. The weapon loses the \"Heavy\" tag.",
@@ -351,6 +399,11 @@
     "notes": null,
     "prerequisites": [],
     "prerequisitesRaw": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -381,7 +434,8 @@
       "prerequisites": null,
       "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "The weapon is specially built to block and deflect incoming blows. The weapon gains the \"Defensive\" tag.",
@@ -392,6 +446,11 @@
     "notes": null,
     "prerequisites": [],
     "prerequisitesRaw": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -422,7 +481,8 @@
       "prerequisites": null,
       "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "The weapon is designed to punch through defensive gear and protective equipment. This weapon ignores Equipment Bonuses to defenses.",
@@ -433,6 +493,11 @@
     "notes": null,
     "prerequisites": [],
     "prerequisitesRaw": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -463,7 +528,8 @@
       "prerequisites": null,
       "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "The weapon can switch between multiple forms to suit the situation. Has 3 forms: 1 inconspicuous non-weapon form and 2 distinct weapon forms.",
@@ -474,6 +540,11 @@
     "notes": null,
     "prerequisites": [],
     "prerequisitesRaw": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -504,7 +575,8 @@
       "prerequisites": null,
       "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "The weapon includes an integrated tool or utility function beyond combat use. Choose a utility skill; gain +1 Equipment bonus to checks using that skill while wielding the weapon.",
@@ -515,6 +587,11 @@
     "notes": null,
     "prerequisites": [],
     "prerequisitesRaw": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -545,7 +622,8 @@
       "prerequisites": null,
       "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "The weapon is especially deadly against a chosen kind of enemy. Deals +2 damage against enemies with a chosen trait, such as Spirit.",
@@ -556,6 +634,11 @@
     "notes": null,
     "prerequisites": [],
     "prerequisitesRaw": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -586,7 +669,8 @@
       "prerequisites": null,
       "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "The weapon fires rounds that hit with enough force to shove targets backward. On a successful attack, enemies are pushed back a number of squares equal to the weapon's rank",
@@ -602,6 +686,11 @@
       }
     ],
     "prerequisitesRaw": "weapon | tag=ranged",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -632,7 +721,8 @@
       "prerequisites": "weapon | tag=ranged",
       "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "A thrown weapon can be recalled to the wielder's hand immediately after it is thrown. Recall requires no action.",
@@ -648,6 +738,11 @@
       }
     ],
     "prerequisitesRaw": "weapon | tag=thrown",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -678,7 +773,8 @@
       "prerequisites": "weapon | tag=thrown",
       "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "The weapon can grow, shrink, or elongate to fit the needs of the moment.",
@@ -689,12 +785,17 @@
     "notes": "Draft-level entry; intended to increase size/reach, possibly with drawbacks in tight spaces.",
     "prerequisites": [],
     "prerequisitesRaw": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
     },
-    "selectable": false,
-    "selectionMode": "draft",
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceLocation": {
       "headers": [
         "enhancementKey",
@@ -717,9 +818,10 @@
       "name": "Size Changing / Extending",
       "notes": "Draft-level entry; intended to increase size/reach, possibly with drawbacks in tight spaces.",
       "prerequisites": null,
-      "selectionMode": "draft",
+      "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "The weapon is alive or self-aware and can communicate with its wielder. May speak aloud or communicate telepathically.",
@@ -730,6 +832,11 @@
     "notes": null,
     "prerequisites": [],
     "prerequisitesRaw": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -760,7 +867,8 @@
       "prerequisites": null,
       "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "The weapon is unusually precise at striking vital openings. Attacks with this weapon score a critical hit if they exceed the TN by 2 or more.",
@@ -771,6 +879,11 @@
     "notes": null,
     "prerequisites": [],
     "prerequisitesRaw": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -801,7 +914,8 @@
       "prerequisites": null,
       "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "The weapon siphons energy during combat and feeds it back to its wielder. Absorbs energy on hit, or when used to defend against attacks.",
@@ -812,6 +926,11 @@
     "notes": null,
     "prerequisites": [],
     "prerequisitesRaw": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -842,7 +961,8 @@
       "prerequisites": null,
       "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "The weapon can project a line of freezing cold in addition to its normal attacks. Rank of Ice equals the weapon's skill rank minus 1; area increases at higher ranks.",
@@ -853,6 +973,11 @@
     "notes": null,
     "prerequisites": [],
     "prerequisitesRaw": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -883,7 +1008,8 @@
       "prerequisites": null,
       "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "The weapon can project a line of lightning in addition to its normal attacks.",
@@ -894,6 +1020,11 @@
     "notes": "Handbook text appears to contain a copy/paste typo; likely intended to use Lightning rather than Ice.",
     "prerequisites": [],
     "prerequisitesRaw": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -924,7 +1055,8 @@
       "prerequisites": null,
       "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "The weapon can spew flame in a line or cone as an additional attack mode. Rank of Flame equals the weapon's skill rank minus 1; area increases at higher ranks.",
@@ -935,6 +1067,11 @@
     "notes": null,
     "prerequisites": [],
     "prerequisitesRaw": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -965,7 +1102,8 @@
       "prerequisites": null,
       "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "The weapon fires ammunition that detonates on impact. Deals damage to nearby creatures around the point of impact.",
@@ -981,6 +1119,11 @@
       }
     ],
     "prerequisitesRaw": "weapon | tag=ranged",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1011,7 +1154,8 @@
       "prerequisites": "weapon | tag=ranged",
       "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "The weapon fires spiritual creatures as ammunition to attack enemies.",
@@ -1022,6 +1166,11 @@
     "notes": "Example given: Caster Shell #5 from Outlaw Star.",
     "prerequisites": [],
     "prerequisitesRaw": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1052,7 +1201,8 @@
       "prerequisites": null,
       "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "The weapon is massively oversized and built for truly gigantic force.",
@@ -1063,12 +1213,17 @@
     "notes": "Draft-level entry with minimal defined mechanics.",
     "prerequisites": [],
     "prerequisitesRaw": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
     },
-    "selectable": false,
-    "selectionMode": "draft",
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceLocation": {
       "headers": [
         "enhancementKey",
@@ -1091,9 +1246,10 @@
       "name": "Titan Weapon",
       "notes": "Draft-level entry with minimal defined mechanics.",
       "prerequisites": null,
-      "selectionMode": "draft",
+      "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "The weapon can act and attack on its own without being directly wielded.",
@@ -1104,12 +1260,17 @@
     "notes": "Draft-level entry with minimal defined mechanics.",
     "prerequisites": [],
     "prerequisitesRaw": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
     },
-    "selectable": false,
-    "selectionMode": "draft",
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceLocation": {
       "headers": [
         "enhancementKey",
@@ -1132,9 +1293,10 @@
       "name": "Autonomous Weapon",
       "notes": "Draft-level entry with minimal defined mechanics.",
       "prerequisites": null,
-      "selectionMode": "draft",
+      "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "The weapon manipulates gravity to empower swings and pull or repel enemies.",
@@ -1150,12 +1312,17 @@
       }
     ],
     "prerequisitesRaw": "weapon | tag=heavy",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
     },
-    "selectable": false,
-    "selectionMode": "draft",
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceLocation": {
       "headers": [
         "enhancementKey",
@@ -1178,9 +1345,10 @@
       "name": "Gravity Weapon",
       "notes": "Draft-level entry; combines swing enhancement with attraction/repulsion effects.",
       "prerequisites": "weapon | tag=heavy",
-      "selectionMode": "draft",
+      "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "A heavy weapon that creates shockwaves, tremors, and fissures in the ground.",
@@ -1196,12 +1364,17 @@
       }
     ],
     "prerequisitesRaw": "weapon | tag=heavy",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
     },
-    "selectable": false,
-    "selectionMode": "draft",
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceLocation": {
       "headers": [
         "enhancementKey",
@@ -1224,9 +1397,10 @@
       "name": "Seismic Weapon",
       "notes": "Draft-level entry with minimal defined mechanics.",
       "prerequisites": "weapon | tag=heavy",
-      "selectionMode": "draft",
+      "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "The weapon fires miniature black holes as devastating projectiles.",
@@ -1237,12 +1411,17 @@
     "notes": "Draft-level entry with minimal defined mechanics.",
     "prerequisites": [],
     "prerequisitesRaw": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
     },
-    "selectable": false,
-    "selectionMode": "draft",
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceLocation": {
       "headers": [
         "enhancementKey",
@@ -1265,9 +1444,10 @@
       "name": "Black Hole Shooter",
       "notes": "Draft-level entry with minimal defined mechanics.",
       "prerequisites": null,
-      "selectionMode": "draft",
+      "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   },
   {
     "description": "The weapon attacks a target on a deeper metaphysical level rather than only harming the body.",
@@ -1278,12 +1458,17 @@
     "notes": "Draft-level entry; handbook notes ideas like attacking a target's \"name,\" \"identity,\" or \"existence.\"",
     "prerequisites": [],
     "prerequisitesRaw": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
     },
-    "selectable": false,
-    "selectionMode": "draft",
+    "selectable": true,
+    "selectionMode": "selectable",
     "sourceLocation": {
       "headers": [
         "enhancementKey",
@@ -1306,8 +1491,9 @@
       "name": "Conceptual Weapon",
       "notes": "Draft-level entry; handbook notes ideas like attacking a target's \"name,\" \"identity,\" or \"existence.\"",
       "prerequisites": null,
-      "selectionMode": "draft",
+      "selectionMode": "selectable",
       "sourceNote": "Player's Handbook"
-    }
+    },
+    "status": "playable"
   }
 ]

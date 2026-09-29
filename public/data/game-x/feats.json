@@ -22,13 +22,15 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=ninja | level=2",
-    "runtimeSupport": {
-      "reasons": [
-        "incomplete-content"
-      ],
-      "status": "deferred"
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
     },
-    "selectable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "sourceLocation": {
       "headers": [
         "featKey",
@@ -63,6 +65,7 @@
       "prerequisites": "class | classKey=ninja | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -88,6 +91,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=ninja | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -126,6 +134,7 @@
       "prerequisites": "class | classKey=ninja | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -151,6 +160,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=ninja | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -189,6 +203,7 @@
       "prerequisites": "class | classKey=ninja | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -220,6 +235,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=magical-guardian | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -258,6 +278,7 @@
       "prerequisites": "class | classKey=magical-guardian | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -283,6 +304,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=magical-guardian | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -321,6 +347,7 @@
       "prerequisites": "class | classKey=magical-guardian | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -346,6 +373,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=magical-guardian | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -384,6 +416,7 @@
       "prerequisites": "class | classKey=magical-guardian | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -409,6 +442,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=magical-guardian | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -447,6 +485,7 @@
       "prerequisites": "class | classKey=magical-guardian | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -485,6 +524,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=magical-guardian | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -523,6 +567,7 @@
       "prerequisites": "class | classKey=magical-guardian | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -548,6 +593,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | celestial-knight | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -586,6 +636,7 @@
       "prerequisites": "archetype | celestial-knight | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -611,6 +662,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | celestial-knight | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -649,6 +705,7 @@
       "prerequisites": "archetype | celestial-knight | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -674,6 +731,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | celestial-knight | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -712,6 +774,7 @@
       "prerequisites": "archetype | celestial-knight | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -737,6 +800,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=magical-guardian | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -775,6 +843,7 @@
       "prerequisites": "class | classKey=magical-guardian | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -800,6 +869,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | dark-witch | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -838,6 +912,7 @@
       "prerequisites": "archetype | dark-witch | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -863,6 +938,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | dark-witch | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -901,6 +981,7 @@
       "prerequisites": "archetype | dark-witch | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -926,6 +1007,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=magical-guardian | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -964,6 +1050,7 @@
       "prerequisites": "class | classKey=magical-guardian | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -989,6 +1076,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | sparkling-idol | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1027,6 +1119,7 @@
       "prerequisites": "archetype | sparkling-idol | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -1052,6 +1145,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | sparkling-idol | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1090,6 +1188,7 @@
       "prerequisites": "archetype | sparkling-idol | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -1126,6 +1225,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=magical-guardian | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1164,6 +1268,7 @@
       "prerequisites": "class | classKey=magical-guardian | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -1189,6 +1294,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=magical-guardian | level=4",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1227,6 +1337,7 @@
       "prerequisites": "class | classKey=magical-guardian | level=4",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -1252,6 +1363,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=magical-guardian | level=4",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1290,6 +1406,7 @@
       "prerequisites": "class | classKey=magical-guardian | level=4",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -1315,6 +1432,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=monster-tamer | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1353,6 +1475,7 @@
       "prerequisites": "class | classKey=monster-tamer | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -1382,6 +1505,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=monster-tamer | level=2\nfamiliar | minCount=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [
         "runtime-prerequisite-deferred"
@@ -1423,6 +1551,7 @@
       "prerequisites": "class | classKey=monster-tamer | level=2\nfamiliar | minCount=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -1452,6 +1581,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=monster-tamer | level=4\nfeat | featKey=multiple-simultaneous-summons",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1490,6 +1624,7 @@
       "prerequisites": "class | classKey=monster-tamer | level=4\nfeat | featKey=multiple-simultaneous-summons",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -1515,6 +1650,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=spirit-warrior | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1553,6 +1693,7 @@
       "prerequisites": "class | classKey=spirit-warrior | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -1584,6 +1725,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=spirit-warrior | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1622,6 +1768,7 @@
       "prerequisites": "class | classKey=spirit-warrior | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -1647,6 +1794,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=spirit-warrior | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1685,6 +1837,7 @@
       "prerequisites": "class | classKey=spirit-warrior | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -1710,6 +1863,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=spirit-warrior | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1748,6 +1906,7 @@
       "prerequisites": "class | classKey=spirit-warrior | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -1773,6 +1932,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | soulrager | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1811,6 +1975,7 @@
       "prerequisites": "archetype | soulrager | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -1836,6 +2001,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | soulrager | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1874,6 +2044,7 @@
       "prerequisites": "archetype | soulrager | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -1899,6 +2070,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=spirit-warrior | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1937,6 +2113,7 @@
       "prerequisites": "class | classKey=spirit-warrior | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -1967,6 +2144,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | qi-master | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2005,6 +2187,7 @@
       "prerequisites": "archetype | qi-master | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -2030,6 +2213,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | qi-master | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2068,6 +2256,7 @@
       "prerequisites": "archetype | qi-master | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -2093,6 +2282,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=spirit-warrior | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2131,6 +2325,7 @@
       "prerequisites": "class | classKey=spirit-warrior | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -2156,6 +2351,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | dizzy-fist | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2194,6 +2394,7 @@
       "prerequisites": "archetype | dizzy-fist | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -2219,6 +2420,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | dizzy-fist | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2257,6 +2463,7 @@
       "prerequisites": "archetype | dizzy-fist | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -2287,6 +2494,11 @@
       }
     ],
     "prerequisitesRaw": "option | groupKey=stances | count=2\nclass | classKey=spirit-warrior | level=4",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2325,6 +2537,7 @@
       "prerequisites": "option | groupKey=stances | count=2\nclass | classKey=spirit-warrior | level=4",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -2360,6 +2573,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=weapon-master | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2398,6 +2616,7 @@
       "prerequisites": "class | classKey=weapon-master | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -2423,6 +2642,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | commander | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2461,6 +2685,7 @@
       "prerequisites": "archetype | commander | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -2486,6 +2711,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | commander | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2524,6 +2754,7 @@
       "prerequisites": "archetype | commander | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -2556,6 +2787,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=weapon-master | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [
         "runtime-subsystem-stubbed"
@@ -2597,6 +2833,7 @@
       "prerequisites": "class | classKey=weapon-master | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -2622,6 +2859,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | warden-soul | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2660,6 +2902,7 @@
       "prerequisites": "archetype | warden-soul | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -2685,6 +2928,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | warden-soul | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2723,6 +2971,7 @@
       "prerequisites": "archetype | warden-soul | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -2748,6 +2997,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=weapon-master | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2786,6 +3040,7 @@
       "prerequisites": "class | classKey=weapon-master | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -2811,6 +3066,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | ghostwalker | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2849,6 +3109,7 @@
       "prerequisites": "archetype | ghostwalker | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -2874,6 +3135,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | ghostwalker | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2912,6 +3178,7 @@
       "prerequisites": "archetype | ghostwalker | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -2943,6 +3210,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=weapon-master | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2981,6 +3253,7 @@
       "prerequisites": "class | classKey=weapon-master | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -3013,12 +3286,17 @@
         "type": "class"
       },
       {
-        "choiceRef": "soulbound-weapon",
+        "choiceRef": "choice:12ecdfc0afde10381fd3b379ec0bdc8063b6f24f",
         "tag": "one-handed",
         "type": "choice"
       }
     ],
     "prerequisitesRaw": "class | classKey=weapon-master | level=2\nchoice | choiceRef=soulbound-weapon | tag=one-handed",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -3057,6 +3335,7 @@
       "prerequisites": "class | classKey=weapon-master | level=2\nchoice | choiceRef=soulbound-weapon | tag=one-handed",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -3093,6 +3372,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=weapon-master | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -3131,6 +3415,7 @@
       "prerequisites": "class | classKey=weapon-master | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -3156,6 +3441,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=weapon-master | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -3194,6 +3484,7 @@
       "prerequisites": "class | classKey=weapon-master | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -3219,6 +3510,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=weapon-master | level=4",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -3257,6 +3553,7 @@
       "prerequisites": "class | classKey=weapon-master | level=4",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -3282,6 +3579,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=weapon-master | level=4",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -3320,6 +3622,7 @@
       "prerequisites": "class | classKey=weapon-master | level=4",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -3345,6 +3648,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=weapon-master | level=4",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -3383,6 +3691,7 @@
       "prerequisites": "class | classKey=weapon-master | level=4",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -3413,6 +3722,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=weapon-master | level=4\nattribute | key=strength | minValue=6",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -3451,6 +3765,7 @@
       "prerequisites": "class | classKey=weapon-master | level=4\nattribute | key=strength | minValue=6",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -3482,6 +3797,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=henshin-hero | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -3520,6 +3840,7 @@
       "prerequisites": "class | classKey=henshin-hero | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -3551,6 +3872,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=henshin-hero | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -3589,6 +3915,7 @@
       "prerequisites": "class | classKey=henshin-hero | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -3614,6 +3941,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=henshin-hero | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -3652,6 +3984,7 @@
       "prerequisites": "class | classKey=henshin-hero | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -3677,6 +4010,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | chroma-ranger | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -3715,6 +4053,7 @@
       "prerequisites": "archetype | chroma-ranger | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -3740,6 +4079,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | chroma-ranger | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -3778,6 +4122,7 @@
       "prerequisites": "archetype | chroma-ranger | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -3803,6 +4148,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=henshin-hero | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -3841,6 +4191,7 @@
       "prerequisites": "class | classKey=henshin-hero | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -3866,6 +4217,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | giant-of-light | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -3904,6 +4260,7 @@
       "prerequisites": "archetype | giant-of-light | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -3929,6 +4286,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | giant-of-light | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -3967,6 +4329,7 @@
       "prerequisites": "archetype | giant-of-light | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -3992,6 +4355,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=henshin-hero | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -4030,6 +4398,7 @@
       "prerequisites": "class | classKey=henshin-hero | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -4055,6 +4424,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | masked-rider | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -4093,6 +4467,7 @@
       "prerequisites": "archetype | masked-rider | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -4118,6 +4493,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | masked-rider | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -4156,6 +4536,7 @@
       "prerequisites": "archetype | masked-rider | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -4181,6 +4562,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=henshin-hero | level=4",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -4219,6 +4605,7 @@
       "prerequisites": "class | classKey=henshin-hero | level=4",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -4248,6 +4635,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=henshin-hero | level=2\ntechnique | techniqueKey=hero-roll-call",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -4286,6 +4678,7 @@
       "prerequisites": "class | classKey=henshin-hero | level=2\ntechnique | techniqueKey=hero-roll-call",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -4311,6 +4704,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=henshin-hero | level=4",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -4349,6 +4747,7 @@
       "prerequisites": "class | classKey=henshin-hero | level=4",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -4378,6 +4777,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=henshin-hero | level=4\nfeat | featKey=additional-emblem",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -4416,6 +4820,7 @@
       "prerequisites": "class | classKey=henshin-hero | level=4\nfeat | featKey=additional-emblem",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -4441,6 +4846,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=henshin-hero | level=4",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -4479,6 +4889,7 @@
       "prerequisites": "class | classKey=henshin-hero | level=4",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -4504,6 +4915,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=metamorph | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -4542,6 +4958,7 @@
       "prerequisites": "class | classKey=metamorph | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -4572,6 +4989,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | mimic | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -4610,6 +5032,7 @@
       "prerequisites": "archetype | mimic | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -4635,6 +5058,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | mimic | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -4673,6 +5101,7 @@
       "prerequisites": "archetype | mimic | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -4698,6 +5127,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=metamorph | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -4736,6 +5170,7 @@
       "prerequisites": "class | classKey=metamorph | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -4761,6 +5196,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | chimaera | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -4799,6 +5239,7 @@
       "prerequisites": "archetype | chimaera | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -4824,6 +5265,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | chimaera | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -4862,6 +5308,7 @@
       "prerequisites": "archetype | chimaera | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -4887,6 +5334,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=metamorph | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -4925,6 +5377,7 @@
       "prerequisites": "class | classKey=metamorph | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -4950,6 +5403,11 @@
       }
     ],
     "prerequisitesRaw": "archetype | apex | numFeats=1",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -4988,6 +5446,7 @@
       "prerequisites": "archetype | apex | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -4995,15 +5454,15 @@
     "archetypeName": null,
     "category": "metamorph",
     "chooseCount": null,
-    "description": "TBD",
+    "description": "Sustained Overcharge: When you activate Transformation Overcharge, the increased rank affects all of your Metamorphosis techniques until the end of the turn.",
     "expressionSyntaxVersion": 3,
-    "featKey": "apex-feat-2",
+    "featKey": "sustained-overcharge",
     "featType": "archetype",
     "grantNotes": null,
     "grantText": null,
     "grants": [],
     "grantsRaw": null,
-    "name": "Apex Feat 2",
+    "name": "Sustained Overcharge",
     "notes": null,
     "prerequisites": [
       {
@@ -5013,13 +5472,15 @@
       }
     ],
     "prerequisitesRaw": "archetype | apex | numFeats=1",
-    "runtimeSupport": {
-      "reasons": [
-        "incomplete-content"
-      ],
-      "status": "deferred"
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
     },
-    "selectable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "sourceLocation": {
       "headers": [
         "featKey",
@@ -5044,16 +5505,17 @@
       "archetypeName": null,
       "category": "metamorph",
       "chooseCount": null,
-      "description": "TBD",
-      "featKey": "apex-feat-2",
+      "description": "Sustained Overcharge: When you activate Transformation Overcharge, the increased rank affects all of your Metamorphosis techniques until the end of the turn.",
+      "featKey": "sustained-overcharge",
       "featType": "archetype",
       "grants": null,
-      "name": "Apex Feat 2",
+      "name": "Sustained Overcharge",
       "notes": null,
       "parentKey": null,
       "prerequisites": "archetype | apex | numFeats=1",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
@@ -5079,6 +5541,11 @@
       }
     ],
     "prerequisitesRaw": "class | classKey=metamorph | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -5117,32 +5584,41 @@
       "prerequisites": "class | classKey=metamorph | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
-    "archetypeKey": "ninja-multiclass",
-    "archetypeName": "Ninja Multiclass",
-    "category": "multiclass",
+    "archetypeKey": null,
+    "archetypeName": null,
+    "category": "metamorph",
     "chooseCount": null,
-    "description": "TBD",
+    "description": "Shed Affliction: Your body is more adaptable, and can respond quickly to afflictions. While transformed, at the end of each turn you may reduce the value of any ongoing damage conditions (Burned, Bleeding, Poisoned) by your Metamorphosis Rank.",
     "expressionSyntaxVersion": 3,
-    "featKey": "ninja-multiclass-initiate",
-    "featType": "archetype",
+    "featKey": "shed-affliction",
+    "featType": "class",
     "grantNotes": null,
     "grantText": null,
     "grants": [],
     "grantsRaw": null,
-    "name": "Ninja Multiclass Initiate",
-    "notes": "Multiclass archetype associated with Ninja (classKey=ninja). Available to characters of any class. Placeholder mechanics remain TBD.",
-    "prerequisites": [],
-    "prerequisitesRaw": null,
-    "runtimeSupport": {
-      "reasons": [
-        "incomplete-content"
-      ],
-      "status": "deferred"
+    "name": "Shed Affliction",
+    "notes": null,
+    "prerequisites": [
+      {
+        "key": "metamorph",
+        "level": 2,
+        "type": "class"
+      }
+    ],
+    "prerequisitesRaw": "class | classKey=metamorph | level=2",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
     },
-    "selectable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "sourceLocation": {
       "headers": [
         "featKey",
@@ -5163,46 +5639,55 @@
       "sheet": "Feats"
     },
     "sourceValues": {
-      "archetypeKey": "ninja-multiclass",
-      "archetypeName": "Ninja Multiclass",
-      "category": "multiclass",
-      "chooseCount": "",
-      "description": "TBD",
-      "featKey": "ninja-multiclass-initiate",
-      "featType": "archetype",
-      "grants": "",
-      "name": "Ninja Multiclass Initiate",
-      "notes": "Multiclass archetype associated with Ninja (classKey=ninja). Available to characters of any class. Placeholder mechanics remain TBD.",
-      "parentKey": "",
-      "prerequisites": "",
+      "archetypeKey": null,
+      "archetypeName": null,
+      "category": "metamorph",
+      "chooseCount": null,
+      "description": "Shed Affliction: Your body is more adaptable, and can respond quickly to afflictions. While transformed, at the end of each turn you may reduce the value of any ongoing damage conditions (Burned, Bleeding, Poisoned) by your Metamorphosis Rank.",
+      "featKey": "shed-affliction",
+      "featType": "class",
+      "grants": null,
+      "name": "Shed Affliction",
+      "notes": null,
+      "parentKey": null,
+      "prerequisites": "class | classKey=metamorph | level=2",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
-    "archetypeKey": "magical-guardian-multiclass",
-    "archetypeName": "Magical Guardian Multiclass",
-    "category": "multiclass",
+    "archetypeKey": null,
+    "archetypeName": null,
+    "category": "metamorph",
     "chooseCount": null,
-    "description": "TBD",
+    "description": "Whenever you activate your Reactive Instinct, you may choose to make a basic attack with an unarmed strike or Natural Weapon immediately before or afterwards.",
     "expressionSyntaxVersion": 3,
-    "featKey": "magical-guardian-multiclass-initiate",
-    "featType": "archetype",
+    "featKey": "instinctive-counterattack",
+    "featType": "class",
     "grantNotes": null,
     "grantText": null,
     "grants": [],
     "grantsRaw": null,
-    "name": "Magical Guardian Multiclass Initiate",
-    "notes": "Multiclass archetype associated with Magical Guardian (classKey=magical-guardian). Available to characters of any class. Placeholder mechanics remain TBD.",
-    "prerequisites": [],
-    "prerequisitesRaw": null,
-    "runtimeSupport": {
-      "reasons": [
-        "incomplete-content"
-      ],
-      "status": "deferred"
+    "name": "Instinctive Counterattack",
+    "notes": null,
+    "prerequisites": [
+      {
+        "key": "metamorph",
+        "level": 4,
+        "type": "class"
+      }
+    ],
+    "prerequisitesRaw": "class | classKey=metamorph | level=4",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
     },
-    "selectable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "sourceLocation": {
       "headers": [
         "featKey",
@@ -5223,46 +5708,62 @@
       "sheet": "Feats"
     },
     "sourceValues": {
-      "archetypeKey": "magical-guardian-multiclass",
-      "archetypeName": "Magical Guardian Multiclass",
-      "category": "multiclass",
-      "chooseCount": "",
-      "description": "TBD",
-      "featKey": "magical-guardian-multiclass-initiate",
-      "featType": "archetype",
-      "grants": "",
-      "name": "Magical Guardian Multiclass Initiate",
-      "notes": "Multiclass archetype associated with Magical Guardian (classKey=magical-guardian). Available to characters of any class. Placeholder mechanics remain TBD.",
-      "parentKey": "",
-      "prerequisites": "",
+      "archetypeKey": null,
+      "archetypeName": null,
+      "category": "metamorph",
+      "chooseCount": null,
+      "description": "Whenever you activate your Reactive Instinct, you may choose to make a basic attack with an unarmed strike or Natural Weapon immediately before or afterwards.",
+      "featKey": "instinctive-counterattack",
+      "featType": "class",
+      "grants": null,
+      "name": "Instinctive Counterattack",
+      "notes": null,
+      "parentKey": null,
+      "prerequisites": "class | classKey=metamorph | level=4",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
-    "archetypeKey": "monster-tamer-multiclass",
-    "archetypeName": "Monster Tamer Multiclass",
-    "category": "multiclass",
+    "archetypeKey": null,
+    "archetypeName": null,
+    "category": "metamorph",
     "chooseCount": null,
-    "description": "TBD",
+    "description": "When activating your \"Giant Frame\" or \"Tiny Frame\" traits, you can increase or reduce your scale by 1 stage more. You may also choose to apply the modified scale to individual portions of your body (such as enlarging a single arm) rather than your entire body.",
     "expressionSyntaxVersion": 3,
-    "featKey": "monster-tamer-multiclass-initiate",
-    "featType": "archetype",
+    "featKey": "shifting-proportions",
+    "featType": "class",
     "grantNotes": null,
     "grantText": null,
     "grants": [],
     "grantsRaw": null,
-    "name": "Monster Tamer Multiclass Initiate",
-    "notes": "Multiclass archetype associated with Monster Tamer (classKey=monster-tamer). Available to characters of any class. Placeholder mechanics remain TBD.",
-    "prerequisites": [],
-    "prerequisitesRaw": null,
-    "runtimeSupport": {
-      "reasons": [
-        "incomplete-content"
-      ],
-      "status": "deferred"
+    "name": "Shifting Proportions",
+    "notes": null,
+    "prerequisites": [
+      {
+        "key": "metamorph",
+        "level": 4,
+        "type": "class"
+      },
+      {
+        "key": [
+          "giant-frame",
+          "tiny-frame"
+        ],
+        "type": "trait"
+      }
+    ],
+    "prerequisitesRaw": "class | classKey=metamorph | level=4\ntrait | traitKey=giant-frame OR tiny-frame",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
     },
-    "selectable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "sourceLocation": {
       "headers": [
         "featKey",
@@ -5283,46 +5784,49 @@
       "sheet": "Feats"
     },
     "sourceValues": {
-      "archetypeKey": "monster-tamer-multiclass",
-      "archetypeName": "Monster Tamer Multiclass",
-      "category": "multiclass",
-      "chooseCount": "",
-      "description": "TBD",
-      "featKey": "monster-tamer-multiclass-initiate",
-      "featType": "archetype",
-      "grants": "",
-      "name": "Monster Tamer Multiclass Initiate",
-      "notes": "Multiclass archetype associated with Monster Tamer (classKey=monster-tamer). Available to characters of any class. Placeholder mechanics remain TBD.",
-      "parentKey": "",
-      "prerequisites": "",
+      "archetypeKey": null,
+      "archetypeName": null,
+      "category": "metamorph",
+      "chooseCount": null,
+      "description": "When activating your \"Giant Frame\" or \"Tiny Frame\" traits, you can increase or reduce your scale by 1 stage more. You may also choose to apply the modified scale to individual portions of your body (such as enlarging a single arm) rather than your entire body.",
+      "featKey": "shifting-proportions",
+      "featType": "class",
+      "grants": null,
+      "name": "Shifting Proportions",
+      "notes": null,
+      "parentKey": null,
+      "prerequisites": "class | classKey=metamorph | level=4\ntrait | traitKey=giant-frame OR tiny-frame",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
-    "archetypeKey": "spirit-warrior-multiclass",
-    "archetypeName": "Spirit Warrior Multiclass",
+    "archetypeKey": "ninja-multiclass",
+    "archetypeName": "Ninja Multiclass",
     "category": "multiclass",
     "chooseCount": null,
     "description": "TBD",
     "expressionSyntaxVersion": 3,
-    "featKey": "spirit-warrior-multiclass-initiate",
+    "featKey": "ninja-multiclass-initiate",
     "featType": "archetype",
     "grantNotes": null,
     "grantText": null,
     "grants": [],
     "grantsRaw": null,
-    "name": "Spirit Warrior Multiclass Initiate",
-    "notes": "Multiclass archetype associated with Spirit Warrior (classKey=spirit-warrior). Available to characters of any class. Placeholder mechanics remain TBD.",
+    "name": "Ninja Multiclass Initiate",
+    "notes": "Multiclass archetype associated with Ninja (classKey=ninja). Available to characters of any class. Placeholder mechanics remain TBD.",
     "prerequisites": [],
     "prerequisitesRaw": null,
-    "runtimeSupport": {
-      "reasons": [
-        "incomplete-content"
-      ],
-      "status": "deferred"
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
     },
-    "selectable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "sourceLocation": {
       "headers": [
         "featKey",
@@ -5343,46 +5847,49 @@
       "sheet": "Feats"
     },
     "sourceValues": {
-      "archetypeKey": "spirit-warrior-multiclass",
-      "archetypeName": "Spirit Warrior Multiclass",
+      "archetypeKey": "ninja-multiclass",
+      "archetypeName": "Ninja Multiclass",
       "category": "multiclass",
       "chooseCount": "",
       "description": "TBD",
-      "featKey": "spirit-warrior-multiclass-initiate",
+      "featKey": "ninja-multiclass-initiate",
       "featType": "archetype",
       "grants": "",
-      "name": "Spirit Warrior Multiclass Initiate",
-      "notes": "Multiclass archetype associated with Spirit Warrior (classKey=spirit-warrior). Available to characters of any class. Placeholder mechanics remain TBD.",
+      "name": "Ninja Multiclass Initiate",
+      "notes": "Multiclass archetype associated with Ninja (classKey=ninja). Available to characters of any class. Placeholder mechanics remain TBD.",
       "parentKey": "",
       "prerequisites": "",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
-    "archetypeKey": "elementalist-multiclass",
-    "archetypeName": "Elementalist Multiclass",
+    "archetypeKey": "magical-guardian-multiclass",
+    "archetypeName": "Magical Guardian Multiclass",
     "category": "multiclass",
     "chooseCount": null,
     "description": "TBD",
     "expressionSyntaxVersion": 3,
-    "featKey": "elementalist-multiclass-initiate",
+    "featKey": "magical-guardian-multiclass-initiate",
     "featType": "archetype",
     "grantNotes": null,
     "grantText": null,
     "grants": [],
     "grantsRaw": null,
-    "name": "Elementalist Multiclass Initiate",
-    "notes": "Multiclass archetype associated with Elementalist (classKey=elementalist). Available to characters of any class. Placeholder mechanics remain TBD.",
+    "name": "Magical Guardian Multiclass Initiate",
+    "notes": "Multiclass archetype associated with Magical Guardian (classKey=magical-guardian). Available to characters of any class. Placeholder mechanics remain TBD.",
     "prerequisites": [],
     "prerequisitesRaw": null,
-    "runtimeSupport": {
-      "reasons": [
-        "incomplete-content"
-      ],
-      "status": "deferred"
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
     },
-    "selectable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "sourceLocation": {
       "headers": [
         "featKey",
@@ -5403,46 +5910,49 @@
       "sheet": "Feats"
     },
     "sourceValues": {
-      "archetypeKey": "elementalist-multiclass",
-      "archetypeName": "Elementalist Multiclass",
+      "archetypeKey": "magical-guardian-multiclass",
+      "archetypeName": "Magical Guardian Multiclass",
       "category": "multiclass",
       "chooseCount": "",
       "description": "TBD",
-      "featKey": "elementalist-multiclass-initiate",
+      "featKey": "magical-guardian-multiclass-initiate",
       "featType": "archetype",
       "grants": "",
-      "name": "Elementalist Multiclass Initiate",
-      "notes": "Multiclass archetype associated with Elementalist (classKey=elementalist). Available to characters of any class. Placeholder mechanics remain TBD.",
+      "name": "Magical Guardian Multiclass Initiate",
+      "notes": "Multiclass archetype associated with Magical Guardian (classKey=magical-guardian). Available to characters of any class. Placeholder mechanics remain TBD.",
       "parentKey": "",
       "prerequisites": "",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
-    "archetypeKey": "mech-pilot-multiclass",
-    "archetypeName": "Mech Pilot Multiclass",
+    "archetypeKey": "monster-tamer-multiclass",
+    "archetypeName": "Monster Tamer Multiclass",
     "category": "multiclass",
     "chooseCount": null,
     "description": "TBD",
     "expressionSyntaxVersion": 3,
-    "featKey": "mech-pilot-multiclass-initiate",
+    "featKey": "monster-tamer-multiclass-initiate",
     "featType": "archetype",
     "grantNotes": null,
     "grantText": null,
     "grants": [],
     "grantsRaw": null,
-    "name": "Mech Pilot Multiclass Initiate",
-    "notes": "Multiclass archetype associated with Mech Pilot (classKey=mech-pilot). Available to characters of any class. Placeholder mechanics remain TBD.",
+    "name": "Monster Tamer Multiclass Initiate",
+    "notes": "Multiclass archetype associated with Monster Tamer (classKey=monster-tamer). Available to characters of any class. Placeholder mechanics remain TBD.",
     "prerequisites": [],
     "prerequisitesRaw": null,
-    "runtimeSupport": {
-      "reasons": [
-        "incomplete-content"
-      ],
-      "status": "deferred"
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
     },
-    "selectable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "sourceLocation": {
       "headers": [
         "featKey",
@@ -5463,46 +5973,49 @@
       "sheet": "Feats"
     },
     "sourceValues": {
-      "archetypeKey": "mech-pilot-multiclass",
-      "archetypeName": "Mech Pilot Multiclass",
+      "archetypeKey": "monster-tamer-multiclass",
+      "archetypeName": "Monster Tamer Multiclass",
       "category": "multiclass",
       "chooseCount": "",
       "description": "TBD",
-      "featKey": "mech-pilot-multiclass-initiate",
+      "featKey": "monster-tamer-multiclass-initiate",
       "featType": "archetype",
       "grants": "",
-      "name": "Mech Pilot Multiclass Initiate",
-      "notes": "Multiclass archetype associated with Mech Pilot (classKey=mech-pilot). Available to characters of any class. Placeholder mechanics remain TBD.",
+      "name": "Monster Tamer Multiclass Initiate",
+      "notes": "Multiclass archetype associated with Monster Tamer (classKey=monster-tamer). Available to characters of any class. Placeholder mechanics remain TBD.",
       "parentKey": "",
       "prerequisites": "",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
-    "archetypeKey": "weapon-master-multiclass",
-    "archetypeName": "Weapon Master Multiclass",
+    "archetypeKey": "spirit-warrior-multiclass",
+    "archetypeName": "Spirit Warrior Multiclass",
     "category": "multiclass",
     "chooseCount": null,
     "description": "TBD",
     "expressionSyntaxVersion": 3,
-    "featKey": "weapon-master-multiclass-initiate",
+    "featKey": "spirit-warrior-multiclass-initiate",
     "featType": "archetype",
     "grantNotes": null,
     "grantText": null,
     "grants": [],
     "grantsRaw": null,
-    "name": "Weapon Master Multiclass Initiate",
-    "notes": "Multiclass archetype associated with Weapon Master (classKey=weapon-master). Available to characters of any class. Placeholder mechanics remain TBD.",
+    "name": "Spirit Warrior Multiclass Initiate",
+    "notes": "Multiclass archetype associated with Spirit Warrior (classKey=spirit-warrior). Available to characters of any class. Placeholder mechanics remain TBD.",
     "prerequisites": [],
     "prerequisitesRaw": null,
-    "runtimeSupport": {
-      "reasons": [
-        "incomplete-content"
-      ],
-      "status": "deferred"
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
     },
-    "selectable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "sourceLocation": {
       "headers": [
         "featKey",
@@ -5523,46 +6036,49 @@
       "sheet": "Feats"
     },
     "sourceValues": {
-      "archetypeKey": "weapon-master-multiclass",
-      "archetypeName": "Weapon Master Multiclass",
+      "archetypeKey": "spirit-warrior-multiclass",
+      "archetypeName": "Spirit Warrior Multiclass",
       "category": "multiclass",
       "chooseCount": "",
       "description": "TBD",
-      "featKey": "weapon-master-multiclass-initiate",
+      "featKey": "spirit-warrior-multiclass-initiate",
       "featType": "archetype",
       "grants": "",
-      "name": "Weapon Master Multiclass Initiate",
-      "notes": "Multiclass archetype associated with Weapon Master (classKey=weapon-master). Available to characters of any class. Placeholder mechanics remain TBD.",
+      "name": "Spirit Warrior Multiclass Initiate",
+      "notes": "Multiclass archetype associated with Spirit Warrior (classKey=spirit-warrior). Available to characters of any class. Placeholder mechanics remain TBD.",
       "parentKey": "",
       "prerequisites": "",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
-    "archetypeKey": "henshin-hero-multiclass",
-    "archetypeName": "Henshin Hero Multiclass",
+    "archetypeKey": "elementalist-multiclass",
+    "archetypeName": "Elementalist Multiclass",
     "category": "multiclass",
     "chooseCount": null,
     "description": "TBD",
     "expressionSyntaxVersion": 3,
-    "featKey": "henshin-hero-multiclass-initiate",
+    "featKey": "elementalist-multiclass-initiate",
     "featType": "archetype",
     "grantNotes": null,
     "grantText": null,
     "grants": [],
     "grantsRaw": null,
-    "name": "Henshin Hero Multiclass Initiate",
-    "notes": "Multiclass archetype associated with Henshin Hero (classKey=henshin-hero). Available to characters of any class. Placeholder mechanics remain TBD.",
+    "name": "Elementalist Multiclass Initiate",
+    "notes": "Multiclass archetype associated with Elementalist (classKey=elementalist). Available to characters of any class. Placeholder mechanics remain TBD.",
     "prerequisites": [],
     "prerequisitesRaw": null,
-    "runtimeSupport": {
-      "reasons": [
-        "incomplete-content"
-      ],
-      "status": "deferred"
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
     },
-    "selectable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "sourceLocation": {
       "headers": [
         "featKey",
@@ -5583,46 +6099,49 @@
       "sheet": "Feats"
     },
     "sourceValues": {
-      "archetypeKey": "henshin-hero-multiclass",
-      "archetypeName": "Henshin Hero Multiclass",
+      "archetypeKey": "elementalist-multiclass",
+      "archetypeName": "Elementalist Multiclass",
       "category": "multiclass",
       "chooseCount": "",
       "description": "TBD",
-      "featKey": "henshin-hero-multiclass-initiate",
+      "featKey": "elementalist-multiclass-initiate",
       "featType": "archetype",
       "grants": "",
-      "name": "Henshin Hero Multiclass Initiate",
-      "notes": "Multiclass archetype associated with Henshin Hero (classKey=henshin-hero). Available to characters of any class. Placeholder mechanics remain TBD.",
+      "name": "Elementalist Multiclass Initiate",
+      "notes": "Multiclass archetype associated with Elementalist (classKey=elementalist). Available to characters of any class. Placeholder mechanics remain TBD.",
       "parentKey": "",
       "prerequisites": "",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
-    "archetypeKey": "psychic-multiclass",
-    "archetypeName": "Psychic Multiclass",
+    "archetypeKey": "mech-pilot-multiclass",
+    "archetypeName": "Mech Pilot Multiclass",
     "category": "multiclass",
     "chooseCount": null,
     "description": "TBD",
     "expressionSyntaxVersion": 3,
-    "featKey": "psychic-multiclass-initiate",
+    "featKey": "mech-pilot-multiclass-initiate",
     "featType": "archetype",
     "grantNotes": null,
     "grantText": null,
     "grants": [],
     "grantsRaw": null,
-    "name": "Psychic Multiclass Initiate",
-    "notes": "Multiclass archetype associated with Psychic (classKey=psychic). Available to characters of any class. Placeholder mechanics remain TBD.",
+    "name": "Mech Pilot Multiclass Initiate",
+    "notes": "Multiclass archetype associated with Mech Pilot (classKey=mech-pilot). Available to characters of any class. Placeholder mechanics remain TBD.",
     "prerequisites": [],
     "prerequisitesRaw": null,
-    "runtimeSupport": {
-      "reasons": [
-        "incomplete-content"
-      ],
-      "status": "deferred"
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
     },
-    "selectable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "sourceLocation": {
       "headers": [
         "featKey",
@@ -5643,46 +6162,49 @@
       "sheet": "Feats"
     },
     "sourceValues": {
-      "archetypeKey": "psychic-multiclass",
-      "archetypeName": "Psychic Multiclass",
+      "archetypeKey": "mech-pilot-multiclass",
+      "archetypeName": "Mech Pilot Multiclass",
       "category": "multiclass",
       "chooseCount": "",
       "description": "TBD",
-      "featKey": "psychic-multiclass-initiate",
+      "featKey": "mech-pilot-multiclass-initiate",
       "featType": "archetype",
       "grants": "",
-      "name": "Psychic Multiclass Initiate",
-      "notes": "Multiclass archetype associated with Psychic (classKey=psychic). Available to characters of any class. Placeholder mechanics remain TBD.",
+      "name": "Mech Pilot Multiclass Initiate",
+      "notes": "Multiclass archetype associated with Mech Pilot (classKey=mech-pilot). Available to characters of any class. Placeholder mechanics remain TBD.",
       "parentKey": "",
       "prerequisites": "",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
-    "archetypeKey": "metamorph-multiclass",
-    "archetypeName": "Metamorph Multiclass",
+    "archetypeKey": "weapon-master-multiclass",
+    "archetypeName": "Weapon Master Multiclass",
     "category": "multiclass",
     "chooseCount": null,
     "description": "TBD",
     "expressionSyntaxVersion": 3,
-    "featKey": "metamorph-multiclass-initiate",
+    "featKey": "weapon-master-multiclass-initiate",
     "featType": "archetype",
     "grantNotes": null,
     "grantText": null,
     "grants": [],
     "grantsRaw": null,
-    "name": "Metamorph Multiclass Initiate",
-    "notes": "Multiclass archetype associated with Metamorph (classKey=metamorph). Available to characters of any class. Placeholder mechanics remain TBD.",
+    "name": "Weapon Master Multiclass Initiate",
+    "notes": "Multiclass archetype associated with Weapon Master (classKey=weapon-master). Available to characters of any class. Placeholder mechanics remain TBD.",
     "prerequisites": [],
     "prerequisitesRaw": null,
-    "runtimeSupport": {
-      "reasons": [
-        "incomplete-content"
-      ],
-      "status": "deferred"
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
     },
-    "selectable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "sourceLocation": {
       "headers": [
         "featKey",
@@ -5703,46 +6225,49 @@
       "sheet": "Feats"
     },
     "sourceValues": {
-      "archetypeKey": "metamorph-multiclass",
-      "archetypeName": "Metamorph Multiclass",
+      "archetypeKey": "weapon-master-multiclass",
+      "archetypeName": "Weapon Master Multiclass",
       "category": "multiclass",
       "chooseCount": "",
       "description": "TBD",
-      "featKey": "metamorph-multiclass-initiate",
+      "featKey": "weapon-master-multiclass-initiate",
       "featType": "archetype",
       "grants": "",
-      "name": "Metamorph Multiclass Initiate",
-      "notes": "Multiclass archetype associated with Metamorph (classKey=metamorph). Available to characters of any class. Placeholder mechanics remain TBD.",
+      "name": "Weapon Master Multiclass Initiate",
+      "notes": "Multiclass archetype associated with Weapon Master (classKey=weapon-master). Available to characters of any class. Placeholder mechanics remain TBD.",
       "parentKey": "",
       "prerequisites": "",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
-    "archetypeKey": "jrpg-mage-multiclass",
-    "archetypeName": "JRPG Mage Multiclass",
+    "archetypeKey": "henshin-hero-multiclass",
+    "archetypeName": "Henshin Hero Multiclass",
     "category": "multiclass",
     "chooseCount": null,
     "description": "TBD",
     "expressionSyntaxVersion": 3,
-    "featKey": "jrpg-mage-multiclass-initiate",
+    "featKey": "henshin-hero-multiclass-initiate",
     "featType": "archetype",
     "grantNotes": null,
     "grantText": null,
     "grants": [],
     "grantsRaw": null,
-    "name": "JRPG Mage Multiclass Initiate",
-    "notes": "Multiclass archetype associated with JRPG Mage (classKey=jrpg-mage). Available to characters of any class. Placeholder mechanics remain TBD.",
+    "name": "Henshin Hero Multiclass Initiate",
+    "notes": "Multiclass archetype associated with Henshin Hero (classKey=henshin-hero). Available to characters of any class. Placeholder mechanics remain TBD.",
     "prerequisites": [],
     "prerequisitesRaw": null,
-    "runtimeSupport": {
-      "reasons": [
-        "incomplete-content"
-      ],
-      "status": "deferred"
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
     },
-    "selectable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "sourceLocation": {
       "headers": [
         "featKey",
@@ -5763,46 +6288,49 @@
       "sheet": "Feats"
     },
     "sourceValues": {
-      "archetypeKey": "jrpg-mage-multiclass",
-      "archetypeName": "JRPG Mage Multiclass",
+      "archetypeKey": "henshin-hero-multiclass",
+      "archetypeName": "Henshin Hero Multiclass",
       "category": "multiclass",
       "chooseCount": "",
       "description": "TBD",
-      "featKey": "jrpg-mage-multiclass-initiate",
+      "featKey": "henshin-hero-multiclass-initiate",
       "featType": "archetype",
       "grants": "",
-      "name": "JRPG Mage Multiclass Initiate",
-      "notes": "Multiclass archetype associated with JRPG Mage (classKey=jrpg-mage). Available to characters of any class. Placeholder mechanics remain TBD.",
+      "name": "Henshin Hero Multiclass Initiate",
+      "notes": "Multiclass archetype associated with Henshin Hero (classKey=henshin-hero). Available to characters of any class. Placeholder mechanics remain TBD.",
       "parentKey": "",
       "prerequisites": "",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
-    "archetypeKey": "mastermind-multiclass",
-    "archetypeName": "Mastermind Multiclass",
+    "archetypeKey": "psychic-multiclass",
+    "archetypeName": "Psychic Multiclass",
     "category": "multiclass",
     "chooseCount": null,
     "description": "TBD",
     "expressionSyntaxVersion": 3,
-    "featKey": "mastermind-multiclass-initiate",
+    "featKey": "psychic-multiclass-initiate",
     "featType": "archetype",
     "grantNotes": null,
     "grantText": null,
     "grants": [],
     "grantsRaw": null,
-    "name": "Mastermind Multiclass Initiate",
-    "notes": "Multiclass archetype associated with Mastermind (classKey=mastermind). Available to characters of any class. Placeholder mechanics remain TBD.",
+    "name": "Psychic Multiclass Initiate",
+    "notes": "Multiclass archetype associated with Psychic (classKey=psychic). Available to characters of any class. Placeholder mechanics remain TBD.",
     "prerequisites": [],
     "prerequisitesRaw": null,
-    "runtimeSupport": {
-      "reasons": [
-        "incomplete-content"
-      ],
-      "status": "deferred"
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
     },
-    "selectable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "sourceLocation": {
       "headers": [
         "featKey",
@@ -5823,46 +6351,49 @@
       "sheet": "Feats"
     },
     "sourceValues": {
-      "archetypeKey": "mastermind-multiclass",
-      "archetypeName": "Mastermind Multiclass",
+      "archetypeKey": "psychic-multiclass",
+      "archetypeName": "Psychic Multiclass",
       "category": "multiclass",
       "chooseCount": "",
       "description": "TBD",
-      "featKey": "mastermind-multiclass-initiate",
+      "featKey": "psychic-multiclass-initiate",
       "featType": "archetype",
       "grants": "",
-      "name": "Mastermind Multiclass Initiate",
-      "notes": "Multiclass archetype associated with Mastermind (classKey=mastermind). Available to characters of any class. Placeholder mechanics remain TBD.",
+      "name": "Psychic Multiclass Initiate",
+      "notes": "Multiclass archetype associated with Psychic (classKey=psychic). Available to characters of any class. Placeholder mechanics remain TBD.",
       "parentKey": "",
       "prerequisites": "",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
-    "archetypeKey": "dragoon-multiclass",
-    "archetypeName": "Dragoon Multiclass",
+    "archetypeKey": "metamorph-multiclass",
+    "archetypeName": "Metamorph Multiclass",
     "category": "multiclass",
     "chooseCount": null,
     "description": "TBD",
     "expressionSyntaxVersion": 3,
-    "featKey": "dragoon-multiclass-initiate",
+    "featKey": "metamorph-multiclass-initiate",
     "featType": "archetype",
     "grantNotes": null,
     "grantText": null,
     "grants": [],
     "grantsRaw": null,
-    "name": "Dragoon Multiclass Initiate",
-    "notes": "Multiclass archetype associated with Dragoon (classKey=dragoon). Available to characters of any class. Placeholder mechanics remain TBD.",
+    "name": "Metamorph Multiclass Initiate",
+    "notes": "Multiclass archetype associated with Metamorph (classKey=metamorph). Available to characters of any class. Placeholder mechanics remain TBD.",
     "prerequisites": [],
     "prerequisitesRaw": null,
-    "runtimeSupport": {
-      "reasons": [
-        "incomplete-content"
-      ],
-      "status": "deferred"
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
     },
-    "selectable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "sourceLocation": {
       "headers": [
         "featKey",
@@ -5883,46 +6414,49 @@
       "sheet": "Feats"
     },
     "sourceValues": {
-      "archetypeKey": "dragoon-multiclass",
-      "archetypeName": "Dragoon Multiclass",
+      "archetypeKey": "metamorph-multiclass",
+      "archetypeName": "Metamorph Multiclass",
       "category": "multiclass",
       "chooseCount": "",
       "description": "TBD",
-      "featKey": "dragoon-multiclass-initiate",
+      "featKey": "metamorph-multiclass-initiate",
       "featType": "archetype",
       "grants": "",
-      "name": "Dragoon Multiclass Initiate",
-      "notes": "Multiclass archetype associated with Dragoon (classKey=dragoon). Available to characters of any class. Placeholder mechanics remain TBD.",
+      "name": "Metamorph Multiclass Initiate",
+      "notes": "Multiclass archetype associated with Metamorph (classKey=metamorph). Available to characters of any class. Placeholder mechanics remain TBD.",
       "parentKey": "",
       "prerequisites": "",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
-    "archetypeKey": "sports-athlete-multiclass",
-    "archetypeName": "Sports Athlete Multiclass",
+    "archetypeKey": "jrpg-mage-multiclass",
+    "archetypeName": "JRPG Mage Multiclass",
     "category": "multiclass",
     "chooseCount": null,
     "description": "TBD",
     "expressionSyntaxVersion": 3,
-    "featKey": "sports-athlete-multiclass-initiate",
+    "featKey": "jrpg-mage-multiclass-initiate",
     "featType": "archetype",
     "grantNotes": null,
     "grantText": null,
     "grants": [],
     "grantsRaw": null,
-    "name": "Sports Athlete Multiclass Initiate",
-    "notes": "Multiclass archetype associated with Sports Athlete (classKey=sports-athlete). Available to characters of any class. Placeholder mechanics remain TBD.",
+    "name": "JRPG Mage Multiclass Initiate",
+    "notes": "Multiclass archetype associated with JRPG Mage (classKey=jrpg-mage). Available to characters of any class. Placeholder mechanics remain TBD.",
     "prerequisites": [],
     "prerequisitesRaw": null,
-    "runtimeSupport": {
-      "reasons": [
-        "incomplete-content"
-      ],
-      "status": "deferred"
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
     },
-    "selectable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "sourceLocation": {
       "headers": [
         "featKey",
@@ -5943,46 +6477,49 @@
       "sheet": "Feats"
     },
     "sourceValues": {
-      "archetypeKey": "sports-athlete-multiclass",
-      "archetypeName": "Sports Athlete Multiclass",
+      "archetypeKey": "jrpg-mage-multiclass",
+      "archetypeName": "JRPG Mage Multiclass",
       "category": "multiclass",
       "chooseCount": "",
       "description": "TBD",
-      "featKey": "sports-athlete-multiclass-initiate",
+      "featKey": "jrpg-mage-multiclass-initiate",
       "featType": "archetype",
       "grants": "",
-      "name": "Sports Athlete Multiclass Initiate",
-      "notes": "Multiclass archetype associated with Sports Athlete (classKey=sports-athlete). Available to characters of any class. Placeholder mechanics remain TBD.",
+      "name": "JRPG Mage Multiclass Initiate",
+      "notes": "Multiclass archetype associated with JRPG Mage (classKey=jrpg-mage). Available to characters of any class. Placeholder mechanics remain TBD.",
       "parentKey": "",
       "prerequisites": "",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
-    "archetypeKey": "racer-multiclass",
-    "archetypeName": "Racer Multiclass",
+    "archetypeKey": "mastermind-multiclass",
+    "archetypeName": "Mastermind Multiclass",
     "category": "multiclass",
     "chooseCount": null,
     "description": "TBD",
     "expressionSyntaxVersion": 3,
-    "featKey": "racer-multiclass-initiate",
+    "featKey": "mastermind-multiclass-initiate",
     "featType": "archetype",
     "grantNotes": null,
     "grantText": null,
     "grants": [],
     "grantsRaw": null,
-    "name": "Racer Multiclass Initiate",
-    "notes": "Multiclass archetype associated with Racer (classKey=racer). Available to characters of any class. Placeholder mechanics remain TBD.",
+    "name": "Mastermind Multiclass Initiate",
+    "notes": "Multiclass archetype associated with Mastermind (classKey=mastermind). Available to characters of any class. Placeholder mechanics remain TBD.",
     "prerequisites": [],
     "prerequisitesRaw": null,
-    "runtimeSupport": {
-      "reasons": [
-        "incomplete-content"
-      ],
-      "status": "deferred"
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
     },
-    "selectable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "sourceLocation": {
       "headers": [
         "featKey",
@@ -6003,46 +6540,49 @@
       "sheet": "Feats"
     },
     "sourceValues": {
-      "archetypeKey": "racer-multiclass",
-      "archetypeName": "Racer Multiclass",
+      "archetypeKey": "mastermind-multiclass",
+      "archetypeName": "Mastermind Multiclass",
       "category": "multiclass",
       "chooseCount": "",
       "description": "TBD",
-      "featKey": "racer-multiclass-initiate",
+      "featKey": "mastermind-multiclass-initiate",
       "featType": "archetype",
       "grants": "",
-      "name": "Racer Multiclass Initiate",
-      "notes": "Multiclass archetype associated with Racer (classKey=racer). Available to characters of any class. Placeholder mechanics remain TBD.",
+      "name": "Mastermind Multiclass Initiate",
+      "notes": "Multiclass archetype associated with Mastermind (classKey=mastermind). Available to characters of any class. Placeholder mechanics remain TBD.",
       "parentKey": "",
       "prerequisites": "",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
-    "archetypeKey": "gamer-multiclass",
-    "archetypeName": "Gamer Multiclass",
+    "archetypeKey": "dragoon-multiclass",
+    "archetypeName": "Dragoon Multiclass",
     "category": "multiclass",
     "chooseCount": null,
     "description": "TBD",
     "expressionSyntaxVersion": 3,
-    "featKey": "gamer-multiclass-initiate",
+    "featKey": "dragoon-multiclass-initiate",
     "featType": "archetype",
     "grantNotes": null,
     "grantText": null,
     "grants": [],
     "grantsRaw": null,
-    "name": "Gamer Multiclass Initiate",
-    "notes": "Multiclass archetype associated with Gamer (classKey=gamer). Available to characters of any class. Placeholder mechanics remain TBD.",
+    "name": "Dragoon Multiclass Initiate",
+    "notes": "Multiclass archetype associated with Dragoon (classKey=dragoon). Available to characters of any class. Placeholder mechanics remain TBD.",
     "prerequisites": [],
     "prerequisitesRaw": null,
-    "runtimeSupport": {
-      "reasons": [
-        "incomplete-content"
-      ],
-      "status": "deferred"
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
     },
-    "selectable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "sourceLocation": {
       "headers": [
         "featKey",
@@ -6063,46 +6603,49 @@
       "sheet": "Feats"
     },
     "sourceValues": {
-      "archetypeKey": "gamer-multiclass",
-      "archetypeName": "Gamer Multiclass",
+      "archetypeKey": "dragoon-multiclass",
+      "archetypeName": "Dragoon Multiclass",
       "category": "multiclass",
       "chooseCount": "",
       "description": "TBD",
-      "featKey": "gamer-multiclass-initiate",
+      "featKey": "dragoon-multiclass-initiate",
       "featType": "archetype",
       "grants": "",
-      "name": "Gamer Multiclass Initiate",
-      "notes": "Multiclass archetype associated with Gamer (classKey=gamer). Available to characters of any class. Placeholder mechanics remain TBD.",
+      "name": "Dragoon Multiclass Initiate",
+      "notes": "Multiclass archetype associated with Dragoon (classKey=dragoon). Available to characters of any class. Placeholder mechanics remain TBD.",
       "parentKey": "",
       "prerequisites": "",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
-    "archetypeKey": "idol-multiclass",
-    "archetypeName": "Idol Multiclass",
+    "archetypeKey": "sports-athlete-multiclass",
+    "archetypeName": "Sports Athlete Multiclass",
     "category": "multiclass",
     "chooseCount": null,
     "description": "TBD",
     "expressionSyntaxVersion": 3,
-    "featKey": "idol-multiclass-initiate",
+    "featKey": "sports-athlete-multiclass-initiate",
     "featType": "archetype",
     "grantNotes": null,
     "grantText": null,
     "grants": [],
     "grantsRaw": null,
-    "name": "Idol Multiclass Initiate",
-    "notes": "Multiclass archetype associated with Idol (classKey=idol). Available to characters of any class. Placeholder mechanics remain TBD.",
+    "name": "Sports Athlete Multiclass Initiate",
+    "notes": "Multiclass archetype associated with Sports Athlete (classKey=sports-athlete). Available to characters of any class. Placeholder mechanics remain TBD.",
     "prerequisites": [],
     "prerequisitesRaw": null,
-    "runtimeSupport": {
-      "reasons": [
-        "incomplete-content"
-      ],
-      "status": "deferred"
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
     },
-    "selectable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "sourceLocation": {
       "headers": [
         "featKey",
@@ -6123,46 +6666,49 @@
       "sheet": "Feats"
     },
     "sourceValues": {
-      "archetypeKey": "idol-multiclass",
-      "archetypeName": "Idol Multiclass",
+      "archetypeKey": "sports-athlete-multiclass",
+      "archetypeName": "Sports Athlete Multiclass",
       "category": "multiclass",
       "chooseCount": "",
       "description": "TBD",
-      "featKey": "idol-multiclass-initiate",
+      "featKey": "sports-athlete-multiclass-initiate",
       "featType": "archetype",
       "grants": "",
-      "name": "Idol Multiclass Initiate",
-      "notes": "Multiclass archetype associated with Idol (classKey=idol). Available to characters of any class. Placeholder mechanics remain TBD.",
+      "name": "Sports Athlete Multiclass Initiate",
+      "notes": "Multiclass archetype associated with Sports Athlete (classKey=sports-athlete). Available to characters of any class. Placeholder mechanics remain TBD.",
       "parentKey": "",
       "prerequisites": "",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
-    "archetypeKey": "spirit-exorcist-multiclass",
-    "archetypeName": "Spirit Exorcist Multiclass",
+    "archetypeKey": "racer-multiclass",
+    "archetypeName": "Racer Multiclass",
     "category": "multiclass",
     "chooseCount": null,
     "description": "TBD",
     "expressionSyntaxVersion": 3,
-    "featKey": "spirit-exorcist-multiclass-initiate",
+    "featKey": "racer-multiclass-initiate",
     "featType": "archetype",
     "grantNotes": null,
     "grantText": null,
     "grants": [],
     "grantsRaw": null,
-    "name": "Spirit Exorcist Multiclass Initiate",
-    "notes": "Multiclass archetype associated with Spirit Exorcist (classKey=spirit-exorcist). Available to characters of any class. Placeholder mechanics remain TBD.",
+    "name": "Racer Multiclass Initiate",
+    "notes": "Multiclass archetype associated with Racer (classKey=racer). Available to characters of any class. Placeholder mechanics remain TBD.",
     "prerequisites": [],
     "prerequisitesRaw": null,
-    "runtimeSupport": {
-      "reasons": [
-        "incomplete-content"
-      ],
-      "status": "deferred"
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
     },
-    "selectable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "sourceLocation": {
       "headers": [
         "featKey",
@@ -6183,46 +6729,49 @@
       "sheet": "Feats"
     },
     "sourceValues": {
-      "archetypeKey": "spirit-exorcist-multiclass",
-      "archetypeName": "Spirit Exorcist Multiclass",
+      "archetypeKey": "racer-multiclass",
+      "archetypeName": "Racer Multiclass",
       "category": "multiclass",
       "chooseCount": "",
       "description": "TBD",
-      "featKey": "spirit-exorcist-multiclass-initiate",
+      "featKey": "racer-multiclass-initiate",
       "featType": "archetype",
       "grants": "",
-      "name": "Spirit Exorcist Multiclass Initiate",
-      "notes": "Multiclass archetype associated with Spirit Exorcist (classKey=spirit-exorcist). Available to characters of any class. Placeholder mechanics remain TBD.",
+      "name": "Racer Multiclass Initiate",
+      "notes": "Multiclass archetype associated with Racer (classKey=racer). Available to characters of any class. Placeholder mechanics remain TBD.",
       "parentKey": "",
       "prerequisites": "",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   },
   {
-    "archetypeKey": "monster-hunter-multiclass",
-    "archetypeName": "Monster Hunter Multiclass",
+    "archetypeKey": "gamer-multiclass",
+    "archetypeName": "Gamer Multiclass",
     "category": "multiclass",
     "chooseCount": null,
     "description": "TBD",
     "expressionSyntaxVersion": 3,
-    "featKey": "monster-hunter-multiclass-initiate",
+    "featKey": "gamer-multiclass-initiate",
     "featType": "archetype",
     "grantNotes": null,
     "grantText": null,
     "grants": [],
     "grantsRaw": null,
-    "name": "Monster Hunter Multiclass Initiate",
-    "notes": "Multiclass archetype associated with Monster Hunter (classKey=monster-hunter). Available to characters of any class. Placeholder mechanics remain TBD.",
+    "name": "Gamer Multiclass Initiate",
+    "notes": "Multiclass archetype associated with Gamer (classKey=gamer). Available to characters of any class. Placeholder mechanics remain TBD.",
     "prerequisites": [],
     "prerequisitesRaw": null,
-    "runtimeSupport": {
-      "reasons": [
-        "incomplete-content"
-      ],
-      "status": "deferred"
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
     },
-    "selectable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "sourceLocation": {
       "headers": [
         "featKey",
@@ -6243,6 +6792,195 @@
       "sheet": "Feats"
     },
     "sourceValues": {
+      "archetypeKey": "gamer-multiclass",
+      "archetypeName": "Gamer Multiclass",
+      "category": "multiclass",
+      "chooseCount": "",
+      "description": "TBD",
+      "featKey": "gamer-multiclass-initiate",
+      "featType": "archetype",
+      "grants": "",
+      "name": "Gamer Multiclass Initiate",
+      "notes": "Multiclass archetype associated with Gamer (classKey=gamer). Available to characters of any class. Placeholder mechanics remain TBD.",
+      "parentKey": "",
+      "prerequisites": "",
+      "rowType": "FEATURE"
+    },
+    "status": "playable",
+    "type": "feature"
+  },
+  {
+    "archetypeKey": "idol-multiclass",
+    "archetypeName": "Idol Multiclass",
+    "category": "multiclass",
+    "chooseCount": null,
+    "description": "TBD",
+    "expressionSyntaxVersion": 3,
+    "featKey": "idol-multiclass-initiate",
+    "featType": "archetype",
+    "grantNotes": null,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Idol Multiclass Initiate",
+    "notes": "Multiclass archetype associated with Idol (classKey=idol). Available to characters of any class. Placeholder mechanics remain TBD.",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "featKey",
+        "category",
+        "rowType",
+        "featType",
+        "name",
+        "archetypeKey",
+        "archetypeName",
+        "parentKey",
+        "prerequisites",
+        "description",
+        "grants",
+        "chooseCount",
+        "notes"
+      ],
+      "row": 102,
+      "sheet": "Feats"
+    },
+    "sourceValues": {
+      "archetypeKey": "idol-multiclass",
+      "archetypeName": "Idol Multiclass",
+      "category": "multiclass",
+      "chooseCount": "",
+      "description": "TBD",
+      "featKey": "idol-multiclass-initiate",
+      "featType": "archetype",
+      "grants": "",
+      "name": "Idol Multiclass Initiate",
+      "notes": "Multiclass archetype associated with Idol (classKey=idol). Available to characters of any class. Placeholder mechanics remain TBD.",
+      "parentKey": "",
+      "prerequisites": "",
+      "rowType": "FEATURE"
+    },
+    "status": "playable",
+    "type": "feature"
+  },
+  {
+    "archetypeKey": "spirit-exorcist-multiclass",
+    "archetypeName": "Spirit Exorcist Multiclass",
+    "category": "multiclass",
+    "chooseCount": null,
+    "description": "TBD",
+    "expressionSyntaxVersion": 3,
+    "featKey": "spirit-exorcist-multiclass-initiate",
+    "featType": "archetype",
+    "grantNotes": null,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Spirit Exorcist Multiclass Initiate",
+    "notes": "Multiclass archetype associated with Spirit Exorcist (classKey=spirit-exorcist). Available to characters of any class. Placeholder mechanics remain TBD.",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "featKey",
+        "category",
+        "rowType",
+        "featType",
+        "name",
+        "archetypeKey",
+        "archetypeName",
+        "parentKey",
+        "prerequisites",
+        "description",
+        "grants",
+        "chooseCount",
+        "notes"
+      ],
+      "row": 103,
+      "sheet": "Feats"
+    },
+    "sourceValues": {
+      "archetypeKey": "spirit-exorcist-multiclass",
+      "archetypeName": "Spirit Exorcist Multiclass",
+      "category": "multiclass",
+      "chooseCount": "",
+      "description": "TBD",
+      "featKey": "spirit-exorcist-multiclass-initiate",
+      "featType": "archetype",
+      "grants": "",
+      "name": "Spirit Exorcist Multiclass Initiate",
+      "notes": "Multiclass archetype associated with Spirit Exorcist (classKey=spirit-exorcist). Available to characters of any class. Placeholder mechanics remain TBD.",
+      "parentKey": "",
+      "prerequisites": "",
+      "rowType": "FEATURE"
+    },
+    "status": "playable",
+    "type": "feature"
+  },
+  {
+    "archetypeKey": "monster-hunter-multiclass",
+    "archetypeName": "Monster Hunter Multiclass",
+    "category": "multiclass",
+    "chooseCount": null,
+    "description": "TBD",
+    "expressionSyntaxVersion": 3,
+    "featKey": "monster-hunter-multiclass-initiate",
+    "featType": "archetype",
+    "grantNotes": null,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Monster Hunter Multiclass Initiate",
+    "notes": "Multiclass archetype associated with Monster Hunter (classKey=monster-hunter). Available to characters of any class. Placeholder mechanics remain TBD.",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "featKey",
+        "category",
+        "rowType",
+        "featType",
+        "name",
+        "archetypeKey",
+        "archetypeName",
+        "parentKey",
+        "prerequisites",
+        "description",
+        "grants",
+        "chooseCount",
+        "notes"
+      ],
+      "row": 104,
+      "sheet": "Feats"
+    },
+    "sourceValues": {
       "archetypeKey": "monster-hunter-multiclass",
       "archetypeName": "Monster Hunter Multiclass",
       "category": "multiclass",
@@ -6257,6 +6995,7 @@
       "prerequisites": "",
       "rowType": "FEATURE"
     },
+    "status": "playable",
     "type": "feature"
   }
 ]

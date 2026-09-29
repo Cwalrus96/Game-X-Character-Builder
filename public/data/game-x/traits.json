@@ -21,6 +21,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": "Rank 2+: You gain a flying speed equal to your speed, and the \"Flight\" tag.",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -35,7 +41,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 2,
       "sheet": "Traits"
@@ -47,10 +54,12 @@
       "prerequisites": null,
       "rank": "1",
       "rankNotes": "Rank 2+: You gain a flying speed equal to your speed, and the \"Flight\" tag.",
+      "repeatable": null,
       "tags": "Anatomy, Body, Movement",
       "techniqueKeys": "",
       "traitKey": "wings"
     },
+    "status": "playable",
     "tagKeys": [
       "anatomy",
       "body",
@@ -75,6 +84,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -89,7 +104,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 3,
       "sheet": "Traits"
@@ -101,10 +117,12 @@
       "prerequisites": "",
       "rank": "1",
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Anatomy, Senses",
       "techniqueKeys": "",
       "traitKey": "keen-smell"
     },
+    "status": "playable",
     "tagKeys": [
       "anatomy",
       "senses"
@@ -127,6 +145,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -141,7 +165,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 4,
       "sheet": "Traits"
@@ -153,10 +178,12 @@
       "prerequisites": "",
       "rank": "1",
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Anatomy, Material, Body",
       "techniqueKeys": "",
       "traitKey": "natural-armor"
     },
+    "status": "playable",
     "tagKeys": [
       "anatomy",
       "material",
@@ -181,6 +208,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -195,7 +228,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 5,
       "sheet": "Traits"
@@ -207,10 +241,12 @@
       "prerequisites": "",
       "rank": "1",
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Material, Body",
       "techniqueKeys": null,
       "traitKey": "incorporeal"
     },
+    "status": "playable",
     "tagKeys": [
       "material",
       "body"
@@ -233,6 +269,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -247,7 +289,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 6,
       "sheet": "Traits"
@@ -259,10 +302,12 @@
       "prerequisites": "",
       "rank": "1",
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Material, Mechanical, Body",
       "techniqueKeys": "",
       "traitKey": "inorganic-nature"
     },
+    "status": "playable",
     "tagKeys": [
       "material",
       "mechanical",
@@ -287,6 +332,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -301,7 +352,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 7,
       "sheet": "Traits"
@@ -313,10 +365,12 @@
       "prerequisites": "",
       "rank": "1",
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Anatomy, Mechanical, Body, Movement",
       "techniqueKeys": "",
       "traitKey": "amphibious"
     },
+    "status": "playable",
     "tagKeys": [
       "anatomy",
       "mechanical",
@@ -343,6 +397,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": "Rank 2+: Increase recovered HP by 2 for each rank above 1.",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -357,7 +417,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 8,
       "sheet": "Traits"
@@ -369,10 +430,12 @@
       "prerequisites": null,
       "rank": "1",
       "rankNotes": "Rank 2+: Increase recovered HP by 2 for each rank above 1.",
+      "repeatable": null,
       "tags": "Plant",
       "techniqueKeys": "",
       "traitKey": "rooted-regeneration"
     },
+    "status": "playable",
     "tagKeys": [
       "plant"
     ],
@@ -383,16 +446,30 @@
     "traitKey": "rooted-regeneration"
   },
   {
-    "description": "The creature gains Beginner Training in 2 skills.",
+    "description": "Choose two GM-approved utility skills. Both use Fast progression, reaching Ranks 1, 2, 3, 4, 5, and 6 at Familiar levels 1, 3, 5, 7, 9, and 11. You gain access to utility Techniques associated with either chosen skill.",
     "expressionSyntaxVersion": 3,
     "grantText": null,
-    "grants": [],
-    "grantsRaw": null,
-    "name": "Well Trained",
+    "grants": [
+      {
+        "choiceId": "expert-skills",
+        "count": 2,
+        "progression": "fast",
+        "rank": 1,
+        "type": "skill"
+      }
+    ],
+    "grantsRaw": "skill | choiceId=expert-skills | count=2 | rank=1 | progression=fast",
+    "name": "Expert Familiar",
     "prerequisites": [],
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -407,27 +484,32 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 9,
       "sheet": "Traits"
     },
     "sourceValues": {
-      "description": "The creature gains Beginner Training in 2 skills.",
-      "grants": null,
-      "name": "Well Trained",
+      "description": "Choose two GM-approved utility skills. Both use Fast progression, reaching Ranks 1, 2, 3, 4, 5, and 6 at Familiar levels 1, 3, 5, 7, 9, and 11. You gain access to utility Techniques associated with either chosen skill.",
+      "grants": "skill | choiceId=expert-skills | count=2 | rank=1 | progression=fast",
+      "name": "Expert Familiar",
       "prerequisites": "",
       "rank": "1",
       "rankNotes": "",
-      "tags": "Familiar",
+      "repeatable": null,
+      "tags": "Familiar, Expertise",
       "techniqueKeys": "",
       "traitKey": "well-trained"
     },
+    "status": "playable",
     "tagKeys": [
-      "familiar"
+      "familiar",
+      "expertise"
     ],
     "tags": [
-      "Familiar"
+      "Familiar",
+      "Expertise"
     ],
     "techniqueKeys": [],
     "traitKey": "well-trained"
@@ -443,6 +525,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -457,7 +545,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 10,
       "sheet": "Traits"
@@ -469,10 +558,12 @@
       "prerequisites": "",
       "rank": "1",
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Familiar",
       "techniqueKeys": "",
       "traitKey": "herd-instincts"
     },
+    "status": "playable",
     "tagKeys": [
       "familiar"
     ],
@@ -493,6 +584,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -507,7 +604,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 11,
       "sheet": "Traits"
@@ -519,10 +617,12 @@
       "prerequisites": "",
       "rank": "1",
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Familiar",
       "techniqueKeys": "",
       "traitKey": "speech"
     },
+    "status": "playable",
     "tagKeys": [
       "familiar"
     ],
@@ -543,6 +643,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": "Rank 2+: You can climb on a solid surface, even upside down.",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -557,7 +663,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 12,
       "sheet": "Traits"
@@ -569,10 +676,12 @@
       "prerequisites": "",
       "rank": "1",
       "rankNotes": "Rank 2+: You can climb on a solid surface, even upside down.",
+      "repeatable": null,
       "tags": "Anatomy, Movement",
       "techniqueKeys": "",
       "traitKey": "climber"
     },
+    "status": "playable",
     "tagKeys": [
       "anatomy",
       "movement"
@@ -595,6 +704,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": "Rank 2+: Your burrow speed through soft dirt, sand, and clay is equal to your speed. You can burrow through rock at half your speed.",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -609,7 +724,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 13,
       "sheet": "Traits"
@@ -621,10 +737,12 @@
       "prerequisites": "",
       "rank": "1",
       "rankNotes": "Rank 2+: Your burrow speed through soft dirt, sand, and clay is equal to your speed. You can burrow through rock at half your speed.",
+      "repeatable": null,
       "tags": "Anatomy, Movement",
       "techniqueKeys": "",
       "traitKey": "burrower"
     },
+    "status": "playable",
     "tagKeys": [
       "anatomy",
       "movement"
@@ -647,6 +765,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -661,7 +785,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 14,
       "sheet": "Traits"
@@ -673,10 +798,12 @@
       "prerequisites": "",
       "rank": "1",
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Elemental, Material, Body",
       "techniqueKeys": "",
       "traitKey": "elemental-body"
     },
+    "status": "playable",
     "tagKeys": [
       "elemental",
       "material",
@@ -701,6 +828,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -715,7 +848,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 15,
       "sheet": "Traits"
@@ -727,10 +861,12 @@
       "prerequisites": "",
       "rank": "1",
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Psychic, Senses",
       "techniqueKeys": "",
       "traitKey": "telepathy"
     },
+    "status": "playable",
     "tagKeys": [
       "psychic",
       "senses"
@@ -753,6 +889,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -767,7 +909,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 16,
       "sheet": "Traits"
@@ -779,10 +922,12 @@
       "prerequisites": "",
       "rank": "1",
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Anatomy, Body",
       "techniqueKeys": "",
       "traitKey": "giant-frame"
     },
+    "status": "playable",
     "tagKeys": [
       "anatomy",
       "body"
@@ -795,7 +940,7 @@
     "traitKey": "giant-frame"
   },
   {
-    "description": "Your mech gains a Rank 1 weapon. This weapon is large enough to be used by the mech, meaning that it is too large to reasonably be used by a normal scale 1 humanoid. The mech also learns 1 Weapon Technique that the weapon qualifies for.",
+    "description": "Your mechanical body is equipped with a Rank 1 weapon sized for you. Learn one eligible Rank 1 Weapon Technique that weapon qualifies for. You gain access to Weapon Techniques that use the chosen weapon, using this Trait's associated skill for their rolls and rank.",
     "expressionSyntaxVersion": 3,
     "grantText": null,
     "grants": [],
@@ -805,6 +950,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -819,44 +970,66 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 17,
       "sheet": "Traits"
     },
     "sourceValues": {
-      "description": "Your mech gains a Rank 1 weapon. This weapon is large enough to be used by the mech, meaning that it is too large to reasonably be used by a normal scale 1 humanoid. The mech also learns 1 Weapon Technique that the weapon qualifies for.",
+      "description": "Your mechanical body is equipped with a Rank 1 weapon sized for you. Learn one eligible Rank 1 Weapon Technique that weapon qualifies for. You gain access to Weapon Techniques that use the chosen weapon, using this Trait's associated skill for their rolls and rank.",
       "grants": null,
       "name": "Giant Weapon",
       "prerequisites": "",
       "rank": "1",
       "rankNotes": "",
-      "tags": "Weapon, Mechanical",
+      "repeatable": null,
+      "tags": "Weapon, Mechanical, Power",
       "techniqueKeys": "",
       "traitKey": "mech-giant-weapon"
     },
+    "status": "playable",
     "tagKeys": [
       "weapon",
-      "mechanical"
+      "mechanical",
+      "power"
     ],
     "tags": [
       "Weapon",
-      "Mechanical"
+      "Mechanical",
+      "Power"
     ],
     "techniqueKeys": [],
     "traitKey": "mech-giant-weapon"
   },
   {
-    "description": "The Mech can perform Martial Arts Techniques, using the Pilot’s Mech Piloting Skill, and learns a single Rank 1 technique.",
+    "description": "Your mechanical body is designed for martial combat. You gain access to Martial Arts Techniques and learn one eligible Rank 1 Martial Arts Technique. Use this Trait's associated skill for these Techniques' rolls and rank.",
     "expressionSyntaxVersion": 3,
     "grantText": null,
-    "grants": [],
-    "grantsRaw": null,
+    "grants": [
+      {
+        "access": "Martial Arts",
+        "type": "technique"
+      },
+      {
+        "choiceId": "trait:martial-mech:martial-mech-technique",
+        "count": 1,
+        "skill": "Martial Arts",
+        "type": "technique-choice"
+      }
+    ],
+    "grantsRaw": "technique | access=Martial Arts\ntechnique | skill=Martial Arts | count=1 | choiceId=martial-mech-technique",
     "name": "Martial Mech",
     "prerequisites": [],
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -871,33 +1044,38 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 18,
       "sheet": "Traits"
     },
     "sourceValues": {
-      "description": "The Mech can perform Martial Arts Techniques, using the Pilot’s Mech Piloting Skill, and learns a single Rank 1 technique.",
-      "grants": null,
+      "description": "Your mechanical body is designed for martial combat. You gain access to Martial Arts Techniques and learn one eligible Rank 1 Martial Arts Technique. Use this Trait's associated skill for these Techniques' rolls and rank.",
+      "grants": "technique | access=Martial Arts\ntechnique | skill=Martial Arts | count=1 | choiceId=martial-mech-technique",
       "name": "Martial Mech",
       "prerequisites": "",
       "rank": "1",
       "rankNotes": "",
-      "tags": "Mechanical",
+      "repeatable": null,
+      "tags": "Mechanical, Power",
       "techniqueKeys": "",
       "traitKey": "martial-mech"
     },
+    "status": "playable",
     "tagKeys": [
-      "mechanical"
+      "mechanical",
+      "power"
     ],
     "tags": [
-      "Mechanical"
+      "Mechanical",
+      "Power"
     ],
     "techniqueKeys": [],
     "traitKey": "martial-mech"
   },
   {
-    "description": "Your mech has a built-in grappling hook. You can use the Grappling Hook technique.",
+    "description": "Your mechanical body contains a retractable grappling hook. You learn Grappling Hook, using this Trait's associated skill.",
     "expressionSyntaxVersion": 3,
     "grantText": null,
     "grants": [],
@@ -907,6 +1085,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -921,22 +1105,25 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 19,
       "sheet": "Traits"
     },
     "sourceValues": {
-      "description": "Your mech has a built-in grappling hook. You can use the Grappling Hook technique.",
+      "description": "Your mechanical body contains a retractable grappling hook. You learn Grappling Hook, using this Trait's associated skill.",
       "grants": null,
       "name": "Grappling Hook",
       "prerequisites": "",
       "rank": "1",
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Mechanical, Integrated, Weapon, Movement",
       "techniqueKeys": "mech-grappling-hook",
       "traitKey": "mech-grappling-hook"
     },
+    "status": "playable",
     "tagKeys": [
       "mechanical",
       "integrated",
@@ -955,7 +1142,7 @@
     "traitKey": "mech-grappling-hook"
   },
   {
-    "description": "Your mech has an integrated computer aiming system that helps with ranged attacks. You can use your associated skill for rolls that normally use “Ranged Weapons”.",
+    "description": "Your mechanical body contains an integrated aiming computer. You can use this Trait's associated skill for rolls that normally use Ranged Weapons.",
     "expressionSyntaxVersion": 3,
     "grantText": null,
     "grants": [],
@@ -965,6 +1152,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -979,22 +1172,25 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 20,
       "sheet": "Traits"
     },
     "sourceValues": {
-      "description": "Your mech has an integrated computer aiming system that helps with ranged attacks. You can use your associated skill for rolls that normally use “Ranged Weapons”.",
+      "description": "Your mechanical body contains an integrated aiming computer. You can use this Trait's associated skill for rolls that normally use Ranged Weapons.",
       "grants": null,
       "name": "Targeting Computer",
       "prerequisites": "",
       "rank": "1",
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Mechanical",
       "techniqueKeys": "",
       "traitKey": "targeting-computer"
     },
+    "status": "playable",
     "tagKeys": [
       "mechanical"
     ],
@@ -1015,6 +1211,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1029,7 +1231,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 21,
       "sheet": "Traits"
@@ -1041,10 +1244,12 @@
       "prerequisites": "",
       "rank": "1",
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Mechanical, Body",
       "techniqueKeys": "",
       "traitKey": "mech-reinforced-frame"
     },
+    "status": "playable",
     "tagKeys": [
       "mechanical",
       "body"
@@ -1057,7 +1262,7 @@
     "traitKey": "mech-reinforced-frame"
   },
   {
-    "description": "Grants a +1D equipment bonus against attempts to hack the mech or otherwise interfere with its electronic components",
+    "description": "Your mechanical body has electronic safeguards. You gain a +1D Equipment bonus against attempts to hack you or interfere with your electronic components.",
     "expressionSyntaxVersion": 3,
     "grantText": null,
     "grants": [],
@@ -1067,6 +1272,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1081,22 +1292,25 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 22,
       "sheet": "Traits"
     },
     "sourceValues": {
-      "description": "Grants a +1D equipment bonus against attempts to hack the mech or otherwise interfere with its electronic components",
+      "description": "Your mechanical body has electronic safeguards. You gain a +1D Equipment bonus against attempts to hack you or interfere with your electronic components.",
       "grants": null,
       "name": "Firewalls",
       "prerequisites": "",
       "rank": "1",
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Mechanical",
       "techniqueKeys": "",
       "traitKey": "mech-firewalls"
     },
+    "status": "playable",
     "tagKeys": [
       "mechanical"
     ],
@@ -1107,7 +1321,7 @@
     "traitKey": "mech-firewalls"
   },
   {
-    "description": "The mech gains a set of boosters that grant it a limited form of flight, more akin to enhanced jumps. You can spend your movement to move vertically upwards during your turn. If you end your turn and are not on a stable surface, you fall.",
+    "description": "Your mechanical body is equipped with propulsion boosters. You can spend movement to move vertically upward during your turn. If you end your turn away from a stable surface, you fall.",
     "expressionSyntaxVersion": 3,
     "grantText": null,
     "grants": [
@@ -1123,6 +1337,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": "Rank 2+: You gain a flying speed equal to your speed, and the \"Flight\" tag.\nRank 3+: Outside of combat, you can fly at airline speeds.\nRank 4+: Your Rocket Boosters are able to fly in a vacuum, and leave Earth's atmosphere.",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1137,22 +1357,25 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 23,
       "sheet": "Traits"
     },
     "sourceValues": {
-      "description": "The mech gains a set of boosters that grant it a limited form of flight, more akin to enhanced jumps. You can spend your movement to move vertically upwards during your turn. If you end your turn and are not on a stable surface, you fall.",
+      "description": "Your mechanical body is equipped with propulsion boosters. You can spend movement to move vertically upward during your turn. If you end your turn away from a stable surface, you fall.",
       "grants": "tag | tag=Flight | minRank=2",
       "name": "Rocket Boosters",
       "prerequisites": "",
       "rank": "1",
       "rankNotes": "Rank 2+: You gain a flying speed equal to your speed, and the \"Flight\" tag.\nRank 3+: Outside of combat, you can fly at airline speeds.\nRank 4+: Your Rocket Boosters are able to fly in a vacuum, and leave Earth's atmosphere.",
+      "repeatable": null,
       "tags": "Mechanical, Movement",
       "techniqueKeys": null,
       "traitKey": "rocket-boosters"
     },
+    "status": "playable",
     "tagKeys": [
       "mechanical",
       "movement"
@@ -1165,7 +1388,7 @@
     "traitKey": "rocket-boosters"
   },
   {
-    "description": "The mech has 6 legs instead of 2, granting it additional mobility and stability. It gains +1 movement, ignores difficult terrain, and cannot be knocked prone. However, it cannot jump.",
+    "description": "Your mechanical body has six legs. Increase your Speed by 1, ignore difficult terrain, and gain immunity to being knocked prone. You cannot jump.",
     "expressionSyntaxVersion": 3,
     "grantText": null,
     "grants": [],
@@ -1175,6 +1398,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1189,22 +1418,25 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 24,
       "sheet": "Traits"
     },
     "sourceValues": {
-      "description": "The mech has 6 legs instead of 2, granting it additional mobility and stability. It gains +1 movement, ignores difficult terrain, and cannot be knocked prone. However, it cannot jump.",
+      "description": "Your mechanical body has six legs. Increase your Speed by 1, ignore difficult terrain, and gain immunity to being knocked prone. You cannot jump.",
       "grants": null,
       "name": "Hexapede Chassis",
       "prerequisites": "",
       "rank": "1",
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Mechanical, Movement",
       "techniqueKeys": "",
       "traitKey": "mech-hexapede-chassis"
     },
+    "status": "playable",
     "tagKeys": [
       "mechanical",
       "movement"
@@ -1217,7 +1449,7 @@
     "traitKey": "mech-hexapede-chassis"
   },
   {
-    "description": "You project an energy barrier in an aura around you. The aura is a number of squares equal to your Scale. The aura grants armor against attacks originating outside the aura. The armor value is equal to your Skill Rank.",
+    "description": "Your mechanical body projects an energy barrier in an aura with a radius equal to your Scale in squares, with a minimum radius of 1 square. The aura grants armor equal to your associated skill rank against attacks originating outside it.",
     "expressionSyntaxVersion": 3,
     "grantText": null,
     "grants": [],
@@ -1227,6 +1459,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1241,22 +1479,25 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 25,
       "sheet": "Traits"
     },
     "sourceValues": {
-      "description": "You project an energy barrier in an aura around you. The aura is a number of squares equal to your Scale. The aura grants armor against attacks originating outside the aura. The armor value is equal to your Skill Rank.",
+      "description": "Your mechanical body projects an energy barrier in an aura with a radius equal to your Scale in squares, with a minimum radius of 1 square. The aura grants armor equal to your associated skill rank against attacks originating outside it.",
       "grants": null,
       "name": "Energy Barrier",
       "prerequisites": "",
       "rank": "1",
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Mechanical, Energy",
       "techniqueKeys": "",
       "traitKey": "energy-barrier"
     },
+    "status": "playable",
     "tagKeys": [
       "mechanical",
       "energy"
@@ -1269,16 +1510,29 @@
     "traitKey": "energy-barrier"
   },
   {
-    "description": "Choose one Element. You can perform the Elemental Blast technique using that element. Instead of Elementalism, you use the skill associated with this trait.",
+    "description": "Choose one element. You learn Elemental Blast using that element and this Trait's associated skill.\nYou may select this Trait more than once, choosing a different element each time.",
     "expressionSyntaxVersion": 3,
     "grantText": null,
-    "grants": [],
-    "grantsRaw": null,
+    "grants": [
+      {
+        "choiceId": "element",
+        "count": 1,
+        "filterType": "element",
+        "type": "choice"
+      }
+    ],
+    "grantsRaw": "choice | choiceId=element | type=element | count=1",
     "name": "Elemental Blaster",
     "prerequisites": [],
     "prerequisitesRaw": null,
     "rank": 1,
-    "rankNotes": null,
+    "rankNotes": "Rank 2+: You gain access to Elementalism Techniques that use your chosen element. Use this Trait's associated skill for their rolls and rank.",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": true,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1293,33 +1547,38 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 26,
       "sheet": "Traits"
     },
     "sourceValues": {
-      "description": "Choose one Element. You can perform the Elemental Blast technique using that element. Instead of Elementalism, you use the skill associated with this trait.",
-      "grants": null,
+      "description": "Choose one element. You learn Elemental Blast using that element and this Trait's associated skill.\nYou may select this Trait more than once, choosing a different element each time.",
+      "grants": "choice | choiceId=element | type=element | count=1",
       "name": "Elemental Blaster",
       "prerequisites": "",
       "rank": "1",
-      "rankNotes": "",
-      "tags": "Elemental, Weapon, Anatomy, Natural Weapon",
+      "rankNotes": "Rank 2+: You gain access to Elementalism Techniques that use your chosen element. Use this Trait's associated skill for their rolls and rank.",
+      "repeatable": "Y",
+      "tags": "Elemental, Weapon, Anatomy, Natural Weapon, Power",
       "techniqueKeys": "elemental-blast",
       "traitKey": "mech-elemental-blaster"
     },
+    "status": "playable",
     "tagKeys": [
       "elemental",
       "weapon",
       "anatomy",
-      "natural-weapon"
+      "natural-weapon",
+      "power"
     ],
     "tags": [
       "Elemental",
       "Weapon",
       "Anatomy",
-      "Natural Weapon"
+      "Natural Weapon",
+      "Power"
     ],
     "techniqueKeys": [
       "elemental-blast"
@@ -1327,7 +1586,7 @@
     "traitKey": "mech-elemental-blaster"
   },
   {
-    "description": "As an action you may transform into a vehicle form, or back into mech form. The rank of the vehicle must be equal to or less than your rank in the associated skill. The scale of the vehicle may be 1 scale smaller or larger than your current form.",
+    "description": "Your mechanical body has a vehicle configuration. As an action, transform into a vehicle form or return to your normal form. The vehicle's rank is at most your associated skill rank, and its Scale may be 1 higher or lower than your normal form. Your vehicle form has the Vehicle tag.",
     "expressionSyntaxVersion": 3,
     "grantText": null,
     "grants": [],
@@ -1337,6 +1596,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1351,22 +1616,25 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 27,
       "sheet": "Traits"
     },
     "sourceValues": {
-      "description": "As an action you may transform into a vehicle form, or back into mech form. The rank of the vehicle must be equal to or less than your rank in the associated skill. The scale of the vehicle may be 1 scale smaller or larger than your current form.",
+      "description": "Your mechanical body has a vehicle configuration. As an action, transform into a vehicle form or return to your normal form. The vehicle's rank is at most your associated skill rank, and its Scale may be 1 higher or lower than your normal form. Your vehicle form has the Vehicle tag.",
       "grants": null,
       "name": "Vehicle Conversion",
       "prerequisites": "",
       "rank": "1",
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Transformation, Mechanical, Movement",
       "techniqueKeys": null,
       "traitKey": "mech-vehicle-conversion"
     },
+    "status": "playable",
     "tagKeys": [
       "transformation",
       "mechanical",
@@ -1381,16 +1649,32 @@
     "traitKey": "mech-vehicle-conversion"
   },
   {
-    "description": "A one-handed weapon is integrated with one of your limbs. Choose a weapon base, whose rank is less than or equal to this trait's rank.This weapon does not require your hands to operate, and does not require any actions to draw or stow.",
+    "description": "Choose a weapon base usable in one hand whose minimum rank is at most this Trait's rank. Part of your body functions as that weapon, such as an integrated blade, armored shield-face, or mechanical cannon. Treat it as a Natural Weapon with the chosen base's tags. The weapon operates hands-free and is always ready for use. It uses this Trait's rank and associated skill.\nYou gain the base's granted Techniques and access to Weapon Techniques for which it meets the weapon requirements.\nYou may select this Trait more than once, choosing a different weapon base each time.",
     "expressionSyntaxVersion": 3,
     "grantText": null,
-    "grants": [],
-    "grantsRaw": null,
+    "grants": [
+      {
+        "choiceId": "trait:integrated-weapon:integrated-weapon",
+        "count": 1,
+        "tag": [
+          "One-Handed",
+          "Versatile"
+        ],
+        "type": "weapon"
+      }
+    ],
+    "grantsRaw": "weapon | tag=One-Handed OR Versatile | choiceId=integrated-weapon | count=1",
     "name": "Integrated Weapon",
     "prerequisites": [],
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": true,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1405,30 +1689,31 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 28,
       "sheet": "Traits"
     },
     "sourceValues": {
-      "description": "A one-handed weapon is integrated with one of your limbs. Choose a weapon base, whose rank is less than or equal to this trait's rank.This weapon does not require your hands to operate, and does not require any actions to draw or stow.",
-      "grants": null,
+      "description": "Choose a weapon base usable in one hand whose minimum rank is at most this Trait's rank. Part of your body functions as that weapon, such as an integrated blade, armored shield-face, or mechanical cannon. Treat it as a Natural Weapon with the chosen base's tags. The weapon operates hands-free and is always ready for use. It uses this Trait's rank and associated skill.\nYou gain the base's granted Techniques and access to Weapon Techniques for which it meets the weapon requirements.\nYou may select this Trait more than once, choosing a different weapon base each time.",
+      "grants": "weapon | tag=One-Handed OR Versatile | choiceId=integrated-weapon | count=1",
       "name": "Integrated Weapon",
       "prerequisites": "",
       "rank": 1,
       "rankNotes": "",
-      "tags": "Mechanical, Weapon, Integrated, Natural Weapon",
+      "repeatable": "Y",
+      "tags": "Weapon, Integrated, Natural Weapon",
       "techniqueKeys": "",
       "traitKey": "integrated-weapon"
     },
+    "status": "playable",
     "tagKeys": [
-      "mechanical",
       "weapon",
       "integrated",
       "natural-weapon"
     ],
     "tags": [
-      "Mechanical",
       "Weapon",
       "Integrated",
       "Natural Weapon"
@@ -1447,6 +1732,12 @@
     "prerequisitesRaw": null,
     "rank": 2,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1461,7 +1752,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 29,
       "sheet": "Traits"
@@ -1473,10 +1765,12 @@
       "prerequisites": "",
       "rank": "2",
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Mechanical, Anatomy, Body",
       "techniqueKeys": "",
       "traitKey": "additional-arms"
     },
+    "status": "playable",
     "tagKeys": [
       "mechanical",
       "anatomy",
@@ -1491,7 +1785,7 @@
     "traitKey": "additional-arms"
   },
   {
-    "description": "The mech can propel its fist forward. You can use the Rocket Punch technique when making unarmed strikes with your mech.",
+    "description": "Your mechanical body has a launchable fist. You learn Rocket Punch and can use it with your unarmed strikes.",
     "expressionSyntaxVersion": 3,
     "grantText": null,
     "grants": [],
@@ -1501,6 +1795,12 @@
     "prerequisitesRaw": null,
     "rank": 2,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1515,22 +1815,25 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 30,
       "sheet": "Traits"
     },
     "sourceValues": {
-      "description": "The mech can propel its fist forward. You can use the Rocket Punch technique when making unarmed strikes with your mech.",
+      "description": "Your mechanical body has a launchable fist. You learn Rocket Punch and can use it with your unarmed strikes.",
       "grants": null,
       "name": "Rocket Punch",
       "prerequisites": "",
       "rank": "2",
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Mechanical",
       "techniqueKeys": "mech-rocket-punch",
       "traitKey": "mech-rocket-punch"
     },
+    "status": "playable",
     "tagKeys": [
       "mechanical"
     ],
@@ -1543,7 +1846,7 @@
     "traitKey": "mech-rocket-punch"
   },
   {
-    "description": "Your mech has the ability to launch a powerful, armor-piercing spike, which is integrated with one of its arms. You can use the Pile Bunker Attack technique.",
+    "description": "Your mechanical body has an armor-piercing spike integrated with one arm. You learn Pile Bunker Attack, using this Trait's associated skill.",
     "expressionSyntaxVersion": 3,
     "grantText": null,
     "grants": [],
@@ -1553,6 +1856,12 @@
     "prerequisitesRaw": null,
     "rank": 2,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1567,22 +1876,25 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 31,
       "sheet": "Traits"
     },
     "sourceValues": {
-      "description": "Your mech has the ability to launch a powerful, armor-piercing spike, which is integrated with one of its arms. You can use the Pile Bunker Attack technique.",
+      "description": "Your mechanical body has an armor-piercing spike integrated with one arm. You learn Pile Bunker Attack, using this Trait's associated skill.",
       "grants": null,
       "name": "Pile Bunker",
       "prerequisites": "",
       "rank": "2",
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Mechanical, Weapon, Integrated, One-Handed, Blunt",
       "techniqueKeys": "mech-pile-bunker-attack",
       "traitKey": "mech-pile-bunker"
     },
+    "status": "playable",
     "tagKeys": [
       "mechanical",
       "weapon",
@@ -1603,7 +1915,7 @@
     "traitKey": "mech-pile-bunker"
   },
   {
-    "description": "The mech has a powerful integrated beam, which it can use to consolidate and launch all of its energy in a concentrated beam. You can use the Chest Beam technique.",
+    "description": "Your mechanical body contains a high-output energy emitter. You learn Chest Beam, using this Trait's associated skill.",
     "expressionSyntaxVersion": 3,
     "grantText": null,
     "grants": [],
@@ -1613,6 +1925,12 @@
     "prerequisitesRaw": null,
     "rank": 2,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1627,22 +1945,25 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 32,
       "sheet": "Traits"
     },
     "sourceValues": {
-      "description": "The mech has a powerful integrated beam, which it can use to consolidate and launch all of its energy in a concentrated beam. You can use the Chest Beam technique.",
+      "description": "Your mechanical body contains a high-output energy emitter. You learn Chest Beam, using this Trait's associated skill.",
       "grants": null,
       "name": "Chest Beam",
       "prerequisites": "",
       "rank": "2",
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Mechanical, Energy, Integrated, Weapon",
       "techniqueKeys": "mech-chest-beam",
       "traitKey": "mech-chest-beam"
     },
+    "status": "playable",
     "tagKeys": [
       "mechanical",
       "energy",
@@ -1661,7 +1982,7 @@
     "traitKey": "mech-chest-beam"
   },
   {
-    "description": "The mech can launch a swarm of rockets, peppering an entire area of the battlefield. You can use the Rocket Barrage technique.",
+    "description": "Your mechanical body contains rocket launchers. You learn Rocket Barrage, using this Trait's associated skill.",
     "expressionSyntaxVersion": 3,
     "grantText": null,
     "grants": [],
@@ -1671,6 +1992,12 @@
     "prerequisitesRaw": null,
     "rank": 2,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1685,22 +2012,25 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 33,
       "sheet": "Traits"
     },
     "sourceValues": {
-      "description": "The mech can launch a swarm of rockets, peppering an entire area of the battlefield. You can use the Rocket Barrage technique.",
+      "description": "Your mechanical body contains rocket launchers. You learn Rocket Barrage, using this Trait's associated skill.",
       "grants": null,
       "name": "Rocket Barrage",
       "prerequisites": "",
       "rank": "2",
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Mechanical, Explosive, Volley, Integrated, Weapon",
       "techniqueKeys": "mech-rocket-barrage",
       "traitKey": "mech-rocket-barrage"
     },
+    "status": "playable",
     "tagKeys": [
       "mechanical",
       "explosive",
@@ -1721,16 +2051,27 @@
     "traitKey": "mech-rocket-barrage"
   },
   {
-    "description": "The mech has a special layer of integrated shielding that interferes with incoming psionic attacks. Add +1 to the pilot’s Mental Defense while inside the mech.",
+    "description": "Integrated shielding in your mechanical body interferes with incoming psionic attacks. The pilot gains +1 to Mental Defense while inside you.",
     "expressionSyntaxVersion": 3,
     "grantText": null,
     "grants": [],
     "grantsRaw": null,
     "name": "Psionic Shielding",
-    "prerequisites": [],
-    "prerequisitesRaw": null,
+    "prerequisites": [
+      {
+        "tag": "Piloted",
+        "type": "tag"
+      }
+    ],
+    "prerequisitesRaw": "tag | tag=Piloted",
     "rank": 2,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1745,35 +2086,40 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 34,
       "sheet": "Traits"
     },
     "sourceValues": {
-      "description": "The mech has a special layer of integrated shielding that interferes with incoming psionic attacks. Add +1 to the pilot’s Mental Defense while inside the mech.",
+      "description": "Integrated shielding in your mechanical body interferes with incoming psionic attacks. The pilot gains +1 to Mental Defense while inside you.",
       "grants": null,
       "name": "Psionic Shielding",
-      "prerequisites": "",
+      "prerequisites": "tag | tag=Piloted",
       "rank": "2",
       "rankNotes": "",
-      "tags": "Mechanical, Psychic",
+      "repeatable": null,
+      "tags": "Mechanical, Psychic, Piloted",
       "techniqueKeys": "",
       "traitKey": "mech-psionic-shielding"
     },
+    "status": "playable",
     "tagKeys": [
       "mechanical",
-      "psychic"
+      "psychic",
+      "piloted"
     ],
     "tags": [
       "Mechanical",
-      "Psychic"
+      "Psychic",
+      "Piloted"
     ],
     "techniqueKeys": [],
     "traitKey": "mech-psionic-shielding"
   },
   {
-    "description": "The mech can project an electrical field that interferes with nearby electronic systems. You can use the Electronic Jammer technique.",
+    "description": "Your mechanical body contains an electronic interference emitter. You learn Electronic Jammer.",
     "expressionSyntaxVersion": 3,
     "grantText": null,
     "grants": [],
@@ -1783,6 +2129,12 @@
     "prerequisitesRaw": null,
     "rank": 2,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1797,22 +2149,25 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 35,
       "sheet": "Traits"
     },
     "sourceValues": {
-      "description": "The mech can project an electrical field that interferes with nearby electronic systems. You can use the Electronic Jammer technique.",
+      "description": "Your mechanical body contains an electronic interference emitter. You learn Electronic Jammer.",
       "grants": null,
       "name": "Electronic Jammer",
       "prerequisites": "",
       "rank": "2",
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Mechanical",
       "techniqueKeys": "mech-electronic-jammer",
       "traitKey": "mech-electronic-jammer"
     },
+    "status": "playable",
     "tagKeys": [
       "mechanical"
     ],
@@ -1825,7 +2180,7 @@
     "traitKey": "mech-electronic-jammer"
   },
   {
-    "description": "The mech is constructed of millions of tiny nanomachines, which can operate independently and repair damaged parts. The mech regains 5 HP at the end of each of its turns.",
+    "description": "Your mechanical body contains autonomous repair nanomachines. Regain 5 HP at the end of each of your turns.",
     "expressionSyntaxVersion": 3,
     "grantText": null,
     "grants": [],
@@ -1835,6 +2190,12 @@
     "prerequisitesRaw": null,
     "rank": 3,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1849,22 +2210,25 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 36,
       "sheet": "Traits"
     },
     "sourceValues": {
-      "description": "The mech is constructed of millions of tiny nanomachines, which can operate independently and repair damaged parts. The mech regains 5 HP at the end of each of its turns.",
+      "description": "Your mechanical body contains autonomous repair nanomachines. Regain 5 HP at the end of each of your turns.",
       "grants": null,
       "name": "Self-Repairing Nanites",
       "prerequisites": "",
       "rank": "3",
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Mechanical",
       "techniqueKeys": "",
       "traitKey": "mech-self-repairing-nanites"
     },
+    "status": "playable",
     "tagKeys": [
       "mechanical"
     ],
@@ -1881,17 +2245,25 @@
     "grants": [],
     "grantsRaw": null,
     "name": "AI Autopilot / Copilot",
-    "prerequisites": [],
-    "prerequisitesRaw": null,
+    "prerequisites": [
+      {
+        "tag": "Piloted",
+        "type": "tag"
+      }
+    ],
+    "prerequisitesRaw": "tag | tag=Piloted",
     "rank": 3,
     "rankNotes": null,
-    "runtimeSupport": {
-      "reasons": [
-        "incomplete-content"
-      ],
-      "status": "deferred"
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
     },
-    "selectable": false,
+    "repeatable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
     "sourceLocation": {
       "headers": [
         "traitKey",
@@ -1902,27 +2274,32 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 37,
       "sheet": "Traits"
     },
     "sourceValues": {
-      "description": "",
+      "description": null,
       "grants": null,
       "name": "AI Autopilot / Copilot",
-      "prerequisites": "",
+      "prerequisites": "tag | tag=Piloted",
       "rank": "3",
       "rankNotes": "",
-      "tags": "Mechanical",
+      "repeatable": null,
+      "tags": "Mechanical, Piloted",
       "techniqueKeys": "",
       "traitKey": "mech-ai-autopilot-copilot"
     },
+    "status": "playable",
     "tagKeys": [
-      "mechanical"
+      "mechanical",
+      "piloted"
     ],
     "tags": [
-      "Mechanical"
+      "Mechanical",
+      "Piloted"
     ],
     "techniqueKeys": [],
     "traitKey": "mech-ai-autopilot-copilot"
@@ -1936,14 +2313,32 @@
         "minRank": 1,
         "tag": "Spikes",
         "type": "tag"
+      },
+      {
+        "key": "spiked-hide",
+        "type": "weapon"
+      },
+      {
+        "access": [
+          "Melee Weapons",
+          "Ranged Weapons"
+        ],
+        "type": "technique",
+        "weaponTag": "Natural"
       }
     ],
-    "grantsRaw": "tag | tag=Spikes | minRank=1",
+    "grantsRaw": "tag | tag=Spikes | minRank=1\nweapon | weaponKey=spiked-hide\ntechnique | access=Melee Weapons OR Ranged Weapons | weaponTag=Natural",
     "name": "Spiked Hide",
     "prerequisites": [],
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1958,22 +2353,25 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 38,
       "sheet": "Traits"
     },
     "sourceValues": {
       "description": "Your body is covered in dangerous spikes. Whenever an enemy deals Melee damage to you, they also take damage equal to 1 + your associated skill Rank. You gain the \"Spikes\" tag. You also gain a natural weapon with the \"Thrown 6, Sharp\" tags, and the \"Spike Shot\" basic attack.",
-      "grants": "tag | tag=Spikes | minRank=1",
+      "grants": "tag | tag=Spikes | minRank=1\nweapon | weaponKey=spiked-hide\ntechnique | access=Melee Weapons OR Ranged Weapons | weaponTag=Natural",
       "name": "Spiked Hide",
       "prerequisites": "",
       "rank": 1,
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Anatomy, Body, Natural Weapon",
-      "techniqueKeys": "spike-shot",
+      "techniqueKeys": null,
       "traitKey": "spiked-hide"
     },
+    "status": "playable",
     "tagKeys": [
       "anatomy",
       "body",
@@ -1984,22 +2382,39 @@
       "Body",
       "Natural Weapon"
     ],
-    "techniqueKeys": [
-      "spike-shot"
-    ],
+    "techniqueKeys": [],
     "traitKey": "spiked-hide"
   },
   {
     "description": "Your unarmed strikes gain the Sharp tag. These claws are treated as Natural Weapons with the \"Melee, Sharp, One-handed\" tags, and the \"Claw Slash\" basic attack.",
     "expressionSyntaxVersion": 3,
     "grantText": null,
-    "grants": [],
-    "grantsRaw": null,
+    "grants": [
+      {
+        "key": "savage-claws",
+        "type": "weapon"
+      },
+      {
+        "access": [
+          "Melee Weapons",
+          "Ranged Weapons"
+        ],
+        "type": "technique",
+        "weaponTag": "Natural"
+      }
+    ],
+    "grantsRaw": "weapon | weaponKey=savage-claws\ntechnique | access=Melee Weapons OR Ranged Weapons | weaponTag=Natural",
     "name": "Savage Claws",
     "prerequisites": [],
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2014,22 +2429,25 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 39,
       "sheet": "Traits"
     },
     "sourceValues": {
       "description": "Your unarmed strikes gain the Sharp tag. These claws are treated as Natural Weapons with the \"Melee, Sharp, One-handed\" tags, and the \"Claw Slash\" basic attack.",
-      "grants": null,
+      "grants": "weapon | weaponKey=savage-claws\ntechnique | access=Melee Weapons OR Ranged Weapons | weaponTag=Natural",
       "name": "Savage Claws",
       "prerequisites": "",
       "rank": 1,
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Anatomy, Natural Weapon",
-      "techniqueKeys": "claw-slash",
+      "techniqueKeys": null,
       "traitKey": "savage-claws"
     },
+    "status": "playable",
     "tagKeys": [
       "anatomy",
       "natural-weapon"
@@ -2038,9 +2456,7 @@
       "Anatomy",
       "Natural Weapon"
     ],
-    "techniqueKeys": [
-      "claw-slash"
-    ],
+    "techniqueKeys": [],
     "traitKey": "savage-claws"
   },
   {
@@ -2054,6 +2470,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2068,7 +2490,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 40,
       "sheet": "Traits"
@@ -2080,10 +2503,12 @@
       "prerequisites": "",
       "rank": 1,
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Anatomy, Senses, Sight",
       "techniqueKeys": "",
       "traitKey": "keen-eyesight"
     },
+    "status": "playable",
     "tagKeys": [
       "anatomy",
       "senses",
@@ -2101,13 +2526,25 @@
     "description": "You gain a +1D Bonus to Stealth. You are Obscured to Ranged attacks.",
     "expressionSyntaxVersion": 3,
     "grantText": null,
-    "grants": [],
-    "grantsRaw": null,
+    "grants": [
+      {
+        "minRank": 3,
+        "tag": "Invisibility",
+        "type": "tag"
+      }
+    ],
+    "grantsRaw": "tag | tag=Invisibility | minRank=3",
     "name": "Natural Camouflage",
     "prerequisites": [],
     "prerequisitesRaw": null,
     "rank": 1,
-    "rankNotes": null,
+    "rankNotes": "Rank 3+: This Trait gains the Power tag. You gain the Invisibility tag, learn the Invisibility Technique, and gain access to Invisibility Techniques.",
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2122,22 +2559,25 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 41,
       "sheet": "Traits"
     },
     "sourceValues": {
       "description": "You gain a +1D Bonus to Stealth. You are Obscured to Ranged attacks.",
-      "grants": null,
+      "grants": "tag | tag=Invisibility | minRank=3",
       "name": "Natural Camouflage",
       "prerequisites": "",
       "rank": 1,
-      "rankNotes": "",
+      "rankNotes": "Rank 3+: This Trait gains the Power tag. You gain the Invisibility tag, learn the Invisibility Technique, and gain access to Invisibility Techniques.",
+      "repeatable": null,
       "tags": "Anatomy, Body",
-      "techniqueKeys": "",
+      "techniqueKeys": null,
       "traitKey": "natural-camouflage"
     },
+    "status": "playable",
     "tagKeys": [
       "anatomy",
       "body"
@@ -2160,6 +2600,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2174,7 +2620,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 42,
       "sheet": "Traits"
@@ -2186,10 +2633,12 @@
       "prerequisites": "",
       "rank": 1,
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Anatomy, Material, Body",
       "techniqueKeys": "",
       "traitKey": "elastic-body"
     },
+    "status": "playable",
     "tagKeys": [
       "anatomy",
       "material",
@@ -2207,13 +2656,32 @@
     "description": "Your melee attacks gain additional reach equal to the associated skill rank. When making a melee attack, you may spend additional energy to increase the range of the attack by 1 square for each energy spent. Your unarmed strikes are treated as a Natural Weapon with the \"Melee, Blunt, Reach N\" tags (where N is the associated skill rank). Your basic attack with these weapons is \"Unarmed Strike\".",
     "expressionSyntaxVersion": 3,
     "grantText": null,
-    "grants": [],
-    "grantsRaw": null,
+    "grants": [
+      {
+        "key": "extendable-limbs",
+        "type": "weapon"
+      },
+      {
+        "access": [
+          "Melee Weapons",
+          "Ranged Weapons"
+        ],
+        "type": "technique",
+        "weaponTag": "Natural"
+      }
+    ],
+    "grantsRaw": "weapon | weaponKey=extendable-limbs\ntechnique | access=Melee Weapons OR Ranged Weapons | weaponTag=Natural",
     "name": "Extendable Limbs",
     "prerequisites": [],
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2228,22 +2696,25 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 43,
       "sheet": "Traits"
     },
     "sourceValues": {
       "description": "Your melee attacks gain additional reach equal to the associated skill rank. When making a melee attack, you may spend additional energy to increase the range of the attack by 1 square for each energy spent. Your unarmed strikes are treated as a Natural Weapon with the \"Melee, Blunt, Reach N\" tags (where N is the associated skill rank). Your basic attack with these weapons is \"Unarmed Strike\".",
-      "grants": null,
+      "grants": "weapon | weaponKey=extendable-limbs\ntechnique | access=Melee Weapons OR Ranged Weapons | weaponTag=Natural",
       "name": "Extendable Limbs",
       "prerequisites": null,
       "rank": 1,
       "rankNotes": null,
+      "repeatable": null,
       "tags": "Anatomy, Material, Natural Weapon",
       "techniqueKeys": null,
       "traitKey": "extendable-limbs"
     },
+    "status": "playable",
     "tagKeys": [
       "anatomy",
       "material",
@@ -2268,6 +2739,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2282,7 +2759,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 44,
       "sheet": "Traits"
@@ -2294,10 +2772,12 @@
       "prerequisites": "",
       "rank": 1,
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Material, Body",
       "techniqueKeys": "",
       "traitKey": "high-density"
     },
+    "status": "playable",
     "tagKeys": [
       "material",
       "body"
@@ -2320,6 +2800,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2334,7 +2820,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 45,
       "sheet": "Traits"
@@ -2346,10 +2833,12 @@
       "prerequisites": "",
       "rank": 1,
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Material, Mechanical, Body",
       "techniqueKeys": "",
       "traitKey": "magnetic-field"
     },
+    "status": "playable",
     "tagKeys": [
       "material",
       "mechanical",
@@ -2380,6 +2869,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2394,7 +2889,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 46,
       "sheet": "Traits"
@@ -2406,10 +2902,12 @@
       "prerequisites": "",
       "rank": 1,
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Material, Body",
       "techniqueKeys": "",
       "traitKey": "liquid-form"
     },
+    "status": "playable",
     "tagKeys": [
       "material",
       "body"
@@ -2432,6 +2930,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2446,7 +2950,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 47,
       "sheet": "Traits"
@@ -2458,10 +2963,12 @@
       "prerequisites": "",
       "rank": 1,
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Material, Body",
       "techniqueKeys": "",
       "traitKey": "slippery"
     },
+    "status": "playable",
     "tagKeys": [
       "material",
       "body"
@@ -2484,6 +2991,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2498,7 +3011,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 48,
       "sheet": "Traits"
@@ -2510,10 +3024,12 @@
       "prerequisites": "",
       "rank": 1,
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Material, Body",
       "techniqueKeys": "",
       "traitKey": "sticky-skin"
     },
+    "status": "playable",
     "tagKeys": [
       "material",
       "body"
@@ -2536,6 +3052,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2550,7 +3072,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 49,
       "sheet": "Traits"
@@ -2562,10 +3085,12 @@
       "prerequisites": "",
       "rank": 1,
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Material, Body",
       "techniqueKeys": "",
       "traitKey": "variable-hardness"
     },
+    "status": "playable",
     "tagKeys": [
       "material",
       "body"
@@ -2588,6 +3113,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2602,7 +3133,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 50,
       "sheet": "Traits"
@@ -2614,10 +3146,12 @@
       "prerequisites": "",
       "rank": 1,
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Senses, Sight",
       "techniqueKeys": "",
       "traitKey": "spirit-sight"
     },
+    "status": "playable",
     "tagKeys": [
       "senses",
       "sight"
@@ -2645,6 +3179,12 @@
     "prerequisitesRaw": "trait | traitKey=liquid-form",
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2659,7 +3199,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 51,
       "sheet": "Traits"
@@ -2671,10 +3212,12 @@
       "prerequisites": "trait | traitKey=liquid-form",
       "rank": 1,
       "rankNotes": "",
+      "repeatable": null,
       "tags": "Material",
       "techniqueKeys": null,
       "traitKey": "dissolved-storage"
     },
+    "status": "playable",
     "tagKeys": [
       "material"
     ],
@@ -2695,6 +3238,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2709,7 +3258,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 52,
       "sheet": "Traits"
@@ -2721,10 +3271,12 @@
       "prerequisites": null,
       "rank": 1,
       "rankNotes": null,
+      "repeatable": null,
       "tags": "Anatomy, Movement",
       "techniqueKeys": null,
       "traitKey": "enhanced-leaps"
     },
+    "status": "playable",
     "tagKeys": [
       "anatomy",
       "movement"
@@ -2747,6 +3299,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2761,7 +3319,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 53,
       "sheet": "Traits"
@@ -2773,10 +3332,12 @@
       "prerequisites": null,
       "rank": 1,
       "rankNotes": null,
+      "repeatable": null,
       "tags": "Anatomy, Mechanical, Body",
       "techniqueKeys": null,
       "traitKey": "tiny-frame"
     },
+    "status": "playable",
     "tagKeys": [
       "anatomy",
       "mechanical",
@@ -2791,16 +3352,35 @@
     "traitKey": "tiny-frame"
   },
   {
-    "description": "You have an extendable arm, tongue, tail, tentacle, or other limb. This limb can grapple enemies and manipulate objects at a distance. It is treated as a Natural Weapon with the \"Melee, Blunt, Reach N\" tags, where N is equal to 1 + your associated skill rank.",
+    "description": "You have an extendable arm, tongue, tail, tentacle, or other limb that can grapple enemies and manipulate objects at a distance. It is a Natural Weapon with the Melee, Blunt, and Reach N tags, where N equals 1 + your associated skill rank. Its basic attack is Unarmed Strike.",
     "expressionSyntaxVersion": 3,
     "grantText": null,
-    "grants": [],
-    "grantsRaw": null,
+    "grants": [
+      {
+        "key": "grasping-appendage",
+        "type": "weapon"
+      },
+      {
+        "access": [
+          "Melee Weapons",
+          "Ranged Weapons"
+        ],
+        "type": "technique",
+        "weaponTag": "Natural"
+      }
+    ],
+    "grantsRaw": "weapon | weaponKey=grasping-appendage\ntechnique | access=Melee Weapons OR Ranged Weapons | weaponTag=Natural",
     "name": "Grasping Appendage",
     "prerequisites": [],
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2815,22 +3395,25 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 54,
       "sheet": "Traits"
     },
     "sourceValues": {
-      "description": "You have an extendable arm, tongue, tail, tentacle, or other limb. This limb can grapple enemies and manipulate objects at a distance. It is treated as a Natural Weapon with the \"Melee, Blunt, Reach N\" tags, where N is equal to 1 + your associated skill rank.",
-      "grants": null,
+      "description": "You have an extendable arm, tongue, tail, tentacle, or other limb that can grapple enemies and manipulate objects at a distance. It is a Natural Weapon with the Melee, Blunt, and Reach N tags, where N equals 1 + your associated skill rank. Its basic attack is Unarmed Strike.",
+      "grants": "weapon | weaponKey=grasping-appendage\ntechnique | access=Melee Weapons OR Ranged Weapons | weaponTag=Natural",
       "name": "Grasping Appendage",
       "prerequisites": null,
       "rank": 1,
       "rankNotes": null,
+      "repeatable": null,
       "tags": "Anatomy, Natural Weapon",
       "techniqueKeys": null,
       "traitKey": "grasping-appendage"
     },
+    "status": "playable",
     "tagKeys": [
       "anatomy",
       "natural-weapon"
@@ -2853,6 +3436,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2867,7 +3456,8 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 55,
       "sheet": "Traits"
@@ -2879,10 +3469,12 @@
       "prerequisites": null,
       "rank": 1,
       "rankNotes": null,
+      "repeatable": null,
       "tags": "Anatomy, Material",
       "techniqueKeys": null,
       "traitKey": "poisonous-skin"
     },
+    "status": "playable",
     "tagKeys": [
       "anatomy",
       "material"
@@ -2900,17 +3492,30 @@
     "grantText": null,
     "grants": [
       {
-        "minRank": 1,
-        "tag": "Web",
-        "type": "tag"
+        "key": "web-shooters",
+        "type": "weapon"
+      },
+      {
+        "access": [
+          "Melee Weapons",
+          "Ranged Weapons"
+        ],
+        "type": "technique",
+        "weaponTag": "Natural"
       }
     ],
-    "grantsRaw": "tag | tag=Web | minRank=1",
+    "grantsRaw": "weapon | weaponKey=web-shooters\ntechnique | access=Melee Weapons OR Ranged Weapons | weaponTag=Natural",
     "name": "Web Shooters",
     "prerequisites": [],
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2925,22 +3530,25 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 56,
       "sheet": "Traits"
     },
     "sourceValues": {
       "description": "You gain a Natural Weapon with the \"Ranged 6, Web\" tags, and the \"Shoot Web\" basic attack. The \"Web\" tag grants the \"Slowed\" condition on a success, and immobilized on a critical success.",
-      "grants": "tag | tag=Web | minRank=1",
+      "grants": "weapon | weaponKey=web-shooters\ntechnique | access=Melee Weapons OR Ranged Weapons | weaponTag=Natural",
       "name": "Web Shooters",
       "prerequisites": null,
       "rank": 1,
       "rankNotes": null,
+      "repeatable": null,
       "tags": "Anatomy, Natural Weapon",
-      "techniqueKeys": "shoot-web",
+      "techniqueKeys": null,
       "traitKey": "web-shooters"
     },
+    "status": "playable",
     "tagKeys": [
       "anatomy",
       "natural-weapon"
@@ -2949,13 +3557,11 @@
       "Anatomy",
       "Natural Weapon"
     ],
-    "techniqueKeys": [
-      "shoot-web"
-    ],
+    "techniqueKeys": [],
     "traitKey": "web-shooters"
   },
   {
-    "description": "Your body becomes plantlike. You gain the \"Plant\" tag.",
+    "description": "Your body is composed of living plant matter. You gain the Plant tag and access to Plant Techniques. You are immune to Bleeding and can obtain nourishment from sunlight and water.",
     "expressionSyntaxVersion": 3,
     "grantText": null,
     "grants": [
@@ -2971,6 +3577,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2985,35 +3597,42 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 57,
       "sheet": "Traits"
     },
     "sourceValues": {
-      "description": "Your body becomes plantlike. You gain the \"Plant\" tag.",
+      "description": "Your body is composed of living plant matter. You gain the Plant tag and access to Plant Techniques. You are immune to Bleeding and can obtain nourishment from sunlight and water.",
       "grants": "tag | tag=Plant | minRank=1",
       "name": "Plant Physiology",
       "prerequisites": null,
       "rank": 1,
       "rankNotes": null,
-      "tags": "Anatomy, Material",
+      "repeatable": null,
+      "tags": "Anatomy, Material, Body, Power",
       "techniqueKeys": null,
       "traitKey": "plant-physiology"
     },
+    "status": "playable",
     "tagKeys": [
       "anatomy",
-      "material"
+      "material",
+      "body",
+      "power"
     ],
     "tags": [
       "Anatomy",
-      "Material"
+      "Material",
+      "Body",
+      "Power"
     ],
     "techniqueKeys": [],
     "traitKey": "plant-physiology"
   },
   {
-    "description": "You gain the Beam tag and can perform the Restraining Beam and Repulsor Blast techniques using the skill associated with this trait.",
+    "description": "You gain the Beam tag and learn Restraining Beam and Repulsor Blast. You gain access to Beam Techniques. Use this Trait's associated skill for their rolls and rank.",
     "expressionSyntaxVersion": 3,
     "grantText": null,
     "grants": [
@@ -3029,6 +3648,12 @@
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -3043,24 +3668,33 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 58,
       "sheet": "Traits"
     },
     "sourceValues": {
-      "description": "You gain the Beam tag and can perform the Restraining Beam and Repulsor Blast techniques using the skill associated with this trait.",
+      "description": "You gain the Beam tag and learn Restraining Beam and Repulsor Blast. You gain access to Beam Techniques. Use this Trait's associated skill for their rolls and rank.",
       "grants": "tag | tag=Beam | minRank=1",
       "name": "Beam Blaster",
       "prerequisites": null,
       "rank": 1,
       "rankNotes": null,
-      "tags": null,
+      "repeatable": null,
+      "tags": "Power, Energy",
       "techniqueKeys": "monster-restraining-beam,monster-repulsor-blast",
       "traitKey": "beam-blaster"
     },
-    "tagKeys": [],
-    "tags": [],
+    "status": "playable",
+    "tagKeys": [
+      "power",
+      "energy"
+    ],
+    "tags": [
+      "Power",
+      "Energy"
+    ],
     "techniqueKeys": [
       "monster-restraining-beam",
       "monster-repulsor-blast"
@@ -3071,13 +3705,33 @@
     "description": "Designate up to two limbs to be treated as natural weapons. These limbs may be unusually large or dense, and they deliver attacks with extreme force. They gain the \"Blunt, Melee, Heavy\" tags. They gain the \"Crushing Blow\" basic attack.",
     "expressionSyntaxVersion": 3,
     "grantText": null,
-    "grants": [],
-    "grantsRaw": null,
+    "grants": [
+      {
+        "count": 2,
+        "key": "crushing-limbs",
+        "type": "weapon"
+      },
+      {
+        "access": [
+          "Melee Weapons",
+          "Ranged Weapons"
+        ],
+        "type": "technique",
+        "weaponTag": "Natural"
+      }
+    ],
+    "grantsRaw": "weapon | weaponKey=crushing-limbs | count=2\ntechnique | access=Melee Weapons OR Ranged Weapons | weaponTag=Natural",
     "name": "Crushing Limbs",
     "prerequisites": [],
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -3092,22 +3746,25 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 59,
       "sheet": "Traits"
     },
     "sourceValues": {
       "description": "Designate up to two limbs to be treated as natural weapons. These limbs may be unusually large or dense, and they deliver attacks with extreme force. They gain the \"Blunt, Melee, Heavy\" tags. They gain the \"Crushing Blow\" basic attack.",
-      "grants": null,
+      "grants": "weapon | weaponKey=crushing-limbs | count=2\ntechnique | access=Melee Weapons OR Ranged Weapons | weaponTag=Natural",
       "name": "Crushing Limbs",
       "prerequisites": null,
       "rank": 1,
       "rankNotes": null,
+      "repeatable": null,
       "tags": "Anatomy, Natural Weapon",
       "techniqueKeys": null,
       "traitKey": "crushing-limbs"
     },
+    "status": "playable",
     "tagKeys": [
       "anatomy",
       "natural-weapon"
@@ -3123,13 +3780,32 @@
     "description": "Your Jaws are unusually large, sharp, or powerful, and can be treated as a Natural Weapon with the \"Sharp, Melee\" tags. Their basic attack is \"Clamping Bite\".",
     "expressionSyntaxVersion": 3,
     "grantText": null,
-    "grants": [],
-    "grantsRaw": null,
+    "grants": [
+      {
+        "key": "grasping-fangs",
+        "type": "weapon"
+      },
+      {
+        "access": [
+          "Melee Weapons",
+          "Ranged Weapons"
+        ],
+        "type": "technique",
+        "weaponTag": "Natural"
+      }
+    ],
+    "grantsRaw": "weapon | weaponKey=grasping-fangs\ntechnique | access=Melee Weapons OR Ranged Weapons | weaponTag=Natural",
     "name": "Grasping Fangs",
     "prerequisites": [],
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -3144,22 +3820,25 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 60,
       "sheet": "Traits"
     },
     "sourceValues": {
       "description": "Your Jaws are unusually large, sharp, or powerful, and can be treated as a Natural Weapon with the \"Sharp, Melee\" tags. Their basic attack is \"Clamping Bite\". ",
-      "grants": null,
+      "grants": "weapon | weaponKey=grasping-fangs\ntechnique | access=Melee Weapons OR Ranged Weapons | weaponTag=Natural",
       "name": "Grasping Fangs",
       "prerequisites": null,
       "rank": 1,
       "rankNotes": null,
+      "repeatable": null,
       "tags": "Anatomy, Natural Weapon",
       "techniqueKeys": null,
       "traitKey": "grasping-fangs"
     },
+    "status": "playable",
     "tagKeys": [
       "anatomy",
       "natural-weapon"
@@ -3175,13 +3854,32 @@
     "description": "You have large horns or antlers that you can use to gore your opponents. They are Natural weapons with the \"Melee, Sharp\" tags. Their basic attack is \"Goring Charge\".",
     "expressionSyntaxVersion": 3,
     "grantText": null,
-    "grants": [],
-    "grantsRaw": null,
+    "grants": [
+      {
+        "key": "goring-horns",
+        "type": "weapon"
+      },
+      {
+        "access": [
+          "Melee Weapons",
+          "Ranged Weapons"
+        ],
+        "type": "technique",
+        "weaponTag": "Natural"
+      }
+    ],
+    "grantsRaw": "weapon | weaponKey=goring-horns\ntechnique | access=Melee Weapons OR Ranged Weapons | weaponTag=Natural",
     "name": "Goring Horns",
     "prerequisites": [],
     "prerequisitesRaw": null,
     "rank": 1,
     "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -3196,22 +3894,25 @@
         "description",
         "rankNotes",
         "techniqueKeys",
-        "grants"
+        "grants",
+        "repeatable"
       ],
       "row": 61,
       "sheet": "Traits"
     },
     "sourceValues": {
       "description": "You have large horns or antlers that you can use to gore your opponents. They are Natural weapons with the \"Melee, Sharp\" tags. Their basic attack is \"Goring Charge\".",
-      "grants": null,
+      "grants": "weapon | weaponKey=goring-horns\ntechnique | access=Melee Weapons OR Ranged Weapons | weaponTag=Natural",
       "name": "Goring Horns",
       "prerequisites": null,
       "rank": 1,
       "rankNotes": null,
+      "repeatable": null,
       "tags": "Anatomy, Natural Weapon",
       "techniqueKeys": null,
       "traitKey": "goring-horns"
     },
+    "status": "playable",
     "tagKeys": [
       "anatomy",
       "natural-weapon"
@@ -3222,5 +3923,667 @@
     ],
     "techniqueKeys": [],
     "traitKey": "goring-horns"
+  },
+  {
+    "description": "Choose Martial Arts, Melee Weapons, or Ranged Weapons. You gain access to that skill's Techniques and learn one eligible Technique from that catalogue. Use your Familiar's associated combat skill for their rolls and rank. For a weapon discipline, you can wield suitably sized weapons up to this Trait's rank.\nYou may select this Trait more than once, choosing a different discipline each time.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [
+      {
+        "choiceId": "combat-discipline",
+        "count": 1,
+        "filterType": "skill",
+        "type": "choice"
+      }
+    ],
+    "grantsRaw": "choice | choiceId=combat-discipline | type=skill | count=1",
+    "name": "Combat Training",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": true,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants",
+        "repeatable"
+      ],
+      "row": 62,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "Choose Martial Arts, Melee Weapons, or Ranged Weapons. You gain access to that skill's Techniques and learn one eligible Technique from that catalogue. Use your Familiar's associated combat skill for their rolls and rank. For a weapon discipline, you can wield suitably sized weapons up to this Trait's rank.\nYou may select this Trait more than once, choosing a different discipline each time.",
+      "grants": "choice | choiceId=combat-discipline | type=skill | count=1",
+      "name": "Combat Training",
+      "prerequisites": null,
+      "rank": 1,
+      "rankNotes": null,
+      "repeatable": "Y",
+      "tags": "Familiar, Power",
+      "techniqueKeys": null,
+      "traitKey": "combat-training"
+    },
+    "status": "playable",
+    "tagKeys": [
+      "familiar",
+      "power"
+    ],
+    "tags": [
+      "Familiar",
+      "Power"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "combat-training"
+  },
+  {
+    "description": "You gain access to Spellcasting Techniques and learn one eligible Technique from that catalogue. Use this Trait's associated skill for these Techniques' rolls and rank.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [
+      {
+        "access": "Spellcasting",
+        "type": "technique"
+      },
+      {
+        "choiceId": "trait:arcane-aptitude:arcane-technique",
+        "count": 1,
+        "skill": "Spellcasting",
+        "type": "technique-choice"
+      }
+    ],
+    "grantsRaw": "technique | access=Spellcasting\ntechnique | skill=Spellcasting | count=1 | choiceId=arcane-technique",
+    "name": "Arcane Aptitude",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants",
+        "repeatable"
+      ],
+      "row": 63,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "You gain access to Spellcasting Techniques and learn one eligible Technique from that catalogue. Use this Trait's associated skill for these Techniques' rolls and rank.",
+      "grants": "technique | access=Spellcasting\ntechnique | skill=Spellcasting | count=1 | choiceId=arcane-technique",
+      "name": "Arcane Aptitude",
+      "prerequisites": null,
+      "rank": 1,
+      "rankNotes": null,
+      "repeatable": null,
+      "tags": "Power",
+      "techniqueKeys": null,
+      "traitKey": "arcane-aptitude"
+    },
+    "status": "playable",
+    "tagKeys": [
+      "power"
+    ],
+    "tags": [
+      "Power"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "arcane-aptitude"
+  },
+  {
+    "description": "You gain access to Psionics Techniques and learn one eligible Technique from that catalogue. Use this Trait's associated skill for these Techniques' rolls and rank.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [
+      {
+        "access": "Psionics",
+        "type": "technique"
+      },
+      {
+        "choiceId": "trait:psionic-aptitude:psionic-technique",
+        "count": 1,
+        "skill": "Psionics",
+        "type": "technique-choice"
+      }
+    ],
+    "grantsRaw": "technique | access=Psionics\ntechnique | skill=Psionics | count=1 | choiceId=psionic-technique",
+    "name": "Psionic Aptitude",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants",
+        "repeatable"
+      ],
+      "row": 64,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "You gain access to Psionics Techniques and learn one eligible Technique from that catalogue. Use this Trait's associated skill for these Techniques' rolls and rank.",
+      "grants": "technique | access=Psionics\ntechnique | skill=Psionics | count=1 | choiceId=psionic-technique",
+      "name": "Psionic Aptitude",
+      "prerequisites": null,
+      "rank": 1,
+      "rankNotes": null,
+      "repeatable": null,
+      "tags": "Power, Psychic",
+      "techniqueKeys": null,
+      "traitKey": "psionic-aptitude"
+    },
+    "status": "playable",
+    "tagKeys": [
+      "power",
+      "psychic"
+    ],
+    "tags": [
+      "Power",
+      "Psychic"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "psionic-aptitude"
+  },
+  {
+    "description": "You gain access to Ninjutsu Techniques and learn one eligible Technique from that catalogue. Use this Trait's associated skill for these Techniques' rolls and rank.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [
+      {
+        "access": "Ninjutsu",
+        "type": "technique"
+      },
+      {
+        "choiceId": "trait:ninja-training:ninja-technique",
+        "count": 1,
+        "skill": "Ninjutsu",
+        "type": "technique-choice"
+      }
+    ],
+    "grantsRaw": "technique | access=Ninjutsu\ntechnique | skill=Ninjutsu | count=1 | choiceId=ninja-technique",
+    "name": "Ninja Training",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants",
+        "repeatable"
+      ],
+      "row": 65,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "You gain access to Ninjutsu Techniques and learn one eligible Technique from that catalogue. Use this Trait's associated skill for these Techniques' rolls and rank.",
+      "grants": "technique | access=Ninjutsu\ntechnique | skill=Ninjutsu | count=1 | choiceId=ninja-technique",
+      "name": "Ninja Training",
+      "prerequisites": null,
+      "rank": 1,
+      "rankNotes": null,
+      "repeatable": null,
+      "tags": "Power",
+      "techniqueKeys": null,
+      "traitKey": "ninja-training"
+    },
+    "status": "playable",
+    "tagKeys": [
+      "power"
+    ],
+    "tags": [
+      "Power"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "ninja-training"
+  },
+  {
+    "description": "Your body produces spores, pollen, or aromatic emissions. You can change or suppress your natural scent. You gain the Spores tag and access to Spores Techniques, which include both spores and aromas.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [
+      {
+        "minRank": 1,
+        "tag": "Spores",
+        "type": "tag"
+      }
+    ],
+    "grantsRaw": "tag | tag=Spores | minRank=1",
+    "name": "Spore Bloom",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants",
+        "repeatable"
+      ],
+      "row": 66,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "Your body produces spores, pollen, or aromatic emissions. You can change or suppress your natural scent. You gain the Spores tag and access to Spores Techniques, which include both spores and aromas.",
+      "grants": "tag | tag=Spores | minRank=1",
+      "name": "Spore Bloom",
+      "prerequisites": null,
+      "rank": 1,
+      "rankNotes": null,
+      "repeatable": null,
+      "tags": "Anatomy, Power",
+      "techniqueKeys": null,
+      "traitKey": "spore-bloom"
+    },
+    "status": "playable",
+    "tagKeys": [
+      "anatomy",
+      "power"
+    ],
+    "tags": [
+      "Anatomy",
+      "Power"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "spore-bloom"
+  },
+  {
+    "description": "Your voice or song carries supernatural influence. You gain a +1D Status bonus to Performance checks involving your voice and access to Idol Techniques.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Enchanted Voice",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants",
+        "repeatable"
+      ],
+      "row": 67,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "Your voice or song carries supernatural influence. You gain a +1D Status bonus to Performance checks involving your voice and access to Idol Techniques.",
+      "grants": null,
+      "name": "Enchanted Voice",
+      "prerequisites": null,
+      "rank": 1,
+      "rankNotes": null,
+      "repeatable": null,
+      "tags": "Power",
+      "techniqueKeys": null,
+      "traitKey": "enchanted-voice"
+    },
+    "status": "playable",
+    "tagKeys": [
+      "power"
+    ],
+    "tags": [
+      "Power"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "enchanted-voice"
+  },
+  {
+    "description": "You channel restorative power. You gain the Healing tag, learn Healing Light, and gain access to Healing Techniques. Use this Trait's associated skill for these Techniques' rolls and rank.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [
+      {
+        "minRank": 1,
+        "tag": "Healing",
+        "type": "tag"
+      }
+    ],
+    "grantsRaw": "tag | tag=Healing | minRank=1",
+    "name": "Healer",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants",
+        "repeatable"
+      ],
+      "row": 68,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "You channel restorative power. You gain the Healing tag, learn Healing Light, and gain access to Healing Techniques. Use this Trait's associated skill for these Techniques' rolls and rank.",
+      "grants": "tag | tag=Healing | minRank=1",
+      "name": "Healer",
+      "prerequisites": null,
+      "rank": 1,
+      "rankNotes": null,
+      "repeatable": null,
+      "tags": "Power",
+      "techniqueKeys": "healing-light",
+      "traitKey": "healer"
+    },
+    "status": "playable",
+    "tagKeys": [
+      "power"
+    ],
+    "tags": [
+      "Power"
+    ],
+    "techniqueKeys": [
+      "healing-light"
+    ],
+    "traitKey": "healer"
+  },
+  {
+    "description": "You project protective energy. You gain the Barrier tag, learn Guardian Bubble, and gain access to Barrier Techniques. Use this Trait's associated skill for these Techniques' rolls and rank.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [
+      {
+        "minRank": 1,
+        "tag": "Barrier",
+        "type": "tag"
+      }
+    ],
+    "grantsRaw": "tag | tag=Barrier | minRank=1",
+    "name": "Barrier Projection",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants",
+        "repeatable"
+      ],
+      "row": 69,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "You project protective energy. You gain the Barrier tag, learn Guardian Bubble, and gain access to Barrier Techniques. Use this Trait's associated skill for these Techniques' rolls and rank.",
+      "grants": "tag | tag=Barrier | minRank=1",
+      "name": "Barrier Projection",
+      "prerequisites": null,
+      "rank": 1,
+      "rankNotes": null,
+      "repeatable": null,
+      "tags": "Power",
+      "techniqueKeys": "guardian-bubble",
+      "traitKey": "barrier-projection"
+    },
+    "status": "playable",
+    "tagKeys": [
+      "power"
+    ],
+    "tags": [
+      "Power"
+    ],
+    "techniqueKeys": [
+      "guardian-bubble"
+    ],
+    "traitKey": "barrier-projection"
+  },
+  {
+    "description": "You learn Copy Ability.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Mimic",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants",
+        "repeatable"
+      ],
+      "row": 70,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "You learn Copy Ability.",
+      "grants": null,
+      "name": "Mimic",
+      "prerequisites": null,
+      "rank": 1,
+      "rankNotes": null,
+      "repeatable": null,
+      "tags": "Power",
+      "techniqueKeys": "copy-ability",
+      "traitKey": "mimic"
+    },
+    "status": "playable",
+    "tagKeys": [
+      "power"
+    ],
+    "tags": [
+      "Power"
+    ],
+    "techniqueKeys": [
+      "copy-ability"
+    ],
+    "traitKey": "mimic"
+  },
+  {
+    "description": "Your Scale becomes 2 if it is lower. You can carry one willing creature at least one Scale smaller than you, together with its equipment, at your normal Speed. Your passenger moves with you. Mounting or dismounting costs the passenger one Action.",
+    "expressionSyntaxVersion": 3,
+    "grantText": null,
+    "grants": [],
+    "grantsRaw": null,
+    "name": "Carrier",
+    "prerequisites": [],
+    "prerequisitesRaw": null,
+    "rank": 1,
+    "rankNotes": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "repeatable": false,
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "traitKey",
+        "name",
+        "rank",
+        "prerequisites",
+        "tags",
+        "description",
+        "rankNotes",
+        "techniqueKeys",
+        "grants",
+        "repeatable"
+      ],
+      "row": 71,
+      "sheet": "Traits"
+    },
+    "sourceValues": {
+      "description": "Your Scale becomes 2 if it is lower. You can carry one willing creature at least one Scale smaller than you, together with its equipment, at your normal Speed. Your passenger moves with you. Mounting or dismounting costs the passenger one Action.",
+      "grants": null,
+      "name": "Carrier",
+      "prerequisites": null,
+      "rank": 1,
+      "rankNotes": null,
+      "repeatable": null,
+      "tags": "Familiar, Movement",
+      "techniqueKeys": null,
+      "traitKey": "carrier"
+    },
+    "status": "playable",
+    "tagKeys": [
+      "familiar",
+      "movement"
+    ],
+    "tags": [
+      "Familiar",
+      "Movement"
+    ],
+    "techniqueKeys": [],
+    "traitKey": "carrier"
   }
 ]

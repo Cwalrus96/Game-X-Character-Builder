@@ -1,31 +1,71 @@
 {
   "approvalVersion": 1,
-  "candidateRunId": "20260922T184507461Z-43412",
-  "approvedOn": "2026-09-22",
+  "candidateRunId": "20260929T200409329Z-44772",
+  "approvedOn": "2026-09-29",
   "source": {
     "fileId": "1TEdxuufglP8lFRNk8QD4N_351-0ihAUFLG2743ESjoI",
     "driveVersion": null,
-    "modifiedTime": "2026-09-22T00:57:44.536Z",
-    "xlsxSha256": "6968f1d21d6615937ee48b04831febba645058975a9f5df17bf4244c14d51f00",
-    "modelSha256": "b575a571513ecaf6da86948356a82940b3f226ebc6d51c0524b8b70bf1439396",
+    "modifiedTime": "2026-09-28T22:49:32.208Z",
+    "xlsxSha256": "c614fd01bb4ed0b41b9aecdc52fdc03959e171c1e20faaa2d7de0962b5a7cd97",
+    "modelSha256": "11a7828e20814a26eec4ca3aa58c52ef3b53e17cbf3cb0811018b9400aa80156",
     "sourceSchemaVersion": 5,
     "runtimeArtifactSchemaVersion": 3
   },
   "artifacts": [
-    { "name": "classes.json", "byteLength": 47437, "sha256": "6ad5a9766616d7374cf32122131849cce20e0fa73b9e28439e093357a0b30c59" },
-    { "name": "class-skills.json", "byteLength": 27347, "sha256": "bafe17bc2e9d17d43f548a8d29ef3b274f3e2b8a24092eaf19d03c6d1975b7b1" },
-    { "name": "class-features.json", "byteLength": 1047688, "sha256": "48c9389d8b6631024db6bf2d2d4d960800ce586f0ccc22a5586445d90226cc89" },
-    { "name": "feats.json", "byteLength": 200343, "sha256": "a98fca3926166e5e8541406ec9b03b053e3f4f7908ccb8f52a089b4868565320" },
-    { "name": "techniques.json", "byteLength": 568402, "sha256": "f7bed229e6a8600557ad023d363ced5c947178e44c3d1ff5e5243e50009be3a1" },
-    { "name": "origins.json", "byteLength": 102378, "sha256": "4a7b86b9364003812ffe07b13ddc95068693b7ae71685825537428edd562d34a" },
-    { "name": "weapon-bases.json", "byteLength": 184868, "sha256": "d35845d018b7a1a048d1491143b32a111307fcfa638a53a8ed870c633f1b435b" },
-    { "name": "weapon-enhancements.json", "byteLength": 39653, "sha256": "faeaf06dd1cf5cf8096cd2edc55d083a2b87bfdb06ca981adb804fa0839c00f5" },
-    { "name": "traits.json", "byteLength": 85864, "sha256": "66fc658be953816fee39734c0ed21a8d9dff637dd6570bdeac464291926fa3e8" },
-    { "name": "game-x-data.json", "byteLength": 2538656, "sha256": "0cedfcc8359af9809360277017502b3cf5435cf733b4bcd143288879a1b6e396" }
+    {
+      "byteLength": 49766,
+      "name": "classes.json",
+      "sha256": "0c9a179fe408cc9fe221e0812f694af7c34f404b1601e0e7c47d323b6f382347"
+    },
+    {
+      "byteLength": 27347,
+      "name": "class-skills.json",
+      "sha256": "bafe17bc2e9d17d43f548a8d29ef3b274f3e2b8a24092eaf19d03c6d1975b7b1"
+    },
+    {
+      "byteLength": 1124762,
+      "name": "class-features.json",
+      "sha256": "7bef52b849ba2a987522b07369d81610d344be03b122f557773ae7aa4154eda7"
+    },
+    {
+      "byteLength": 219430,
+      "name": "feats.json",
+      "sha256": "0ecc1fbf070862faec21decc169b59e7c5799e4fd15444869b7fb02c18123004"
+    },
+    {
+      "byteLength": 633814,
+      "name": "techniques.json",
+      "sha256": "ac52c4ec781c7847fc731cf3208fa4af61ec51452fbb4704fc6078239e3c157b"
+    },
+    {
+      "byteLength": 107167,
+      "name": "origins.json",
+      "sha256": "dc9447499421240f16fa81e7a3b4ab5ced7c38324baa3f42f6fe1c067c19fba4"
+    },
+    {
+      "byteLength": 239829,
+      "name": "weapon-bases.json",
+      "sha256": "fef92becc330b8a45ba00e2228ba90c5412d5b6bda1d953a8d7b424c1853bdf9"
+    },
+    {
+      "byteLength": 44025,
+      "name": "weapon-enhancements.json",
+      "sha256": "185482b529501e0671071bd22bb01837e007ba88aa48994db2074546e49cd6d8"
+    },
+    {
+      "byteLength": 123989,
+      "name": "traits.json",
+      "sha256": "46d4ba75c91f787e7ea0182338246b76af214b7664ebc854dcac1816aa683f32"
+    },
+    {
+      "byteLength": 2775498,
+      "name": "game-x-data.json",
+      "sha256": "a3f3f0c8691ba6c90d066ec2f314542a8fbe18583c82854101fce627d6a52e7e"
+    }
   ],
   "review": {
     "diffReviewApproved": true,
     "publishApproved": true,
-    "approvalContext": "On 2026-09-22, after review of candidate 20260922T184507461Z-43412 and its matching 128-file Hosting package, the user requested: Can we push the latest version! This approves the reviewed diff, exact data publication and coordinated Hosting-only website release. Personal manual acceptance remains nonblocking. Rules, Functions, source-cell edits and manual production character writes are outside this release."
+    "approvalContext": "The user requested: Is the live site up to date? If not, let's pull the latest spreadsheet and generate the latest data. If no errors with that, let's push the latest code to the live site. The subsequent source-scoped choice and repeatable-choice requests resolve the blockers in that release. Candidate 20260929T200409329Z-44772 now has zero errors, 110 warnings for preserved unfinished content, accepted runtime loading and a reviewed complete diff. This records the existing conditional authorization for these exact data artifacts and the tested Hosting-only package. Broader roadmap acceptance remains separate. No Rules, Functions, source-cell edits or manual production character writes are authorized by this release."
   }
 }

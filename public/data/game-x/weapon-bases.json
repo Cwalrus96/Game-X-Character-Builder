@@ -18,7 +18,7 @@
         "damage": "3 + Hits; +3 damage per weapon rank above 0.",
         "defense": "Physical",
         "description": null,
-        "energyCost": null,
+        "energyCost": 0,
         "energyCostKind": "variable",
         "energyCostOptions": [],
         "expressionSyntaxVersion": 3,
@@ -51,6 +51,11 @@
         "range": "Melee",
         "rank": 0,
         "rankNotes": "No pumping at rank 0.",
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": true,
         "runtimeSupport": {
           "reasons": [],
@@ -94,7 +99,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -127,7 +131,6 @@
           "rankNotes": "No pumping at rank 0.",
           "rollRequired": "Y",
           "selection": "granted",
-          "status": "playable",
           "strainCost": null,
           "sustained": "N",
           "tags": null,
@@ -147,6 +150,12 @@
         "trigger": null
       }
     ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -175,6 +184,7 @@
       "traitsText": null,
       "weaponKey": "baseball_bat"
     },
+    "status": "playable",
     "tagKeys": [
       "melee",
       "blunt",
@@ -213,7 +223,7 @@
         "damage": "3 + Hits; +3 damage per weapon rank above 0.",
         "defense": "Physical",
         "description": null,
-        "energyCost": null,
+        "energyCost": 0,
         "energyCostKind": "variable",
         "energyCostOptions": [],
         "expressionSyntaxVersion": 3,
@@ -246,6 +256,11 @@
         "range": "Melee",
         "rank": 0,
         "rankNotes": "No pumping at rank 0.",
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": true,
         "runtimeSupport": {
           "reasons": [],
@@ -289,7 +304,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -322,7 +336,6 @@
           "rankNotes": "No pumping at rank 0.",
           "rollRequired": "Y",
           "selection": "granted",
-          "status": "playable",
           "strainCost": null,
           "sustained": "N",
           "tags": null,
@@ -342,6 +355,12 @@
         "trigger": null
       }
     ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -370,6 +389,7 @@
       "traitsText": null,
       "weaponKey": "kitchen_knife"
     },
+    "status": "playable",
     "tagKeys": [
       "melee",
       "sharp",
@@ -408,7 +428,7 @@
         "damage": "2 + Hits; +3 damage per weapon rank above 0.",
         "defense": "Physical",
         "description": null,
-        "energyCost": null,
+        "energyCost": 0,
         "energyCostKind": "variable",
         "energyCostOptions": [],
         "expressionSyntaxVersion": 3,
@@ -441,6 +461,11 @@
         "range": "Range 5",
         "rank": 0,
         "rankNotes": "No pumping at rank 0.",
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": true,
         "runtimeSupport": {
           "reasons": [],
@@ -484,7 +509,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -517,7 +541,6 @@
           "rankNotes": "No pumping at rank 0.",
           "rollRequired": "Y",
           "selection": "granted",
-          "status": "playable",
           "strainCost": null,
           "sustained": "N",
           "tags": null,
@@ -537,6 +560,12 @@
         "trigger": null
       }
     ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -565,6 +594,7 @@
       "traitsText": null,
       "weaponKey": "rock_brick"
     },
+    "status": "playable",
     "tagKeys": [
       "thrown=4",
       "blunt",
@@ -603,7 +633,7 @@
         "damage": "2 + Hits; +3 damage per weapon rank above 0.",
         "defense": "Physical",
         "description": null,
-        "energyCost": null,
+        "energyCost": 0,
         "energyCostKind": "variable",
         "energyCostOptions": [],
         "expressionSyntaxVersion": 3,
@@ -636,6 +666,11 @@
         "range": "Melee; Reach +1",
         "rank": 0,
         "rankNotes": "No pumping at rank 0.",
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": true,
         "runtimeSupport": {
           "reasons": [],
@@ -679,7 +714,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -712,7 +746,6 @@
           "rankNotes": "No pumping at rank 0.",
           "rollRequired": "Y",
           "selection": "granted",
-          "status": "playable",
           "strainCost": null,
           "sustained": "N",
           "tags": null,
@@ -732,6 +765,12 @@
         "trigger": null
       }
     ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -760,6 +799,7 @@
       "traitsText": null,
       "weaponKey": "broomstick"
     },
+    "status": "playable",
     "tagKeys": [
       "melee",
       "reach-1",
@@ -802,7 +842,7 @@
         "damage": "5 + Hits; +3 damage per weapon rank above 1.",
         "defense": "Physical",
         "description": null,
-        "energyCost": null,
+        "energyCost": 0,
         "energyCostKind": "variable",
         "energyCostOptions": [],
         "expressionSyntaxVersion": 3,
@@ -834,6 +874,11 @@
         "range": "Melee",
         "rank": 1,
         "rankNotes": null,
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": true,
         "runtimeSupport": {
           "reasons": [],
@@ -877,7 +922,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -910,7 +954,6 @@
           "rankNotes": null,
           "rollRequired": "Y",
           "selection": "granted",
-          "status": "playable",
           "strainCost": null,
           "sustained": "N",
           "tags": null,
@@ -930,6 +973,12 @@
         "trigger": null
       }
     ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -958,6 +1007,7 @@
       "traitsText": null,
       "weaponKey": "longsword"
     },
+    "status": "playable",
     "tagKeys": [
       "melee",
       "sharp",
@@ -996,7 +1046,7 @@
         "damage": "5 + Hits; +3 damage per weapon rank above 1.",
         "defense": "Physical",
         "description": null,
-        "energyCost": null,
+        "energyCost": 0,
         "energyCostKind": "variable",
         "energyCostOptions": [],
         "expressionSyntaxVersion": 3,
@@ -1028,6 +1078,11 @@
         "range": "Melee",
         "rank": 1,
         "rankNotes": null,
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": true,
         "runtimeSupport": {
           "reasons": [],
@@ -1071,7 +1126,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -1104,7 +1158,6 @@
           "rankNotes": null,
           "rollRequired": "Y",
           "selection": "granted",
-          "status": "playable",
           "strainCost": null,
           "sustained": "N",
           "tags": null,
@@ -1124,6 +1177,12 @@
         "trigger": null
       }
     ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1152,6 +1211,7 @@
       "traitsText": "Iaijutsu\nQuick-draw cuts are harder to defend against.\nTrigger: When attacking while the Katana is sheathed\nTarget is Off-Guard 1 to the attack",
       "weaponKey": "katana"
     },
+    "status": "playable",
     "tagKeys": [
       "melee",
       "sharp",
@@ -1190,7 +1250,7 @@
         "damage": "4 + Hits; +2 damage per weapon rank above 1.",
         "defense": "Physical",
         "description": null,
-        "energyCost": null,
+        "energyCost": 0,
         "energyCostKind": "variable",
         "energyCostOptions": [],
         "expressionSyntaxVersion": 3,
@@ -1222,6 +1282,11 @@
         "range": "Range 20",
         "rank": 1,
         "rankNotes": null,
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": true,
         "runtimeSupport": {
           "reasons": [],
@@ -1265,7 +1330,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -1298,7 +1362,6 @@
           "rankNotes": null,
           "rollRequired": "Y",
           "selection": "granted",
-          "status": "playable",
           "strainCost": null,
           "sustained": "N",
           "tags": null,
@@ -1318,6 +1381,12 @@
         "trigger": null
       }
     ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1346,6 +1415,7 @@
       "traitsText": null,
       "weaponKey": "bow"
     },
+    "status": "playable",
     "tagKeys": [
       "sharp",
       "ranged=20",
@@ -1384,7 +1454,7 @@
         "damage": "5 + Hits; +3 damage per weapon rank above 1.",
         "defense": "Physical",
         "description": null,
-        "energyCost": null,
+        "energyCost": 0,
         "energyCostKind": "variable",
         "energyCostOptions": [],
         "expressionSyntaxVersion": 3,
@@ -1416,6 +1486,11 @@
         "range": "Range 20",
         "rank": 1,
         "rankNotes": null,
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": true,
         "runtimeSupport": {
           "reasons": [],
@@ -1459,7 +1534,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -1492,7 +1566,6 @@
           "rankNotes": null,
           "rollRequired": "Y",
           "selection": "granted",
-          "status": "playable",
           "strainCost": null,
           "sustained": "N",
           "tags": null,
@@ -1553,6 +1626,11 @@
         "range": "3 Square Cone",
         "rank": 1,
         "rankNotes": null,
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": false,
         "runtimeSupport": {
           "reasons": [],
@@ -1596,7 +1674,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -1629,7 +1706,6 @@
           "rankNotes": null,
           "rollRequired": "N",
           "selection": "granted",
-          "status": "playable",
           "strainCost": null,
           "sustained": "N",
           "tags": null,
@@ -1649,6 +1725,12 @@
         "trigger": null
       }
     ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -1677,6 +1759,7 @@
       "traitsText": null,
       "weaponKey": "pistol"
     },
+    "status": "playable",
     "tagKeys": [
       "ranged=20",
       "loud",
@@ -1720,7 +1803,7 @@
         "damage": "4 + Hits; +2 damage per weapon rank above 1.",
         "defense": "Physical",
         "description": null,
-        "energyCost": null,
+        "energyCost": 0,
         "energyCostKind": "variable",
         "energyCostOptions": [],
         "expressionSyntaxVersion": 3,
@@ -1752,6 +1835,11 @@
         "range": "Melee",
         "rank": 1,
         "rankNotes": null,
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": true,
         "runtimeSupport": {
           "reasons": [],
@@ -1795,7 +1883,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -1828,7 +1915,6 @@
           "rankNotes": null,
           "rollRequired": "Y",
           "selection": "granted",
-          "status": "playable",
           "strainCost": null,
           "sustained": "N",
           "tags": null,
@@ -1859,7 +1945,7 @@
         "damage": "4 + Hits; +2 damage per weapon rank above 1.",
         "defense": "Physical",
         "description": null,
-        "energyCost": null,
+        "energyCost": 0,
         "energyCostKind": "variable",
         "energyCostOptions": [],
         "expressionSyntaxVersion": 3,
@@ -1891,6 +1977,11 @@
         "range": "Range 6",
         "rank": 1,
         "rankNotes": null,
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": true,
         "runtimeSupport": {
           "reasons": [],
@@ -1934,7 +2025,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -1967,7 +2057,6 @@
           "rankNotes": null,
           "rollRequired": "Y",
           "selection": "granted",
-          "status": "playable",
           "strainCost": null,
           "sustained": "N",
           "tags": null,
@@ -1987,6 +2076,12 @@
         "trigger": null
       }
     ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2015,6 +2110,7 @@
       "traitsText": null,
       "weaponKey": "dagger_kunai"
     },
+    "status": "playable",
     "tagKeys": [
       "melee",
       "sharp",
@@ -2061,7 +2157,7 @@
         "damage": "3 + Hits; +2 damage per weapon rank above 1.",
         "defense": "Physical",
         "description": null,
-        "energyCost": null,
+        "energyCost": 0,
         "energyCostKind": "variable",
         "energyCostOptions": [],
         "expressionSyntaxVersion": 3,
@@ -2093,6 +2189,11 @@
         "range": "Range 10",
         "rank": 1,
         "rankNotes": null,
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": true,
         "runtimeSupport": {
           "reasons": [],
@@ -2136,7 +2237,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -2169,7 +2269,6 @@
           "rankNotes": null,
           "rollRequired": "Y",
           "selection": "granted",
-          "status": "playable",
           "strainCost": null,
           "sustained": "N",
           "tags": null,
@@ -2225,6 +2324,11 @@
         "range": "Range 10",
         "rank": 1,
         "rankNotes": null,
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": true,
         "runtimeSupport": {
           "reasons": [],
@@ -2268,7 +2372,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -2301,7 +2404,6 @@
           "rankNotes": null,
           "rollRequired": "Y",
           "selection": "granted",
-          "status": "playable",
           "strainCost": null,
           "sustained": "N",
           "tags": null,
@@ -2321,6 +2423,12 @@
         "trigger": null
       }
     ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2349,6 +2457,7 @@
       "traitsText": null,
       "weaponKey": "shuriken"
     },
+    "status": "playable",
     "tagKeys": [
       "sharp",
       "one-handed",
@@ -2392,7 +2501,7 @@
         "damage": "7 + Hits; +4 damage per weapon rank above 1.",
         "defense": "Physical",
         "description": null,
-        "energyCost": null,
+        "energyCost": 0,
         "energyCostKind": "variable",
         "energyCostOptions": [],
         "expressionSyntaxVersion": 3,
@@ -2424,6 +2533,11 @@
         "range": "Melee",
         "rank": 1,
         "rankNotes": null,
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": true,
         "runtimeSupport": {
           "reasons": [],
@@ -2467,7 +2581,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -2500,7 +2613,6 @@
           "rankNotes": null,
           "rollRequired": "Y",
           "selection": "granted",
-          "status": "playable",
           "strainCost": null,
           "sustained": "N",
           "tags": null,
@@ -2520,6 +2632,12 @@
         "trigger": null
       }
     ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2548,6 +2666,7 @@
       "traitsText": null,
       "weaponKey": "greatsword"
     },
+    "status": "playable",
     "tagKeys": [
       "melee",
       "sharp",
@@ -2588,7 +2707,7 @@
         "damage": "2 + Hits; +2 damage per weapon rank above 1.",
         "defense": "Physical",
         "description": null,
-        "energyCost": null,
+        "energyCost": 0,
         "energyCostKind": "variable",
         "energyCostOptions": [],
         "expressionSyntaxVersion": 3,
@@ -2620,6 +2739,11 @@
         "range": "Melee",
         "rank": 1,
         "rankNotes": null,
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": true,
         "runtimeSupport": {
           "reasons": [],
@@ -2663,7 +2787,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -2696,7 +2819,6 @@
           "rankNotes": null,
           "rollRequired": "Y",
           "selection": "granted",
-          "status": "playable",
           "strainCost": null,
           "sustained": "N",
           "tags": null,
@@ -2752,6 +2874,11 @@
         "range": "Melee",
         "rank": 1,
         "rankNotes": null,
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": true,
         "runtimeSupport": {
           "reasons": [],
@@ -2795,7 +2922,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -2828,7 +2954,6 @@
           "rankNotes": null,
           "rollRequired": "Y",
           "selection": "granted",
-          "status": "playable",
           "strainCost": null,
           "sustained": "N",
           "tags": null,
@@ -2848,6 +2973,12 @@
         "trigger": null
       }
     ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -2876,6 +3007,7 @@
       "traitsText": null,
       "weaponKey": "shield"
     },
+    "status": "playable",
     "tagKeys": [
       "melee",
       "defensive",
@@ -2917,7 +3049,7 @@
         "damage": "6 + Hits; +3 damage per weapon rank above 1.",
         "defense": "Physical",
         "description": null,
-        "energyCost": null,
+        "energyCost": 0,
         "energyCostKind": "variable",
         "energyCostOptions": [],
         "expressionSyntaxVersion": 3,
@@ -2949,6 +3081,11 @@
         "range": "Range 30",
         "rank": 1,
         "rankNotes": null,
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": true,
         "runtimeSupport": {
           "reasons": [],
@@ -2992,7 +3129,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -3025,7 +3161,6 @@
           "rankNotes": null,
           "rollRequired": "Y",
           "selection": "granted",
-          "status": "playable",
           "strainCost": null,
           "sustained": "N",
           "tags": null,
@@ -3045,6 +3180,12 @@
         "trigger": null
       }
     ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -3073,6 +3214,7 @@
       "traitsText": null,
       "weaponKey": "rifle"
     },
+    "status": "playable",
     "tagKeys": [
       "ranged=30",
       "two-handed",
@@ -3113,7 +3255,7 @@
         "damage": "6 + Hits; +3 damage per weapon rank above 1.",
         "defense": "Physical",
         "description": null,
-        "energyCost": null,
+        "energyCost": 0,
         "energyCostKind": "variable",
         "energyCostOptions": [],
         "expressionSyntaxVersion": 3,
@@ -3145,6 +3287,11 @@
         "range": "Melee",
         "rank": 1,
         "rankNotes": null,
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": true,
         "runtimeSupport": {
           "reasons": [],
@@ -3188,7 +3335,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -3221,7 +3367,6 @@
           "rankNotes": null,
           "rollRequired": "Y",
           "selection": "granted",
-          "status": "playable",
           "strainCost": null,
           "sustained": "N",
           "tags": null,
@@ -3241,6 +3386,12 @@
         "trigger": null
       }
     ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -3269,6 +3420,7 @@
       "traitsText": null,
       "weaponKey": "axe"
     },
+    "status": "playable",
     "tagKeys": [
       "melee",
       "versatile",
@@ -3309,7 +3461,7 @@
         "damage": "7 + Hits; +4 damage per weapon rank above 1.",
         "defense": "Physical",
         "description": null,
-        "energyCost": null,
+        "energyCost": 0,
         "energyCostKind": "variable",
         "energyCostOptions": [],
         "expressionSyntaxVersion": 3,
@@ -3341,6 +3493,11 @@
         "range": "Melee",
         "rank": 1,
         "rankNotes": null,
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": true,
         "runtimeSupport": {
           "reasons": [],
@@ -3384,7 +3541,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -3417,7 +3573,6 @@
           "rankNotes": null,
           "rollRequired": "Y",
           "selection": "granted",
-          "status": "playable",
           "strainCost": null,
           "sustained": "N",
           "tags": null,
@@ -3437,6 +3592,12 @@
         "trigger": null
       }
     ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -3465,6 +3626,7 @@
       "traitsText": null,
       "weaponKey": "warhammer"
     },
+    "status": "playable",
     "tagKeys": [
       "melee",
       "blunt",
@@ -3505,7 +3667,7 @@
         "damage": "5 + Hits; +3 damage per weapon rank above 1.",
         "defense": "Physical",
         "description": null,
-        "energyCost": null,
+        "energyCost": 0,
         "energyCostKind": "variable",
         "energyCostOptions": [],
         "expressionSyntaxVersion": 3,
@@ -3537,6 +3699,11 @@
         "range": "Melee; Reach +1",
         "rank": 1,
         "rankNotes": null,
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": true,
         "runtimeSupport": {
           "reasons": [],
@@ -3580,7 +3747,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -3613,7 +3779,6 @@
           "rankNotes": null,
           "rollRequired": "Y",
           "selection": "granted",
-          "status": "playable",
           "strainCost": null,
           "sustained": "N",
           "tags": null,
@@ -3633,6 +3798,12 @@
         "trigger": null
       }
     ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -3661,6 +3832,7 @@
       "traitsText": null,
       "weaponKey": "spear"
     },
+    "status": "playable",
     "tagKeys": [
       "melee",
       "sharp",
@@ -3703,7 +3875,7 @@
         "damage": "4 + Hits; +2 damage per weapon rank above 1.",
         "defense": "Physical",
         "description": null,
-        "energyCost": null,
+        "energyCost": 0,
         "energyCostKind": "variable",
         "energyCostOptions": [],
         "expressionSyntaxVersion": 3,
@@ -3735,6 +3907,11 @@
         "range": "Melee",
         "rank": 1,
         "rankNotes": null,
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": true,
         "runtimeSupport": {
           "reasons": [],
@@ -3778,7 +3955,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -3811,7 +3987,6 @@
           "rankNotes": null,
           "rollRequired": "Y",
           "selection": "granted",
-          "status": "playable",
           "strainCost": null,
           "sustained": "N",
           "tags": null,
@@ -3831,6 +4006,12 @@
         "trigger": null
       }
     ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -3859,6 +4040,7 @@
       "traitsText": null,
       "weaponKey": "staff"
     },
+    "status": "playable",
     "tagKeys": [
       "melee",
       "defensive",
@@ -3901,7 +4083,7 @@
         "damage": "6 + Hits; +3 damage per weapon rank above 1.",
         "defense": "Physical",
         "description": null,
-        "energyCost": null,
+        "energyCost": 0,
         "energyCostKind": "variable",
         "energyCostOptions": [],
         "expressionSyntaxVersion": 3,
@@ -3933,6 +4115,11 @@
         "range": "Range 10",
         "rank": 1,
         "rankNotes": null,
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": true,
         "runtimeSupport": {
           "reasons": [],
@@ -3976,7 +4163,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -4009,7 +4195,6 @@
           "rankNotes": null,
           "rollRequired": "Y",
           "selection": "granted",
-          "status": "playable",
           "strainCost": null,
           "sustained": "N",
           "tags": null,
@@ -4065,6 +4250,11 @@
         "range": "5 Square Cone",
         "rank": 1,
         "rankNotes": null,
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": true,
         "runtimeSupport": {
           "reasons": [],
@@ -4108,7 +4298,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -4141,7 +4330,6 @@
           "rankNotes": null,
           "rollRequired": "Y",
           "selection": "granted",
-          "status": "playable",
           "strainCost": null,
           "sustained": "N",
           "tags": null,
@@ -4161,6 +4349,12 @@
         "trigger": null
       }
     ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -4189,6 +4383,7 @@
       "traitsText": null,
       "weaponKey": "shotgun"
     },
+    "status": "playable",
     "tagKeys": [
       "ranged=10",
       "two-handed",
@@ -4230,7 +4425,7 @@
         "damage": "8 + Hits; +3 damage per weapon rank above 2.",
         "defense": "Physical",
         "description": null,
-        "energyCost": null,
+        "energyCost": 0,
         "energyCostKind": "variable",
         "energyCostOptions": [],
         "expressionSyntaxVersion": 3,
@@ -4261,6 +4456,14 @@
         "range": null,
         "rank": 2,
         "rankNotes": null,
+        "readiness": {
+          "complete": false,
+          "missingFields": [
+            "actionType",
+            "actions"
+          ],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": true,
         "runtimeSupport": {
           "reasons": [
@@ -4306,7 +4509,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -4339,7 +4541,6 @@
           "rankNotes": null,
           "rollRequired": "Y",
           "selection": "granted",
-          "status": "draft",
           "strainCost": null,
           "sustained": null,
           "tags": null,
@@ -4348,7 +4549,7 @@
           "techniqueName": "Gunblade Basic Attack",
           "trigger": null
         },
-        "status": "draft",
+        "status": "incomplete",
         "strainCost": null,
         "sustained": null,
         "tagKeys": [],
@@ -4375,8 +4576,8 @@
         "damage": null,
         "defense": null,
         "description": "Deal a basic attack.\n\nYou must reload before you can use this again.",
-        "energyCost": null,
-        "energyCostKind": "unassigned",
+        "energyCost": 0,
+        "energyCostKind": "fixed",
         "energyCostOptions": [],
         "expressionSyntaxVersion": 3,
         "onCriticalFailure": null,
@@ -4400,6 +4601,14 @@
         "range": null,
         "rank": 2,
         "rankNotes": null,
+        "readiness": {
+          "complete": false,
+          "missingFields": [
+            "actionType",
+            "actions"
+          ],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": false,
         "runtimeSupport": {
           "reasons": [
@@ -4446,7 +4655,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -4466,7 +4674,7 @@
           "defense": null,
           "description": "Deal a basic attack.\n\nYou must reload before you can use this again.",
           "energyCost": null,
-          "energyCostKind": "unassigned",
+          "energyCostKind": null,
           "energyCostOptions": null,
           "onCriticalFailure": null,
           "onCriticalSuccess": null,
@@ -4479,7 +4687,6 @@
           "rankNotes": null,
           "rollRequired": "N",
           "selection": "granted",
-          "status": "draft",
           "strainCost": null,
           "sustained": null,
           "tags": null,
@@ -4488,7 +4695,7 @@
           "techniqueName": "Gunblade Explosive Recoil",
           "trigger": null
         },
-        "status": "draft",
+        "status": "incomplete",
         "strainCost": null,
         "sustained": null,
         "tagKeys": [],
@@ -4499,6 +4706,12 @@
         "trigger": null
       }
     ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [
         "draft-record-granted"
@@ -4530,6 +4743,7 @@
       "traitsText": null,
       "weaponKey": "gunblade"
     },
+    "status": "playable",
     "tagKeys": [
       "melee",
       "two-handed",
@@ -4573,7 +4787,7 @@
         "damage": "7 + Hits; +2 damage per weapon rank above 2.",
         "defense": "Physical",
         "description": "If this technique is sustained, increase the base damage by 2 for every round this attack has been sustained against the same target.",
-        "energyCost": null,
+        "energyCost": 0,
         "energyCostKind": "variable",
         "energyCostOptions": [],
         "expressionSyntaxVersion": 3,
@@ -4604,6 +4818,14 @@
         "range": null,
         "rank": 2,
         "rankNotes": null,
+        "readiness": {
+          "complete": false,
+          "missingFields": [
+            "actionType",
+            "actions"
+          ],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": true,
         "runtimeSupport": {
           "reasons": [
@@ -4649,7 +4871,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -4682,7 +4903,6 @@
           "rankNotes": null,
           "rollRequired": "Y",
           "selection": "granted",
-          "status": "draft",
           "strainCost": null,
           "sustained": "Y",
           "tags": null,
@@ -4691,7 +4911,7 @@
           "techniqueName": "Chain Sword Basic Attack",
           "trigger": null
         },
-        "status": "draft",
+        "status": "incomplete",
         "strainCost": null,
         "sustained": true,
         "tagKeys": [],
@@ -4713,8 +4933,8 @@
         "damage": null,
         "defense": null,
         "description": "Reduce the target’s armor by an amount equal to hits.",
-        "energyCost": null,
-        "energyCostKind": "unassigned",
+        "energyCost": 0,
+        "energyCostKind": "fixed",
         "energyCostOptions": [],
         "expressionSyntaxVersion": 3,
         "onCriticalFailure": null,
@@ -4738,6 +4958,14 @@
         "range": null,
         "rank": 2,
         "rankNotes": null,
+        "readiness": {
+          "complete": false,
+          "missingFields": [
+            "actionType",
+            "actions"
+          ],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": null,
         "runtimeSupport": {
           "reasons": [
@@ -4783,7 +5011,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -4803,7 +5030,7 @@
           "defense": null,
           "description": "Reduce the target’s armor by an amount equal to hits.",
           "energyCost": null,
-          "energyCostKind": "unassigned",
+          "energyCostKind": null,
           "energyCostOptions": null,
           "onCriticalFailure": null,
           "onCriticalSuccess": null,
@@ -4816,7 +5043,6 @@
           "rankNotes": null,
           "rollRequired": null,
           "selection": "granted",
-          "status": "draft",
           "strainCost": null,
           "sustained": null,
           "tags": null,
@@ -4825,7 +5051,7 @@
           "techniqueName": "Chain Sword Shred Armor",
           "trigger": null
         },
-        "status": "draft",
+        "status": "incomplete",
         "strainCost": null,
         "sustained": null,
         "tagKeys": [],
@@ -4836,6 +5062,12 @@
         "trigger": null
       }
     ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [
         "draft-record-granted"
@@ -4867,6 +5099,7 @@
       "traitsText": null,
       "weaponKey": "chain_sword"
     },
+    "status": "playable",
     "tagKeys": [
       "melee",
       "two-handed",
@@ -4908,7 +5141,7 @@
         "damage": "6 + Hits; +2 damage per weapon rank above 2.",
         "defense": "Physical",
         "description": "Also deals 6 damage in a 1 square burst around the target.",
-        "energyCost": null,
+        "energyCost": 0,
         "energyCostKind": "variable",
         "energyCostOptions": [],
         "expressionSyntaxVersion": 3,
@@ -4939,6 +5172,14 @@
         "range": null,
         "rank": 2,
         "rankNotes": null,
+        "readiness": {
+          "complete": false,
+          "missingFields": [
+            "actionType",
+            "actions"
+          ],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": true,
         "runtimeSupport": {
           "reasons": [
@@ -4984,7 +5225,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -5017,7 +5257,6 @@
           "rankNotes": null,
           "rollRequired": "Y",
           "selection": "granted",
-          "status": "draft",
           "strainCost": null,
           "sustained": null,
           "tags": null,
@@ -5026,7 +5265,7 @@
           "techniqueName": "Grenade Launcher Basic Attack",
           "trigger": null
         },
-        "status": "draft",
+        "status": "incomplete",
         "strainCost": null,
         "sustained": null,
         "tagKeys": [],
@@ -5048,8 +5287,8 @@
         "damage": null,
         "defense": null,
         "description": "Choose a square within range, and launch the grenade into that square. As a free reaction within the next round, when another creature moves into or out of that square or an adjacent square, you can choose to detonate that grenade. If you do not, it explodes at the beginning of your next turn.",
-        "energyCost": null,
-        "energyCostKind": "unassigned",
+        "energyCost": 0,
+        "energyCostKind": "fixed",
         "energyCostOptions": [],
         "expressionSyntaxVersion": 3,
         "onCriticalFailure": null,
@@ -5073,6 +5312,14 @@
         "range": null,
         "rank": 2,
         "rankNotes": null,
+        "readiness": {
+          "complete": false,
+          "missingFields": [
+            "actionType",
+            "actions"
+          ],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": null,
         "runtimeSupport": {
           "reasons": [
@@ -5118,7 +5365,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -5138,7 +5384,7 @@
           "defense": null,
           "description": "Choose a square within range, and launch the grenade into that square. As a free reaction within the next round, when another creature moves into or out of that square or an adjacent square, you can choose to detonate that grenade. If you do not, it explodes at the beginning of your next turn.",
           "energyCost": null,
-          "energyCostKind": "unassigned",
+          "energyCostKind": null,
           "energyCostOptions": null,
           "onCriticalFailure": null,
           "onCriticalSuccess": null,
@@ -5151,7 +5397,6 @@
           "rankNotes": null,
           "rollRequired": null,
           "selection": "granted",
-          "status": "draft",
           "strainCost": null,
           "sustained": null,
           "tags": null,
@@ -5160,7 +5405,7 @@
           "techniqueName": "Grenade Launcher Timed Explosion",
           "trigger": null
         },
-        "status": "draft",
+        "status": "incomplete",
         "strainCost": null,
         "sustained": null,
         "tagKeys": [],
@@ -5171,6 +5416,12 @@
         "trigger": null
       }
     ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [
         "draft-record-granted"
@@ -5202,6 +5453,7 @@
       "traitsText": null,
       "weaponKey": "grenade_launcher"
     },
+    "status": "playable",
     "tagKeys": [
       "ranged=10",
       "two-handed",
@@ -5247,7 +5499,7 @@
         "damage": "8 + Hits; +3 damage per weapon rank above 2.",
         "defense": "Physical",
         "description": null,
-        "energyCost": null,
+        "energyCost": 0,
         "energyCostKind": "variable",
         "energyCostOptions": [],
         "expressionSyntaxVersion": 3,
@@ -5278,6 +5530,14 @@
         "range": null,
         "rank": 2,
         "rankNotes": null,
+        "readiness": {
+          "complete": false,
+          "missingFields": [
+            "actionType",
+            "actions"
+          ],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": true,
         "runtimeSupport": {
           "reasons": [
@@ -5323,7 +5583,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -5356,7 +5615,6 @@
           "rankNotes": null,
           "rollRequired": "Y",
           "selection": "granted",
-          "status": "draft",
           "strainCost": null,
           "sustained": null,
           "tags": null,
@@ -5365,7 +5623,7 @@
           "techniqueName": "Machine Gun Basic Attack",
           "trigger": null
         },
-        "status": "draft",
+        "status": "incomplete",
         "strainCost": null,
         "sustained": null,
         "tagKeys": [],
@@ -5417,17 +5675,21 @@
         "range": "6 square cone",
         "rank": 2,
         "rankNotes": null,
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": false,
         "runtimeSupport": {
           "reasons": [
-            "record-unready",
             "draft-record-granted"
           ],
           "status": "deferred"
         },
         "selectable": false,
         "selection": "granted",
-        "selectionMode": "draft",
+        "selectionMode": "granted-only",
         "selectionRoutes": [
           {
             "type": "granted"
@@ -5463,7 +5725,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -5496,7 +5757,6 @@
           "rankNotes": null,
           "rollRequired": "N",
           "selection": "granted",
-          "status": "draft",
           "strainCost": null,
           "sustained": null,
           "tags": null,
@@ -5505,7 +5765,7 @@
           "techniqueName": "Machine Gun Bullet Spray",
           "trigger": null
         },
-        "status": "draft",
+        "status": "playable",
         "strainCost": null,
         "sustained": null,
         "tagKeys": [],
@@ -5558,16 +5818,19 @@
         "range": null,
         "rank": 2,
         "rankNotes": null,
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
         "rollRequired": false,
         "runtimeSupport": {
-          "reasons": [
-            "record-unready"
-          ],
-          "status": "deferred"
+          "reasons": [],
+          "status": "supported"
         },
-        "selectable": false,
+        "selectable": true,
         "selection": "Ranged Weapons",
-        "selectionMode": "draft",
+        "selectionMode": "selectable",
         "selectionRoutes": [
           {
             "name": "Ranged Weapons",
@@ -5607,7 +5870,6 @@
             "bondEffect",
             "pumpingByRank",
             "rankNotes",
-            "status",
             "energyCostKind",
             "energyCostOptions",
             "associatedSkill",
@@ -5640,7 +5902,6 @@
           "rankNotes": null,
           "rollRequired": "N",
           "selection": "Ranged Weapons",
-          "status": "draft",
           "strainCost": null,
           "sustained": null,
           "tags": null,
@@ -5649,7 +5910,7 @@
           "techniqueName": "Covering Fire",
           "trigger": "When an enemy attempts to leave a square while within your weapon's range."
         },
-        "status": "draft",
+        "status": "playable",
         "strainCost": null,
         "sustained": null,
         "tagKeys": [],
@@ -5660,6 +5921,12 @@
         "trigger": "When an enemy attempts to leave a square while within your weapon's range."
       }
     ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [
         "draft-record-granted"
@@ -5691,6 +5958,7 @@
       "traitsText": null,
       "weaponKey": "machine_gun"
     },
+    "status": "playable",
     "tagKeys": [
       "ranged=10",
       "two-handed",
@@ -5725,6 +5993,12 @@
     "name": "Rocket Launcher",
     "notes": "Tags and exact mechanics are not yet defined in the handbook.",
     "profiles": [],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -5753,6 +6027,7 @@
       "traitsText": null,
       "weaponKey": "rocket_launcher"
     },
+    "status": "playable",
     "tagKeys": [],
     "tags": [],
     "techniqueKeys": [],
@@ -5767,6 +6042,12 @@
     "name": "Force Field Projector",
     "notes": "Tags and exact mechanics are not yet defined in the handbook.",
     "profiles": [],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -5795,6 +6076,7 @@
       "traitsText": null,
       "weaponKey": "force_field_projector"
     },
+    "status": "playable",
     "tagKeys": [],
     "tags": [],
     "techniqueKeys": [],
@@ -5809,6 +6091,12 @@
     "name": "Laser / Plasma Blaster",
     "notes": "Handbook notes possible no-reload or stun-setting variations; tags and exact mechanics are not yet defined.",
     "profiles": [],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -5837,6 +6125,7 @@
       "traitsText": null,
       "weaponKey": "laser_plasma_blaster"
     },
+    "status": "playable",
     "tagKeys": [],
     "tags": [],
     "techniqueKeys": [],
@@ -5851,6 +6140,12 @@
     "name": "Railgun / Coilgun",
     "notes": "Tags and exact mechanics are not yet defined in the handbook.",
     "profiles": [],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -5879,6 +6174,7 @@
       "traitsText": null,
       "weaponKey": "railgun_coilgun"
     },
+    "status": "playable",
     "tagKeys": [],
     "tags": [],
     "techniqueKeys": [],
@@ -5893,6 +6189,12 @@
     "name": "Whip-sword",
     "notes": "Tags and exact mechanics are not yet defined in the handbook.",
     "profiles": [],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -5921,6 +6223,7 @@
       "traitsText": null,
       "weaponKey": "whip_sword"
     },
+    "status": "playable",
     "tagKeys": [],
     "tags": [],
     "techniqueKeys": [],
@@ -5935,6 +6238,12 @@
     "name": "Beam Cannon",
     "notes": "Tags and exact mechanics are not yet defined in the handbook.",
     "profiles": [],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -5963,6 +6272,7 @@
       "traitsText": null,
       "weaponKey": "beam_cannon"
     },
+    "status": "playable",
     "tagKeys": [],
     "tags": [],
     "techniqueKeys": [],
@@ -5977,6 +6287,12 @@
     "name": "Disintegration Beam",
     "notes": "Tentative name in the handbook; tags and exact mechanics are not yet defined.",
     "profiles": [],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -6005,6 +6321,7 @@
       "traitsText": null,
       "weaponKey": "disintegration_beam"
     },
+    "status": "playable",
     "tagKeys": [],
     "tags": [],
     "techniqueKeys": [],
@@ -6019,6 +6336,12 @@
     "name": "Satellite Cannon",
     "notes": "Tags and exact mechanics are not yet defined in the handbook.",
     "profiles": [],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -6047,6 +6370,7 @@
       "traitsText": null,
       "weaponKey": "satellite_cannon"
     },
+    "status": "playable",
     "tagKeys": [],
     "tags": [],
     "techniqueKeys": [],
@@ -6061,6 +6385,12 @@
     "name": "Nuclear Fusion Weapon",
     "notes": "Tags and exact mechanics are not yet defined in the handbook.",
     "profiles": [],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
     "runtimeSupport": {
       "reasons": [],
       "status": "supported"
@@ -6089,11 +6419,1628 @@
       "traitsText": null,
       "weaponKey": "nuclear_fusion_weapon"
     },
+    "status": "playable",
     "tagKeys": [],
     "tags": [],
     "techniqueKeys": [],
     "techniqueSkills": [],
     "traitsText": null,
     "weaponKey": "nuclear_fusion_weapon"
+  },
+  {
+    "description": "Spikes that can be launched at a target.",
+    "expressionSyntaxVersion": 3,
+    "minRank": 1,
+    "name": "Spiked Hide",
+    "notes": null,
+    "profiles": [
+      {
+        "actionType": "Action",
+        "actions": 1,
+        "associatedSkill": null,
+        "associatedSkillKey": null,
+        "attribute": "Primary",
+        "basicAttack": [],
+        "basicAttackRaw": null,
+        "bondEffect": null,
+        "damage": "4 + Hits, +3 damage per rank above 1",
+        "defense": "Physical",
+        "description": "You launch spikes from your body at a target.",
+        "energyCost": 0,
+        "energyCostKind": "fixed",
+        "energyCostOptions": [],
+        "expressionSyntaxVersion": 3,
+        "onCriticalFailure": null,
+        "onCriticalSuccess": null,
+        "onFailure": null,
+        "onSuccess": null,
+        "prerequisiteText": null,
+        "prerequisites": [
+          {
+            "tag": "spikes",
+            "type": "tag"
+          }
+        ],
+        "prerequisitesRaw": "tag | tag=spikes",
+        "profileName": "Spike Shot",
+        "profileType": "technique",
+        "pumpable": true,
+        "pumpingByRank": {
+          "1": "+1 damage per Energy",
+          "2": "+1 damage per Energy",
+          "3": "+2 damage per Energy",
+          "4": "+2 damage per Energy",
+          "5": "+3 damage per Energy",
+          "6": "+3 damage per Energy"
+        },
+        "pumpingByRankRaw": "1=+1 damage per Energy;2=+1 damage per Energy;3=+2 damage per Energy;4=+2 damage per Energy;5=+3 damage per Energy;6=+3 damage per Energy",
+        "range": "Ranged 6",
+        "rank": 1,
+        "rankNotes": null,
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
+        "rollRequired": true,
+        "runtimeSupport": {
+          "reasons": [],
+          "status": "supported"
+        },
+        "selectable": false,
+        "selection": "granted",
+        "selectionMode": "granted-only",
+        "selectionRoutes": [
+          {
+            "type": "granted"
+          }
+        ],
+        "skill": null,
+        "skillKeys": [],
+        "sourceLocation": {
+          "headers": [
+            "techniqueName",
+            "techniqueKey",
+            "description",
+            "selection",
+            "rank",
+            "tags",
+            "prerequisites",
+            "actionType",
+            "actions",
+            "trigger",
+            "energyCost",
+            "strainCost",
+            "sustained",
+            "rollRequired",
+            "attribute",
+            "defense",
+            "range",
+            "targets",
+            "damage",
+            "onSuccess",
+            "onCriticalSuccess",
+            "onFailure",
+            "onCriticalFailure",
+            "bondEffect",
+            "pumpingByRank",
+            "rankNotes",
+            "energyCostKind",
+            "energyCostOptions",
+            "associatedSkill",
+            "basicAttack"
+          ],
+          "row": 148,
+          "sheet": "Techniques"
+        },
+        "sourceValues": {
+          "actionType": "Action",
+          "actions": 1,
+          "associatedSkill": null,
+          "attribute": "Primary",
+          "basicAttack": null,
+          "bondEffect": null,
+          "damage": "4 + Hits, +3 damage per rank above 1",
+          "defense": "Physical",
+          "description": "You launch spikes from your body at a target.",
+          "energyCost": null,
+          "energyCostKind": null,
+          "energyCostOptions": null,
+          "onCriticalFailure": null,
+          "onCriticalSuccess": null,
+          "onFailure": null,
+          "onSuccess": null,
+          "prerequisites": "tag | tag=spikes",
+          "pumpingByRank": "1=+1 damage per Energy;2=+1 damage per Energy;3=+2 damage per Energy;4=+2 damage per Energy;5=+3 damage per Energy;6=+3 damage per Energy",
+          "range": "Ranged 6",
+          "rank": 1,
+          "rankNotes": null,
+          "rollRequired": "Y",
+          "selection": "granted",
+          "strainCost": null,
+          "sustained": null,
+          "tags": null,
+          "targets": "1 Target",
+          "techniqueKey": "spike-shot",
+          "techniqueName": "Spike Shot",
+          "trigger": null
+        },
+        "status": "playable",
+        "strainCost": null,
+        "sustained": null,
+        "tagKeys": [],
+        "tags": [],
+        "targets": "1 Target",
+        "techniqueKey": "spike-shot",
+        "techniqueName": "Spike Shot",
+        "trigger": null
+      }
+    ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "weaponKey",
+        "name",
+        "description",
+        "minRank",
+        "tags",
+        "notes",
+        "techniqueKeys",
+        "traitsText"
+      ],
+      "row": 33,
+      "sheet": "WeaponBases"
+    },
+    "sourceValues": {
+      "description": "Spikes that can be launched at a target.",
+      "minRank": 1,
+      "name": "Spiked Hide",
+      "notes": null,
+      "tags": "Natural; Thrown 6; Sharp",
+      "techniqueKeys": "spike-shot",
+      "traitsText": null,
+      "weaponKey": "spiked-hide"
+    },
+    "status": "playable",
+    "tagKeys": [
+      "natural",
+      "thrown=6",
+      "sharp"
+    ],
+    "tags": [
+      "Natural",
+      "Thrown 6",
+      "Sharp"
+    ],
+    "techniqueKeys": [
+      "spike-shot"
+    ],
+    "techniqueSkills": [],
+    "traitsText": null,
+    "weaponKey": "spiked-hide"
+  },
+  {
+    "description": "Sharp claws used as natural melee weapons.",
+    "expressionSyntaxVersion": 3,
+    "minRank": 1,
+    "name": "Savage Claws",
+    "notes": null,
+    "profiles": [
+      {
+        "actionType": "Action",
+        "actions": 1,
+        "associatedSkill": null,
+        "associatedSkillKey": null,
+        "attribute": "Primary",
+        "basicAttack": [],
+        "basicAttackRaw": null,
+        "bondEffect": null,
+        "damage": "5 + Hits, +3 damage per rank above 1",
+        "defense": "Physical",
+        "description": "You slash at enemies with your sharp claws.",
+        "energyCost": 0,
+        "energyCostKind": "fixed",
+        "energyCostOptions": [],
+        "expressionSyntaxVersion": 3,
+        "onCriticalFailure": null,
+        "onCriticalSuccess": "The target is Bleeding 1",
+        "onFailure": null,
+        "onSuccess": null,
+        "prerequisiteText": null,
+        "prerequisites": [
+          {
+            "key": "savage-claws",
+            "type": "trait"
+          }
+        ],
+        "prerequisitesRaw": "trait | traitKey=savage-claws",
+        "profileName": "Claw Slash",
+        "profileType": "technique",
+        "pumpable": true,
+        "pumpingByRank": {
+          "1": "+1 damage per Energy",
+          "2": "+1 damage per Energy",
+          "3": "+2 damage per Energy",
+          "4": "+2 damage per Energy",
+          "5": "+3 damage per Energy",
+          "6": "+3 damage per Energy"
+        },
+        "pumpingByRankRaw": "1=+1 damage per Energy;2=+1 damage per Energy;3=+2 damage per Energy;4=+2 damage per Energy;5=+3 damage per Energy;6=+3 damage per Energy",
+        "range": "Melee",
+        "rank": 1,
+        "rankNotes": "Increase the critical bleeding damage by 1 for every rank above 1.",
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
+        "rollRequired": true,
+        "runtimeSupport": {
+          "reasons": [],
+          "status": "supported"
+        },
+        "selectable": false,
+        "selection": "granted",
+        "selectionMode": "granted-only",
+        "selectionRoutes": [
+          {
+            "type": "granted"
+          }
+        ],
+        "skill": null,
+        "skillKeys": [],
+        "sourceLocation": {
+          "headers": [
+            "techniqueName",
+            "techniqueKey",
+            "description",
+            "selection",
+            "rank",
+            "tags",
+            "prerequisites",
+            "actionType",
+            "actions",
+            "trigger",
+            "energyCost",
+            "strainCost",
+            "sustained",
+            "rollRequired",
+            "attribute",
+            "defense",
+            "range",
+            "targets",
+            "damage",
+            "onSuccess",
+            "onCriticalSuccess",
+            "onFailure",
+            "onCriticalFailure",
+            "bondEffect",
+            "pumpingByRank",
+            "rankNotes",
+            "energyCostKind",
+            "energyCostOptions",
+            "associatedSkill",
+            "basicAttack"
+          ],
+          "row": 147,
+          "sheet": "Techniques"
+        },
+        "sourceValues": {
+          "actionType": "Action",
+          "actions": 1,
+          "associatedSkill": null,
+          "attribute": "Primary",
+          "basicAttack": null,
+          "bondEffect": null,
+          "damage": "5 + Hits, +3 damage per rank above 1",
+          "defense": "Physical",
+          "description": "You slash at enemies with your sharp claws.",
+          "energyCost": null,
+          "energyCostKind": null,
+          "energyCostOptions": null,
+          "onCriticalFailure": null,
+          "onCriticalSuccess": "The target is Bleeding 1",
+          "onFailure": null,
+          "onSuccess": null,
+          "prerequisites": "trait | traitKey=savage-claws",
+          "pumpingByRank": "1=+1 damage per Energy;2=+1 damage per Energy;3=+2 damage per Energy;4=+2 damage per Energy;5=+3 damage per Energy;6=+3 damage per Energy",
+          "range": "Melee",
+          "rank": 1,
+          "rankNotes": "Increase the critical bleeding damage by 1 for every rank above 1.",
+          "rollRequired": "Y",
+          "selection": "granted",
+          "strainCost": null,
+          "sustained": null,
+          "tags": null,
+          "targets": "1 Target",
+          "techniqueKey": "claw-slash",
+          "techniqueName": "Claw Slash",
+          "trigger": null
+        },
+        "status": "playable",
+        "strainCost": null,
+        "sustained": null,
+        "tagKeys": [],
+        "tags": [],
+        "targets": "1 Target",
+        "techniqueKey": "claw-slash",
+        "techniqueName": "Claw Slash",
+        "trigger": null
+      }
+    ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "weaponKey",
+        "name",
+        "description",
+        "minRank",
+        "tags",
+        "notes",
+        "techniqueKeys",
+        "traitsText"
+      ],
+      "row": 34,
+      "sheet": "WeaponBases"
+    },
+    "sourceValues": {
+      "description": "Sharp claws used as natural melee weapons.",
+      "minRank": 1,
+      "name": "Savage Claws",
+      "notes": null,
+      "tags": "Natural; Melee; Sharp; One-handed",
+      "techniqueKeys": "claw-slash",
+      "traitsText": null,
+      "weaponKey": "savage-claws"
+    },
+    "status": "playable",
+    "tagKeys": [
+      "natural",
+      "melee",
+      "sharp",
+      "one-handed"
+    ],
+    "tags": [
+      "Natural",
+      "Melee",
+      "Sharp",
+      "One-handed"
+    ],
+    "techniqueKeys": [
+      "claw-slash"
+    ],
+    "techniqueSkills": [],
+    "traitsText": null,
+    "weaponKey": "savage-claws"
+  },
+  {
+    "description": "Extendable limbs used to make unarmed strikes at increased reach.",
+    "expressionSyntaxVersion": 3,
+    "minRank": 1,
+    "name": "Extendable Limbs",
+    "notes": "Variable Reach retains the granting Trait's associated-skill formula; runtime evaluation is deferred.",
+    "profiles": [
+      {
+        "actionType": "Action",
+        "actions": 1,
+        "associatedSkill": null,
+        "associatedSkillKey": null,
+        "attribute": "Primary",
+        "basicAttack": [],
+        "basicAttackRaw": null,
+        "bondEffect": null,
+        "damage": "3 + Hits; +3 damage per rank above 0.",
+        "defense": "Physical",
+        "description": "You make a basic punch, kick, or other unarmed attack against your enemy. This attack does damage based on your rank and the amount of energy spent.",
+        "energyCost": 0,
+        "energyCostKind": "variable",
+        "energyCostOptions": [],
+        "expressionSyntaxVersion": 3,
+        "onCriticalFailure": null,
+        "onCriticalSuccess": null,
+        "onFailure": null,
+        "onSuccess": null,
+        "prerequisiteText": null,
+        "prerequisites": [],
+        "prerequisitesRaw": null,
+        "profileName": "Unarmed Strike",
+        "profileType": "technique",
+        "pumpable": true,
+        "pumpingByRank": {
+          "0": "+0 damage per Energy",
+          "1": "+1 damage per Energy",
+          "2": "+1 damage per Energy",
+          "3": "+2 damage per Energy",
+          "4": "+2 damage per Energy",
+          "5": "+3 damage per Energy",
+          "6": "+3 damage per Energy"
+        },
+        "pumpingByRankRaw": "0=+0 damage per Energy;1=+1 damage per Energy;2=+1 damage per Energy;3=+2 damage per Energy;4=+2 damage per Energy;5=+3 damage per Energy;6=+3 damage per Energy",
+        "range": "Melee",
+        "rank": 0,
+        "rankNotes": null,
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
+        "rollRequired": true,
+        "runtimeSupport": {
+          "reasons": [],
+          "status": "supported"
+        },
+        "selectable": true,
+        "selection": "Martial Arts",
+        "selectionMode": "selectable",
+        "selectionRoutes": [
+          {
+            "name": "Martial Arts",
+            "skillKey": "martial-arts",
+            "type": "skill"
+          }
+        ],
+        "skill": "Martial Arts",
+        "skillKeys": [
+          "martial-arts"
+        ],
+        "sourceLocation": {
+          "headers": [
+            "techniqueName",
+            "techniqueKey",
+            "description",
+            "selection",
+            "rank",
+            "tags",
+            "prerequisites",
+            "actionType",
+            "actions",
+            "trigger",
+            "energyCost",
+            "strainCost",
+            "sustained",
+            "rollRequired",
+            "attribute",
+            "defense",
+            "range",
+            "targets",
+            "damage",
+            "onSuccess",
+            "onCriticalSuccess",
+            "onFailure",
+            "onCriticalFailure",
+            "bondEffect",
+            "pumpingByRank",
+            "rankNotes",
+            "energyCostKind",
+            "energyCostOptions",
+            "associatedSkill",
+            "basicAttack"
+          ],
+          "row": 17,
+          "sheet": "Techniques"
+        },
+        "sourceValues": {
+          "actionType": "Action",
+          "actions": 1,
+          "associatedSkill": null,
+          "attribute": "Primary",
+          "basicAttack": null,
+          "bondEffect": null,
+          "damage": "3 + Hits; +3 damage per rank above 0.",
+          "defense": "Physical",
+          "description": "You make a basic punch, kick, or other unarmed attack against your enemy. This attack does damage based on your rank and the amount of energy spent.",
+          "energyCost": null,
+          "energyCostKind": "variable",
+          "energyCostOptions": null,
+          "onCriticalFailure": null,
+          "onCriticalSuccess": null,
+          "onFailure": null,
+          "onSuccess": null,
+          "prerequisites": null,
+          "pumpingByRank": "0=+0 damage per Energy;1=+1 damage per Energy;2=+1 damage per Energy;3=+2 damage per Energy;4=+2 damage per Energy;5=+3 damage per Energy;6=+3 damage per Energy",
+          "range": "Melee",
+          "rank": 0,
+          "rankNotes": null,
+          "rollRequired": "Y",
+          "selection": "Martial Arts",
+          "strainCost": null,
+          "sustained": "N",
+          "tags": "Opener, Follow-Up, Strike",
+          "targets": "1 Target",
+          "techniqueKey": "unarmed-strike",
+          "techniqueName": "Unarmed Strike",
+          "trigger": null
+        },
+        "status": "playable",
+        "strainCost": null,
+        "sustained": false,
+        "tagKeys": [
+          "opener",
+          "follow-up",
+          "strike"
+        ],
+        "tags": [
+          "Opener",
+          "Follow-Up",
+          "Strike"
+        ],
+        "targets": "1 Target",
+        "techniqueKey": "unarmed-strike",
+        "techniqueName": "Unarmed Strike",
+        "trigger": null
+      }
+    ],
+    "reachByRank": {
+      "0": 0,
+      "1": 1,
+      "2": 2,
+      "3": 3,
+      "4": 4,
+      "5": 5,
+      "6": 6
+    },
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "weaponKey",
+        "name",
+        "description",
+        "minRank",
+        "tags",
+        "notes",
+        "techniqueKeys",
+        "traitsText"
+      ],
+      "row": 35,
+      "sheet": "WeaponBases"
+    },
+    "sourceValues": {
+      "description": "Extendable limbs used to make unarmed strikes at increased reach.",
+      "minRank": 1,
+      "name": "Extendable Limbs",
+      "notes": "Variable Reach retains the granting Trait's associated-skill formula; runtime evaluation is deferred.",
+      "tags": "Natural; Melee; Blunt; Reach N",
+      "techniqueKeys": "unarmed-strike",
+      "traitsText": "Reach N: N equals the associated skill rank.",
+      "weaponKey": "extendable-limbs"
+    },
+    "status": "playable",
+    "tagKeys": [
+      "natural",
+      "melee",
+      "blunt",
+      "reach-n"
+    ],
+    "tags": [
+      "Natural",
+      "Melee",
+      "Blunt",
+      "Reach N"
+    ],
+    "techniqueKeys": [
+      "unarmed-strike"
+    ],
+    "techniqueSkills": [
+      "Martial Arts"
+    ],
+    "traitsText": "Reach N: N equals the associated skill rank.",
+    "weaponKey": "extendable-limbs"
+  },
+  {
+    "description": "An extendable arm, tongue, tail, tentacle, or other limb that can grapple enemies and manipulate objects at a distance.",
+    "expressionSyntaxVersion": 3,
+    "minRank": 1,
+    "name": "Grasping Appendage",
+    "notes": "Variable Reach retains the granting Trait's associated-skill formula; runtime evaluation is deferred.",
+    "profiles": [
+      {
+        "actionType": "Action",
+        "actions": 1,
+        "associatedSkill": null,
+        "associatedSkillKey": null,
+        "attribute": "Primary",
+        "basicAttack": [],
+        "basicAttackRaw": null,
+        "bondEffect": null,
+        "damage": "3 + Hits; +3 damage per rank above 0.",
+        "defense": "Physical",
+        "description": "You make a basic punch, kick, or other unarmed attack against your enemy. This attack does damage based on your rank and the amount of energy spent.",
+        "energyCost": 0,
+        "energyCostKind": "variable",
+        "energyCostOptions": [],
+        "expressionSyntaxVersion": 3,
+        "onCriticalFailure": null,
+        "onCriticalSuccess": null,
+        "onFailure": null,
+        "onSuccess": null,
+        "prerequisiteText": null,
+        "prerequisites": [],
+        "prerequisitesRaw": null,
+        "profileName": "Unarmed Strike",
+        "profileType": "technique",
+        "pumpable": true,
+        "pumpingByRank": {
+          "0": "+0 damage per Energy",
+          "1": "+1 damage per Energy",
+          "2": "+1 damage per Energy",
+          "3": "+2 damage per Energy",
+          "4": "+2 damage per Energy",
+          "5": "+3 damage per Energy",
+          "6": "+3 damage per Energy"
+        },
+        "pumpingByRankRaw": "0=+0 damage per Energy;1=+1 damage per Energy;2=+1 damage per Energy;3=+2 damage per Energy;4=+2 damage per Energy;5=+3 damage per Energy;6=+3 damage per Energy",
+        "range": "Melee",
+        "rank": 0,
+        "rankNotes": null,
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
+        "rollRequired": true,
+        "runtimeSupport": {
+          "reasons": [],
+          "status": "supported"
+        },
+        "selectable": true,
+        "selection": "Martial Arts",
+        "selectionMode": "selectable",
+        "selectionRoutes": [
+          {
+            "name": "Martial Arts",
+            "skillKey": "martial-arts",
+            "type": "skill"
+          }
+        ],
+        "skill": "Martial Arts",
+        "skillKeys": [
+          "martial-arts"
+        ],
+        "sourceLocation": {
+          "headers": [
+            "techniqueName",
+            "techniqueKey",
+            "description",
+            "selection",
+            "rank",
+            "tags",
+            "prerequisites",
+            "actionType",
+            "actions",
+            "trigger",
+            "energyCost",
+            "strainCost",
+            "sustained",
+            "rollRequired",
+            "attribute",
+            "defense",
+            "range",
+            "targets",
+            "damage",
+            "onSuccess",
+            "onCriticalSuccess",
+            "onFailure",
+            "onCriticalFailure",
+            "bondEffect",
+            "pumpingByRank",
+            "rankNotes",
+            "energyCostKind",
+            "energyCostOptions",
+            "associatedSkill",
+            "basicAttack"
+          ],
+          "row": 17,
+          "sheet": "Techniques"
+        },
+        "sourceValues": {
+          "actionType": "Action",
+          "actions": 1,
+          "associatedSkill": null,
+          "attribute": "Primary",
+          "basicAttack": null,
+          "bondEffect": null,
+          "damage": "3 + Hits; +3 damage per rank above 0.",
+          "defense": "Physical",
+          "description": "You make a basic punch, kick, or other unarmed attack against your enemy. This attack does damage based on your rank and the amount of energy spent.",
+          "energyCost": null,
+          "energyCostKind": "variable",
+          "energyCostOptions": null,
+          "onCriticalFailure": null,
+          "onCriticalSuccess": null,
+          "onFailure": null,
+          "onSuccess": null,
+          "prerequisites": null,
+          "pumpingByRank": "0=+0 damage per Energy;1=+1 damage per Energy;2=+1 damage per Energy;3=+2 damage per Energy;4=+2 damage per Energy;5=+3 damage per Energy;6=+3 damage per Energy",
+          "range": "Melee",
+          "rank": 0,
+          "rankNotes": null,
+          "rollRequired": "Y",
+          "selection": "Martial Arts",
+          "strainCost": null,
+          "sustained": "N",
+          "tags": "Opener, Follow-Up, Strike",
+          "targets": "1 Target",
+          "techniqueKey": "unarmed-strike",
+          "techniqueName": "Unarmed Strike",
+          "trigger": null
+        },
+        "status": "playable",
+        "strainCost": null,
+        "sustained": false,
+        "tagKeys": [
+          "opener",
+          "follow-up",
+          "strike"
+        ],
+        "tags": [
+          "Opener",
+          "Follow-Up",
+          "Strike"
+        ],
+        "targets": "1 Target",
+        "techniqueKey": "unarmed-strike",
+        "techniqueName": "Unarmed Strike",
+        "trigger": null
+      }
+    ],
+    "reachByRank": {
+      "0": 1,
+      "1": 2,
+      "2": 3,
+      "3": 4,
+      "4": 5,
+      "5": 6,
+      "6": 7
+    },
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "weaponKey",
+        "name",
+        "description",
+        "minRank",
+        "tags",
+        "notes",
+        "techniqueKeys",
+        "traitsText"
+      ],
+      "row": 36,
+      "sheet": "WeaponBases"
+    },
+    "sourceValues": {
+      "description": "An extendable arm, tongue, tail, tentacle, or other limb that can grapple enemies and manipulate objects at a distance.",
+      "minRank": 1,
+      "name": "Grasping Appendage",
+      "notes": "Variable Reach retains the granting Trait's associated-skill formula; runtime evaluation is deferred.",
+      "tags": "Natural; Melee; Blunt; Reach N",
+      "techniqueKeys": "unarmed-strike",
+      "traitsText": "Reach N: N equals 1 + the associated skill rank.",
+      "weaponKey": "grasping-appendage"
+    },
+    "status": "playable",
+    "tagKeys": [
+      "natural",
+      "melee",
+      "blunt",
+      "reach-n"
+    ],
+    "tags": [
+      "Natural",
+      "Melee",
+      "Blunt",
+      "Reach N"
+    ],
+    "techniqueKeys": [
+      "unarmed-strike"
+    ],
+    "techniqueSkills": [
+      "Martial Arts"
+    ],
+    "traitsText": "Reach N: N equals 1 + the associated skill rank.",
+    "weaponKey": "grasping-appendage"
+  },
+  {
+    "description": "Natural weapons that shoot sticky webbing.",
+    "expressionSyntaxVersion": 3,
+    "minRank": 1,
+    "name": "Web Shooters",
+    "notes": null,
+    "profiles": [
+      {
+        "actionType": "Action",
+        "actions": 1,
+        "associatedSkill": null,
+        "associatedSkillKey": null,
+        "attribute": "Primary",
+        "basicAttack": [],
+        "basicAttackRaw": null,
+        "bondEffect": null,
+        "damage": "4 + Hits, +2 damage per rank above 1",
+        "defense": "Physical",
+        "description": "You shoot the target with a blast of sticky webbing.",
+        "energyCost": 0,
+        "energyCostKind": "fixed",
+        "energyCostOptions": [],
+        "expressionSyntaxVersion": 3,
+        "onCriticalFailure": null,
+        "onCriticalSuccess": "The target is immobilized.",
+        "onFailure": null,
+        "onSuccess": "The target is slowed until the end of their next turn. If the target is already Slowed, it is immobilized instead.",
+        "prerequisiteText": null,
+        "prerequisites": [
+          {
+            "tag": "web",
+            "type": "weapon"
+          }
+        ],
+        "prerequisitesRaw": "weapon | tag=web",
+        "profileName": "Shoot Web",
+        "profileType": "technique",
+        "pumpable": true,
+        "pumpingByRank": {
+          "1": "+1 damage per Energy",
+          "2": "+1 damage per Energy",
+          "3": "+2 damage per Energy",
+          "4": "+2 damage per Energy",
+          "5": "+3 damage per Energy",
+          "6": "+3 damage per Energy"
+        },
+        "pumpingByRankRaw": "1=+1 damage per Energy;2=+1 damage per Energy;3=+2 damage per Energy;4=+2 damage per Energy;5=+3 damage per Energy;6=+3 damage per Energy",
+        "range": "Ranged 6",
+        "rank": 1,
+        "rankNotes": null,
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
+        "rollRequired": true,
+        "runtimeSupport": {
+          "reasons": [],
+          "status": "supported"
+        },
+        "selectable": false,
+        "selection": "granted",
+        "selectionMode": "granted-only",
+        "selectionRoutes": [
+          {
+            "type": "granted"
+          }
+        ],
+        "skill": null,
+        "skillKeys": [],
+        "sourceLocation": {
+          "headers": [
+            "techniqueName",
+            "techniqueKey",
+            "description",
+            "selection",
+            "rank",
+            "tags",
+            "prerequisites",
+            "actionType",
+            "actions",
+            "trigger",
+            "energyCost",
+            "strainCost",
+            "sustained",
+            "rollRequired",
+            "attribute",
+            "defense",
+            "range",
+            "targets",
+            "damage",
+            "onSuccess",
+            "onCriticalSuccess",
+            "onFailure",
+            "onCriticalFailure",
+            "bondEffect",
+            "pumpingByRank",
+            "rankNotes",
+            "energyCostKind",
+            "energyCostOptions",
+            "associatedSkill",
+            "basicAttack"
+          ],
+          "row": 141,
+          "sheet": "Techniques"
+        },
+        "sourceValues": {
+          "actionType": "Action",
+          "actions": 1,
+          "associatedSkill": null,
+          "attribute": "Primary",
+          "basicAttack": null,
+          "bondEffect": null,
+          "damage": "4 + Hits, +2 damage per rank above 1",
+          "defense": "Physical",
+          "description": "You shoot the target with a blast of sticky webbing.",
+          "energyCost": null,
+          "energyCostKind": null,
+          "energyCostOptions": null,
+          "onCriticalFailure": null,
+          "onCriticalSuccess": "The target is immobilized.",
+          "onFailure": null,
+          "onSuccess": "The target is slowed until the end of their next turn. If the target is already Slowed, it is immobilized instead.",
+          "prerequisites": "weapon | tag=web",
+          "pumpingByRank": "1=+1 damage per Energy;2=+1 damage per Energy;3=+2 damage per Energy;4=+2 damage per Energy;5=+3 damage per Energy;6=+3 damage per Energy",
+          "range": "Ranged 6",
+          "rank": 1,
+          "rankNotes": null,
+          "rollRequired": "Y",
+          "selection": "granted",
+          "strainCost": null,
+          "sustained": null,
+          "tags": null,
+          "targets": "1 Target",
+          "techniqueKey": "shoot-web",
+          "techniqueName": "Shoot Web",
+          "trigger": null
+        },
+        "status": "playable",
+        "strainCost": null,
+        "sustained": null,
+        "tagKeys": [],
+        "tags": [],
+        "targets": "1 Target",
+        "techniqueKey": "shoot-web",
+        "techniqueName": "Shoot Web",
+        "trigger": null
+      }
+    ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "weaponKey",
+        "name",
+        "description",
+        "minRank",
+        "tags",
+        "notes",
+        "techniqueKeys",
+        "traitsText"
+      ],
+      "row": 37,
+      "sheet": "WeaponBases"
+    },
+    "sourceValues": {
+      "description": "Natural weapons that shoot sticky webbing.",
+      "minRank": 1,
+      "name": "Web Shooters",
+      "notes": null,
+      "tags": "Natural; Ranged 6; Web",
+      "techniqueKeys": "shoot-web",
+      "traitsText": "Web: Slowed on a success; Immobilized on a critical success.",
+      "weaponKey": "web-shooters"
+    },
+    "status": "playable",
+    "tagKeys": [
+      "natural",
+      "ranged=6",
+      "web"
+    ],
+    "tags": [
+      "Natural",
+      "Ranged 6",
+      "Web"
+    ],
+    "techniqueKeys": [
+      "shoot-web"
+    ],
+    "techniqueSkills": [],
+    "traitsText": "Web: Slowed on a success; Immobilized on a critical success.",
+    "weaponKey": "web-shooters"
+  },
+  {
+    "description": "Unusually large or dense limbs that deliver attacks with extreme force.",
+    "expressionSyntaxVersion": 3,
+    "minRank": 1,
+    "name": "Crushing Limbs",
+    "notes": null,
+    "profiles": [
+      {
+        "actionType": "Action",
+        "actions": 1,
+        "associatedSkill": null,
+        "associatedSkillKey": null,
+        "attribute": "Primary",
+        "basicAttack": [],
+        "basicAttackRaw": null,
+        "bondEffect": null,
+        "damage": "6 + Hits, +3 damage per rank above 1",
+        "defense": "Physical",
+        "description": "You smash your opponents with your crushing limbs",
+        "energyCost": 0,
+        "energyCostKind": "fixed",
+        "energyCostOptions": [],
+        "expressionSyntaxVersion": 3,
+        "onCriticalFailure": null,
+        "onCriticalSuccess": "The target is pushed 1 square",
+        "onFailure": null,
+        "onSuccess": null,
+        "prerequisiteText": null,
+        "prerequisites": [],
+        "prerequisitesRaw": null,
+        "profileName": "Crushing Blow",
+        "profileType": "technique",
+        "pumpable": false,
+        "pumpingByRank": null,
+        "pumpingByRankRaw": null,
+        "range": "Melee",
+        "rank": 1,
+        "rankNotes": "Increase the distance pushed on a critical success by 1 square for each rank above 1.",
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
+        "rollRequired": true,
+        "runtimeSupport": {
+          "reasons": [],
+          "status": "supported"
+        },
+        "selectable": false,
+        "selection": "granted",
+        "selectionMode": "granted-only",
+        "selectionRoutes": [
+          {
+            "type": "granted"
+          }
+        ],
+        "skill": null,
+        "skillKeys": [],
+        "sourceLocation": {
+          "headers": [
+            "techniqueName",
+            "techniqueKey",
+            "description",
+            "selection",
+            "rank",
+            "tags",
+            "prerequisites",
+            "actionType",
+            "actions",
+            "trigger",
+            "energyCost",
+            "strainCost",
+            "sustained",
+            "rollRequired",
+            "attribute",
+            "defense",
+            "range",
+            "targets",
+            "damage",
+            "onSuccess",
+            "onCriticalSuccess",
+            "onFailure",
+            "onCriticalFailure",
+            "bondEffect",
+            "pumpingByRank",
+            "rankNotes",
+            "energyCostKind",
+            "energyCostOptions",
+            "associatedSkill",
+            "basicAttack"
+          ],
+          "row": 149,
+          "sheet": "Techniques"
+        },
+        "sourceValues": {
+          "actionType": "Action",
+          "actions": 1,
+          "associatedSkill": null,
+          "attribute": "Primary",
+          "basicAttack": null,
+          "bondEffect": null,
+          "damage": "6 + Hits, +3 damage per rank above 1",
+          "defense": "Physical",
+          "description": "You smash your opponents with your crushing limbs",
+          "energyCost": null,
+          "energyCostKind": null,
+          "energyCostOptions": null,
+          "onCriticalFailure": null,
+          "onCriticalSuccess": "The target is pushed 1 square",
+          "onFailure": null,
+          "onSuccess": null,
+          "prerequisites": null,
+          "pumpingByRank": null,
+          "range": "Melee",
+          "rank": 1,
+          "rankNotes": "Increase the distance pushed on a critical success by 1 square for each rank above 1.",
+          "rollRequired": "Y",
+          "selection": "granted",
+          "strainCost": null,
+          "sustained": null,
+          "tags": null,
+          "targets": "1 Target",
+          "techniqueKey": "crushing-blow",
+          "techniqueName": "Crushing Blow",
+          "trigger": null
+        },
+        "status": "playable",
+        "strainCost": null,
+        "sustained": null,
+        "tagKeys": [],
+        "tags": [],
+        "targets": "1 Target",
+        "techniqueKey": "crushing-blow",
+        "techniqueName": "Crushing Blow",
+        "trigger": null
+      }
+    ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "weaponKey",
+        "name",
+        "description",
+        "minRank",
+        "tags",
+        "notes",
+        "techniqueKeys",
+        "traitsText"
+      ],
+      "row": 38,
+      "sheet": "WeaponBases"
+    },
+    "sourceValues": {
+      "description": "Unusually large or dense limbs that deliver attacks with extreme force.",
+      "minRank": 1,
+      "name": "Crushing Limbs",
+      "notes": null,
+      "tags": "Natural; Blunt; Melee; Heavy",
+      "techniqueKeys": "crushing-blow",
+      "traitsText": null,
+      "weaponKey": "crushing-limbs"
+    },
+    "status": "playable",
+    "tagKeys": [
+      "natural",
+      "blunt",
+      "melee",
+      "heavy"
+    ],
+    "tags": [
+      "Natural",
+      "Blunt",
+      "Melee",
+      "Heavy"
+    ],
+    "techniqueKeys": [
+      "crushing-blow"
+    ],
+    "techniqueSkills": [],
+    "traitsText": null,
+    "weaponKey": "crushing-limbs"
+  },
+  {
+    "description": "Unusually large, sharp, or powerful jaws used as a natural weapon.",
+    "expressionSyntaxVersion": 3,
+    "minRank": 1,
+    "name": "Grasping Fangs",
+    "notes": null,
+    "profiles": [
+      {
+        "actionType": "Action",
+        "actions": 1,
+        "associatedSkill": null,
+        "associatedSkillKey": null,
+        "attribute": "Primary",
+        "basicAttack": [],
+        "basicAttackRaw": null,
+        "bondEffect": null,
+        "damage": "5 + Hits, +3 damage per rank above 1",
+        "defense": "Physical",
+        "description": "You clamp your opponent in your jaws.",
+        "energyCost": 0,
+        "energyCostKind": "fixed",
+        "energyCostOptions": [],
+        "expressionSyntaxVersion": 3,
+        "onCriticalFailure": null,
+        "onCriticalSuccess": "The target is grappled",
+        "onFailure": null,
+        "onSuccess": "You may spend an additional 3 energy to grapple the target",
+        "prerequisiteText": null,
+        "prerequisites": [],
+        "prerequisitesRaw": null,
+        "profileName": "Clamping Bite",
+        "profileType": "technique",
+        "pumpable": false,
+        "pumpingByRank": null,
+        "pumpingByRankRaw": null,
+        "range": "Melee",
+        "rank": 1,
+        "rankNotes": null,
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
+        "rollRequired": true,
+        "runtimeSupport": {
+          "reasons": [],
+          "status": "supported"
+        },
+        "selectable": false,
+        "selection": "granted",
+        "selectionMode": "granted-only",
+        "selectionRoutes": [
+          {
+            "type": "granted"
+          }
+        ],
+        "skill": null,
+        "skillKeys": [],
+        "sourceLocation": {
+          "headers": [
+            "techniqueName",
+            "techniqueKey",
+            "description",
+            "selection",
+            "rank",
+            "tags",
+            "prerequisites",
+            "actionType",
+            "actions",
+            "trigger",
+            "energyCost",
+            "strainCost",
+            "sustained",
+            "rollRequired",
+            "attribute",
+            "defense",
+            "range",
+            "targets",
+            "damage",
+            "onSuccess",
+            "onCriticalSuccess",
+            "onFailure",
+            "onCriticalFailure",
+            "bondEffect",
+            "pumpingByRank",
+            "rankNotes",
+            "energyCostKind",
+            "energyCostOptions",
+            "associatedSkill",
+            "basicAttack"
+          ],
+          "row": 150,
+          "sheet": "Techniques"
+        },
+        "sourceValues": {
+          "actionType": "Action",
+          "actions": 1,
+          "associatedSkill": null,
+          "attribute": "Primary",
+          "basicAttack": null,
+          "bondEffect": null,
+          "damage": "5 + Hits, +3 damage per rank above 1",
+          "defense": "Physical",
+          "description": "You clamp your opponent in your jaws.",
+          "energyCost": null,
+          "energyCostKind": null,
+          "energyCostOptions": null,
+          "onCriticalFailure": null,
+          "onCriticalSuccess": "The target is grappled",
+          "onFailure": null,
+          "onSuccess": "You may spend an additional 3 energy to grapple the target",
+          "prerequisites": null,
+          "pumpingByRank": null,
+          "range": "Melee",
+          "rank": 1,
+          "rankNotes": null,
+          "rollRequired": "Y",
+          "selection": "granted",
+          "strainCost": null,
+          "sustained": null,
+          "tags": null,
+          "targets": "2 Target",
+          "techniqueKey": "clamping-bite",
+          "techniqueName": "Clamping Bite",
+          "trigger": null
+        },
+        "status": "playable",
+        "strainCost": null,
+        "sustained": null,
+        "tagKeys": [],
+        "tags": [],
+        "targets": "2 Target",
+        "techniqueKey": "clamping-bite",
+        "techniqueName": "Clamping Bite",
+        "trigger": null
+      }
+    ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "weaponKey",
+        "name",
+        "description",
+        "minRank",
+        "tags",
+        "notes",
+        "techniqueKeys",
+        "traitsText"
+      ],
+      "row": 39,
+      "sheet": "WeaponBases"
+    },
+    "sourceValues": {
+      "description": "Unusually large, sharp, or powerful jaws used as a natural weapon.",
+      "minRank": 1,
+      "name": "Grasping Fangs",
+      "notes": null,
+      "tags": "Natural; Sharp; Melee",
+      "techniqueKeys": "clamping-bite",
+      "traitsText": null,
+      "weaponKey": "grasping-fangs"
+    },
+    "status": "playable",
+    "tagKeys": [
+      "natural",
+      "sharp",
+      "melee"
+    ],
+    "tags": [
+      "Natural",
+      "Sharp",
+      "Melee"
+    ],
+    "techniqueKeys": [
+      "clamping-bite"
+    ],
+    "techniqueSkills": [],
+    "traitsText": null,
+    "weaponKey": "grasping-fangs"
+  },
+  {
+    "description": "Large horns or antlers used to gore opponents.",
+    "expressionSyntaxVersion": 3,
+    "minRank": 1,
+    "name": "Goring Horns",
+    "notes": null,
+    "profiles": [
+      {
+        "actionType": "Action",
+        "actions": 1,
+        "associatedSkill": null,
+        "associatedSkillKey": null,
+        "attribute": "Primary",
+        "basicAttack": [],
+        "basicAttackRaw": null,
+        "bondEffect": null,
+        "damage": "4 + Hits, +3 damage per rank above 1",
+        "defense": "Physical",
+        "description": "You rush at your opponent and gore them with your horns.",
+        "energyCost": 0,
+        "energyCostKind": "fixed",
+        "energyCostOptions": [],
+        "expressionSyntaxVersion": 3,
+        "onCriticalFailure": null,
+        "onCriticalSuccess": "The target is knocked prone",
+        "onFailure": null,
+        "onSuccess": "If you moved at least 2 squares directly towards the target before attacking, treat the attack as if 2 additional energy were spent on it.",
+        "prerequisiteText": null,
+        "prerequisites": [],
+        "prerequisitesRaw": null,
+        "profileName": "Goring Charge",
+        "profileType": "technique",
+        "pumpable": false,
+        "pumpingByRank": null,
+        "pumpingByRankRaw": null,
+        "range": "Melee",
+        "rank": 1,
+        "rankNotes": null,
+        "readiness": {
+          "complete": true,
+          "missingFields": [],
+          "policy": "required-cells-v1"
+        },
+        "rollRequired": true,
+        "runtimeSupport": {
+          "reasons": [],
+          "status": "supported"
+        },
+        "selectable": false,
+        "selection": "granted",
+        "selectionMode": "granted-only",
+        "selectionRoutes": [
+          {
+            "type": "granted"
+          }
+        ],
+        "skill": null,
+        "skillKeys": [],
+        "sourceLocation": {
+          "headers": [
+            "techniqueName",
+            "techniqueKey",
+            "description",
+            "selection",
+            "rank",
+            "tags",
+            "prerequisites",
+            "actionType",
+            "actions",
+            "trigger",
+            "energyCost",
+            "strainCost",
+            "sustained",
+            "rollRequired",
+            "attribute",
+            "defense",
+            "range",
+            "targets",
+            "damage",
+            "onSuccess",
+            "onCriticalSuccess",
+            "onFailure",
+            "onCriticalFailure",
+            "bondEffect",
+            "pumpingByRank",
+            "rankNotes",
+            "energyCostKind",
+            "energyCostOptions",
+            "associatedSkill",
+            "basicAttack"
+          ],
+          "row": 151,
+          "sheet": "Techniques"
+        },
+        "sourceValues": {
+          "actionType": "Action",
+          "actions": 1,
+          "associatedSkill": null,
+          "attribute": "Primary",
+          "basicAttack": null,
+          "bondEffect": null,
+          "damage": "4 + Hits, +3 damage per rank above 1",
+          "defense": "Physical",
+          "description": "You rush at your opponent and gore them with your horns.",
+          "energyCost": null,
+          "energyCostKind": null,
+          "energyCostOptions": null,
+          "onCriticalFailure": null,
+          "onCriticalSuccess": "The target is knocked prone",
+          "onFailure": null,
+          "onSuccess": "If you moved at least 2 squares directly towards the target before attacking, treat the attack as if 2 additional energy were spent on it.",
+          "prerequisites": null,
+          "pumpingByRank": null,
+          "range": "Melee",
+          "rank": 1,
+          "rankNotes": null,
+          "rollRequired": "Y",
+          "selection": "granted",
+          "strainCost": null,
+          "sustained": null,
+          "tags": null,
+          "targets": "3 Target",
+          "techniqueKey": "goring-charge",
+          "techniqueName": "Goring Charge",
+          "trigger": null
+        },
+        "status": "playable",
+        "strainCost": null,
+        "sustained": null,
+        "tagKeys": [],
+        "tags": [],
+        "targets": "3 Target",
+        "techniqueKey": "goring-charge",
+        "techniqueName": "Goring Charge",
+        "trigger": null
+      }
+    ],
+    "reachByRank": null,
+    "readiness": {
+      "complete": true,
+      "missingFields": [],
+      "policy": "required-cells-v1"
+    },
+    "runtimeSupport": {
+      "reasons": [],
+      "status": "supported"
+    },
+    "sourceLocation": {
+      "headers": [
+        "weaponKey",
+        "name",
+        "description",
+        "minRank",
+        "tags",
+        "notes",
+        "techniqueKeys",
+        "traitsText"
+      ],
+      "row": 40,
+      "sheet": "WeaponBases"
+    },
+    "sourceValues": {
+      "description": "Large horns or antlers used to gore opponents.",
+      "minRank": 1,
+      "name": "Goring Horns",
+      "notes": null,
+      "tags": "Natural; Melee; Sharp",
+      "techniqueKeys": "goring-charge",
+      "traitsText": null,
+      "weaponKey": "goring-horns"
+    },
+    "status": "playable",
+    "tagKeys": [
+      "natural",
+      "melee",
+      "sharp"
+    ],
+    "tags": [
+      "Natural",
+      "Melee",
+      "Sharp"
+    ],
+    "techniqueKeys": [
+      "goring-charge"
+    ],
+    "techniqueSkills": [],
+    "traitsText": null,
+    "weaponKey": "goring-horns"
   }
 ]
