@@ -34,7 +34,11 @@ Source: Drive file `1TEdxuufglP8lFRNk8QD4N_351-0ihAUFLG2743ESjoI`, modified `202
 
 The full field diff contains nine changed artifacts and one unchanged (`class-skills.json`). It includes required-cell readiness, source-scoped choice bindings, previously authored Natural weapons/Metamorphosis access and newer Trait/Technique/Feat content. Counts: 19 Classes, 83 ClassSkills, 530 ClassFeatures, 101 Feats, 15 Origins, 23 OriginFeatures, 168 Techniques, 70 Traits, 39 weapon bases and 31 enhancements. Four Feats replace one obsolete draft placeholder; fourteen Techniques, ten Traits and eight Natural weapon bases are added. No Technique or Trait stable keys are removed. Exact approved hashes are recorded in the release contract before publication.
 
-Publication and Hosting deployment verification will be appended after the isolated package passes. Rules, Functions, source-cell edits and manual production character writes are outside the authorized release. Unrelated workspace changes remain separate.
+The exact-byte publisher installed the approved candidate and updated the ten-artifact baseline. Feature commit `37f3e26` and data commit `8325d62` were released from an isolated index export, excluding unrelated workspace changes. The final package passes **646 unit tests, 21 emulator rule tests, 3 published-catalogue integration tests, 14 tracked-page asset checks and the ten-artifact baseline**. An authenticated local browser check against this exact package verifies independent element changes without application warnings/errors.
+
+Hosting-only deployment succeeded on September 29. At `2026-09-29T20:34:54.037Z`, all **168 live public files**, including all ten runtime data artifacts, matched the tested package byte-for-byte; JavaScript responses retain `no-cache`. The live signed-out entry displays an enabled Google sign-in control without console warnings/errors. Authenticated production character interaction was not exercised. Live URL: https://game-x-character-builder.web.app. Deployment and byte verification records are `.staging/repeatable-hosting-deploy.log` and `.staging/repeatable-live-verification.json`.
+
+Rules, Functions, source-cell edits and manual production character writes were not performed. Unrelated workspace changes remain separate. The existing local preview at http://localhost:5000 remains available; the temporary cache-free package review server is stopped after verification.
 
 ## Remaining boundary
 
