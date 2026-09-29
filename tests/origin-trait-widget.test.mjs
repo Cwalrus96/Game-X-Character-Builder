@@ -12,6 +12,23 @@ function element() {
   };
 }
 
+test("Origin acquisition hides unavailable entries but retains an existing saved Origin by key", (t) => {
+  const previous = globalThis.document;
+  globalThis.document = { createElement: element };
+  t.after(() => { if (previous === undefined) delete globalThis.document; else globalThis.document = previous; });
+  const gameData = traitData(), character = traitCharacter();
+  gameData.origins = [
+    { originKey: "available", name: "Available", status: "playable", expressionSyntaxVersion: 3 },
+    { originKey: "future", name: "Future", status: "draft", expressionSyntaxVersion: 3 },
+    { originKey: "saved", name: "Saved", status: "draft", expressionSyntaxVersion: 3 },
+  ];
+  character.builder.originKey = "saved";
+  const elements = Object.fromEntries(["originSelect", "originKeystone", "originSummary", "originDetails", "originStatusHint"].map((name) => [name, element()]));
+  new OriginWidget({ getCharacter: () => character, registerWidget() {} }, { gameData, elements });
+  assert.deepEqual(elements.originSelect.children.map((option) => [option.value, option.textContent, option.disabled]), [["available", "Available", false], ["saved", "Saved", true]]);
+  assert.equal(elements.originSelect.value, "saved");
+});
+
 test("Origin Traits mount at their own feature and disappear when a new Origin has no grants", (t) => {
   const previous = globalThis.document;
   globalThis.document = { createElement: element };

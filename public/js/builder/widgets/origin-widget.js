@@ -71,9 +71,10 @@ export class OriginWidget {
     const { originSelect, originSummary, originDetails, originStatusHint } = this.elements;
     originSelect.innerHTML = '<option value="">Select an origin…</option>';
     for (const origin of state.options) {
+      if (!origin.selectable && origin.key !== state.originKey) continue;
       const option = document.createElement("option");
       option.value = origin.key;
-      option.textContent = `${origin.name} — ${statusLabel(origin.status)}`;
+      option.textContent = origin.name;
       option.disabled = !origin.selectable;
       originSelect.appendChild(option);
     }

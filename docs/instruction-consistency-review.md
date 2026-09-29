@@ -1,6 +1,6 @@
 # Earlier instructions applied across locations
 
-Reviewed September 22, 2026. This audit follows the user's instruction to consider where a requirement applies beyond its named location. It identifies follow-up work; it does not change runtime behavior, source cells, the handbook or a deployed release.
+Reviewed September 22, 2026. This audit follows the user's instruction to consider where a requirement applies beyond its named location. The findings below describe the original gaps; the subsequently authorized implementation is complete in local review, with source/display/handbook follow-through recorded below. Production is unchanged.
 
 Evidence: current shared checkout at `d095f24`, including the pre-existing Class property-order edit; latest verified native source snapshot from the preceding migration (`20260923T000831868Z-54916`, 167 Techniques). No fresh claim is made about subsequent live document edits. Preflight passes 474 unit tests. Two narrow synthetic runtime reproductions below pass through the actual shared helpers; they are not assertions about observed player data.
 
@@ -38,4 +38,14 @@ These are bounded helper-level reproductions. They warrant controlled regression
 
 ## Scope and next work
 
-The next implementation should prioritize the reproduced identity and pumping defects, then shared acquisition/browsing consistency and the content follow-through. Track implementation within `WPE-DOMAIN-MIGRATION` / subsequent `WPF-UI-SYSTEM`; reviewed data release remains `WPB-REQUIRED-CELLS-RELEASE`. The purpose is consistent behavior across all consumers, not a page-by-page list of independent fixes. This review alone does not complete any of those steps.
+### Implementation evidence — September 22
+
+The user authorized applying these findings. The two source edits are limited to `Techniques!AC157` (clear Living Shield's copied skill override) and `C159` (Driving Barrage uses associated-skill rank); native readback preserves surrounding values and metadata. Comparing the complete fresh snapshot against the preceding task's snapshot also found independently authored Feat changes. Those are retained as current source content, not attributed to this correction. The complete candidate is staged separately; nothing beneath the published runtime directory is changed.
+
+The shared prerequisite evaluator now compares current-schema entity keys exactly and resolves readable labels separately; legacy named references retain compatibility. Generic pumping has a separate Pumping line without guessed damage wording, and shared Technique/Enhancement rendering preserves complete mechanical text. Class and Origin acquisition hide unready alternatives while retaining saved selections. Granted and ordinary Weapon selection share pure readiness/rank Rules. Technique, Weapon and Enhancement selectors share expandable full-text browsing, with page-local expansion and source-owned selected descriptions. Reviewed asynchronous changes restore selection and focus after cancellation; collapsed catalogues do not leave empty outlines.
+
+All eight formatted tabs were regenerated, and the handbook's managed tables refreshed. The general catalogue has 136 rows; all 42,071 non-whitespace characters match source text and font/size/emphasis checks. Other top-level prose remained unchanged during refresh. The thirteen duplicate migrated prose blocks were then removed with a revision guard; the Sealing Palms design note and other unfinished Henshin ideas remain. The catalogue contents navigation was refreshed. This does not resolve the four remaining mechanical ambiguities listed in the migration record.
+
+Verification passes 494 unit tests, 20 emulator tests and 14 asset checks, followed by 23 focused tests after the final Enhancement text adjustment. Local browser checks cover granted Technique/Weapon/Enhancement controls, ordinary Equipment, expansion/collapse, source-owned selection and dependent-removal cancellation/focus. The complete source candidate passes staging/runtime loading with zero errors and 115 warnings; the published ten-artifact baseline is unchanged. See [status.md](status.md) for provenance, local review and concurrent-work boundaries.
+
+These seven findings are addressed. Broader `WPE-DOMAIN-MIGRATION` acceptance remains open; subsequent `WPF-UI-SYSTEM` consolidates shared controls and accessibility. Reviewed production data release remains `WPB-REQUIRED-CELLS-RELEASE` and requires explicit authorization. The four unfinished mechanics do not prevent importing the catalogue, and this focused follow-through does not complete those broader roadmap steps.

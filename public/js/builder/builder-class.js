@@ -352,8 +352,8 @@ function createGrantChoiceWidgets(entry, options = {}) {
     getExistingWeapons: () => currentDoc?.builder?.weapons || [],
     sourceId,
     scope: options.widgetScope || options.scope || "features",
-    expandedChoices: expandedGrantChoices,
     showUnavailable: showUnavailableFeatures,
+    expandedChoices: expandedGrantChoices,
     renderFeatOptions: (feat, widgetScope) => createOptionGroupElement(
       feat, selectedFeatOptionKeys, updateUiForSelection, 0, { context: "feat", widgetScope },
     ),

@@ -39,24 +39,37 @@ function joinValue(value, joiner = " or ") {
   return String(value || "");
 }
 
+function referenceLabel(type, value, context = {}) {
+  const data = context.gameData || context;
+  const tables = { class: ["classes", "classKey"], origin: ["origins", "originKey"], feat: ["feats", "featKey"], trait: ["traits", "traitKey"], technique: ["techniques", "techniqueKey"], weapon: ["weaponBases", "weaponKey"], enhancement: ["weaponEnhancements", "enhancementKey"], archetype: ["archetypes", "archetypeKey"] };
+  const flatten = (rows) => (Array.isArray(rows) ? rows : Object.values(rows || {}).flat()).flatMap((row) => [row, ...flatten(row.options || [])]);
+  const [table, keyField] = tables[type] || [];
+  const rows = type === "option" ? [...flatten(data.classFeatures), ...flatten(data.feats)] : flatten(data[table]);
+  return valuesFor(value).map((key) => {
+    const record = rows.find((row) => (keyField ? row[keyField] : row.featureKey || row.featKey) === key);
+    return record?.name || record?.techniqueName || key;
+  }).join(" or ");
+}
+
 export function formatPrerequisite(prereq, context = {}) {
   const p = normalizePrerequisite(prereq, { syntaxVersion: 3 });
+  const label = (type, key) => referenceLabel(type, key, context);
   if (!p) return "";
   if (p.type === "text") return p.text || "";
   if (p.type === "any") return p.alternatives.map((item) => formatPrerequisite(item, context)).join(" OR ");
-  if (p.type === "trait" || p.type === "technique") return `${p.type === "trait" ? "Trait" : "Technique"}: ${joinValue(p.key)}${p.minRank != null ? ` rank ${p.minRank}+` : ""}`;
-  if (p.type === "archetype") return `Archetype: ${joinValue(p.key)} (${p.numFeats ?? 1}+ feats)`;
-  if (p.type === "option") return `Know ${p.count} options from ${p.groupKey}`;
-  if (p.type === "class") return `Class: ${joinValue(p.name || p.key)}${p.level ? ` level ${p.level}` : ""}`;
-  if (p.type === "feat") return `Feat: ${joinValue(p.name || p.key)}`;
-  if (p.type === "origin") return `Origin: ${joinValue(p.name || p.key)}`;
+  if (p.type === "trait" || p.type === "technique") return `${p.type === "trait" ? "Trait" : "Technique"}: ${label(p.type, p.key)}${p.minRank != null ? ` rank ${p.minRank}+` : ""}`;
+  if (p.type === "archetype") return `Archetype: ${label("archetype", p.key)} (${p.numFeats ?? 1}+ feats)`;
+  if (p.type === "option") return `Know ${p.count} options from ${label("option", p.groupKey)}`;
+  if (p.type === "class") return `Class: ${p.name || label("class", p.key)}${p.level ? ` level ${p.level}` : ""}`;
+  if (p.type === "feat") return `Feat: ${p.name || label("feat", p.key)}`;
+  if (p.type === "origin") return `Origin: ${p.name || label("origin", p.key)}`;
   if (p.type === "attribute") return `Attribute: ${joinValue(p.name || p.key)}${p.minValue !== undefined ? ` ${p.minValue}+` : ""}`;
   if (p.type === "skill") return `Skill: ${joinValue(p.name || p.key)}${(p.rank ?? p.minRank) !== undefined ? ` rank ${p.rank ?? p.minRank}+` : ""}`;
   if (p.type === "tag") return `Tag: ${joinValue(p.name || p.key || p.tag)}${p.minValue !== undefined ? ` ${p.minValue}+` : ""}`;
   if (p.type === "choice") {
     const checks = [];
     if (p.tag) checks.push(`tag ${joinValue(p.tag)}`);
-    if (p.enhancement) checks.push(`enhancement ${joinValue(p.enhancement)}`);
+    if (p.enhancement) checks.push(`enhancement ${label("enhancement", p.enhancement)}`);
     if (p.rank !== undefined) checks.push(`rank ${p.rank}+`);
     if (p.minRank !== undefined) checks.push(`rank ${p.minRank}+`);
     return `Choice ${choiceReferenceLabel(p.choiceRef, context.gameData || context)}: ${checks.join(", ") || "selected"}`;
@@ -64,7 +77,14 @@ export function formatPrerequisite(prereq, context = {}) {
   if (p.type === "familiar") return `Familiar${p.minCount !== undefined ? ` count ${p.minCount}+` : ""}${p.minRank !== undefined ? ` rank ${p.minRank}+` : ""}`;
   if (p.type === "weapon" || p.type === "weapon-set") {
     const count = p.type === "weapon-set" && p.count !== undefined ? ` (${p.count}+)` : "";
-    return `${p.type === "weapon-set" ? "Weapon set" : "Weapon"}${count}: ${joinValue(p.tag || p.tagAll || p.tagAny || p.name || p.key)}${p.separateHands ? ", one in each hand" : ""}`;
+    const checks = [p.key ? label("weapon", p.key) : joinValue(p.name)];
+    if (p.tag) checks.push(`tag ${joinValue(p.tag)}`);
+    if (p.tagAll) checks.push(`tags ${joinValue(p.tagAll, " and ")}`);
+    if (p.tagAny) checks.push(`tag ${joinValue(p.tagAny)}`);
+    if (p.tagNot) checks.push(`without ${joinValue(p.tagNot)}`);
+    if ((p.minRank ?? p.rank) != null) checks.push(`rank ${p.minRank ?? p.rank}+`);
+    if (p.minReach != null) checks.push(`reach ${p.minReach}+`);
+    return `${p.type === "weapon-set" ? "Weapon set" : "Weapon"}${count}: ${checks.filter(Boolean).join(", ") || "owned"}`;
   }
   if (p.type === "resource") return `Resource: ${joinValue(p.resourceKey)}${p.minCount !== undefined ? ` ${p.minCount}+` : ""}`;
   return "";
@@ -98,6 +118,11 @@ function matchesAnyValue(actualValues, expectedValue) {
   const actualRefs = new Set(actual.map(normalizeRef));
   const actualKeys = new Set(actual.map(normalizeKey));
   return expected.some((value) => actualRefs.has(normalizeRef(value)) || actualKeys.has(normalizeKey(value)));
+}
+
+function matchesIdentity(actualValues, expectedValue) {
+  const expected = valuesFor(expectedValue);
+  return !expected.length || expected.some((key) => valuesFor(actualValues).includes(key));
 }
 
 function toRank(value) {
@@ -257,7 +282,8 @@ function selectedFeatNamesForContext(data, selectedFeats) {
 
   for (const value of selected) {
     out.add(value);
-    const found = feats.find((feat) => feat?.name === value || feat?.featKey === value);
+    const byName = feats.filter((feat) => feat?.name === value);
+    const found = feats.find((feat) => feat?.featKey === value) || (byName.length === 1 ? byName[0] : null);
     if (found?.name) out.add(found.name);
     if (found?.featKey) out.add(found.featKey);
   }
@@ -298,7 +324,8 @@ export function createPrerequisiteContext(input = {}) {
     originKey,
     classNames: classNamesForContext(gameData, classKey),
     originNames: originNamesForContext(gameData, originKey),
-    selectedFeats: selectedFeatNamesForContext(gameData, builder.selectedFeats),
+    selectedFeats: Number(source.syntaxVersion ?? source.expressionSyntaxVersion ?? gameData.expressionSyntaxVersion ?? 2) >= 3
+      ? valuesFor(builder.selectedFeats) : selectedFeatNamesForContext(gameData, builder.selectedFeats),
     selectedTechniqueKeys: valuesFor(source.selectedTechniqueKeys || builder.selectedTechniques || builder.selectedTechniqueKeys || (Array.isArray(builder.techniques) ? builder.techniques : []).map((row) => typeof row === "string" ? row : row.techniqueKey || row.key)),
     selectedTraits: source.selectedTraits || builder.traits || [],
     knownOptions: collectKnownOptions(builder, gameData, source.knownOptions),
@@ -420,23 +447,23 @@ export function evaluatePrerequisite(prerequisite, context = {}) {
     return { ok: count >= prereq.count, prerequisite: prereq, label, reason: `Requires ${label}.` };
   }
   if (prereq.type === "class") {
-    const classMatches = matchesAnyValue(ctx.classNames, prereq.name || prereq.key);
+    const classMatches = ctx.syntaxVersion >= 3 ? matchesIdentity(ctx.classKey, prereq.key) : matchesAnyValue(ctx.classNames, prereq.name || prereq.key);
     const requiredLevel = getRequiredNumber(prereq, ["level"]);
     const levelMatches = requiredLevel === null || ctx.level >= requiredLevel;
     return {
       ok: classMatches && levelMatches,
       prerequisite: prereq,
       label,
-      reason: classMatches ? `Requires class level ${requiredLevel}.` : `Requires class ${joinValue(prereq.name || prereq.key)}.`,
+      reason: `Requires ${label}.`,
     };
   }
   if (prereq.type === "feat") {
-    const ok = matchesAnyValue(ctx.selectedFeats, prereq.name || prereq.key);
-    return { ok, prerequisite: prereq, label, reason: `Requires feat ${joinValue(prereq.name || prereq.key)}.` };
+    const ok = ctx.syntaxVersion >= 3 ? matchesIdentity(ctx.selectedFeats, prereq.key) : matchesAnyValue(ctx.selectedFeats, prereq.name || prereq.key);
+    return { ok, prerequisite: prereq, label, reason: `Requires ${label}.` };
   }
   if (prereq.type === "origin") {
-    const ok = matchesAnyValue(ctx.originNames, prereq.name || prereq.key);
-    return { ok, prerequisite: prereq, label, reason: `Requires origin ${joinValue(prereq.name || prereq.key)}.` };
+    const ok = ctx.syntaxVersion >= 3 ? matchesIdentity(ctx.originKey, prereq.key) : matchesAnyValue(ctx.originNames, prereq.name || prereq.key);
+    return { ok, prerequisite: prereq, label, reason: `Requires ${label}.` };
   }
   if (prereq.type === "attribute") {
     const attrKey = ATTR_KEYS.find((key) => matchesAnyValue([key], prereq.name || prereq.key));
@@ -470,13 +497,13 @@ export function evaluatePrerequisite(prerequisite, context = {}) {
     const requiredEnhancement = prereq.enhancement;
     const requiredRank = getRequiredNumber(prereq, ["rank", "minRank"]);
     const tagOk = requiredTag ? matchesTag(choiceTags(choice), requiredTag, getRequiredNumber(prereq, ["minValue"])) : true;
-    const enhancementOk = requiredEnhancement ? matchesAnyValue(choiceEnhancements(choice), requiredEnhancement) : true;
+    const enhancementOk = requiredEnhancement ? (ctx.syntaxVersion >= 3 ? matchesIdentity : matchesAnyValue)(choiceEnhancements(choice), requiredEnhancement) : true;
     const rankOk = requiredRank === null || choiceRank(choice) >= requiredRank;
     return {
       ok: tagOk && enhancementOk && rankOk,
       prerequisite: prereq,
       label,
-      reason: `Requires ${formatPrerequisite(prereq)}.`,
+      reason: `Requires ${label}.`,
     };
   }
 
@@ -488,7 +515,7 @@ export function evaluatePrerequisite(prerequisite, context = {}) {
   }
   if (prereq.type === "weapon" || prereq.type === "weapon-set") {
     const matches = ctx.weapons.filter((weapon) => {
-      const identityOk = matchesAnyValue(
+      const identityOk = ctx.syntaxVersion >= 3 ? matchesIdentity(weapon?.weaponKey, prereq.key) : matchesAnyValue(
         [weapon?.weaponKey, weapon?.name, weapon?.customName],
         prereq.key || prereq.name,
       );

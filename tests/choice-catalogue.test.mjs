@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { SingleChoiceCatalogue, MultipleChoiceCatalogue, choiceExpansionFor } from "../public/js/builder/widgets/choice-catalogue.js";
 import { CatalogueWidget } from "../public/js/builder/widgets/catalogue-widget.js";
+import { ClassChoiceWidget } from "../public/js/builder/widgets/class-choice-widget.js";
 
 function element() {
   return { innerHTML: "", attrs: {}, events: {}, focused: 0,
@@ -9,6 +10,17 @@ function element() {
     removeEventListener(key) { delete this.events[key]; }, querySelector() { return { focus: () => this.focused++ }; }, remove() {},
   };
 }
+
+test("Class acquisition uses supplied availability and retains an unavailable saved class without changing the answer", () => {
+  const select = element();
+  new ClassChoiceWidget(null, { selectEl: select, classes: [
+    { classKey: "ready", name: "Ready", ready: true }, { classKey: "future", name: "Future" }, { classKey: "saved", name: "Saved" },
+  ], getClassInfo: entry => ({ ok: entry.ready === true }), getValue: () => "saved", setValue() { assert.fail("rendering must not change a character"); } });
+  assert.match(select.innerHTML, /value="ready">Ready/);
+  assert.doesNotMatch(select.innerHTML, /Future|Coming Soon/);
+  assert.match(select.innerHTML, /value="saved" disabled>Saved/);
+  assert.equal(select.value, "saved");
+});
 
 const options = [{ key: "a", name: "First", contentHtml: "<p>Full first rules.</p>", referencesHtml: "<details><summary>Related rules</summary>More rules.</details>" }, { key: "b", name: "Second", contentHtml: "<p>Full second rules.</p>" }, { key: "old", name: "Old", disabled: true }];
 

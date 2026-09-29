@@ -8,6 +8,8 @@ Martial Arts, Melee Weapons, and Ranged Weapons are universally trainable Core C
 
 Runtime support includes free-text `choice | type=keystone | count=N`, with optional stable `choiceId` and note. Every slot is owned by the invoking feature or selected option/feat. Keystone catalogue keys/names, mixed filters, `choiceRef` and other recipients remain unsupported rather than being treated as free text. Restaging is required to update derived execution metadata after adding runtime support; generated production artifacts are not patched by hand.
 
+Current-schema prerequisite identity is exact: Class, Origin, Feat, Technique, Trait and Weapon keys identify records independently of display/custom names. The shared prerequisite formatter resolves readable names from those keys using the catalogue; unknown references remain explicit. Legacy named references retain their versioned compatibility path, with key-first, unambiguous name lookup. Static weapon requirements retain owned count/rank/tags/reach but omit wielding/available-hand conditions from acquisition messages. Current-schema pumping is displayed as generic Pumping text, separately from Damage; presentation never guesses an effect from an unfamiliar word. Shared Technique and Enhancement renderers retain full authored mechanical text.
+
 Status: living source/runtime contract. Canonical source schema v5 / expression syntax v3 is published as reviewed runtime schema v3. The v4/syntax-v2 compatibility path remains. Parsing and preserving a rule does not establish execution support; current release evidence is in [the September 22 release record](game-data-release-2026-09-22.md).
 
 Last updated: 2026-09-22.

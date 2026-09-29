@@ -49,11 +49,12 @@ export class ClassChoiceWidget extends BuilderWidget {
     if (!this.selectEl) return null;
     const selectedValue = sanitizeText(this.getValue(), { maxLen: 64, collapse: true });
     this.selectEl.innerHTML = `<option value="">- Choose -</option>` + this.classes
+      .filter((entry) => this.getClassInfo(entry)?.ok || entry.classKey === selectedValue)
       .map((classEntry) => {
         const classKey = sanitizeText(classEntry?.classKey, { maxLen: 64, collapse: true });
         const info = this.getClassInfo(classEntry);
-        const label = `${sanitizeText(classEntry?.name || classKey, { maxLen: 200, collapse: true })}${info?.ok ? "" : " (Coming Soon)"}`;
-        return `<option value="${escapeHtml(classKey)}">${escapeHtml(label)}</option>`;
+        const label = sanitizeText(classEntry?.name || classKey, { maxLen: 200, collapse: true });
+        return `<option value="${escapeHtml(classKey)}"${info?.ok ? "" : " disabled"}>${escapeHtml(label)}</option>`;
       })
       .join("");
     if (selectedValue) this.selectEl.value = selectedValue;

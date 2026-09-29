@@ -52,7 +52,7 @@ export class FeatWidget extends BuilderWidget {
     });
     const limitReached = countState.isAtCapacity;
     const prereqCheck = this.checkEntryPrerequisites(this.feat);
-    const prereqText = prereqCheck.ok ? "" : formatPrerequisites(this.feat?.prerequisites);
+    const prereqText = prereqCheck.ok ? "" : (prereqCheck.failed?.map((item) => item.label).filter(Boolean).join("; ") || formatPrerequisites(this.feat?.prerequisites));
     const isUnavailable = !prereqCheck.ok;
     if (isUnavailable) this.trackUnavailable?.({ hidden: false });
     if (isUnavailable && !this.showUnavailable && !checked) {
