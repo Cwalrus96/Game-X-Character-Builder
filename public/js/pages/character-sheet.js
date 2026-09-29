@@ -466,8 +466,8 @@ async function renderBuilderTechniquesReadOnly(character) {
     }
     if (basics.length) {
       sections.push(`
-        <details style="margin-top:${ranked.length ? '12px' : '0'};">
-          <summary style="cursor:pointer; font-weight:700; margin-bottom:8px;">Rank 0 Basics (${basics.length})</summary>
+        <details class="sheet-basics" style="margin-top:${ranked.length ? '12px' : '0'};">
+          <summary>Rank 0 Basics (${basics.length})</summary>
           <div class="cards" style="margin-top:8px;">${basics.map(renderTechniqueCard).join('')}</div>
         </details>
       `);
@@ -1367,6 +1367,8 @@ async function renderBuilderWeaponsReadOnly(builder) {
           } else {
             el.value = normalizeRowValue(data[f]);
           }
+          const display = root.querySelector(`[data-display-field="${f}"]`);
+          if (display) display.textContent = normalizeRowValue(data[f]) || '—';
         });
 
         if (typeof decorateRow === 'function') decorateRow(root, data);

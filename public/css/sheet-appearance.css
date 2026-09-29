@@ -15,13 +15,34 @@
 #sheet { border: 1px solid var(--primary-color); border-radius: var(--sheet-radius); box-shadow: none; }
 #sheet .section { border-width: 1px; border-radius: var(--sheet-radius); box-shadow: none; }
 #sheet .section h2 { padding-left: 8px; border-radius: var(--sheet-radius); border-bottom-width: 1px; }
-#sheet .sheet-roll-button, #sheet .skill-chip, #sheet .weapon-card, #sheet .ability-card { border-radius: var(--sheet-radius); }
+#sheet .sheet-roll-button, #sheet .skill-chip, #sheet .weapon-card, #sheet .ability-card,
+#sheet .attribute-group, #sheet .condition-row { border-radius: var(--sheet-radius); }
 #sheet input, #sheet select, #sheet textarea, #sheet .sheet-readonly-value { font-size: 1em; font-family: var(--body-font); min-width: 0; max-width: 100%; }
 #sheet .sheet-footer, #sheet .portrait-placeholder { overflow-wrap: anywhere; }
 #sheet .sheet-readonly-value, #sheet .readonly-value { color: var(--panel-text-color); }
 #sheet .ability-card { min-width: 0; overflow-wrap: anywhere; }
 #sheet .technique-source-badge { white-space: normal; }
-#sheet .technique-title-static, #sheet .combat-profile-title { background: var(--header-bg-color); }
+/* Style title surfaces, never their card, metadata, body, or action column. */
+#sheet .ability-card :is(.ability-name, .technique-title-static, .combat-profile-title),
+#sheet .ability-card > h3,
+#sheet .subhead > h3,
+#sheet .sheet-basics > summary,
+#sheet .enhancement-detail-summary,
+#sheet .skill-chip-label {
+  min-width: 0; width: 100%; margin: 0 0 8px; padding: 5px 8px;
+  border: 0; border-bottom: 1px solid var(--primary-color); border-radius: var(--sheet-radius);
+  background: var(--header-bg-color); color: var(--header-text-color);
+  font: 700 1em/1.4 var(--title-font); overflow-wrap: anywhere;
+}
+#sheet .ability-card-head > :is(div, .ability-name) { flex: 1; min-width: 0; }
+#sheet .ability-card-head :is(.ability-name, .technique-title-static),
+#sheet .subhead > h3, #sheet .skill-chip-label { margin-bottom: 0; }
+#sheet .ability-description { white-space: pre-wrap; overflow-wrap: anywhere; }
+#sheet .ability-card .help, #sheet .ability-card .optionDesc { margin-top: 6px; }
+#sheet .attribute-group { box-shadow: none; }
+#sheet .attribute-group-header { border-radius: var(--sheet-radius) var(--sheet-radius) 0 0; border-bottom-width: 1px; }
+#sheet .enhancement-detail-body { padding: 0 8px 8px; white-space: pre-wrap; overflow-wrap: anywhere; }
+#sheet .enhancement-detail-summary, #sheet .sheet-basics > summary { cursor: pointer; }
 #sheet .mini-btn, #sheet .sheet-quick-roll, #sheet .sheet-skill-roll:hover, #sheet .sheet-attribute-roll:hover,
 .character-sheet-page .roll-primary { background: var(--panel-bg-color); }
 #identity_title { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
@@ -77,4 +98,13 @@
 .character-sheet-page .app-brand { text-shadow: none; }
 .character-sheet-page .roll-dialog { width: min(390px, calc(100% - 24px)); max-width: calc(100% - 24px); }
 @media (max-width: 520px) { .sheet-settings { top: 12px; right: 12px; max-height: calc(100dvh - 24px); } #identity_title { font-size: 1.15em; } }
+@media (max-width: 680px) {
+  /* The stacked navigation must not cover the sheet on phones, especially with large text. */
+  .character-sheet-page .app-topbar { position: static !important; }
+  #sheet #resources td { border-radius: var(--sheet-radius); }
+  #sheet #resources td::before {
+    padding: 5px 8px; border-bottom: 1px solid var(--primary-color); border-radius: var(--sheet-radius);
+    background: var(--header-bg-color); color: var(--header-text-color); line-height: 1.4;
+  }
+}
 @media print { .sheet-settings, .sheet-settings-button, .roll-dialog { display: none !important; } }

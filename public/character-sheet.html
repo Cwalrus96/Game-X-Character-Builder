@@ -201,10 +201,12 @@
 <template id="abilityCardTemplate">
 <div class="ability-card" data-repeatable-item="">
 <div class="ability-card-head">
-<input aria-label="Ability name" class="ability-name" data-field="name" placeholder="Ability name" type="text"/>
+<input aria-label="Ability name" data-field="name" type="text" hidden/>
+<h3 class="ability-name" data-display-field="name"></h3>
 <button aria-label="Remove ability" class="mini-btn danger" data-action="remove" type="button">Remove</button>
 </div>
-<textarea aria-label="Ability details" class="ability-text" data-field="text" placeholder="Effect, cost, notes..." rows="3"></textarea>
+<textarea aria-label="Ability details" data-field="text" hidden></textarea>
+<div class="ability-description" data-display-field="text"></div>
 </div>
 </template>
 
