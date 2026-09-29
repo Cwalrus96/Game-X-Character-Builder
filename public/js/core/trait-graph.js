@@ -41,6 +41,22 @@ export function compileTraits(context, character, graph) {
       state: "automatic", sourceOwnerId: weapon.traitId, storageBinding: null, metadata: { ...weapon } });
     graph.addEdge({ kind: "materializes", from: weapon.traitId, to: weapon.id });
   }
+  for (const choice of projection.optionChoices || []) {
+    const id = `grant-answer:${choice.choiceId}`;
+    if (!choice.ownerValid || choice.duplicate) context.addDiagnostic({ severity: "error", code: choice.duplicate ? "duplicate-trait-option" : "trait-option-owner-mismatch",
+      path: `builder.grantChoices.${choice.choiceId}`, message: choice.reason });
+    if (!choice.answered) {
+      context.addDiagnostic({ severity: "warning", code: "trait-option-incomplete", path: `builder.grantChoices.${choice.choiceId}`,
+        message: `${choice.label} still needs a selection.` });
+      continue;
+    }
+    context.addTypedNode("grant-answer", { id, key: choice.choiceId, label: choice.selectedName || choice.label,
+      state: choice.valid ? "selected" : "invalid", sourceOwnerId: choice.traitId,
+      storageBinding: { path: "builder.grantChoices", kind: "keyed-record", key: choice.choiceId },
+      metadata: { choiceId: choice.choiceId, answerType: "trait-option", valid: choice.valid, reason: choice.reason, orphaned: false } });
+    graph.addEdge({ kind: "owns", from: choice.traitId, to: id });
+    for (const weapon of (projection.weapons || []).filter(weapon => weapon.traitId === choice.traitId)) graph.addEdge({ kind: "materializes", from: id, to: weapon.id });
+  }
   for (const technique of projection.techniques.filter((item) => item.active)) {
     const definition = context.gameData.techniques.find((item) => item.techniqueKey === technique.techniqueKey);
     const owner = technique.weaponId || technique.traitId;
@@ -49,6 +65,9 @@ export function compileTraits(context, character, graph) {
       state: "automatic", sourceOwnerId: owner, storageBinding: null,
       metadata: { techniqueKey: technique.techniqueKey, traitId: technique.traitId, recipientId: technique.recipientId, rank: technique.rank } });
     graph.addEdge({ kind: "grants", from: owner, to: id });
+    for (const choice of (projection.optionChoices || []).filter(choice => choice.traitId === technique.traitId && choice.valid)) {
+      graph.addEdge({ kind: "grants", from: `grant-answer:${choice.choiceId}`, to: id });
+    }
     context.automaticTechniqueKeys.add(technique.techniqueKey);
   }
   return projection;

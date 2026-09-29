@@ -3,6 +3,7 @@ import { getEntryPrerequisites, meetsPrerequisites } from "./prerequisites.js";
 import { renderTagChipsHtml, renderTechniqueProfileHtml } from "./technique-utils.js?v=sheet-rolls7";
 import { canonicalSkillName, RANGED_WEAPONS_SKILL } from "./skill-identity.js";
 import { isGameDataRecordSelectable } from "./selection-rules.js";
+import { PRIMAL_ELEMENTS } from "./element-rules.js";
 
 export const MAX_WEAPON_SLOTS = 4;
 
@@ -13,7 +14,7 @@ export function getSelectableWeaponBases(weaponBases, { maxRank = null, skillRan
 
 export const ENHANCEMENT_SELECTION_SPECS = Object.freeze({
   basic_elemental_infusion: Object.freeze([
-    Object.freeze({ key: "element", label: "Element", type: "select", options: Object.freeze(["Water", "Fire", "Earth", "Wind"]) }),
+    Object.freeze({ key: "element", label: "Element", type: "select", options: PRIMAL_ELEMENTS }),
   ]),
   bane_weapon: Object.freeze([
     Object.freeze({ key: "trait", label: "Bane Trait", type: "text", placeholder: "Spirit, Monster, Fire, etc." }),

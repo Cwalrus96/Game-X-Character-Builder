@@ -13,7 +13,7 @@ const assertOk = (result) => assert.equal(result.ok, true, JSON.stringify(result
 test("v5 preserves the 13-tab contract and v4 retains its existing normalized model", () => {
   const result = adapt();
   assertOk(result);
-  assert.equal(result.model.schema.length, 115);
+  assert.equal(result.model.schema.length, 116);
   assert.equal(Object.keys(result.model.sourceSheets).length, 13);
   assert.equal(result.model.weaponProfiles.length, 0);
   assert.equal(result.model.traits[0].traitKey, "wings");

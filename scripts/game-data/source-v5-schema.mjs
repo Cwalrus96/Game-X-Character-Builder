@@ -12,7 +12,7 @@ export const SOURCE_V5_TAB_HEADERS = Object.freeze(Object.fromEntries(Object.ent
   Metadata: ["key", "value"],
   Schema: ["tab", "field", "type", "required", "valuesOrFormat", "default", "description"],
   Enums: ["domain", "value", "meaning"],
-  Traits: ["traitKey", "name", "rank", "prerequisites", "tags", "description", "rankNotes", "techniqueKeys", "grants"],
+  Traits: ["traitKey", "name", "rank", "prerequisites", "tags", "description", "rankNotes", "techniqueKeys", "grants", "repeatable"],
 }).map(([tab, headers]) => [tab, Object.freeze(headers)])));
 
 export const SOURCE_V5_MODEL_TABS = Object.freeze({
@@ -21,7 +21,7 @@ export const SOURCE_V5_MODEL_TABS = Object.freeze({
   WeaponEnhancements: "weaponEnhancements", Traits: "traits",
 });
 
-const enumFields = new Set(["status", "rowType", "energyCostKind", "selectionMode"]);
+const enumFields = new Set(["status", "rowType", "energyCostKind", "selectionMode", "repeatable"]);
 const integerFields = new Set(["level", "chooseCount", "rank", "minRank", "actions"]);
 const expressionFields = new Set(["grants", "prerequisites", "energyCostOptions", "basicAttack"]);
 const requiredFields = new Set(["classKey", "featureKey", "featKey", "originKey", "weaponKey", "enhancementKey", "traitKey", "techniqueKey", "category", "name", "techniqueName", "rowType", "status", "energyCostKind", "selectionMode"]);

@@ -138,9 +138,11 @@ function adaptFeat(sheet, rawRow, diagnostics) {
 
 function adaptTrait(sheet, rawRow, diagnostics) {
   const { row, context, provenance } = sourceRecord(sheet, rawRow);
+  if (clean(row.repeatable) && !["Y", "N"].includes(clean(row.repeatable))) diagnostics.push(diagnostic("invalid-repeatable", "Trait repeatable must be Y, N, or blank.", { ...context, column: "repeatable" }));
   return Object.freeze({
     traitKey: requiredText(row, "traitKey", context, diagnostics),
     name: requiredText(row, "name", context, diagnostics),
+    repeatable: clean(row.repeatable) === "Y",
     rank: numericValue(row, "rank", context, diagnostics, { integer: true, min: 0 }),
     ...prerequisiteFields(row, context, diagnostics),
     tags: Object.freeze(splitList(row.tags)), tagKeys: Object.freeze(splitList(row.tags).map(canonicalTagKey)),
@@ -193,7 +195,7 @@ function validateHeaders(workbook, diagnostics, headers) {
       seen.add(header);
       if (!expected.includes(header)) diagnostics.push(diagnostic("unknown-header", `Unknown schema-v5 header "${header}".`, { sheet: name, row: 1, column: header, headers: sheet.headers }));
     }
-    for (const header of expected) if (!seen.has(header)) diagnostics.push(diagnostic("missing-header", `Required schema-v5 header "${header}" is missing.`, { sheet: name, row: 1, column: header, headers: sheet.headers }));
+    for (const header of expected) if (!seen.has(header) && !(name === "Traits" && header === "repeatable")) diagnostics.push(diagnostic("missing-header", `Required schema-v5 header "${header}" is missing.`, { sheet: name, row: 1, column: header, headers: sheet.headers }));
     for (const rawRow of sheet.rows) if (rawRow.values.slice(sheet.headers.length).some((value) => clean(value))) {
       diagnostics.push(diagnostic("unheaded-cell", "A populated value has no header; the raw source row is retained.", { sheet: name, row: rawRow.rowNumber }));
     }
@@ -217,7 +219,7 @@ function validateSchema(model, diagnostics) {
     if (contract && entry.type !== contract.type) diagnostics.push(diagnostic("schema-type-mismatch", `Schema ${key} declares type "${entry.type}"; implemented v5 type is "${contract.type}".`, { ...entry.source, column: "type", headers: schemaHeaders }));
     if (contract && entry.requirement !== contract.requirement) diagnostics.push(diagnostic("schema-requirement-mismatch", `Schema ${key} declares required="${entry.requirement}"; implemented v5 requirement is "${contract.requirement}".`, { ...entry.source, column: "required", headers: schemaHeaders }));
     if (contract?.type === "enum") {
-      const allowed = contractSet.enums[entry.field];
+      const allowed = contractSet.enums[entry.field === "repeatable" ? "booleanYN" : entry.field];
       const declared = clean(entry.valuesOrFormat).split("|").map(clean);
       if (clean(entry.valuesOrFormat) !== "see Enums" && (declared.length !== allowed.length || new Set(declared).size !== allowed.length || declared.some((value) => !allowed.includes(value)))) {
         diagnostics.push(diagnostic("schema-enum-mismatch", `Schema ${key} must reference Enums or declare exactly ${allowed.join("|")}.`, { ...entry.source, column: "valuesOrFormat", headers: schemaHeaders }));
@@ -226,7 +228,7 @@ function validateSchema(model, diagnostics) {
     }
     seen.add(key);
   }
-  for (const key of expected) if (!seen.has(key)) diagnostics.push(diagnostic("missing-schema-declaration", `Schema does not declare ${key}.`, { sheet: "Schema" }));
+  for (const key of expected) if (!seen.has(key) && !(key === "Traits.repeatable" && !model.sourceSheets.Traits?.headers?.includes("repeatable"))) diagnostics.push(diagnostic("missing-schema-declaration", `Schema does not declare ${key}.`, { sheet: "Schema" }));
   for (const [key, expectedVersion] of [["sourceSchemaVersion", 5], ["grantSyntaxVersion", 3], ["prerequisiteSyntaxVersion", 3]]) {
     if (String(model.metadata[key]) !== String(expectedVersion)) diagnostics.push(diagnostic("unsupported-source-version", `Metadata ${key} must equal ${expectedVersion}.`, { sheet: "Metadata", column: "value" }));
   }

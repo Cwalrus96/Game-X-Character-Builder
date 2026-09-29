@@ -5,6 +5,7 @@ import { computeGrantedSkillsState, getCombatSkillRanks } from "./skill-rules.js
 import { canonicalSkillKey } from "./skill-identity.js";
 import { isGameDataRecordExecutable, isGameDataRecordSelectable } from "./selection-rules.js";
 import { projectTraitWeapons } from "./weapon-grant-rules.js";
+import { projectTraitOptions, traitGrantsTechnique, traitOptionLabel } from "./trait-option-rules.js";
 
 const list = (value) => Array.isArray(value) ? value : value == null || value === "" ? [] : [value];
 const text = (value) => typeof value === "string" ? value.trim() : "";
@@ -48,17 +49,18 @@ function rankFor(provider, ranks) {
 }
 
 function grantedTags(traits, definitions) {
-  return sorted(traits.flatMap((trait) => (definitions.get(trait.traitKey)?.grants || [])
+  return sorted(traits.filter(trait => trait.optionsComplete !== false).flatMap((trait) => (definitions.get(trait.traitKey)?.grants || [])
     .filter((grant) => grant.type === "tag" && trait.rank >= (grant.minRank ?? 1)).flatMap((grant) => list(grant.tag))));
 }
 
 function acquiredContext(context, traits, definitions) {
   const weapons = projectTraitWeapons(traits.map(trait => ({ ...definitions.get(trait.traitKey), ...trait,
-    active: true, recipientId: "character", associatedSkill: trait.provider?.skill || "" })), context.gameData);
-  return { ...context, weapons: [...context.weapons, ...weapons], selectedTraits: traits, tags: grantedTags(traits, definitions) };
+    active: trait.optionsComplete !== false, recipientId: "character", associatedSkill: trait.provider?.skill || "" })), context.gameData);
+  return { ...context, weapons: [...context.weapons, ...weapons], selectedTraits: traits.filter(trait => trait.optionsComplete !== false), tags: grantedTags(traits, definitions) };
 }
 
 function requirementsMet(prerequisites, context, traits, definitions) {
+  if (!list(prerequisites).length) return true;
   const next = acquiredContext(context, traits, definitions);
   return list(prerequisites).every((prerequisite) => evaluatePrerequisite(prerequisite, next).ok);
 }
@@ -86,15 +88,18 @@ function isAutomaticTraitTechnique(technique) {
 
 function readyTechniqueKeys(traits, definitions, context) {
   const keys = new Set(context.selectedTechniqueKeys);
-  const links = traits.flatMap((trait) => (definitions.get(trait.traitKey)?.techniqueKeys || []).map((key) => ({ key, rank: trait.rank })));
+  const links = traits.filter(trait => trait.optionsComplete !== false).flatMap((trait) => [
+    ...(definitions.get(trait.traitKey)?.techniqueKeys || []).filter(key => traitGrantsTechnique(trait, context.gameData.techniques?.find(row => row.techniqueKey === key))),
+    ...(trait.optionChoices || []).filter(choice => choice.kind === "technique" && choice.valid).map(choice => choice.value),
+  ].map((key) => ({ key, rank: trait.rank, trait })));
   const weapons = projectTraitWeapons(traits.map(trait => ({ ...definitions.get(trait.traitKey), ...trait,
-    active: true, recipientId: "character", associatedSkill: trait.provider?.skill || "" })), context.gameData);
+    active: trait.optionsComplete !== false, recipientId: "character", associatedSkill: trait.provider?.skill || "" })), context.gameData);
   links.push(...weapons.flatMap(weapon => weapon.techniqueKeys.map(key => ({ key, rank: weapon.rank, weapon }))));
   for (let pass = 0; pass <= links.length; pass += 1) {
     const before = keys.size;
     for (const link of links) {
       const technique = (context.gameData.techniques || []).find((item) => item.techniqueKey === link.key);
-      if (technique && (link.weapon || isAutomaticTraitTechnique(technique)) && isGameDataRecordSelectable(technique, { allowGrantedOnly: true }) && Number.isInteger(technique.rank)
+      if (technique && (link.weapon || link.trait || isAutomaticTraitTechnique(technique)) && isGameDataRecordSelectable(technique, { allowGrantedOnly: true }) && Number.isInteger(technique.rank)
         && link.rank >= technique.rank && requirementsMet(technique.prerequisites, { ...context, selectedTechniqueKeys: [...keys] }, traits, definitions)) keys.add(link.key);
     }
     if (keys.size === before) break;
@@ -140,8 +145,11 @@ export function projectCharacterTraits(character, gameData = {}, { selectedTechn
     const rank = rankFor(provider, context.skillRanks);
     const addCandidate = (key, choiceId = "") => {
       const definition = definitions.get(key);
-      candidates.push({ id: choiceId ? `trait:${choiceId}` : `${provider.id}:${key}`, provider, definition, traitKey: key,
-        rank, choiceId, reason: candidateReason(definition, provider, rank) });
+      const candidate = { ...definition, id: choiceId ? `trait:${choiceId}` : `${provider.id}:${key}`, provider, definition, traitKey: key,
+        sourceId: provider.sourceId, recipientId: provider.recipientId, rank, choiceId, reason: candidateReason(definition, provider, rank) };
+      candidate.optionChoices = projectTraitOptions(candidate, builder, gameData, [], context);
+      candidate.optionsComplete = candidate.optionChoices.every(choice => choice.valid);
+      candidates.push(candidate);
     };
     if (!provider.choice) addCandidate(provider.traitKeys[0]);
     else for (let index = 0; index < provider.count; index += 1) {
@@ -164,7 +172,7 @@ export function projectCharacterTraits(character, gameData = {}, { selectedTechn
       const candidate = pending[index], { provider, definition } = candidate;
       if (!activeSources.has(provider.sourceId) || !requirementsMet(provider.entry.prerequisites, context, acquired, definitions)
         || !requirementsMet(definition.prerequisites, context, acquired, definitions)) { index += 1; continue; }
-      if (candidate.choiceId && acquired.some((trait) => trait.provider.id === provider.id && trait.traitKey === candidate.traitKey)) candidate.reason = "This provider already grants that Trait.";
+      if (candidate.choiceId && !definition.repeatable && acquired.some((trait) => trait.provider.id === provider.id && trait.traitKey === candidate.traitKey)) candidate.reason = "This provider already grants that Trait.";
       else acquired.push(candidate);
       pending.splice(index, 1); progress = true;
     }
@@ -176,25 +184,34 @@ export function projectCharacterTraits(character, gameData = {}, { selectedTechn
     path: candidate.choiceId ? `builder.traitChoices.${candidate.choiceId}` : candidate.id,
     choiceId: candidate.choiceId, message: candidate.reason, remove: Boolean(candidate.choiceId) });
   for (const choice of choices) {
+    const others = acquired.filter((trait) => trait.choiceId !== choice.choiceId);
+    const sourceActive = getActiveCharacterGrantSources(gameData, builder, acquiredContext(context, others, definitions)).some(source => source.sourceId === choice.provider.sourceId);
+    const providerReady = sourceActive && requirementsMet(choice.provider.entry.prerequisites, context, others, definitions);
     choice.options = [...definitions.values()].filter((definition) => offered(definition, choice.provider)).map((definition) => {
-      const others = acquired.filter((trait) => trait.choiceId !== choice.choiceId);
       let reason = candidateReason(definition, choice.provider, choice.rank);
-      if (!reason && others.some((trait) => trait.provider.id === choice.provider.id && trait.traitKey === definition.traitKey)) reason = "Already selected for this provider.";
-      const sourceActive = getActiveCharacterGrantSources(gameData, builder, acquiredContext(context, others, definitions)).some(source => source.sourceId === choice.provider.sourceId);
-      if (!reason && (!sourceActive || !requirementsMet(definition.prerequisites, context, others, definitions)
-        || !requirementsMet(choice.provider.entry.prerequisites, context, others, definitions))) reason = "Prerequisites are not met.";
+      if (!reason && !definition.repeatable && others.some((trait) => trait.provider.id === choice.provider.id && trait.traitKey === definition.traitKey)) reason = "Already selected for this provider.";
+      if (!reason && definition.repeatable) {
+        const probe = { ...definition, id: `trait:${choice.choiceId}`, rank: choice.rank, sourceId: choice.sourceId, recipientId: choice.recipientId };
+        if (projectTraitOptions(probe, builder, gameData, others).some(option => !option.options.some(value => value.eligible))) reason = "Every eligible option for this Trait has already been chosen.";
+      }
+      if (!reason && (!providerReady || !requirementsMet(definition.prerequisites, context, others, definitions))) reason = "Prerequisites are not met.";
       return { traitKey: definition.traitKey, name: definition.name, rank: definition.rank, eligible: !reason, reason };
     }).sort((a, b) => a.name.localeCompare(b.name));
     delete choice.provider;
   }
   for (const choiceId of Object.keys(builder.traitChoices || {})) if (!desiredChoices.has(choiceId)) issues.push({ severity: "warning", code: "orphaned-trait-choice", path: `builder.traitChoices.${choiceId}`, choiceId, remove: true, message: "The Trait's source no longer offers this choice." });
   const techniques = [];
+  for (const candidate of acquired) {
+    candidate.optionChoices = projectTraitOptions(candidate, builder, gameData, acquired, acquiredContext(context, acquired, definitions));
+    candidate.optionsComplete = candidate.optionChoices.every(choice => choice.valid);
+  }
   const traits = acquired.map((candidate) => {
     const { provider, definition } = candidate;
-    for (const techniqueKey of definition.techniqueKeys || []) {
+    const explicitChoices = candidate.optionChoices.filter(choice => choice.kind === "technique" && choice.valid).map(choice => choice.value);
+    for (const techniqueKey of [...(definition.techniqueKeys || []), ...explicitChoices]) {
       const technique = (gameData.techniques || []).find((item) => item.techniqueKey === techniqueKey);
-      if (!isAutomaticTraitTechnique(technique)) continue;
-      const eligible = Boolean(technique && isGameDataRecordSelectable(technique, { allowGrantedOnly: true })
+      if (!traitGrantsTechnique(candidate, technique) && !explicitChoices.includes(techniqueKey)) continue;
+      const eligible = Boolean(candidate.optionsComplete && technique && isGameDataRecordSelectable(technique, { allowGrantedOnly: true })
         && Number.isInteger(technique.rank) && candidate.rank >= technique.rank
         && requirementsMet(technique.prerequisites, context, acquired, definitions));
       techniques.push({ techniqueKey, traitId: candidate.id, sourceId: provider.sourceId, recipientId: provider.recipientId,
@@ -203,7 +220,8 @@ export function projectCharacterTraits(character, gameData = {}, { selectedTechn
     return { ...definition, id: candidate.id, sourceId: provider.sourceId, sourceLabel: provider.sourceLabel, associatedSkill: provider.skill,
       providerId: provider.id,
       recipientId: provider.recipientId, choiceId: candidate.choiceId, rank: candidate.rank, minimumRank: definition.rank,
-      active: true, referenceOnly: false, sourceDescription: provider.description,
+      active: candidate.optionsComplete, referenceOnly: false, sourceDescription: provider.description,
+      optionChoices: candidate.optionChoices, optionsComplete: candidate.optionsComplete,
       classificationTags: definition.tags || [], tags: grantedTags([candidate], definitions) };
   });
   const weapons = projectTraitWeapons(traits, gameData);
@@ -217,7 +235,7 @@ export function projectCharacterTraits(character, gameData = {}, { selectedTechn
       recipientId: "character", rank: weapon.rank, active: eligible, eligible });
   }
   return immutable({ providers: providers.map(({ entry, ...provider }) => provider), traits: [...traits, ...references].sort((a, b) => a.id.localeCompare(b.id)),
-    choices, tags: grantedTags(acquired, definitions), techniques, weapons, issues,
+    choices, optionChoices: traits.flatMap(trait => trait.optionChoices || []), tags: grantedTags(acquired, definitions), techniques, weapons, issues,
     deferred: providers.filter((provider) => !provider.implemented).map(({ entry, ...provider }) => provider) });
 }
 
@@ -231,7 +249,7 @@ export function getActiveTraitTechniqueDetails(projection) {
     const previous = details.get(technique.techniqueKey);
     if (previous && previous.rank >= technique.rank) continue;
     details.set(technique.techniqueKey, { rank: technique.rank, sourceLabel: trait.sourceLabel,
-      traitName: trait.name, sourceId: trait.sourceId, skillName: trait.associatedSkill || "", weaponId: technique.weaponId || "" });
+      traitName: traitOptionLabel(trait), sourceId: trait.sourceId, skillName: trait.associatedSkill || "", weaponId: technique.weaponId || "" });
   }
   return details;
 }

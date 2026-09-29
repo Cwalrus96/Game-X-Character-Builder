@@ -1609,7 +1609,7 @@ function compileFeats(context, character, featsByKey, graph) {
 
 function compileGrantAnswers(context, character, techniquesByKey, weaponBasesByKey, graph) {
   const answers = character.builder.grantChoices;
-  const claimed = new Set();
+  const claimed = new Set((context.traitProjection.optionChoices || []).map(choice => choice.choiceId));
 
   for (const [choiceId, choiceSpec] of Array.from(context.activeChoices.entries()).sort(([left], [right]) => left.localeCompare(right))) {
     const answer = answers[choiceId];

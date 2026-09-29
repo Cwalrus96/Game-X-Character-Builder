@@ -27,7 +27,7 @@ export function migrateRequiredCellWorkbook(workbook) {
         const key = `${row.tab}.${row.field}`, contract = REQUIRED_CELL_CONTRACTS[key];
         if (contract) {
           row.required = contract.requirement;
-          if (contract.type === "enum") row.valuesOrFormat = REQUIRED_CELL_ENUMS[row.field].join("|");
+          if (contract.type === "enum") row.valuesOrFormat = REQUIRED_CELL_ENUMS[row.field === "repeatable" ? "booleanYN" : row.field].join("|");
         }
         if (key === "Techniques.energyCost") { row.default = "0"; row.description = "Optional base Energy cost. Blank means 0 Energy; it never blocks playability."; }
         if (key === "Techniques.energyCostKind") { row.default = "fixed"; row.description = "Optional cost shape: fixed, variable, or conditional. Blank uses conditional when explicit alternatives exist, otherwise fixed. Missing Energy is zero; no pumping is inferred."; }

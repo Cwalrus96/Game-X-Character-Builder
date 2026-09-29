@@ -1,4 +1,5 @@
 import { escapeHtml } from "./data-sanitization.js";
+import { traitOptionLabel } from "./trait-option-rules.js";
 
 function text(value) {
   return typeof value === "string" ? value : "";
@@ -23,7 +24,7 @@ export function renderTraitCardHtml(trait, { gameData = {}, reference = trait.re
   const definition = (gameData.traits || []).find((record) => record.traitKey === trait.traitKey) || {};
   const rank = trait.rank;
   const rankLabel = Number.isInteger(rank) && rank >= 0 ? `Rank ${rank}` : "Rank unknown";
-  const name = text(trait.name) || text(definition.name) || text(trait.traitKey) || "Unknown Trait";
+  const name = text(traitOptionLabel(trait)) || text(definition.name) || text(trait.traitKey) || "Unknown Trait";
   const description = text(trait.description) || text(definition.description);
   const notes = text(trait.rankNotes) || text(definition.rankNotes);
   const categories = Array.isArray(trait.classificationTags) ? trait.classificationTags : definition.tags || [];
@@ -34,6 +35,8 @@ export function renderTraitCardHtml(trait, { gameData = {}, reference = trait.re
     <h3 class="optionTitle ability-name">${escapeHtml(name)}</h3>
     <div class="help">${escapeHtml(rankLabel)} · ${escapeHtml(status)}${source ? ` · ${escapeHtml(source)}` : ""}</div>
     ${paragraph(description)}
+    ${trait.repeatable || definition.repeatable ? '<div class="help">Repeatable · Choose a different option each time.</div>' : ""}
+    ${trait.optionsComplete === false ? '<div class="help">Choose the remaining options to complete this Trait.</div>' : ""}
     ${trait.sourceDescription ? paragraph(trait.sourceDescription, "help") : ""}
     ${notes ? `<div class="help" style="white-space:pre-wrap;">${escapeHtml(notes)}</div>` : ""}
     ${categories.length ? `<div class="help">Trait categories: ${categories.map((tag) => escapeHtml(String(tag))).join(", ")}</div>` : ""}
@@ -53,6 +56,7 @@ export function getTraitSourceDisplay(projection, sourceId) {
   const choices = (projection.choices || []).filter(owned);
   return {
     providers, choices,
+    optionChoices: (projection.optionChoices || []).filter(choice => choice.parentSourceId === sourceId),
     traits: (projection.traits || []).filter((trait) => owned(trait) && !trait.referenceOnly),
     deferred: (projection.deferred || []).filter((provider) => providers.some((item) => item.id === provider.id)),
     issues: (projection.issues || []).filter((issue) => issue.path === sourceId

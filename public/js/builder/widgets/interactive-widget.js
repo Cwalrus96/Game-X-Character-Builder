@@ -19,6 +19,10 @@ export class InteractiveWidget extends BuilderWidget {
     this.render();
     let result;
     try {
+      // Paint the busy state and finish the input event before graph work and
+      // catalogue refreshes. Large builds must not trap the native control event.
+      if (typeof requestAnimationFrame === "function") await new Promise(resolve => requestAnimationFrame(resolve));
+      if (this.destroyed) return { ok: false, reason: "cancelled" };
       result = await action();
       if (result?.ok === false && result.reason !== "cancelled") this.error = result.errors?.join(" ") || message;
     } catch (error) {

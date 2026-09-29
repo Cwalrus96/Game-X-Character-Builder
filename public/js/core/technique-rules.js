@@ -4,6 +4,7 @@ import { createPrerequisiteContext } from "./prerequisites.js";
 import { evaluatePrerequisite } from "./prerequisite-rules.js";
 import { computeKnownCombatSkillsAndGrants, getCombatSkillRanks, computeGrantedSkillsState } from "./skill-rules.js";
 import { canonicalSkillKey, canonicalSkillName } from "./skill-identity.js";
+import { traitTechniqueContexts } from "./trait-option-rules.js";
 
 const list = value => Array.isArray(value) ? value : value == null ? [] : [value];
 const sameSkill = (left, right) => canonicalSkillKey(left) === canonicalSkillKey(right);
@@ -63,6 +64,12 @@ export function getTechniqueSelectionState(technique, input = {}) {
   const context = createTechniqueContext(input);
   const ordinary = ordinarySelection(technique, { ...context, ...input });
   const candidates = [{ ...ordinary, prerequisitesMet: requirementsMet(technique, context), evidence: [] }];
+  for (const candidate of traitTechniqueContexts(technique, context)) {
+    const prerequisitesMet = requirementsMet(technique, { ...context, weapons: candidate.weapons });
+    candidates.push({ ...ordinary, knownSkill: true, skillName: candidate.skillName, skillRank: candidate.rank,
+      eligible: ordinary.selectable && candidate.rank >= ordinary.requiredRank, prerequisitesMet,
+      route: { type: "trait", name: candidate.sourceLabel }, evidence: candidate.evidence });
+  }
   for (const route of technique.selectionRoutes || []) {
     if (route.type !== "skill") continue;
     for (const rule of context.techniqueRules.filter(rule => rule.type === "technique" && list(rule.access).some(name => sameSkill(name, route.name)))) {
@@ -88,6 +95,9 @@ export function getTechniquePerformance(technique, input = {}, provider = null) 
     ? [technique.associatedSkill] : (technique.selectionRoutes || []).filter(route => route.type === "skill").map(route => route.name);
   if (!names.length && technique.skill && !/^(provider|none)$/i.test(technique.skill)) names.push(technique.skill);
   const candidates = names.map(skillName => ({ skillName, rank: rankFor(skillName, context.skillRanks), weaponIds: [], sourceLabel: "" }));
+  for (const candidate of traitTechniqueContexts(technique, context)) if (requirementsMet(technique, { ...context, weapons: candidate.weapons })) {
+    candidates.push({ skillName: candidate.skillName, rank: candidate.rank, weaponIds: candidate.weaponIds, sourceLabel: candidate.sourceLabel });
+  }
   if (provider) candidates.push({ skillName: provider.skillName || names[0] || "Associated skill", rank: provider.rank,
     weaponIds: provider.weaponId ? [provider.weaponId] : [], sourceLabel: provider.traitName || provider.sourceLabel || "" });
   for (const route of technique.selectionRoutes || []) if (route.type === "weaponTag") {

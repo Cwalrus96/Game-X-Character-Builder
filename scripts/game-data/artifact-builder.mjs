@@ -4,7 +4,7 @@ import { bindModelChoices } from "./choice-bindings.mjs";
 export const RUNTIME_ARTIFACT_SCHEMA_VERSION = 2;
 export const EXPORTER_VERSION = "2.0.1-wpb-staging";
 export const AUTHORING_V5_ARTIFACT_SCHEMA_VERSION = 3;
-export const AUTHORING_V5_EXPORTER_VERSION = "3.1.0-source-owned-choices";
+export const AUTHORING_V5_EXPORTER_VERSION = "3.2.0-repeatable-traits";
 
 export function artifactVersionsForModel(model) {
   return Number(model?.metadata?.sourceSchemaVersion) === 5

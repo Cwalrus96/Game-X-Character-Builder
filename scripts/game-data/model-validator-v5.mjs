@@ -2,6 +2,7 @@ import { getExpressionRuntimeStatus, getTraitGrantDeferredReasons } from "../../
 import { normalizeExpressionObject } from "../../public/js/core/game-data-expressions.js";
 import { usesRequiredCells } from "./required-cell-readiness.mjs";
 import { createTechniqueAccessReferences, validateTechniqueAccessReferences, validateDeferredNaturalWeapon } from "./technique-access-validation.mjs";
+import { isTraitWeaponChoice, traitOptionSpecs } from "../../public/js/core/trait-option-rules.js";
 
 const array = (value) => Array.isArray(value) ? value : value == null || value === "" ? [] : [value];
 const leaves = (expression) => expression?.type === "any" ? (Array.isArray(expression.alternatives) ? expression.alternatives : []).flatMap(leaves) : [expression];
@@ -70,7 +71,7 @@ export function validateV5Relationships(model, helpers) {
       const normalized = normalizeExpressionObject("grant", grant, { syntaxVersion: 3 });
       for (const diagnostic of normalized.diagnostics) add(diagnostic.severity, diagnostic.code, diagnostic.message, row, "grants", { field: diagnostic.field, expressionIndex: index });
       validateTechniqueAccessReferences(grant, row, index, accessReferences, add);
-      if (row.traitKey && grant.type === "weapon" && (typeof grant.key !== "string" || Object.keys(grant).some(key => !["type", "key", "count"].includes(key)))) add("warning", "trait-weapon-projection-deferred",
+      if (row.traitKey && grant.type === "weapon" && !isTraitWeaponChoice(grant) && (typeof grant.key !== "string" || Object.keys(grant).some(key => !["type", "key", "count"].includes(key)))) add("warning", "trait-weapon-projection-deferred",
         "Trait-owned weapons retain their source relationship; provider rank/skill inheritance and weapon projection are not implemented.", row, "grants", { expressionIndex: index });
       if (grant.type === "trait") {
         if (grant.key) requireReference(traits, grant.key, { record: row, column: "grants", kind: "Trait" });
@@ -97,6 +98,8 @@ export function validateV5Relationships(model, helpers) {
       add("warning", "feature-invocation-deferred", `Feature "${grant.key}" is a fresh source-owned invocation; conditional feature execution remains deferred.`, row, "grants", invocation);
       add("warning", "feature-invocation-deferred", "This reusable feature contains a rule invoked by other features; its conditional execution remains deferred.", target, "description");
     }
+
+    if (row.traitKey && row.repeatable && !traitOptionSpecs({ ...row, id: `trait:${row.traitKey}` }, model).length) add("error", "repeatable-trait-options-missing", "A repeatable Trait needs a supported, identified option to distinguish its selections.", row, "repeatable");
 
     for (const [index, expression] of (row.prerequisites || []).entries()) {
       const normalized = normalizeExpressionObject("prerequisite", expression, { syntaxVersion: 3 });

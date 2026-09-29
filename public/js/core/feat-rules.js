@@ -1,5 +1,6 @@
 import { getActiveCharacterGrantSources, getSourceFeatSlots } from "./grant-source-rules.js";
-import { createPrerequisiteContext, checkPrerequisites } from "./prerequisites.js";
+import { createPrerequisiteContext } from "./prerequisites.js";
+import { checkPrerequisites } from "./prerequisite-rules.js";
 import { isGameDataRecordSelectable } from "./selection-rules.js";
 import { allocateFeatsToExplicitSlots, featMatchesExplicitSlot } from "./feat-allocation-rules.js";
 export { createFeatGrantSlots, getFeatRequiredLevel, featMatchesExplicitSlot, allocateFeatsToExplicitSlots } from "./feat-allocation-rules.js";
@@ -46,12 +47,14 @@ export function getFeatGrantChoices(gameData, builder = {}, { entry, grantIndex 
     .map((slot) => {
       const featKey = state.assignments.find((assignment) => assignment.slotId === slot.slotId)?.featKey || "";
       const remainingKeys = selected.filter((key) => key !== featKey);
+      // All alternatives share one hypothetical build. Resolve acquired Traits
+      // and Techniques once, rather than once per catalogue entry on every edit.
+      const candidateContext = createPrerequisiteContext({ gameData, builder: { ...builder, selectedFeats: remainingKeys } });
+      const selectedContext = featKey ? createPrerequisiteContext({ gameData, builder }) : candidateContext;
       const options = feats.filter((feat) => featMatchesExplicitSlot(feat, slot)).map((feat) => {
         const key = text(feat.featKey);
         const alreadySelected = remainingKeys.includes(key);
-        const prerequisites = checkPrerequisites(feat.prerequisites, {
-          gameData, builder: key === featKey ? builder : { ...builder, selectedFeats: remainingKeys },
-        });
+        const prerequisites = checkPrerequisites(feat.prerequisites, key === featKey ? selectedContext : candidateContext);
         const selectable = key === featKey || isGameDataRecordSelectable(feat);
         const nextFeatKeys = selected.includes(featKey)
           ? selected.map((current) => current === featKey ? key : current)

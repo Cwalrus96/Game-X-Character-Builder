@@ -6,6 +6,7 @@ import { createPrerequisiteContext, meetsPrerequisites } from "./prerequisite-ru
 import { computeGrantedSkillsState, getCombatSkillRanks } from "./skill-rules.js";
 import { isGameDataGrantExecutable, isGameDataRecordSelectable } from "./selection-rules.js";
 import { projectCharacterTraits } from "./trait-rules.js";
+import { traitOptionLabel } from "./trait-option-rules.js";
 
 /** One known-Technique view for Rules, the graph, builder and sheet. Source
  * records retain ownership, while every acquired Technique has one identity. */
@@ -46,7 +47,7 @@ export function projectTechniqueOwnership({ builder = {}, gameData = {}, project
       const trait = traitProjection.traits.find(trait => trait.id === link.traitId);
       if (!trait) continue;
       add(link.techniqueKey, { kind: "trait", nodeId: `automatic-technique:${link.weaponId || link.traitId}:${link.techniqueKey}`,
-        sourceId: link.sourceId, sourceLabel: trait.name, provider: { rank: link.rank, traitName: trait.name,
+        sourceId: link.sourceId, sourceLabel: traitOptionLabel(trait), provider: { rank: link.rank, traitName: traitOptionLabel(trait),
           sourceLabel: trait.sourceLabel, sourceId: trait.sourceId, skillName: trait.associatedSkill || "", weaponId: link.weaponId || "" } });
     }
     const context = { ...base, selectedTechniqueKeys: [...owned.keys()], selectedTraits: traitProjection.traits.filter(trait => trait.active && !trait.referenceOnly),
