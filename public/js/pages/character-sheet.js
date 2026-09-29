@@ -67,7 +67,7 @@ import {
 import { createSaveCoordinator } from "../core/save-coordinator.js";
 import { getSaveStatusPresentation } from "../core/save-status.js";
 import { createSheetHpControl } from "./sheet-hp-control.js";
-import { createSheetRolls } from "./sheet-rolls.js?v=sheet-rolls6";
+import { createSheetRolls } from "./sheet-rolls.js?v=dice3d1";
 import {
   createNavigationGuard,
   installNavigationGuard,

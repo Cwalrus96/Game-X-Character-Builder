@@ -1,5 +1,7 @@
 # Character Sheet rolling — September 27, 2026
 
+September 29 follow-up: [animated 3D dice](sheet-dice-3d-2026-09-29.md) now present these same results, with a half-die coin, reduced-motion support and a session animation toggle. The mechanics and persistence boundaries below are retained.
+
 ## Scope and accepted rules
 
 The first rolling milestone adds a portable roller to the existing Character Sheet. Players click an Attribute or Skill directly to open **Roll** with that value preselected and choose the other. Defense values also open the corresponding defense Skill. Techniques and weapon attacks have a right-aligned vertical stack: **Quick Roll** above **Roll with Modifiers**. Techniques with no roll and no underlying attack have no action button. There is no Resources-area roll button.
@@ -23,7 +25,7 @@ September 28 layout refinement: sheet Technique/weapon profiles place their titl
 
 Pure `roll-rules`, `damage-rules` and `sheet-roll-context` modules own mechanics. A separate `dice-random` adapter uses unbiased cryptographic random faces. The widget renders the result and parses local input; the sheet coordinator registers controls and supplies the loaded character. Existing shared Technique and weapon presentation accepts an optional Roll control, leaving builder callers unchanged.
 
-The nonmodal dialog is outside `#sheet`, has no save-owned input names, imports no persistence, and never changes HP, Strain, Energy, conditions or the character build. Attribute rows and Skill chips use native buttons with the existing sheet styles and keyboard focus. Close/Escape restores focus to the opener. Existing HP direct values, signed adjustments and persistence remain intact. Animation can later present the already-generated result without owning mechanics or drawing replacement dice.
+The nonmodal dialog is outside `#sheet`, has no save-owned input names, imports no persistence, and never changes HP, Strain, Energy, conditions or the character build. Attribute rows and Skill chips use native buttons with the existing sheet styles and keyboard focus. Close/Escape restores focus to the opener. Existing HP direct values, signed adjustments and persistence remain intact. The 3D presentation animates the already-generated result without owning mechanics or drawing replacement dice.
 
 This milestone resolves one attack at a time, including when prose calls for multiple separate attacks. Conditional bonuses, defenses, armor/resistance, resource use, triggers and effect application remain player adjudication. The modifier fields accept one net value per modifier type and a separate Other adjustment; the UI explains that same-type bonuses do not stack. The exact authored attack-penalty and doubled-damage-Hits phrases used by Devastating Blow are recognized; arbitrary prose is never executed. Compact damage formulas are conservatively parsed, with unsupported text explicitly requiring manual calculation. Non-damage pumping stays in the displayed technique rules. Missing or cyclic references and unmet weapon requirements are reported rather than replaced with fabricated attacks.
 

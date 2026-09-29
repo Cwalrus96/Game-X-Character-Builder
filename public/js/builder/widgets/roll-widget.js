@@ -5,6 +5,7 @@ import { calculateAttackDamage, parseDamageFormula, getDamagePumping } from "../
 import { getRollSkills, getRollAttribute, getTechniqueRollChoices } from "../../core/sheet-roll-context.js?v=sheet-rolls2";
 import { randomDieFace } from "../../core/dice-random.js";
 import { restoreDialogFocus } from "../../core/dialog-lifecycle.js";
+import { renderDiceResults } from "./components/dice-view.js";
 
 const esc = value => escapeHtml(String(value ?? ""));
 const option = (value, label) => `<option value="${esc(value)}">${esc(label)}</option>`;
@@ -57,7 +58,7 @@ export function createRollDialog({ nextFace = randomDieFace } = {}) {
         <label class="roll-field roll-tn" for="roll-tn">TN <span class="roll-help">(optional)</span><input id="roll-tn" type="text" inputmode="numeric" autocomplete="off" placeholder="—" title="Changing TN uses these same dice and Hits."/></label>
         <p id="roll-outcome" role="status" aria-live="polite"></p>
         <div id="roll-damage"></div>
-        <div class="roll-result-actions"><button type="button" class="sheet-roll-button" id="roll-again">Roll again</button></div>
+        <div class="roll-result-actions"><button type="button" class="sheet-roll-button" id="roll-again">Roll again</button><label class="roll-motion"><input type="checkbox" id="roll-animate"/> Animate dice</label></div>
       </section>
       <details id="roll-rules" hidden><summary>Technique rules and effects</summary><div id="roll-rules-content"></div></details>
       <details id="roll-history" hidden><summary>Recent rolls · this sheet session</summary><div id="roll-history-list"></div></details>
@@ -66,6 +67,20 @@ export function createRollDialog({ nextFace = randomDieFace } = {}) {
   const el = id => dialog.querySelector(`#${id}`);
   let request, choices = [], choice = null, skills = [], opener, current = null, nextId = 0;
   const history = [];
+  const motionPreference = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)");
+  let animationsEnabled = true;
+  function syncMotionPreference() {
+    el("roll-animate").checked = animationsEnabled && !motionPreference?.matches;
+    el("roll-animate").disabled = Boolean(motionPreference?.matches);
+    el("roll-animate").title = motionPreference?.matches ? "Animations are off because your device prefers reduced motion." : "Animate new rolls.";
+    if (!el("roll-animate").checked) el("roll-faces").querySelector(".dice-animate")?.classList.remove("dice-animate");
+  }
+  syncMotionPreference();
+  motionPreference?.addEventListener("change", syncMotionPreference);
+  el("roll-animate").addEventListener("change", () => {
+    animationsEnabled = el("roll-animate").checked;
+    syncMotionPreference();
+  });
 
   function readNumber(id, { half = false, blank = 0 } = {}) {
     const raw = el(id).value.trim();
@@ -214,7 +229,7 @@ export function createRollDialog({ nextFace = randomDieFace } = {}) {
     }
   }
 
-  function showResult(result) {
+  function showResult(result, { animate = false } = {}) {
     current = result;
     dialog.classList.add("has-result");
     el("roll-setup").hidden = true;
@@ -225,10 +240,9 @@ export function createRollDialog({ nextFace = randomDieFace } = {}) {
     const title = result.config.source?.startsWith(result.config.title) ? result.config.source : [result.config.title, result.config.source].filter(Boolean).join(" · ");
     el("roll-result-context").textContent = `${title}${result.config.skill && !result.config.noRoll ? ` · ${labelForAttrKey(result.config.attributeKey)} ${result.roll.pool.attribute} + ${result.config.skill.name} ${result.config.skill.rank} · ${poolText(result.roll.pool)}` : ""}`;
     el("roll-total").textContent = result.config.noRoll ? "No roll required" : `${result.roll.hits} Hits`;
-    el("roll-faces").innerHTML = result.roll.dice.map(die => `<span class="roll-die" role="img" aria-label="Die ${die.face}: ${die.hits} Hits" title="${die.face} → ${die.hits} Hits"><span aria-hidden="true">${["⚀","⚁","⚂","⚃","⚄","⚅"][die.face - 1]}</span></span>`).join("")
-      + (result.roll.coin !== null ? `<span class="roll-die roll-coin" role="img" aria-label="Coin: ${result.roll.coin} Hits" title="Coin → ${result.roll.coin} Hits"><span aria-hidden="true">${result.roll.coin ? "H" : "T"}</span></span>` : "")
-      + (result.roll.pool.automaticHits ? `<span class="roll-automatic">+${result.roll.pool.automaticHits} automatic Hits</span>` : "")
-      + (!result.config.noRoll && result.roll.pool.reason ? `<p>${esc(result.roll.pool.reason)}</p>` : "");
+    el("roll-faces").innerHTML = renderDiceResults(result.roll, {
+      animate: animate && el("roll-animate").checked && !motionPreference?.matches, noRoll: result.config.noRoll,
+    });
     el("roll-tn").value = result.tn ?? "";
     el("roll-tn").closest("label").hidden = result.config.noRoll;
     renderRules(result.config.profiles);
@@ -245,7 +259,7 @@ export function createRollDialog({ nextFace = randomDieFace } = {}) {
       history.unshift(record);
       history.splice(10);
       showError();
-      showResult(record);
+      showResult(record, { animate: true });
       el("roll-history").hidden = false;
       el("roll-history-list").innerHTML = history.map(item => `<button class="roll-history-item" type="button" data-roll-history="${item.id}">${esc(item.config.title)} · ${item.config.noRoll ? "No roll" : `${item.roll.hits} Hits`}</button>`).join("");
       el("roll-total").focus({ preventScroll: true });

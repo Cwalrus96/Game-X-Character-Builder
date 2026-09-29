@@ -64,16 +64,81 @@
 #roll-result { margin: 0; padding: 0; }
 .roll-total { font-size: 1.65rem; font-weight: 700; }
 #roll-total:focus { outline: none; }
-.roll-faces { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-bottom: 10px; }
-.roll-die { display: inline-flex; align-items: center; justify-content: center; border: 1px solid currentColor; border-radius: 4px; padding: 2px; }
-.roll-die > span:first-child { font-family: sans-serif; font-size: 1.5rem; line-height: 1; }
-.roll-coin > span:first-child { border: 1px solid currentColor; border-radius: 50%; width: 1.2em; text-align: center; }
+.roll-faces { margin-bottom: 10px; }
+.dice-tray {
+  --dice-size: 30px;
+  --dice-half: 15px;
+  display: grid;
+  grid-template-columns: repeat(var(--dice-columns), minmax(0, 1fr));
+  gap: 12px 4px;
+  padding: 18px 8px 10px;
+  overflow: hidden;
+  border: 1px solid #536675;
+  border-radius: 9px;
+  background: radial-gradient(ellipse at 50% 0, #354b60, #151e2b);
+  box-shadow: inset 0 2px 8px #0008;
+  color: #fff7e7;
+}
+.dice-token { position: relative; display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 0; perspective: 500px; }
+.dice-flight, .dice-angle, .dice-cube, .dice-coin { display: block; width: var(--dice-size); height: var(--dice-size); transform-style: preserve-3d; }
+.dice-angle { transform: rotateX(-18deg) rotateY(-22deg); }
+.dice-cube, .dice-coin { position: relative; transform: rotateX(var(--land-x)) rotateY(var(--land-y)); }
+.dice-face {
+  position: absolute; inset: 0; box-sizing: border-box;
+  display: grid; grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+  gap: 2px; padding: 4px;
+  border: 1px solid #c8baa6; border-radius: 4px;
+  backface-visibility: hidden;
+  background: linear-gradient(135deg, #fffdf7, #e6d8c2);
+  box-shadow: inset 0 0 3px #fff;
+}
+.dice-face[data-face="2"], .dice-face[data-face="5"] { background: linear-gradient(120deg, #e5dac9, #c4b59d); }
+.dice-face[data-face="4"], .dice-face[data-face="6"] { background: linear-gradient(145deg, #efe5d5, #d9cbb5); }
+.dice-pip { display: block; width: 5px; height: 5px; border-radius: 50%; background: #222d3b; place-self: center; box-shadow: inset 0 1px 2px #000b, 0 1px 0 #fff8; }
+.dice-pip-1 { grid-area: 1 / 1; } .dice-pip-2 { grid-area: 1 / 2; } .dice-pip-3 { grid-area: 1 / 3; }
+.dice-pip-4 { grid-area: 2 / 1; } .dice-pip-5 { grid-area: 2 / 2; } .dice-pip-6 { grid-area: 2 / 3; }
+.dice-pip-7 { grid-area: 3 / 1; } .dice-pip-8 { grid-area: 3 / 2; } .dice-pip-9 { grid-area: 3 / 3; }
+.dice-hits { font-size: .64rem; line-height: 1.15; font-weight: 700; white-space: nowrap; }
+.dice-shadow { position: absolute; top: 28px; width: 32px; height: 10px; border-radius: 50%; background: #0009; filter: blur(3px); }
+.dice-coin-side, .dice-coin-rim { position: absolute; inset: 0; box-sizing: border-box; border-radius: 50%; background: #dcae50; }
+.dice-coin-side {
+  display: grid; place-items: center; backface-visibility: hidden;
+  border: 2px solid #f8d57d; box-shadow: inset 0 0 0 1px #916516, inset 1px 1px 4px #fff5;
+  color: #332209; background: linear-gradient(135deg, #ffe7a4, #c99430);
+  font: 700 18px Georgia, serif;
+}
+.dice-coin-heads { transform: translateZ(2px); }
+.dice-coin-tails { transform: rotateY(180deg) translateZ(2px); }
+.dice-coin-rim { box-shadow: 0 0 0 1px #c48e28; }
+.dice-animate .dice-flight { animation: dice-arrive 850ms var(--dice-delay) both; }
+.dice-animate .dice-cube, .dice-animate .dice-coin { animation: dice-tumble 850ms var(--dice-delay) both; }
+.dice-animate .dice-shadow { animation: dice-shadow 850ms var(--dice-delay) both; }
+@keyframes dice-arrive {
+  0% { transform: translate3d(var(--launch-x), -48px, 0) scale(.75); animation-timing-function: ease-in; }
+  48% { transform: translate3d(0, 0, 0) scale(1); animation-timing-function: ease-out; }
+  66% { transform: translate3d(0, -13px, 0); animation-timing-function: ease-in; }
+  82% { transform: translate3d(0, 0, 0); animation-timing-function: ease-out; }
+  91% { transform: translate3d(0, -3px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+@keyframes dice-tumble {
+  0% { transform: rotateX(calc(var(--land-x) + 720deg)) rotateY(calc(var(--land-y) + 540deg)) rotateZ(var(--launch-z)); animation-timing-function: ease-out; }
+  70% { transform: rotateX(calc(var(--land-x) - 18deg)) rotateY(calc(var(--land-y) + 14deg)); }
+  88% { transform: rotateX(calc(var(--land-x) + 5deg)) rotateY(calc(var(--land-y) - 3deg)); }
+  100% { transform: rotateX(var(--land-x)) rotateY(var(--land-y)); }
+}
+@keyframes dice-shadow { 0% { opacity: .2; transform: scale(.5); } 48%, 82%, 100% { opacity: 1; transform: scale(1); } 66% { opacity: .5; transform: scale(.8); } }
+@media (prefers-reduced-motion: reduce) {
+  .dice-animate .dice-flight, .dice-animate .dice-cube, .dice-animate .dice-coin, .dice-animate .dice-shadow { animation: none; }
+}
 .roll-automatic { font-size: .75rem; font-weight: 600; }
 .roll-tn { flex-direction: row; align-items: center; gap: 5px; }
 .roll-tn input { width: 80px; margin-left: auto; }
 .roll-damage-summary { display: flex; justify-content: space-between; align-items: baseline; gap: 5px; }
 .roll-damage-summary .roll-help { font-size: .65rem; }
-.roll-result-actions { display: flex; gap: 8px; margin: 8px 0; }
+.roll-result-actions { display: flex; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: 8px; margin: 8px 0; }
+.roll-motion { display: inline-flex; align-items: center; gap: 4px; font-size: .7rem; cursor: pointer; }
+.roll-motion input { margin: 0; width: 14px; height: 14px; }
 .roll-table-wrap { overflow-x: auto; }
 .roll-dialog .roll-damage-table { width: 100%; border-collapse: collapse; color: inherit; table-layout: auto; }
 .roll-dialog .roll-damage-table { display: table; }

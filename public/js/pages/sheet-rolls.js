@@ -1,7 +1,7 @@
 import { escapeHtml } from "../core/data-sanitization.js";
 import { isGameDataRecordExecutable } from "../core/selection-rules.js";
 import { canonicalSkillKey } from "../core/skill-identity.js";
-import { createRollDialog } from "../builder/widgets/roll-widget.js?v=sheet-rolls6";
+import { createRollDialog } from "../builder/widgets/roll-widget.js?v=dice3d1";
 
 /** Sheet coordinator only: roll controls never participate in character saves. */
 export function createSheetRolls({ root = document, createDialog = createRollDialog } = {}) {
