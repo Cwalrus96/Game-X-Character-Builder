@@ -210,7 +210,7 @@ The definitive v6 reader/writer APIs are implemented and emulator-tested. The re
 
 `CharacterCodec` is the only boundary that validates the complete canonical character shape. Other checks have deliberately narrower jobs: command decoders validate one intent, widgets validate raw local input, pure Rules evaluate game mechanics, graph diagnostics validate dependency structure/meaning, and persistence validates envelopes, paths, and revisions. Those boundaries may call the codec when they require a whole-character guarantee; they must not maintain competing whole-character validators.
 
-Character-sheet autosave owns only temporary play-state leaves such as current HP, strain, notes, and conditions. Builder-owned identity, class, attributes, skills, abilities, techniques, equipment, and choices are outside its write scope.
+Character-sheet autosave owns temporary play-state leaves such as current HP, strain, notes, and conditions, plus validated per-character presentation leaves under `builder.sheet.appearance.*`. Builder-owned identity, class, attributes, skills, abilities, techniques, equipment, and choices are outside its write scope. The portable settings widget owns input/preview, the pure appearance module owns allowed presentation values, and the page coordinates the existing save boundary. No class-derived theme, second character store or game-rule dependency is introduced. Dice styles decorate already-resolved results without consuming randomness. See [sheet customization](sheet-customization-2026-09-29.md).
 
 ## Game-data architecture
 

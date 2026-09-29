@@ -707,7 +707,8 @@ function normalizeSheet(value, path, context) {
     }
     addDiagnostic(context, "unresolved-legacy-field", repeatablePath, "Populated legacy repeatable has no lossless v5 storage binding.");
   }
-  return { fields, repeatables: outputRepeatables };
+  return { fields, repeatables: outputRepeatables,
+    ...(isPlainObject(value) && hasOwn(value, "appearance") ? { appearance: cloneValue(value.appearance) } : {}) };
 }
 
 function normalizeBonds(value, path, context) {

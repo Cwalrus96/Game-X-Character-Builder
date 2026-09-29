@@ -14,6 +14,7 @@ import {
 } from "../../vendor/firebase/firebase-firestore.js";
 
 import { loadGameXData } from "./game-data.js";
+import { isAppearanceValue } from "./sheet-appearance.js";
 import { createCharacterMigrationReferences } from "./character-migrations.js";
 import {
   CharacterPersistenceError,
@@ -310,6 +311,12 @@ export function sanitizeUpdatePatch(patch) {
   const src = (patch && typeof patch === "object") ? patch : {};
   const out = { ...src };
 
+  for (const [path, value] of Object.entries(out)) {
+    if (path === "builder.sheet.appearance" || path.startsWith("builder.sheet.appearance.") && !isAppearanceValue(path.slice("builder.sheet.appearance.".length), value)) {
+      throw new TypeError(`Invalid sheet appearance patch: ${path}`);
+    }
+  }
+
   // Allow only root schemaVersion plus builder.* writes.
   for (const k of Object.keys(out)) {
     if (k === "schemaVersion") continue;
@@ -420,9 +427,23 @@ export function sanitizeUpdatePatch(patch) {
  * @param {any} charRef
  * @param {Record<string, any>} patch
  */
-export async function saveCharacterPatch(charRef, patch) {
+export async function saveCharacterPatch(charRef, patch, { firestoreApi = { runTransaction, updateDoc, serverTimestamp } } = {}) {
   const cleaned = sanitizeUpdatePatch(patch || {});
-  await updateDoc(charRef, { ...cleaned, updatedAt: serverTimestamp() });
+  if (Object.keys(cleaned).some(path => path.startsWith("builder.sheet.appearance."))) {
+    // Invalidate stale builder snapshots while preserving the stored format and
+    // every unrelated leaf. Transaction retries merge independent sheet edits.
+    await firestoreApi.runTransaction(charRef.firestore, async transaction => {
+      const snapshot = await transaction.get(charRef);
+      requireExistingSnapshot(snapshot);
+      const raw = snapshot.data();
+      const revision = raw.revision ?? 0;
+      assertPersistenceResult(checkCharacterRevision(raw, revision), "character-write-invalid-revision", "Invalid character revision.");
+      if (!Number.isSafeInteger(revision + 1)) throw new RangeError("Character revision is too large.");
+      transaction.update(charRef, { ...cleaned, revision: revision + 1, updatedAt: firestoreApi.serverTimestamp() });
+    });
+    return;
+  }
+  await firestoreApi.updateDoc(charRef, { ...cleaned, updatedAt: firestoreApi.serverTimestamp() });
 }
 
 /**

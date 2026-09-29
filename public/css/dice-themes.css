@@ -1,0 +1,32 @@
+/* Cosmetic tokens never participate in randomization or game rules. */
+.dice-tray {
+  --tray: #f3f3f3; --tray-light: #ffffff; --tray-text: #111111;
+  --die: #ffffff; --die-shade: #dddddd; --die-edge: #888888; --pip: #111111;
+  --coin: #ffffff; --coin-shade: #cccccc; --coin-ink: #111111;
+  position: relative; isolation: isolate;
+  background: radial-gradient(ellipse at 50% 0, var(--tray-light), var(--tray));
+  color: var(--tray-text); border-color: var(--die-edge); box-shadow: inset 0 1px 6px #0002;
+}
+.dice-tray[data-dice-theme="magical-girl"] { --tray: #391944; --tray-light: #84447e; --tray-text: #fff1fc; --die: #fff4fd; --die-shade: #f7a9d9; --die-edge: #db83b8; --pip: #902661; --coin: #fff0b9; --coin-shade: #eab065; --coin-ink: #703654; }
+.dice-tray[data-dice-theme="spirit-warrior"] { --tray: #261209; --tray-light: #794326; --tray-text: #ffe9b5; --die: #ffd175; --die-shade: #ef873c; --die-edge: #bd6631; --pip: #552116; --coin: #ffe49c; --coin-shade: #e69f37; --coin-ink: #542312; }
+.dice-tray[data-dice-theme="ninja"] { --tray: #0d111d; --tray-light: #343445; --tray-text: #fce9ed; --die: #4a3b50; --die-shade: #201d31; --die-edge: #a75972; --pip: #ffb9cb; --coin: #d06d89; --coin-shade: #893854; --coin-ink: #fff3f7; }
+.dice-tray[data-dice-theme="mech-pilot"] { --tray: #081d2c; --tray-light: #1e4a60; --tray-text: #d7fbff; --die: #cef4fa; --die-shade: #73adbf; --die-edge: #3a849c; --pip: #0a384e; --coin: #b2e7f5; --coin-shade: #589bad; --coin-ink: #082e41; }
+.dice-tray[data-dice-theme="elementalist"] { --tray: #0c3133; --tray-light: #35705b; --tray-text: #e2ffe9; --die: #d1f7da; --die-shade: #6cbaa1; --die-edge: #3a937e; --pip: #14474c; --coin: #ceeedb; --coin-shade: #7dc5b9; --coin-ink: #174a45; }
+.dice-tray .dice-face { background: linear-gradient(135deg, var(--die), var(--die-shade)); border-color: var(--die-edge); }
+.dice-tray .dice-face[data-face="2"], .dice-tray .dice-face[data-face="5"] { background: linear-gradient(120deg, var(--die-shade), var(--die)); }
+.dice-tray .dice-pip { background: var(--pip); }
+.dice-tray .dice-coin-side { background: linear-gradient(135deg, var(--coin), var(--coin-shade)); color: var(--coin-ink); border-color: var(--coin); box-shadow: inset 0 0 0 1px var(--coin-ink); }
+.dice-tray .dice-coin-rim { background: var(--coin-shade); box-shadow: 0 0 0 1px var(--die-edge); }
+.dice-tray[data-dice-theme="magical-girl"] .dice-pip { width: 7px; height: 7px; border-radius: 0; clip-path: polygon(50% 0, 62% 35%, 100% 38%, 71% 61%, 80% 100%, 50% 77%, 20% 100%, 29% 61%, 0 38%, 38% 35%); box-shadow: none; }
+.dice-tray[data-dice-theme="mech-pilot"] .dice-pip { border-radius: 1px; }
+.dice-particles { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+.dice-particles i { position: absolute; left: var(--spark-x); top: var(--spark-y); font: 18px/1 Georgia, serif; color: #ffe9a9; opacity: 0; text-shadow: 0 0 7px #fff2b9; }
+.dice-particles i:nth-child(3n) { color: #ffc4e5; font-size: 23px; }
+.dice-animate .dice-particles i { animation: magical-sparkle 1600ms var(--spark-delay) both; }
+@keyframes magical-sparkle {
+  0% { opacity: 0; transform: translate(0, 10px) scale(.2) rotate(-25deg); }
+  25% { opacity: 1; transform: translate(0, -4px) scale(1.1) rotate(10deg); }
+  65% { opacity: .85; }
+  100% { opacity: 0; transform: translate(var(--spark-drift), -40px) scale(.2) rotate(90deg); }
+}
+@media (prefers-reduced-motion: reduce) { .dice-particles { display: none; } .dice-animate .dice-particles i { animation: none; } }

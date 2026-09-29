@@ -4,10 +4,10 @@ import { canonicalSkillKey } from "../core/skill-identity.js";
 import { createRollDialog } from "../builder/widgets/roll-widget.js?v=dice3d1";
 
 /** Sheet coordinator only: roll controls never participate in character saves. */
-export function createSheetRolls({ root = document, createDialog = createRollDialog } = {}) {
+export function createSheetRolls({ root = document, createDialog = createRollDialog, onAppearanceChange } = {}) {
   const requests = new Map();
   let character = null, ready = false, sequence = 0;
-  const dialog = createDialog();
+  const dialog = createDialog({ onAppearanceChange });
 
   function setReady(value) {
     ready = Boolean(value);
@@ -30,6 +30,7 @@ export function createSheetRolls({ root = document, createDialog = createRollDia
 
   return {
     setReady,
+    setAppearance(value) { dialog.setAppearance?.(value); },
     setCharacter(value) { character = value; requests.clear(); },
     skillControl(name, label, value) {
       return `<button type="button" class="skill-chip skill-chip-static sheet-skill-roll" data-roll-skill="${escapeHtml(canonicalSkillKey(name))}" ${ready ? "" : "disabled"} aria-label="Roll ${escapeHtml(label)}"><span class="skill-chip-label">${escapeHtml(label)}</span><span class="skill-chip-value">${escapeHtml(value) || "&mdash;"}</span></button>`;

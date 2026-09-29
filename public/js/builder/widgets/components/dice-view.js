@@ -1,4 +1,5 @@
 import { escapeHtml } from "../../../core/data-sanitization.js";
+import { normalizeAppearance } from "../../../core/sheet-appearance.js";
 
 // Geometry only. Faces, Hits and the coin outcome are supplied by Roll Rules.
 export const D6_FACES = Object.freeze([
@@ -29,7 +30,7 @@ function token({ label, hits, pose, content, coin = false, index }) {
 }
 
 /** Replaying history/TN changes never animate or resolve a new result. */
-export function renderDiceResults(roll, { animate = false, noRoll = false } = {}) {
+export function renderDiceResults(roll, { animate = false, noRoll = false, theme = "classic", effects = true } = {}) {
   if (noRoll) return "";
   const tokens = roll.dice.map((die, index) => token({ label: `Die ${die.face}: ${hitsText(die.hits)}`,
     hits: die.hits, pose: getDieLanding(die.face), content: faceHtml, index }));
@@ -39,7 +40,9 @@ export function renderDiceResults(roll, { animate = false, noRoll = false } = {}
       label: `Half-die coin: ${hitsText(roll.coin)}`, pose: { x: 0, y: roll.coin ? 0 : 180 },
       content: '<span class="dice-coin-rim"></span><span class="dice-coin-side dice-coin-heads">1</span><span class="dice-coin-side dice-coin-tails">0</span>' }));
   }
-  return (tokens.length ? `<div class="dice-tray${animate ? " dice-animate" : ""}" style="--dice-columns:${Math.min(6, tokens.length)}">${tokens.join("")}</div>` : "")
+  const safeTheme = normalizeAppearance({ diceTheme: theme }).diceTheme;
+  const particles = animate && effects && safeTheme === "magical-girl" ? `<span class="dice-particles" aria-hidden="true">${Array.from({ length: 18 }, (_, i) => `<i style="--spark-x:${4 + i * 5.3}%;--spark-y:${18 + i % 4 * 19}%;--spark-drift:${(i % 5 - 2) * 14}px;--spark-delay:${120 + i % 6 * 60}ms">${i % 4 === 0 ? "♥" : "✦"}</i>`).join("")}</span>` : "";
+  return (tokens.length ? `<div class="dice-tray${animate ? " dice-animate" : ""}" data-dice-theme="${safeTheme}" style="--dice-columns:${Math.min(6, tokens.length)}">${tokens.join("")}${particles}</div>` : "")
     + (roll.pool.automaticHits ? `<p class="roll-automatic">+${roll.pool.automaticHits} automatic Hits</p>` : "")
     + (roll.pool.reason ? `<p class="roll-help">${escapeHtml(roll.pool.reason)}</p>` : "");
 }

@@ -6,12 +6,13 @@ import { getRollSkills, getRollAttribute, getTechniqueRollChoices } from "../../
 import { randomDieFace } from "../../core/dice-random.js";
 import { restoreDialogFocus } from "../../core/dialog-lifecycle.js";
 import { renderDiceResults } from "./components/dice-view.js";
+import { normalizeAppearance } from "../../core/sheet-appearance.js";
 
 const esc = value => escapeHtml(String(value ?? ""));
 const option = (value, label) => `<option value="${esc(value)}">${esc(label)}</option>`;
 const numberField = (id, label, value = 0, help = "") => `<label class="roll-field" for="${id}">${label}<input id="${id}" type="text" autocomplete="off" value="${value}"/>${help ? `<small>${help}</small>` : ""}</label>`;
 
-export function createRollDialog({ nextFace = randomDieFace } = {}) {
+export function createRollDialog({ nextFace = randomDieFace, onAppearanceChange = () => {} } = {}) {
   const dialog = document.createElement("dialog");
   dialog.className = "roll-dialog";
   dialog.setAttribute("aria-labelledby", "roll-title");
@@ -68,9 +69,9 @@ export function createRollDialog({ nextFace = randomDieFace } = {}) {
   let request, choices = [], choice = null, skills = [], opener, current = null, nextId = 0;
   const history = [];
   const motionPreference = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)");
-  let animationsEnabled = true;
+  let appearance = normalizeAppearance();
   function syncMotionPreference() {
-    el("roll-animate").checked = animationsEnabled && !motionPreference?.matches;
+    el("roll-animate").checked = appearance.animateDice && !motionPreference?.matches;
     el("roll-animate").disabled = Boolean(motionPreference?.matches);
     el("roll-animate").title = motionPreference?.matches ? "Animations are off because your device prefers reduced motion." : "Animate new rolls.";
     if (!el("roll-animate").checked) el("roll-faces").querySelector(".dice-animate")?.classList.remove("dice-animate");
@@ -78,7 +79,8 @@ export function createRollDialog({ nextFace = randomDieFace } = {}) {
   syncMotionPreference();
   motionPreference?.addEventListener("change", syncMotionPreference);
   el("roll-animate").addEventListener("change", () => {
-    animationsEnabled = el("roll-animate").checked;
+    appearance.animateDice = el("roll-animate").checked;
+    onAppearanceChange("animateDice", appearance.animateDice);
     syncMotionPreference();
   });
 
@@ -242,6 +244,7 @@ export function createRollDialog({ nextFace = randomDieFace } = {}) {
     el("roll-total").textContent = result.config.noRoll ? "No roll required" : `${result.roll.hits} Hits`;
     el("roll-faces").innerHTML = renderDiceResults(result.roll, {
       animate: animate && el("roll-animate").checked && !motionPreference?.matches, noRoll: result.config.noRoll,
+      theme: appearance.diceTheme, effects: appearance.diceEffects,
     });
     el("roll-tn").value = result.tn ?? "";
     el("roll-tn").closest("label").hidden = result.config.noRoll;
@@ -284,6 +287,14 @@ export function createRollDialog({ nextFace = randomDieFace } = {}) {
   dialog.addEventListener("close", () => restoreDialogFocus(opener));
 
   return {
+    setAppearance(value) {
+      const next = normalizeAppearance(value);
+      const changed = ["diceTheme", "diceEffects", "animateDice"].some(key => next[key] !== appearance[key]);
+      appearance = next; syncMotionPreference();
+      if (current && changed) el("roll-faces").innerHTML = renderDiceResults(current.roll, {
+        noRoll: current.config.noRoll, theme: appearance.diceTheme, effects: appearance.diceEffects,
+      });
+    },
     close() { if (dialog.open) dialog.close(); },
     open(nextRequest, nextOpener) {
       request = nextRequest;

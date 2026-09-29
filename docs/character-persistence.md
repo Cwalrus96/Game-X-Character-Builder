@@ -60,7 +60,9 @@ The writer exposes narrow operations:
 
 Every successful canonical create or save writes schema version 6 and server-managed `createdAt`/`updatedAt` metadata. A historical document is therefore written back as v6 only when an explicit user save succeeds. Failed validation, failed authorization, cancellation before the write, or revision conflict leaves Firebase unchanged.
 
-Builder patches use an explicit canonical field allowlist. Character-sheet patches remain limited to current HP, strain, overstrained, notes, and conditions. The boundary validates exact values; it does not silently coerce malformed input into a different value.
+Builder patches use an explicit canonical field allowlist. Character-sheet patches remain limited to current HP, strain, overstrained, notes, conditions, and exact presentation-preference leaves under `builder.sheet.appearance.*`. The boundary validates exact values; it does not silently coerce malformed input into a different value.
+
+September 29 sheet customization adds optional `builder.sheet.appearance` to the exact schema-6 codec. Absent preferences retain neutral UI defaults without a read-time write or schema bump. Partial records accept only the known colors, heading font, text size, corners, dice style and animation/effects booleans; invalid or unknown fields fail canonical validation. Historical shape normalization and ordinary whole-builder snapshots preserve valid preferences. The sheet saves only edited preference leaves alongside its existing temporary-state patch, retains newer edits while an earlier save completes, and uses the existing save/retry/navigation coordinator. Its transitional writer validates preference leaves and uses a transaction whenever they are present, advancing the stored revision without rewriting the character or stamping a newer schema. An older builder snapshot therefore conflicts rather than overwriting new preferences. Temporary-only legacy saves retain their previous behavior; the broader sheet session cutover is still deferred. See [the customization record](sheet-customization-2026-09-29.md).
 
 ## Revision and conflict policy
 

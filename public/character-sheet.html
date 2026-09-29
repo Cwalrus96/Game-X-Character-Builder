@@ -7,17 +7,18 @@
 <title>Game X Character Sheet</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
 <link rel="stylesheet" href="/css/styles.css"/>
-<link rel="stylesheet" href="/css/builder-core.css"/>
 <link rel="stylesheet" href="/css/sheet-rolls.css?v=dice3d1"/>
+<link rel="stylesheet" href="/css/sheet-appearance.css"/>
+<link rel="stylesheet" href="/css/dice-themes.css"/>
 </head>
-<body data-theme="na"><a class="skip-link" href="#charName">Skip to character name</a>
+<body class="character-sheet-page"><a class="skip-link" href="#charName">Skip to character name</a>
 <div class="topbar"></div>
 <div class="sheet-save-bar">
 <span aria-atomic="true" aria-live="polite" class="sheet-save-status" data-state="idle" id="sheetSaveStatus" role="status">Loading character...</span>
 <button class="sheet-save-retry" hidden id="sheetSaveRetry" type="button">Retry save</button>
 </div>
 <div id="sheet"><div aria-labelledby="identity_title" class="section" id="identity">
-<h2 id="identity_title">Character Information</h2>
+<h2 id="identity_title">Character Information <button type="button" id="sheetSettingsButton" class="sheet-settings-button" aria-label="Sheet settings" title="Sheet settings" disabled><span aria-hidden="true">⚙</span></button></h2>
 <div class="identity-grid">
 <div class="identity-fields">
 <div class="identity-field">

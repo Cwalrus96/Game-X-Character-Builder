@@ -21,9 +21,11 @@ import {
   patchCharacter,
   replaceCharacter,
   sanitizeUpdatePatch,
+  saveCharacterPatch,
 } from "../public/js/core/database-writer.js";
 import { buildTemporarySheetUpdatePatch } from "../public/js/core/sheet-state.js";
 import { parseHpInput } from "../public/js/pages/sheet-hp-control.js";
+import { buildAppearancePatch } from "../public/js/core/sheet-appearance.js";
 import {
   MIGRATION_GAME_DATA,
   makeObservedLegacyV4Character,
@@ -113,6 +115,30 @@ test("repository entry points create and read exact v6 with resolved timestamps"
   assert.equal(loaded.migrated, false);
   assert.equal(typeof loaded.metadata.createdAt?.toMillis, "function");
   assert.equal(typeof loaded.metadata.updatedAt?.toMillis, "function");
+});
+
+test("per-character appearance survives new sessions, builder saves and independent preference edits; stale builder saves conflict", async () => {
+  const firestore = aliceFirestore();
+  const a = await createCharacter({ ownerUid: ALICE_UID, firestore, firestoreApi });
+  const b = await createCharacter({ ownerUid: ALICE_UID, firestore, firestoreApi });
+  const args = { ownerUid: ALICE_UID, characterId: a.characterId, references, firestore, firestoreApi };
+  const stale = await readCharacter(args);
+  const ref = doc(firestore, "users", ALICE_UID, "characters", a.characterId);
+  await saveCharacterPatch(ref, buildAppearancePatch({ diceTheme: "magical-girl", textColor: "#472044" }), { firestoreApi });
+  await saveCharacterPatch(ref, buildAppearancePatch({ headingFont: "book" }), { firestoreApi });
+  const fresh = await readCharacter({ ...args, firestore: aliceFirestore() });
+  assert.equal(fresh.revision, 3);
+  assert.deepEqual(fresh.character.builder.sheet.appearance, { diceTheme: "magical-girl", textColor: "#472044", headingFont: "book" });
+  await assert.rejects(replaceCharacter({ ...args, character: stale.character, expectedRevision: stale.revision }), CharacterConflictError);
+  fresh.character.builder.name = "Updated in builder";
+  await replaceCharacter({ ...args, character: fresh.character, expectedRevision: fresh.revision });
+  const reloaded = await readCharacter(args);
+  assert.deepEqual(reloaded.character.builder.sheet.appearance, fresh.character.builder.sheet.appearance);
+  const second = await readCharacter({ ...args, characterId: b.characterId });
+  assert.equal(Object.hasOwn(second.character.builder.sheet, "appearance"), false);
+  const bobRef = doc(makeAuthedContext(testEnv, BOB_UID).firestore(), "users", ALICE_UID, "characters", a.characterId);
+  await assert.rejects(saveCharacterPatch(bobRef, buildAppearancePatch({ diceTheme: "ninja" }), { firestoreApi }));
+  assert.equal((await readCharacter(args)).character.builder.sheet.appearance.diceTheme, "magical-girl");
 });
 
 test("a migrated read is read-only and an explicit save persists schema v6", async () => {

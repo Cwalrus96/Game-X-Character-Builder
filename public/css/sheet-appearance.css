@@ -1,0 +1,66 @@
+/* Neutral defaults also apply before the character finishes loading. */
+.character-sheet-page {
+  --primary-color: #222222; --secondary-color: #ffffff;
+  --header-bg-color: #ffffff; --header-text-color: #111111;
+  --table-header-bg-color: #ffffff; --input-border-color: #222222;
+  --accent-color: #222222; --body-text-color: #111111;
+  --panel-bg-color: #ffffff; --panel-text-color: #111111; --chip-bg-color: #ffffff;
+  --paper-color: #ffffff; --title-font: Arial, Helvetica, sans-serif;
+  --body-font: Arial, Helvetica, sans-serif; --sheet-text-size: 16px; --sheet-radius: 0px;
+  --site-text: #111; --site-muted: #444; --site-border: #222; --site-accent: #222;
+  --site-bg-base: #fff; --site-bg-deep: #fff;
+  background: var(--secondary-color); font-size: var(--sheet-text-size);
+}
+.character-sheet-page::before, #sheet::before, #sheet::after, #sheet .section h2::before { display: none; }
+#sheet { border: 1px solid var(--primary-color); border-radius: var(--sheet-radius); box-shadow: none; }
+#sheet .section { border-width: 1px; border-radius: var(--sheet-radius); box-shadow: none; }
+#sheet .section h2 { padding-left: 8px; border-radius: var(--sheet-radius); border-bottom-width: 1px; }
+#sheet .sheet-roll-button, #sheet .skill-chip, #sheet .weapon-card, #sheet .ability-card { border-radius: var(--sheet-radius); }
+#sheet input, #sheet select, #sheet textarea, #sheet .sheet-readonly-value { font-size: 1em; }
+#sheet .sheet-readonly-value, #sheet .readonly-value { color: var(--panel-text-color); }
+#sheet .ability-card { min-width: 0; overflow-wrap: anywhere; }
+#sheet .technique-source-badge { white-space: normal; }
+#identity_title { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.sheet-settings-button { flex: 0 0 auto; display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 1px solid #222; border-radius: 4px; background: #fff; color: #111; font: 24px Arial, sans-serif; cursor: pointer; }
+.sheet-settings-button:disabled { opacity: .5; cursor: wait; }
+.sheet-settings-button:hover { background: #eee; }
+.sheet-settings-button:focus-visible, .sheet-settings :focus-visible { outline: 3px solid #111; outline-offset: 3px; }
+.sheet-save-bar { background: #fff; color: #111; }
+.sheet-save-status[data-state="error"] { color: #111; text-decoration: underline; }
+
+/* Settings keep their own readable palette, including after a low-contrast edit. */
+.sheet-settings {
+  position: fixed; inset: 100px 20px auto auto; z-index: 2147483101;
+  margin: 0; width: min(370px, calc(100% - 24px)); max-width: calc(100% - 24px);
+  max-height: calc(100dvh - 120px); overflow: auto; padding: 0;
+  border: 1px solid #222; border-radius: 10px; background: #fff; color: #111;
+  box-shadow: 0 10px 35px #0003; font: 14px/1.45 Arial, Helvetica, sans-serif;
+  color-scheme: light;
+}
+.sheet-settings [hidden] { display: none !important; }
+.settings-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; position: sticky; top: 0; z-index: 2; padding: 12px 16px; background: #fff; border-bottom: 1px solid #ddd; }
+.settings-header h2 { margin: 0; padding: 0; font: 700 18px Arial, sans-serif; color: #111; border: 0; background: transparent; }
+.settings-header button { font-size: 24px !important; border: 0 !important; padding: 0 7px !important; }
+.settings-body { padding: 0 16px 16px; }
+.sheet-settings fieldset { min-width: 0; margin: 16px 0; padding: 12px 0 0; border: 0; border-top: 1px solid #ddd; }
+.sheet-settings legend { padding-right: 10px; font-weight: 700; font-size: 15px; }
+.settings-help { font-size: 12px; line-height: 1.45; color: #555; margin: 8px 0 12px; }
+.appearance-color { display: grid; grid-template-columns: minmax(0, 1fr) 36px 85px; align-items: center; gap: 8px; margin-bottom: 9px; }
+.sheet-settings input, .sheet-settings select, .sheet-settings button { min-width: 0; max-width: 100%; margin: 0; padding: 7px 8px; border: 1px solid #aaa; border-radius: 4px; font: inherit; color: #111; background: #fff; }
+.sheet-settings select, .sheet-settings button { cursor: pointer; }
+.sheet-settings input[type="color"] { width: 36px; height: 32px; padding: 2px; cursor: pointer; }
+.appearance-color input[type="text"] { width: 85px; font: 12px Consolas, monospace; }
+.appearance-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.appearance-field { display: flex; flex-direction: column; gap: 5px; margin: 10px 0; }
+.appearance-field select { width: 100%; }
+.appearance-check { display: flex; align-items: center; gap: 8px; margin: 10px 0; cursor: pointer; }
+.appearance-check input { width: 16px; height: 16px; accent-color: #222; }
+.settings-notice { border-left: 3px solid #222; padding: 8px; font-size: 12px; background: #f2f2f2; }
+.sheet-settings [aria-invalid="true"] { border: 2px solid #111; outline: 1px dashed #111; outline-offset: 2px; }
+.sheet-settings button:hover { background: #eee; }
+.settings-dice-preview { margin-top: 12px; }
+.character-sheet-page .app-topbar { background: #fff; color: #111; border: 1px solid #222; box-shadow: none; clip-path: none; }
+.character-sheet-page .app-brand { text-shadow: none; }
+.character-sheet-page .roll-dialog { width: min(390px, calc(100% - 24px)); max-width: calc(100% - 24px); }
+@media (max-width: 520px) { .sheet-settings { top: 12px; right: 12px; max-height: calc(100dvh - 24px); } #identity_title { font-size: 1.15em; } }
+@media print { .sheet-settings, .sheet-settings-button, .roll-dialog { display: none !important; } }

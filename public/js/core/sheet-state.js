@@ -1,4 +1,5 @@
 import { sanitizeText, toInt } from "./data-sanitization.js";
+import { APPEARANCE_DEFAULTS } from "./sheet-appearance.js";
 
 const TEMPORARY_FIELD_KEYS = Object.freeze([
   "hpcur",
@@ -82,6 +83,7 @@ export function pickTemporarySheetRepeatables(value) {
 
 export function isSheetOwnedUpdatePath(value) {
   const path = String(value || "");
+  if (path.startsWith("builder.sheet.appearance.")) return Object.hasOwn(APPEARANCE_DEFAULTS, path.slice("builder.sheet.appearance.".length));
   if (path.startsWith("builder.sheet.fields.")) {
     return isTemporarySheetFieldName(path.slice("builder.sheet.fields.".length));
   }

@@ -68,6 +68,7 @@ import { createSaveCoordinator } from "../core/save-coordinator.js";
 import { getSaveStatusPresentation } from "../core/save-status.js";
 import { createSheetHpControl } from "./sheet-hp-control.js";
 import { createSheetRolls } from "./sheet-rolls.js?v=dice3d1";
+import { createSheetSettings } from "../builder/widgets/sheet-settings.js";
 import {
   createNavigationGuard,
   installNavigationGuard,
@@ -663,6 +664,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
             previewDataUrl: '',
           },
           fields: sheetOnlyFields,
+          appearance: b.sheet?.appearance,
           repeatables: {
             ...repeatables,
             abilities: sortClassFeatureAbilitiesByLevel(repeatables.abilities, gameData),
@@ -686,6 +688,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
         cloudReady = true;
         hpControl.setEnabled(true);
         sheetRolls.setReady(true);
+        sheetSettings.setReady(true);
         sheetSaveCoordinator?.markClean();
         return;
       }
@@ -727,12 +730,14 @@ async function renderBuilderWeaponsReadOnly(builder) {
       cloudReady = true;
       hpControl.setEnabled(true);
       sheetRolls.setReady(true);
+      sheetSettings.setReady(true);
       sheetSaveCoordinator?.markClean();
     } catch (e) {
       console.error('loadCloudOrInit error:', e);
       cloudReady = false;
       hpControl.setEnabled(false);
       sheetRolls.setReady(false);
+      sheetSettings.setReady(false);
       renderSheetSaveState({
         status: 'error',
         dirty: false,
@@ -747,8 +752,10 @@ async function renderBuilderWeaponsReadOnly(builder) {
 
     const allFields = collectFields();
     const repeatables = collectRepeatables();
-    const patch = buildTemporarySheetUpdatePatch({ allFields, repeatables });
+    const appearancePatch = sheetSettings.patch();
+    const patch = { ...buildTemporarySheetUpdatePatch({ allFields, repeatables }), ...appearancePatch };
     await saveCharacterPatch(cloudDocRef, patch);
+    sheetSettings.acknowledge(appearancePatch);
 
     const temporaryFields = pickTemporarySheetFields(allFields);
     const temporaryRepeatables = pickTemporarySheetRepeatables(repeatables);
@@ -759,6 +766,10 @@ async function renderBuilderWeaponsReadOnly(builder) {
       ...existingBuilder,
       sheet: {
         ...existingSheet,
+        ...(Object.keys(appearancePatch).length ? { appearance: {
+          ...existingSheet.appearance,
+          ...Object.fromEntries(Object.entries(appearancePatch).map(([path, value]) => [path.split('.').at(-1), value])),
+        } } : {}),
         fields: {
           ...((existingSheet.fields && typeof existingSheet.fields === 'object') ? existingSheet.fields : {}),
           ...temporaryFields,
@@ -778,6 +789,8 @@ async function renderBuilderWeaponsReadOnly(builder) {
       cloudReady = false;
       hpControl.setEnabled(false);
       sheetRolls.setReady(false);
+      sheetSettings.setReady(false);
+      sheetRolls.setAppearance(sheetSettings.load());
 
       if (!user) {
         // Require auth for editing (D&D Beyond-style flow)
@@ -819,7 +832,11 @@ async function renderBuilderWeaponsReadOnly(builder) {
   const classSelect = document.getElementById('classSelect');
   const sheetSaveStatusEl = document.getElementById('sheetSaveStatus');
   const sheetSaveRetryEl = document.getElementById('sheetSaveRetry');
-  const sheetRolls = createSheetRolls();
+  const sheetRolls = createSheetRolls({ onAppearanceChange: (key, value) => sheetSettings.change(key, value) });
+  const sheetSettings = createSheetSettings({
+    button: document.getElementById('sheetSettingsButton'),
+    onChange: values => { sheetRolls.setAppearance(values); scheduleSave(); },
+  });
   const hpControl = createSheetHpControl({
     input: document.getElementById('hpcur'),
     error: document.getElementById('hpError'),
@@ -868,11 +885,6 @@ async function renderBuilderWeaponsReadOnly(builder) {
   // Placeholder; initialized after scheduleSave is defined
   let portraitApi = { get: () => '', set: () => {} };
   let lockedAbilityNames = new Set();
-
-  function setTheme(classKey) {
-    const key = sanitizeText(classKey, { maxLen: 64 });
-    document.body.setAttribute('data-theme', key || 'na');
-  }
 
   // ---------- Portrait module ----------
 
@@ -1159,6 +1171,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
         previewDataUrl: String(portraitState?.previewDataUrl || ''),
       },
       fields: sheetOnly,
+      appearance: sheetSettings.get(),
       repeatables: rep,
     };
   }
@@ -1204,8 +1217,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
     // Apply repeatables next.
     applyRepeatables(state.repeatables);
 
-    // Theme must ALWAYS match the class dropdown value (derived; not saved).
-    setTheme(classKey);
+    sheetRolls.setAppearance(sheetSettings.load(state.appearance));
     if (classSelect) {
       // Ensure the dropdown eventually reflects the stored canonical value.
       classSelect.dataset.pendingValue = classKey || '';
@@ -1659,8 +1671,7 @@ initRepeatableList({ key: 'abilities', containerId: 'abilityCards', templateId: 
   // Initialize Pass 3 repeatable sections
   initRepeatableList({ key: 'conditions', containerId: 'conditionsList', templateId: 'conditionRowTemplate', addBtnId: 'addConditionBtn', fields: ['name','n','notes'], minRows: 1 });
 if (classSelect) {
-    classSelect.addEventListener('change', (e) => {
-      setTheme(e.target.value);
+    classSelect.addEventListener('change', () => {
       updateDerivedDisplay();
       scheduleSave();
     });

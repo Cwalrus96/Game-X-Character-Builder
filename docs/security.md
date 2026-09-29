@@ -37,7 +37,7 @@ Current sanitization and persistence modules are under `public/js/core/`:
 - `sheet-state.js`: exact character-sheet-owned leaf paths;
 - `save-coordinator.js` and `save-status.js`: serialized writes and visible failure/retry.
 
-Builder pages should use the shared builder/database boundary rather than direct Firestore writes. The character sheet may write temporary play-state leaves only; it cannot write builder-owned character identity, class, attributes, skills, abilities, techniques, equipment, or choices.
+Builder pages should use the shared builder/database boundary rather than direct Firestore writes. The character sheet may write temporary play-state and validated presentation-preference leaves only; it cannot write builder-owned character identity, class, attributes, skills, abilities, techniques, equipment, or choices. Appearance uses exact six-digit hex colors, known font/style enums and booleans at `builder.sheet.appearance.*`; it never accepts arbitrary CSS, markup, fonts or remote assets. Owner/GM Firebase authorization remains unchanged.
 
 The existing database reader/writer provide the definitive schema-6 persistence boundary, backed by CharacterCodec and sequential migrations. The September 22 coordinated release deploys these callers with compatible explicit-grant game data. Reads never migrate production documents in place; the first successful explicit save persists the accepted state. Do not add a parallel repository or spread Firebase document-shape knowledge into Rules, graph or widgets.
 

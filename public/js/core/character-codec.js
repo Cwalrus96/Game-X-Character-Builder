@@ -4,6 +4,7 @@ import {
   DEFENSE_SKILL_FIELDS,
 } from "./character-rules.js";
 import { sanitizeStoragePath, sanitizeText } from "./data-sanitization.js";
+import { isAppearanceValue } from "./sheet-appearance.js";
 
 export const CHARACTER_SCHEMA_VERSION = 6;
 
@@ -447,10 +448,16 @@ function validateSheetRepeatables(value, path, diagnostics) {
 }
 
 function validateSheet(value, path, diagnostics) {
-  const keys = ["fields", "repeatables"];
+  // Optional presentation extension: older schema-6 characters remain exact.
+  const keys = ["fields", "repeatables", ...(value && Object.hasOwn(value, "appearance") ? ["appearance"] : [])];
   if (!validateExactKeys(value, path, keys, diagnostics)) return;
   validateSheetFields(value.fields, `${path}.fields`, diagnostics);
   validateSheetRepeatables(value.repeatables, `${path}.repeatables`, diagnostics);
+  if (Object.hasOwn(value, "appearance") && validatePlainObject(value.appearance, `${path}.appearance`, diagnostics)) {
+    for (const [key, setting] of Object.entries(value.appearance)) if (!isAppearanceValue(key, setting)) {
+      addDiagnostic(diagnostics, "invalid-appearance", `${path}.appearance.${key}`, "Unknown or invalid sheet appearance setting.");
+    }
+  }
 }
 
 function validateBuilder(value, path, diagnostics) {

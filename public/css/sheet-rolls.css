@@ -85,7 +85,8 @@
 .dice-cube, .dice-coin { position: relative; transform: rotateX(var(--land-x)) rotateY(var(--land-y)); }
 .dice-face {
   position: absolute; inset: 0; box-sizing: border-box;
-  display: grid; grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+  /* Keep every face on the same grid, even when star pips exceed a track's size. */
+  display: grid; grid-template: repeat(3, minmax(0, 1fr)) / repeat(3, minmax(0, 1fr));
   gap: 2px; padding: 4px;
   border: 1px solid #c8baa6; border-radius: 4px;
   backface-visibility: hidden;
