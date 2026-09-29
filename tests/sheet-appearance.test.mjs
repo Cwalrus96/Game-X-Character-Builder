@@ -36,13 +36,56 @@ test("appearance defaults are neutral, class-independent, and never change the s
 });
 
 test("malformed colors, CSS, unknown fonts, and prototype keys cannot reach sheet styles", () => {
-  for (const [key, value] of [["textColor", "red"], ["textColor", "#fff"], ["textColor", "url(evil)"], ["headingFont", "url(evil)"], ["diceTheme", '<img src=x>'], ["diceEffects", "true"], ["corners", 0], ["__proto__", {}]]) {
+  for (const [key, value] of [["textColor", "red"], ["textColor", "#fff"], ["textColor", "url(evil)"], ["headingFont", "url(evil)"], ["diceTheme", '<img src=x>'], ["diceEffects", "true"], ["dyslexiaFriendly", "false"], ["dyslexiaFriendly", 1], ["corners", 0], ["__proto__", {}]]) {
     assert.equal(isAppearanceValue(key, value), false);
     assert.deepEqual(normalizeAppearance({ [key]: value }), APPEARANCE_DEFAULTS);
     assert.throws(() => buildAppearancePatch({ [key]: value }), TypeError);
   }
   assert.equal(appearanceContrastWarning(), "");
   assert.match(appearanceContrastWarning({ textColor: "#ffffff" }), /difficult to read/);
+});
+
+test("whole-sheet readability is reversible, preserves decorative headings, and resets for other characters", () => {
+  const editor = createAppearanceEditor();
+  editor.load({ headingFont: "script" });
+  const originalStyles = appearanceVariables(editor.get());
+  assert.match(originalStyles["--title-font"], /Pacifico/);
+  editor.change("dyslexiaFriendly", true);
+  assert.deepEqual(editor.patch(), buildAppearancePatch({ dyslexiaFriendly: true }));
+  const readable = appearanceVariables(editor.get());
+  assert.match(readable["--title-font"], /OpenDyslexic/);
+  assert.equal(readable["--body-font"], readable["--title-font"]);
+  assert.equal(editor.get().headingFont, "script");
+  editor.change("dyslexiaFriendly", false);
+  assert.deepEqual(appearanceVariables(editor.get()), originalStyles);
+  editor.change("dyslexiaFriendly", true);
+  editor.reset();
+  assert.equal(editor.get().dyslexiaFriendly, false);
+  assert.equal(editor.patch()["builder.sheet.appearance.dyslexiaFriendly"], false);
+  editor.load({ headingFont: "book" });
+  assert.equal(editor.get().dyslexiaFriendly, false);
+  assert.doesNotMatch(appearanceVariables(editor.get())["--body-font"], /OpenDyslexic/);
+  assert.deepEqual(editor.patch(), {});
+});
+
+test("new fonts and readability preference round-trip through the existing codec and builder save", () => {
+  for (const headingFont of ["nunito", "handwritten", "script"]) {
+    const character = createDefaultCharacter({ ownerUid: "user_123" });
+    const appearance = { headingFont, dyslexiaFriendly: true };
+    const patched = applyCharacterPatch(character, buildAppearancePatch(appearance), { scope: "sheet" });
+    assert.equal(patched.ok, true, JSON.stringify(patched.diagnostics));
+    const raw = { ...patched.value, revision: 1 };
+    const read = decodeStoredCharacter(raw, { references, expectedOwnerUid: "user_123" });
+    assert.equal(read.ok, true, JSON.stringify(read.diagnostics));
+    read.character.builder.name = "Font preferences stay with the character";
+    const saved = planCharacterReplacement(raw, read.character, { expectedRevision: 1 });
+    assert.equal(saved.ok, true, JSON.stringify(saved.diagnostics));
+    assert.deepEqual(saved.value.builder.sheet.appearance, appearance);
+    assert.equal(saved.value.schemaVersion, 6);
+  }
+  const invalid = createDefaultCharacter({ ownerUid: "user_123" });
+  invalid.builder.sheet.appearance = { dyslexiaFriendly: "true" };
+  assert.equal(encodeCharacter(invalid).ok, false);
 });
 
 test("appearance patches own exact leaves only, excluding character mechanics and whole maps", () => {

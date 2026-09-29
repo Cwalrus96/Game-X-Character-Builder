@@ -1,11 +1,15 @@
 /** Character-owned presentation preferences. No class or game-rule dependency. */
 export const HEADING_FONTS = Object.freeze({
   clean: { label: "Clean sans serif", css: 'Arial, Helvetica, sans-serif' },
+  nunito: { label: "Cute & rounded · Nunito", css: '"Nunito", Arial, sans-serif' },
+  handwritten: { label: "Handwritten · Patrick Hand", css: '"Patrick Hand", "Trebuchet MS", sans-serif' },
+  script: { label: "Playful script · Pacifico", css: '"Pacifico", Georgia, serif' },
   book: { label: "Book serif", css: 'Georgia, "Times New Roman", serif' },
   rounded: { label: "Soft rounded", css: '"Trebuchet MS", Arial, sans-serif' },
   mono: { label: "Technical mono", css: 'Consolas, "Courier New", monospace' },
   bold: { label: "Bold display", css: '"Arial Black", Arial, sans-serif' },
 });
+const DYSLEXIA_FONT = '"OpenDyslexic", Arial, sans-serif';
 export const DICE_THEMES = Object.freeze({
   classic: "Classic · black & white",
   "magical-girl": "Magical Girl · rose & starlight",
@@ -17,6 +21,7 @@ export const DICE_THEMES = Object.freeze({
 export const APPEARANCE_DEFAULTS = Object.freeze({
   textColor: "#111111", borderColor: "#222222", pageColor: "#ffffff",
   panelColor: "#ffffff", headingColor: "#ffffff", headingFont: "clean",
+  dyslexiaFriendly: false,
   textSize: "standard", corners: "square", diceTheme: "classic", diceEffects: true, animateDice: true,
 });
 export const APPEARANCE_OPTIONS = Object.freeze({
@@ -56,7 +61,9 @@ export function appearanceVariables(input) {
     "--secondary-color": p.pageColor, "--panel-bg-color": p.panelColor, "--paper-color": p.panelColor,
     "--body-text-color": p.textColor, "--panel-text-color": p.textColor, "--header-text-color": p.textColor,
     "--header-bg-color": p.headingColor, "--table-header-bg-color": p.headingColor, "--chip-bg-color": p.headingColor,
-    "--title-font": HEADING_FONTS[p.headingFont].css, "--sheet-text-size": { compact: "14px", standard: "16px", large: "18px" }[p.textSize],
+    "--title-font": p.dyslexiaFriendly ? DYSLEXIA_FONT : HEADING_FONTS[p.headingFont].css,
+    "--body-font": p.dyslexiaFriendly ? DYSLEXIA_FONT : HEADING_FONTS.clean.css,
+    "--sheet-text-size": { compact: "14px", standard: "16px", large: "18px" }[p.textSize],
     "--sheet-radius": { square: "0px", soft: "6px", rounded: "14px" }[p.corners],
   };
 }

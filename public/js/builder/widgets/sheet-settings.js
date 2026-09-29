@@ -20,11 +20,17 @@ export function createSheetSettings({ button, target = document.body, onChange =
   const select = key => `<label class="appearance-field" for="appearance-${key}">${APPEARANCE_LABELS[key]}<select id="appearance-${key}" data-setting="${key}">${Object.entries(APPEARANCE_OPTIONS[key]).map(([value, label]) => `<option value="${value}">${label}</option>`).join("")}</select></label>`;
   dialog.innerHTML = `<header class="settings-header"><h2 id="sheet-settings-title">Sheet settings</h2><button type="button" data-settings-close aria-label="Close sheet settings">×</button></header>
     <div class="settings-body"><p class="settings-help">Make this character’s sheet your own. Changes apply immediately and save automatically.</p>
+      <fieldset><legend>Fonts &amp; readability</legend>
+      <label class="appearance-readability" for="appearance-dyslexiaFriendly"><input type="checkbox" id="appearance-dyslexiaFriendly" data-setting="dyslexiaFriendly" aria-describedby="appearance-readability-help"/><span><strong>Dyslexia-friendly font</strong><small>OpenDyslexic · whole sheet</small></span></label>
+      <p id="appearance-readability-help" class="settings-help">Use OpenDyslexic for headings, text and controls. Your heading choice is kept when you switch back.</p>
+      ${select("headingFont")}
+      <div class="settings-font-preview" aria-label="Font preview"><strong>Starlight Adventures</strong><span>Your story, your character, your style.</span></div>
+      ${select("textSize")}</fieldset>
       <fieldset><legend>Appearance</legend>${colors.map(key => `<div class="appearance-color"><label for="appearance-${key}">${APPEARANCE_LABELS[key]}</label><input type="color" data-swatch="${key}" aria-label="${APPEARANCE_LABELS[key]} swatch"/><input type="text" id="appearance-${key}" data-setting="${key}" aria-describedby="appearance-color-help" spellcheck="false" maxlength="7" autocomplete="off"/></div>`).join("")}
       <p id="appearance-color-help" class="settings-help">Use a swatch or a six-digit hex color, such as #111111.</p>
       <p id="appearance-color-error" class="settings-notice" role="status" hidden>Enter a color like #336699. Your last valid color is still applied.</p>
       <p id="appearance-contrast" class="settings-notice" role="status" hidden></p>
-      ${select("headingFont")}<div class="appearance-grid">${select("textSize")}${select("corners")}</div></fieldset>
+      ${select("corners")}</fieldset>
       <fieldset><legend>Dice</legend>${select("diceTheme")}
       <div class="settings-dice-preview" aria-label="Dice style preview"></div><p class="settings-help">Style preview · sample faces</p>
       <label class="appearance-check"><input type="checkbox" data-setting="animateDice"/> Animate dice</label>
@@ -44,6 +50,7 @@ export function createSheetSettings({ button, target = document.body, onChange =
   };
   function render(values) {
     for (const [key, value] of Object.entries(appearanceVariables(values))) target.style.setProperty(key, value);
+    dialog.querySelector("#appearance-headingFont").disabled = values.dyslexiaFriendly;
     dialog.querySelectorAll("[data-setting], [data-swatch]").forEach(input => {
       const value = values[input.dataset.setting || input.dataset.swatch];
       if (input.type === "checkbox") input.checked = value;

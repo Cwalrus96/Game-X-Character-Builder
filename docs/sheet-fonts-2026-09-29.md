@@ -1,0 +1,16 @@
+# Character-sheet fonts · September 29, 2026
+
+The Character Information gear now starts with **Fonts & readability**. A prominent **Dyslexia-friendly font** checkbox applies OpenDyslexic throughout the sheet, settings and roller. Its label names the font and explains the scope. The decorative heading control is disabled while the override is active; turning it off restores the previous choice. This is an optional reading preference without a promised reading-performance benefit.
+
+Three additional heading styles join the existing five: **Cute & rounded · Nunito**, **Handwritten · Patrick Hand**, and **Playful script · Pacifico**. A live text sample and immediate sheet updates show the chosen style. Text size sits with the font controls. The neutral default remains unchanged. Licensed font files are self-hosted with `font-display: swap`, loading on demand; no local installation or third-party font-service request is needed. [Bundled source snapshots and licenses](../public/fonts/sheet/README.md) identify the upstream versions.
+
+`builder.sheet.appearance.headingFont` accepts three additional enumerated values; `dyslexiaFriendly` is an optional strictly validated boolean. The existing preference editor, narrow autosave patches, revision transaction, schema-6 codec and builder snapshots persist both settings per character. No read-time write, schema version change, class condition or new persistence path was added. Invalid boolean/string inputs are rejected. Disabling readability restores the saved heading; resetting restores default fonts. Wider glyphs exposed narrow-screen input/footer overflow, repaired with bounded input widths and text wrapping.
+
+Verification:
+
+- Preflight: **664 unit tests**, ten-artifact data baseline and **15 HTML asset checks** pass.
+- Full workspace suite: **666 unit tests, 22 emulator tests and 15 HTML asset checks** pass. Regression coverage includes reversible font overrides, defaults for another character, invalid input, all three new font values through canonical reads and builder saves, authenticated new-session persistence and stale-save conflicts.
+- Isolated staged package: **658 unit tests, 14 tracked HTML asset checks**, ten-artifact baseline and whitespace checks pass. The eight additional workspace tests belong to unrelated work and are excluded from the package.
+- Authenticated local browser checks show all three fonts rendering, persistent OpenDyslexic after reload, restored Pacifico after disabling it, and a second character retaining clean defaults. Settings, expanded basic techniques and roll results fit at **390px with large text**; document width equals client width after the repair. No browser warnings/errors were reported.
+
+Local preview: **http://127.0.0.1:5020/character-sheet.html?charId=customization-a-20260929**, backed by the disposable Firebase emulator fixture and an isolated package. This is a new local feature commit; the preceding production release is unchanged. Unrelated working-tree changes are excluded. The broader `WPE-DOMAIN-MIGRATION` acceptance remains open, followed by `WPF-UI-SYSTEM` for shared controls, accessibility and navigation; this bounded font change does not complete either step. Production deployment requires a subsequent explicit instruction under the repository's existing local-first release policy.

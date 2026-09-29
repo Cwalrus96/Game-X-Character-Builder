@@ -125,10 +125,10 @@ test("per-character appearance survives new sessions, builder saves and independ
   const stale = await readCharacter(args);
   const ref = doc(firestore, "users", ALICE_UID, "characters", a.characterId);
   await saveCharacterPatch(ref, buildAppearancePatch({ diceTheme: "magical-girl", textColor: "#472044" }), { firestoreApi });
-  await saveCharacterPatch(ref, buildAppearancePatch({ headingFont: "book" }), { firestoreApi });
+  await saveCharacterPatch(ref, buildAppearancePatch({ headingFont: "handwritten", dyslexiaFriendly: true }), { firestoreApi });
   const fresh = await readCharacter({ ...args, firestore: aliceFirestore() });
   assert.equal(fresh.revision, 3);
-  assert.deepEqual(fresh.character.builder.sheet.appearance, { diceTheme: "magical-girl", textColor: "#472044", headingFont: "book" });
+  assert.deepEqual(fresh.character.builder.sheet.appearance, { diceTheme: "magical-girl", textColor: "#472044", headingFont: "handwritten", dyslexiaFriendly: true });
   await assert.rejects(replaceCharacter({ ...args, character: stale.character, expectedRevision: stale.revision }), CharacterConflictError);
   fresh.character.builder.name = "Updated in builder";
   await replaceCharacter({ ...args, character: fresh.character, expectedRevision: fresh.revision });
