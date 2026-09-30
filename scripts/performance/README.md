@@ -27,6 +27,10 @@ Run from the repository root with Node 22 and installed project dependencies. Pr
 
 Use a fresh output directory/run snapshot between comparisons; the browser JSONL is append-only. Stop the local server with Ctrl+C when finished. Disposable emulator documents may be retained for inspection. Never run a production character write or stress test as part of this harness.
 
+For comparisons, set `GAME_X_BENCH_OUTPUT` to a new staging directory before starting `serve.mjs`; `wait-sample.mjs` uses the same setting. `GAME_X_BENCH_PORT` changes the loopback port. `GAME_X_BENCH_PUBLIC` may point at an archived revision's `public` directory for a paired original-code control. The manifest's commit identifies the current checkout; the file hashes identify the actual served bytes, including archived or uncommitted files. Verify those hashes against the intended baseline.
+
+Prefer DOM snapshots and locator reads while measuring. In the September 30 run, a slower timing phase followed a read-only page evaluation, including slower unchanged controls. The cause remains unconfirmed. Start a fresh tab for the paired comparison, preserve the earlier phase separately, and do not mistake a change in browser conditions for an application improvement. `summarize-technique-update.mjs` records this dated comparison, its exact phase boundaries, all raw samples and application-byte verification; it is not a generic classifier for later runs.
+
 `summarize.mjs` packages this dated baseline, including its specific recovery boundary and explicit excluded rows. It is intentionally a September 29 evidence tool, not a generic classifier for later runs. Its verification input records the application-hash comparison and restored fixture readback. Preserve the dated JSON and use separate evidence files for future comparisons. In the completed run, ordinary actions were repeated in fresh tabs after a crash; the phase boundary and both sets of raw measurements are retained. Wait for each observer measurement, as well as the UI outcome, before sending the next input so two-frame intervals do not overlap.
 
 ## Timing definitions and limitations

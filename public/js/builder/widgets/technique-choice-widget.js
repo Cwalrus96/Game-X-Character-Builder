@@ -4,11 +4,11 @@ import { sanitizeNamedSkillList, sanitizeText } from "../../core/data-sanitizati
 import {
   getGameXTechniques,
 } from "../../core/game-data.js";
-import { computeGrantedSkillsState, getCombatSkillRanks } from "../../core/skill-rules.js";
+import { computeGrantedSkillsState } from "../../core/skill-rules.js";
 import { canonicalSkillName, canonicalStoredSkillKey } from "../../core/skill-identity.js";
 import { getTechniqueSelectionState } from "../../core/selection-rules.js";
-import { createPrerequisiteContext, meetsPrerequisites } from "../../core/prerequisites.js";
-import { getTechniquePerformance } from "../../core/technique-rules.js";
+import { meetsPrerequisites } from "../../core/prerequisite-rules.js";
+import { createTechniqueContext, getTechniquePerformance } from "../../core/technique-rules.js";
 import { TechniqueCatalogueWidget } from "./technique-catalogue-widget.js?v=choices5";
 
 function techniqueName(technique) {
@@ -97,18 +97,25 @@ export class TechniqueChoiceWidget extends TechniqueCatalogueWidget {
 
   getContext() {
     const builder = this.getBuilder() || {};
+    const grantedSkillState = computeGrantedSkillsState(this.gameData, builder);
     return {
       builder,
-      grantedSkillState: computeGrantedSkillsState(this.gameData, builder),
+      grantedSkillState,
+      rulesContext: createTechniqueContext({ gameData: this.gameData, builder, grantedSkillState }),
     };
+  }
+
+  getRulesContext(context) {
+    return context.rulesContext || createTechniqueContext({ gameData: this.gameData,
+      builder: context.builder, grantedSkillState: context.grantedSkillState });
   }
 
   getTechniqueSkillRank(technique, context) {
     if (technique.expressionSyntaxVersion === 3) {
       const skill = canonicalSkillName(this.grant?.skill || this.grant?.name || this.grant?.key);
       return getTechniqueSelectionState(technique, {
-        ...createPrerequisiteContext({ gameData: this.gameData, builder: context.builder, grantedSkillState: context.grantedSkillState }),
-        knownCombatSkills: new Set([skill]), skillRanks: getCombatSkillRanks(this.gameData, context.builder), allowGrantedOnly: true,
+        ...this.getRulesContext(context),
+        knownCombatSkills: new Set([skill]), allowGrantedOnly: true,
       }).skillRank;
     }
     const skillName = techniqueSkill(technique);
@@ -138,8 +145,7 @@ export class TechniqueChoiceWidget extends TechniqueCatalogueWidget {
   }
 
   getAvailableTechniques(context = this.getContext()) {
-    const rulesContext = createPrerequisiteContext({ gameData: this.gameData, builder: context.builder,
-      grantedSkillState: context.grantedSkillState, skillRanks: getCombatSkillRanks(this.gameData, context.builder) });
+    const rulesContext = this.getRulesContext(context);
     return getGameXTechniques(this.gameData)
       .filter(technique => techniqueName(technique) && getTechniqueGrantSelectionState(technique, this.grant, rulesContext).eligible)
       .filter(technique => meetsPrerequisites(technique.prerequisites, rulesContext))
@@ -167,7 +173,7 @@ export class TechniqueChoiceWidget extends TechniqueCatalogueWidget {
     this.element.innerHTML = this.errorHtml() + this.renderTechniqueChoice({ id: this.choiceId, value: selectedTechniqueKey, gameData: this.gameData,
       options: [...options.map(technique => ({ technique })), ...(retained ? [{ technique: selectedTechnique, disabled: true }] : [])],
       profileOptions: technique => ({
-        performance: getTechniquePerformance(technique, { gameData: this.gameData, builder: context.builder }),
+        performance: getTechniquePerformance(technique, context.rulesContext),
         rankValue: this.getTechniqueSkillRank(technique, context),
       }),
       disabled: !this.choiceId || (!options.length && !selectedTechniqueKey),

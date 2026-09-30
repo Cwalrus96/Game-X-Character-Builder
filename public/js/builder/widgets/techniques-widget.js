@@ -9,11 +9,12 @@ import {
   getGameXTechniques,
   resolveTechniqueRef,
 } from "../../core/game-data.js?v=wpe1";
-import { computeGrantedSkillsState, computeKnownCombatSkillsAndGrants, getCombatSkillRanks } from "../../core/skill-rules.js";
+import { computeGrantedSkillsState, computeKnownCombatSkillsAndGrants } from "../../core/skill-rules.js";
 import { canonicalSkillKey, canonicalSkillName } from "../../core/skill-identity.js";
 import { isGameDataRecordSelectable } from "../../core/selection-rules.js";
 import { getTechniqueSelectionState, getTechniquePerformance, createTechniqueContext, getTechniqueSkillNames, getTechniqueCatalogueSkills } from "../../core/technique-rules.js?v=skill-groups1";
-import { meetsPrerequisites } from "../../core/prerequisites.js";
+import { createPrerequisiteContext } from "../../core/prerequisites.js";
+import { meetsPrerequisites } from "../../core/prerequisite-rules.js";
 import { projectTechniqueOwnership, getTechniqueOwnershipDetail } from "../../core/technique-ownership.js";
 import { TechniqueCatalogueWidget } from "./technique-catalogue-widget.js?v=choices5";
 
@@ -109,6 +110,13 @@ export class TechniquesWidget extends TechniqueCatalogueWidget {
     const { primaryAttrKey, slots } = computeTechniqueSlots(b.primaryAttribute, b.attributes);
     const knownAndGrants = computeKnownCombatSkillsAndGrants(gameData, b);
     const ownership = projectTechniqueOwnership({ gameData, builder: b });
+    const grantedSkillState = computeGrantedSkillsState(gameData, b);
+    // These facts belong to this refresh, not to each catalogue row. Rebuild
+    // them on every refresh so accepted edits and cancelled proposals stay fresh.
+    const rulesContext = createTechniqueContext({ gameData, builder: b, techniqueOwnership: ownership,
+      grantedSkillState, knownCombatSkills: knownAndGrants.knownCombatSkills });
+    const prerequisiteContext = createPrerequisiteContext({ gameData, builder: b, techniqueOwnership: ownership,
+      grantedSkillState, deferUnresolvedChoices: true });
     const grantedTechniqueDetails = new Map(), traitTechniqueDetails = new Map();
     for (const item of ownership.techniques) {
       const detail = getTechniqueOwnershipDetail(item);
@@ -117,14 +125,15 @@ export class TechniquesWidget extends TechniqueCatalogueWidget {
     }
     return {
       builder: b,
-      rulesContext: createTechniqueContext({ gameData, builder: b, techniqueOwnership: ownership }),
+      rulesContext,
+      prerequisiteContext,
       primaryAttrKey,
       slots,
       knownCombatSkills: knownAndGrants.knownCombatSkills || new Set(),
       grantedTechniqueNames: new Set(grantedTechniqueDetails.keys()),
       grantedTechniqueDetails,
       traitTechniqueDetails,
-      grantedSkillState: computeGrantedSkillsState(gameData, b),
+      grantedSkillState,
     };
   }
 
@@ -138,12 +147,12 @@ export class TechniquesWidget extends TechniqueCatalogueWidget {
   }
 
   passesTechniquePrerequisites(technique, context, gameData = this.getGameData()) {
-    return meetsPrerequisites(technique?.prerequisites, {
+    return meetsPrerequisites(technique?.prerequisites, context.prerequisiteContext || createPrerequisiteContext({
       gameData,
       builder: context.builder,
       grantedSkillState: context.grantedSkillState,
       deferUnresolvedChoices: true,
-    });
+    }));
   }
 
   getTechniqueSkillRank(technique, context) {
@@ -180,7 +189,6 @@ export class TechniquesWidget extends TechniqueCatalogueWidget {
     return {
       ...(context.rulesContext || createTechniqueContext({ gameData, builder: context.builder, grantedSkillState: context.grantedSkillState })),
       knownCombatSkills: context.knownCombatSkills,
-      skillRanks: getCombatSkillRanks(gameData, context.builder),
       allowGrantedOnly: this.isFreeTechniqueName(techniqueKey(technique), context),
     };
   }

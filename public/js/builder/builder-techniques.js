@@ -140,9 +140,7 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
     setStatus(statusEl, "Error.");
     return false;
   }
-  currentDoc = saved.state.working;
-  selectedTechniques = new Set(currentDoc.builder.selectedTechniques);
-  techniquesWidget?.render();
+  // save() already notifies this page and its widget with the acknowledged state.
   setStatus(statusEl, "Saved.");
   markBuilderNavigationClean();
   if (openSheetAfter) openCharacterSheet(ctx);
