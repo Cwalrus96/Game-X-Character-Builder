@@ -1,0 +1,294 @@
+{
+  "schemaVersion": 6,
+  "ownerUid": "local-dev-user",
+  "builder": {
+    "grantedCoreSkillSnapshot": [
+      "athletics",
+      "performance"
+    ],
+    "selectedTechniques": [
+      "nows-your-chance",
+      "charming-gaze",
+      "elemental-blast",
+      "reposition-allies",
+      "visor-scan"
+    ],
+    "traitActivations": {},
+    "bonds": [
+      {
+        "bondId": "legacy-bond:1gq2pba:1",
+        "name": "Benchmark bond 1",
+        "rank": "1",
+        "keystone": "Benchmark keystone 1"
+      },
+      {
+        "bondId": "legacy-bond:xwvffu:2",
+        "name": "Benchmark bond 2",
+        "rank": "1",
+        "keystone": "Benchmark keystone 2"
+      },
+      {
+        "bondId": "legacy-bond:12rt4mx:3",
+        "name": "Benchmark bond 3",
+        "rank": "1",
+        "keystone": "Benchmark keystone 3"
+      },
+      {
+        "bondId": "legacy-bond:15lzq9o:4",
+        "name": "Benchmark bond 4",
+        "rank": "1",
+        "keystone": "Benchmark keystone 4"
+      }
+    ],
+    "portraitPath": "",
+    "selectedClassUtilitySkills": [
+      "athletics",
+      "performance"
+    ],
+    "visitedSteps": [
+      "basics",
+      "class",
+      "attributes",
+      "origin",
+      "skills",
+      "equipment",
+      "techniques",
+      "bonds-keystones"
+    ],
+    "backgroundKeystones": [],
+    "autoAbilityNames": [
+      "Class Feature - Archetype Feat",
+      "Class Feature - Henshin Hero Feat",
+      "Class Feature - Hero Transformation",
+      "Class Feature - Inspiring Aura",
+      "Class Feature - Element",
+      "Class Feature - Ranged Weapons",
+      "Feat - Chroma Ranger Initiate",
+      "Feat - Explosive Transformation",
+      "Origin Feature - Amphibious Form",
+      "Origin Feature - Camouflage",
+      "Origin Feature - Defensive Evolution",
+      "Origin Feature - Exploratory Adaptations",
+      "Origin Feature - Wall Crawler"
+    ],
+    "grantChoices": {
+      "heroic-combat-training-targeting:weapon:targeting:1": {
+        "type": "weapon",
+        "sourceId": "class-option:henshin-hero:heroic-combat-training-targeting",
+        "sourceLabel": "Heroic Combat Training — Ranged Weapons",
+        "value": "",
+        "techniqueKey": "",
+        "skillKey": "",
+        "weaponKey": "pistol",
+        "rank": 1,
+        "customName": "",
+        "enhancements": [],
+        "tags": [
+          "ranged20",
+          "loud",
+          "versatile",
+          "armor-piercing1",
+          "concealed"
+        ],
+        "choiceId": "heroic-combat-training-targeting:weapon:targeting:1"
+      }
+    },
+    "traitChoices": {},
+    "grantedSkillSnapshot": [
+      "henshin-arts",
+      "mental-defense",
+      "physical-defense",
+      "spiritual-defense",
+      "ranged-weapons",
+      "elementalism"
+    ],
+    "resources": {},
+    "originKeystone": "Benchmark origin keystone",
+    "primaryAttribute": "heart",
+    "sheet": {
+      "fields": {
+        "overstrained": false,
+        "notes": "",
+        "rank_spiritdef": "1",
+        "rank_mentdef": "0",
+        "rank_academics": "",
+        "rank_roguery": "1",
+        "rank_medicine": "1",
+        "rank_observation": "",
+        "rank_physdef": "1",
+        "rank_culinary": "",
+        "rank_deception": "",
+        "rank_nature": "",
+        "rank_influence": "1",
+        "rank_society": "1",
+        "rank_stealth": "1",
+        "hpcur": "76",
+        "rank_crafting": "",
+        "strain": "",
+        "rank_spirituality": "1",
+        "rank_insight": "",
+        "rank_performance": "1",
+        "rank_athletics": "1"
+      },
+      "repeatables": {
+        "abilities": [
+          {
+            "abilityId": "ability:class-feature:henshin-hero:henshin-hero-universal-archetype-feat-2",
+            "sourceId": "class-feature:henshin-hero:henshin-hero-universal-archetype-feat-2",
+            "name": "Class Feature - Archetype Feat",
+            "text": "Choose a Henshin Hero subclass archetype feat or a multiclass archetype feat of level 2 or lower that you qualify for."
+          },
+          {
+            "abilityId": "ability:class-feature:henshin-hero:henshin-hero-universal-class-feat-2",
+            "sourceId": "class-feature:henshin-hero:henshin-hero-universal-class-feat-2",
+            "name": "Class Feature - Henshin Hero Feat",
+            "text": "Choose a Henshin Hero Class Feat of level 2 or lower that you qualify for."
+          },
+          {
+            "abilityId": "ability:class-feature:henshin-hero:hero-transformation",
+            "sourceId": "class-feature:henshin-hero:hero-transformation",
+            "name": "Class Feature - Hero Transformation",
+            "text": "You have an object - such as a Crystal, Technological Device, a watch, or a weapon, that serves as your Transformation object. This object channels your energy, and allows you to transform into a powerful new form. As an action while holding this item you can transform into your Henshin Hero form. This transformation usually involves a costume change, the user being enveloped in energy, and possibly explosions. When you transform into your Hero form, increment your Power Die by 1, and you gain 1 Armor.\n\nYou leave this transformation when you drop to 0 HP, after 10 rounds have passed, or you spend an action to transform back into your civilian form. Once you have transformed in this way, you cannot do so again until you take a short rest."
+          },
+          {
+            "abilityId": "ability:class-feature:henshin-hero:inspiring-aura",
+            "sourceId": "class-feature:henshin-hero:inspiring-aura",
+            "name": "Class Feature - Inspiring Aura",
+            "text": "Your heroic presence and cinematic fighting style inspire your allies. While transformed, you have an aura that affects allies within 3 squares of you (including yourself). Allies in this aura gain a +1D Status Bonus to Mental Defense rolls."
+          },
+          {
+            "abilityId": "ability:class-option:henshin-hero:emblem-element",
+            "sourceId": "class-option:henshin-hero:emblem-element",
+            "name": "Class Feature - Element",
+            "text": "This emblem takes the form of a primal element, such as Water, Fire, Earth, or Wind. Choose one of these elements. You gain Rank 1 (Beginner) training in the Elementalism skill using the chosen element, and a “Slow” skill progression with this skill. See the “Elemental Powers” section for details. Allies in your inspiring aura gain Armor 5 against attacks with the chosen element trait."
+          },
+          {
+            "abilityId": "ability:class-option:henshin-hero:heroic-combat-training-targeting",
+            "sourceId": "class-option:henshin-hero:heroic-combat-training-targeting",
+            "name": "Class Feature - Ranged Weapons",
+            "text": "Gain Medium progression in Ranged Weapons and one Rank 1 Ranged Weapons weapon."
+          },
+          {
+            "abilityId": "ability:feat-selection:chroma-ranger-initiate",
+            "sourceId": "feat-selection:chroma-ranger-initiate",
+            "name": "Feat - Chroma Ranger Initiate",
+            "text": "Shared Emblem: When you choose this path, you can choose a number of allies to include in your \"Squad\". Each of these allies gets a small trinket - a badge, coin, crystal, etc. When you perform your Heroic Transformation, you can share some of your power with those allies. They each get a benefit, based on your current Emblem:\nWild Animal: Your squad also gains the damage bonus against enemies you mark with \"Mark Prey\".\nPrehistoric Beast: Your squad is also treated as +1 scale for the purposes of forced movement.\nMythical Creature: Each member of the squad can perform Mythic Rebirth once per short rest.\nInsect: Your squad also gains 5 armor against bleeding and poison\nElement: Each member of the squad chooses an element. They learn Rank 1 \"Elemental Kinesis\" with that element.\nVehicle: Each member of the squad also gains a rank 1 vehicle, and can summon it as an action.\nAncient Warriors: All allies benefit from any circumstance bonuses granted by \"Know Your Enemy\"."
+          },
+          {
+            "abilityId": "ability:feat-selection:explosive-transformation",
+            "sourceId": "feat-selection:explosive-transformation",
+            "name": "Feat - Explosive Transformation",
+            "text": "You gain the Explosive Transformation technique."
+          },
+          {
+            "abilityId": "ability:origin-feature:mutation:amphibious-form",
+            "sourceId": "origin-feature:mutation:amphibious-form",
+            "name": "Origin Feature - Amphibious Form",
+            "text": "Your shape changes to be more suited to navigating the water - your hands and feet become webbed, you sprout gills, and you may gain other traits of aquatic / semi-aquatic creatures. While in this form, you gain the Amphibious Trait."
+          },
+          {
+            "abilityId": "ability:origin-feature:mutation:camouflage",
+            "sourceId": "origin-feature:mutation:camouflage",
+            "name": "Origin Feature - Camouflage",
+            "text": "While this adaptation is active, you gain the Natural Camouflage Trait."
+          },
+          {
+            "abilityId": "ability:origin-feature:mutation:defensive-evolution",
+            "sourceId": "origin-feature:mutation:defensive-evolution",
+            "name": "Origin Feature - Defensive Evolution",
+            "text": "Your mutation also helps protect you from external threats. When you take damage, you may spend 2 energy to adapt to that attack. If you do, choose 1 of that attack’s “tags” - you gain Armor (e.g. reduce damage) from attacks with the chosen tag equal to your Strength. For example, if you have Strength 3 and are hit with a fire-based attack, you can gain heat-resistant skin that grants Armor 3 to subsequent “fire” attacks. Lasts until the end of this combat.\nOnce per round when you reduce damage due to Armor, you may increment your Power Die."
+          },
+          {
+            "abilityId": "ability:origin-feature:mutation:exploratory-adaptations",
+            "sourceId": "origin-feature:mutation:exploratory-adaptations",
+            "name": "Origin Feature - Exploratory Adaptations",
+            "text": "Your mutations can be triggered by environmental factors, granting you a number of beneficial adaptations. You can activate these adaptations by spending 1 action and 2 energy. You may only have one adaptation active at a time."
+          },
+          {
+            "abilityId": "ability:origin-feature:mutation:wall-crawler",
+            "sourceId": "origin-feature:mutation:wall-crawler",
+            "name": "Origin Feature - Wall Crawler",
+            "text": "While this adaptation is active, you gain the Climber Trait at Rank 2. This Origin Trait does not require an associated skill."
+          }
+        ],
+        "combatSkillsExtra": [
+          {
+            "skill": "Targeting",
+            "rank": "1"
+          },
+          {
+            "skill": "Henshin Arts",
+            "rank": "1"
+          },
+          {
+            "skill": "Elementalism",
+            "rank": "1"
+          },
+          {
+            "skill": "Melee Weapons",
+            "rank": "0"
+          },
+          {
+            "skill": "Martial Arts",
+            "rank": "0"
+          }
+        ],
+        "conditions": [],
+        "settingSkills": []
+      }
+    },
+    "selectedFeatOptions": [],
+    "name": "Performance fixture — Henshin Hero 2",
+    "selectedClassFeatureOptions": [
+      "heroic-combat-training-targeting",
+      "emblem-element"
+    ],
+    "attributes": {
+      "agility": 4,
+      "heart": 5,
+      "strength": 1,
+      "intellect": 1,
+      "willpower": 2,
+      "attunement": 3
+    },
+    "level": 2,
+    "originKey": "mutation",
+    "classKey": "henshin-hero",
+    "selectedFeats": [
+      "chroma-ranger-initiate",
+      "explosive-transformation"
+    ],
+    "weapons": [
+      {
+        "id": "w_1782252601205_f813r6jb",
+        "choiceId": "",
+        "sourceChoiceId": "",
+        "generated": false,
+        "weaponKey": "dagger_kunai",
+        "rank": 1,
+        "customName": "",
+        "enhancements": []
+      },
+      {
+        "id": "w_1782252656372_aiay87ou",
+        "choiceId": "",
+        "sourceChoiceId": "",
+        "generated": false,
+        "weaponKey": "shuriken",
+        "rank": 1,
+        "customName": "",
+        "enhancements": []
+      },
+      {
+        "id": "w_1782252505342_n6xurf4g",
+        "choiceId": "heroic-combat-training-targeting:weapon:targeting:1",
+        "sourceChoiceId": "heroic-combat-training-targeting:weapon:targeting:1",
+        "generated": true,
+        "weaponKey": "pistol",
+        "rank": 1,
+        "customName": "Soulbound Weapon",
+        "enhancements": []
+      }
+    ]
+  }
+}

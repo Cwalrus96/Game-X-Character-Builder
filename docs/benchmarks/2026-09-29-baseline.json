@@ -1,0 +1,4729 @@
+{
+  "schemaVersion": 1,
+  "title": "Game X benchmark baseline — September 29, 2026 (America/New_York)",
+  "scope": "Observational baseline only. Application files unchanged. Browser writes only to one disposable emulator document. Production requests only to public Hosting assets.",
+  "manifest": {
+    "commit": "ae069ead383027ac7d9b6d49db039ce4931eadd1",
+    "files": {
+      "404.html": "a1aa8de51095fdfafc076bc0620920274c0811afdb53187c175fe1ca1b2be777",
+      "builder/builder-attributes.html": "86bcf60eeab63f08a17b321b5b13fc7b0046b60c684f280bfd8ee9485ba214cc",
+      "builder/builder-bonds-keystones.html": "f8c0bbef64b2f7d2f924e70c1022402b67ac7f7aea2ba66e27a5a1e60ab83dbb",
+      "builder/builder-class.html": "23955540febbc9111b48ab4c83bfe79509e5d84519b4f7bed1b1b3e5587f7f19",
+      "builder/builder-equipment.html": "825ff1afc1c898b83664ebab847f62f2bc2027fcac6d8464ab68d3f5c7d19aed",
+      "builder/builder-origin.html": "882814a7f8027df4a9b4e17d6df9b5886142d44e24f3d9e9f473deddc947b807",
+      "builder/builder-profile.html": "eccb664211371a376d34b40eaae7a5914adecdb4be17e023d9d5d65280977c95",
+      "builder/builder-skills.html": "32cbf3304788869a1afd8fe94376a77db44474e133f56b094d091a0cf413a13a",
+      "builder/builder-techniques.html": "cd591648ee0c4a7c8b3ebdaa7079b060e3d19781299517f93b0f24f2b90eaedc",
+      "character-sheet.html": "c330dc94c2407830e1a5548c8461d58790357c33b648b393dad046c9dff43830",
+      "characters.html": "1bbee41f675f1fe99fc13964ae0cfc13b30ba2a08dd48f0574ebb483d4e82a88",
+      "css/builder-core.css": "08f602a51d0267c91767444efef98392e77ad362949b3d9612e005291ae883c3",
+      "css/builder.css": "c546a0e6006276b354dad402e8680a1087e8a890b58dfe1a750196d84a1825e9",
+      "css/characters.css": "6878f78187f7af2342cd60c5d4b20744f74a29069fc2644c21d5bb9e80076023",
+      "css/dice-themes.css": "ce40eeffab762c05fcc44d284c388289c51b13f7733902e32e4d459f81741a15",
+      "css/gm_users.css": "22deed4149e0b705ec5e4bd2974a916d5135f338bb5a84efc36cff76472de44a",
+      "css/login.css": "57b8a9dc80b14c0e102b5c9af6dd91a6a47461f17c1490db86cdb709908b4ef6",
+      "css/sheet-appearance.css": "1ff88f3571532813a09576609a04be2101f70d872339905e45cd35cdb6d2832a",
+      "css/sheet-fonts.css": "99f7bda4372c0a12d3ac01adc64ce4d44923463fd853933cdfa9636fad392898",
+      "css/sheet-rolls.css": "2ec03cce6bf82ce7d62f469b4ee19caa9f562e6584ec8a06ecf6abf5a6515a6e",
+      "css/site-core.css": "b3a978c5616231aca7277c418e857ca8e8fd3184edc2f7f89f527c7e8c55f211",
+      "css/styles.css": "061a86824186cc2ee9e0f198392395969a538f6340919b974b05613c28090c8e",
+      "data/game-x/class-features.json": "7bef52b849ba2a987522b07369d81610d344be03b122f557773ae7aa4154eda7",
+      "data/game-x/class-skills.json": "bafe17bc2e9d17d43f548a8d29ef3b274f3e2b8a24092eaf19d03c6d1975b7b1",
+      "data/game-x/classes.json": "0c9a179fe408cc9fe221e0812f694af7c34f404b1601e0e7c47d323b6f382347",
+      "data/game-x/feats.json": "0ecc1fbf070862faec21decc169b59e7c5799e4fd15444869b7fb02c18123004",
+      "data/game-x/game-x-data.json": "a3f3f0c8691ba6c90d066ec2f314542a8fbe18583c82854101fce627d6a52e7e",
+      "data/game-x/origins.json": "dc9447499421240f16fa81e7a3b4ab5ced7c38324baa3f42f6fe1c067c19fba4",
+      "data/game-x/techniques.json": "ac52c4ec781c7847fc731cf3208fa4af61ec51452fbb4704fc6078239e3c157b",
+      "data/game-x/traits.json": "46d4ba75c91f787e7ea0182338246b76af214b7664ebc854dcac1816aa683f32",
+      "data/game-x/weapon-bases.json": "fef92becc330b8a45ba00e2228ba90c5412d5b6bda1d953a8d7b424c1853bdf9",
+      "data/game-x/weapon-enhancements.json": "185482b529501e0671071bd22bb01837e007ba88aa48994db2074546e49cd6d8",
+      "favicon.svg": "5bde82229caa797a6142af38696f2d3ec4f7b697600609a49a01531c0273150e",
+      "fonts/sheet/Nunito-OFL.txt": "ee9491ad3ea5d390878695bd6cce49beb3cacd5c4312f8ab574b541e9f7afa21",
+      "fonts/sheet/Nunito.ttf": "bb55a5ca5c2042335b3991af27c4d0705d0ef41cac6164ac737fd8f2a1e85207",
+      "fonts/sheet/OpenDyslexic-Bold.woff2": "b534a0b84ef3cca941ebdb506ce3f4e0010aa4ef881271bac8b6959dbf694fbf",
+      "fonts/sheet/OpenDyslexic-BoldItalic.woff2": "d055755690b99774a69e90600d1efc60b99ce05b3092155165609453b4b81c34",
+      "fonts/sheet/OpenDyslexic-Italic.woff2": "b18685dcb99b4ba903549d215c0ae2ab39a5087097614fd4100ae6d387332b47",
+      "fonts/sheet/OpenDyslexic-OFL.txt": "797cb441b593b3326a69fcf83d84264301d89e8871a75b38bae1d101e922e10c",
+      "fonts/sheet/OpenDyslexic-Regular.woff2": "0441bc21071e42db57c217f93fbc48d3b55a2987c02814c94dc93621c42e8695",
+      "fonts/sheet/Pacifico-OFL.txt": "e1b964e3f56697598c46363a8864f0a7b883c86a0c01a9a6a4e90e6949d60ba2",
+      "fonts/sheet/Pacifico-Regular.ttf": "5b6c0d5334a7bf77dea52b975c5a0c408878c0f7115ed5b6fb151f634b7bf701",
+      "fonts/sheet/PatrickHand-OFL.txt": "dbf0df430d5997121cc569dbe4f9198f76cf393114438f1f6c80a49f06f029d6",
+      "fonts/sheet/PatrickHand-Regular.ttf": "0f173b3e6cb6d1af25babf7f0057c5ac4ee11f9992b0469bb817e967ef4ad0fc",
+      "fonts/sheet/README.md": "f5cdf8e3c49cf4ead6b5451e396a61bab3b52070a1694e708d64f37c725aaec1",
+      "gm_users.html": "d2f10a280bcb13e7025f3409f66c91a47bdf94853f6a684e2a5f31556b214d28",
+      "index.html": "36661243245a3bf4d08e080c00c53ba643c837cd49ffd3cc672cf1fe79984e07",
+      "js/builder/builder-attributes.js": "d022a8438f5b979813c8aed06c6c9ae215474dedafda1be541ad2e87b640dc07",
+      "js/builder/builder-bonds-keystones.js": "d52afe0d0c7e39a72e542fbad7afc34522d51c5072fdb84ca9b2e94dda677a12",
+      "js/builder/builder-class.js": "49cd8e9cd93e42311047c24f994a8a02d024fab37ecf1ae5f0b423cbe7173501",
+      "js/builder/builder-common.js": "dbcd02f7e948c48dd1f5ca8239a2ebd1653041cbec131d13698565349988accb",
+      "js/builder/builder-equipment.js": "63a33b93442a46515d827817470d8d172613ecfca417ed045666d4be2dc1372b",
+      "js/builder/builder-flow.js": "0881d56911ab7420482970ee67fc2d77ec0360c6c6667de420a63f95a021e398",
+      "js/builder/builder-nav.js": "c0d8deb8d6b21ab88c13c0290f0e6e31137df89300a0feef02ecdfaa57743238",
+      "js/builder/builder-origin.js": "a5e4feed5dee61b3b5b10cde689430e2e77c4147987d0df9efc0e683fe0b9fa2",
+      "js/builder/builder-page.js": "921ca2a4deef093093b7caf652ddd54f452a9c126fc5fd42810f4ecdc3912ec0",
+      "js/builder/builder-profile.js": "7abfe2b90a1b770c43f697ccbea00f90ece2a5d87371f59aee9432de64530cf9",
+      "js/builder/builder-skills.js": "907e2113704a7873e1395254088b72754ef0a806a414cadb48029cc928c00668",
+      "js/builder/builder-step-impacts.js": "d47394176bcf7cf401185e6751c9d1c7981c09db97f9a34821f403e1b54f96a2",
+      "js/builder/builder-techniques.js": "28361801c4ad6d706b801aa4ab2271c9df790d6beaba95b7662c4ba2f652ed6f",
+      "js/builder/character-impact-display.js": "5e6355bc800b2278583fdf110beb4dc295ebf1f7fd309979a77568d0b8efa121",
+      "js/builder/character-session-page.js": "682368356404cb2c6f294bdbafe0ebe77d35f877666f4518d1562881be6af5e7",
+      "js/builder/grant-choice-state.js": "cc0f8db2344fdc0df6c9b73cc53ee0acf911f709299cdff50ceff4efa422260d",
+      "js/builder/widgets/attributes-widget.js": "e3b7bcdb7042762938a294130b37c38720f81cc9225486d211192766c149c559",
+      "js/builder/widgets/bonds-keystones-widget.js": "9bc3608ef5c0116f4d74f3d41c723512192bfc099ef6318bde4fc39da31ef276",
+      "js/builder/widgets/boon-extension.js": "5ce8c79bf18224a54fe42facf51fdbccf344362e2150cc519a0fb622c19d01a4",
+      "js/builder/widgets/boon-widget.js": "7c3bfe85e7620822dd98899a227dbe3353a062bd009aaafeb4d389406b0b34c7",
+      "js/builder/widgets/builder-widget.js": "2ca2889d67a0dbabaeb62b4da704bd8b3dfc54cf289cec0f7ec07b7ed61c102b",
+      "js/builder/widgets/catalogue-widget.js": "615b48dee75a5bea73f18647dc37033bf9beaf9bd17e372a71c08094c69360cf",
+      "js/builder/widgets/choice-catalogue.js": "c294602bc8bc2691e68cade7e41ae8355c010f98dbb1e52b4d580f2901e64412",
+      "js/builder/widgets/choice-field.js": "21f92ae504fab2d8a748fda1b08a79545d0c72c79a66e48e6d1ed0bda97f89aa",
+      "js/builder/widgets/class-choice-widget.js": "b43a66a64417152dae227ee9caee894dcd784549e56684efb1777013f917d733",
+      "js/builder/widgets/class-features-widget.js": "3241165d1ed993c2c6b4e1432e33b246568da78a134feb236b9577371d2c152f",
+      "js/builder/widgets/components/dice-view.js": "4624c655792e0678231b609399f8aac46ac7fb2659b88e136525fc6578267c8b",
+      "js/builder/widgets/equipment-choice-widget.js": "adab2865264cf5dfcacfb1b77583a9b8c86b116e11a23b94106ad42336576939",
+      "js/builder/widgets/equipment-widget.js": "eb4672d9f435ffabdb4c6aae6bfa11dc640d3bb5b6d80d084a8665586a9a3e86",
+      "js/builder/widgets/feat-choice-widget.js": "ea80be98c16b010cdae74117e316062ef12c99f02728c43f73d0f491aded0218",
+      "js/builder/widgets/feat-widget.js": "feb063ee838a05aab9f7a8784d9054fe0d92b46d6b78695888a8dfb6d7badf3c",
+      "js/builder/widgets/feats-widget.js": "0df9476420fc820f2f1b96dbceba754d667045275327adb9f415666505130da8",
+      "js/builder/widgets/grant-choices-widget.js": "fc927f395f93d47e73c35c2b96fc438e0cd2c80432ce333bf1ace25a5ee66f7a",
+      "js/builder/widgets/grant-widget-extensions.js": "f162a20213281672350b8cac464c59fdb9f662d923b3d7caf7b7de9be2815b9d",
+      "js/builder/widgets/grant-widget-factory.js": "c669b9325e2c6885fd00a969e63dacbc5b0658a931f5697c7b016137068e5530",
+      "js/builder/widgets/grant-widget-registry.js": "fc3a8cc9dae19c3803c43c16802f73d8e68830f25736111831430aa7a2adaab7",
+      "js/builder/widgets/interactive-widget.js": "7fad69f84676bde98d4ebd25e10c47e4e2b0bdb4a761cb069645df0077c3532c",
+      "js/builder/widgets/keystone-choice-widget.js": "3b46afe985df10f599652611a6cb16bc7ff32cf8916ae34a70b648cc3f7f9c2e",
+      "js/builder/widgets/level-choice-widget.js": "7c17869fdfa0617a48fa90a40f407b5b00749da9e2187bed5b3a15f2a69778da",
+      "js/builder/widgets/option-group-widget.js": "32dc63caee04631d743e6afc3d3a7e82e5c0ef85eed02e8b43fcd624ba85d1ea",
+      "js/builder/widgets/origin-widget.js": "c22c46cdfc5bb71d52110f3ca7c06f26fcb997c679372184a023b1b0876596e8",
+      "js/builder/widgets/primary-attribute-widget.js": "021702eacac0f5b28527b2a612dbd36a37a546d56ffb3cb5d97ca65ad2850031",
+      "js/builder/widgets/roll-widget.js": "4f142630cc7ab959fe365173c098f1b2d72fe52a93a82b5c27c780c5a9320ea5",
+      "js/builder/widgets/rule-details.js": "86fa2c4d7a885eba80b800a06a6397fb1ae303b1de2f957b7fa05854bb3aa20f",
+      "js/builder/widgets/selected-choice-display.js": "41a2882862dc681b5547e1ac689fd123b27c4528fe7b4bc2e6fd44b35006ec7b",
+      "js/builder/widgets/sheet-settings.js": "82cdc42387c8de5fae8609855f865b80ed633ed2b302b5303418496e38889473",
+      "js/builder/widgets/skills-widget.js": "89787ba3f7300373d9606296ab4650b44be7cb83a64ebb61254fd23ac7bd9567",
+      "js/builder/widgets/technique-catalogue-widget.js": "e38b380426616c9e8ffdc55cc0762ca3ad62d364f1c606a02123e607ed294d07",
+      "js/builder/widgets/technique-choice-widget.js": "c5ecc556960a8cd20af8954b0b3e7555714e76e2f1ad72e1962dcff538e9e135",
+      "js/builder/widgets/techniques-widget.js": "5ecc186b133a19759c815a49027c3144e4942182bcf5e36c19414e9636d87d36",
+      "js/builder/widgets/text-choice-widget.js": "921e584718ad028eb53fad173a7856f648585f73bba9ade0258bd80f990e4793",
+      "js/builder/widgets/trait-widget.js": "bec33b8d2673975516f5faa1392ae86bb22e9da9bf6a07639d87f85f5e16eef5",
+      "js/builder/widgets/weapon-choice-widget.js": "9c0a4c8acc9ede0a95f28308e0f6fd045b367c90e00a7732f591107b731fdeb4",
+      "js/builder/widgets/weapon-enhancement-choice-widget.js": "8b5df4fbbe5050f1915f09e6a49c805f77fb7c2f3018034d5a7a67c0c4d26e37",
+      "js/core/app-nav.js": "5647d1273ca47550d3b58f1a181e6a7fdec201224018586845fca3214c43fb15",
+      "js/core/auth-ui.js": "d5863e92a63d1b657c14f108827c855c15c8ce3465dd50b636c3543abef3e2d1",
+      "js/core/bond-rules.js": "81a9d7db63fbc595304ce8fcd61d648e2c9bca34b930b7d5fe77e2730f5b6a00",
+      "js/core/boon-extension.js": "12aa7581c0be90aa4a7ddc677f7de9aab82bcba3b1cd8843a7398b5b5b41e593",
+      "js/core/boon-rules.js": "0156030fd6b2dbf94834c54347d017474f2ab7f391bae669c1d272dcf12f0680",
+      "js/core/builder-dependencies.js": "5c08f1b4283bc2da1d32a1e39afd16f1244e776c9c46d40c577dae90be8a1be6",
+      "js/core/character-codec.js": "087926158d34a6587eb6eeb32e04fcac2c787fb9e548464177339cfe3686a83c",
+      "js/core/character-commands.js": "90899090bab370a1984ef81756198dc6731b62045e88abcbe381032b4124089d",
+      "js/core/character-content-migrations.js": "f973855d763da0e437847571dfe2b8b060c857b98528764d5242aa10f31b777e",
+      "js/core/character-dependency-graph.js": "42d4a54d932f4d0c999fa62191f49e55d616461279a4878bd86d2e403e4335d2",
+      "js/core/character-migrations.js": "372980eda22c8df7c5ba43b1df4270623262ff4fba7ee9262ff070e564006285",
+      "js/core/character-persistence.js": "6d41658adcf579fe1fd0df37a0e623ebc0c0e73788cbf9c99bbc2da35f3a5567",
+      "js/core/character-rules.js": "b3dfb5200a6a8804437a9bb56cfa4d02709fda9d41333caf81d6800b306524c1",
+      "js/core/character-session.js": "672ac2acec8a234a7e8a5aba86858f0d2333c536edd289bd61ecf829c809e1ba",
+      "js/core/character-skill-projection.js": "f5c63f2a9aaeb556560a339201e601a058202c3145139236dd073068a2c25a45",
+      "js/core/character-state-diff.js": "0120742aa20cf8508db91ee48831936e8799fb9a876d25dca8b925babc067ff4",
+      "js/core/choice-capacity.js": "cf97f8f9416d6bb4dd1b3452262256e6abc7694e8ae599e55dfe789405ae7ae1",
+      "js/core/choice-content-migrations.js": "f0ceebc395cdb569a98e667905e7399409c2ed4581ecce10dd0638334dde6d99",
+      "js/core/choice-identity.js": "554afded11932469e23c30043904f3274d0c1f9047c0515bea37460eff230d81",
+      "js/core/choice-reconciliation.js": "551e0b04d676c3ef0036aee1dc0a555c7f83d432d1f17112238e1a26d8d94dd0",
+      "js/core/class-feature-display.js": "b645065756139f46424c42668acc612444524f2749f2ff07142505cae8c60210",
+      "js/core/damage-rules.js": "7dc76155a863a4362fbe22f654c3cd6f37ec5baeeb144a20e610ec490d5bd395",
+      "js/core/data-sanitization.js": "627b7ef5c0215dac1492e7da0e8509754d5e55f39c90c93c155d6367735710e7",
+      "js/core/database-reader.js": "23cc2ced42906d2acbc279221a53d9a0a589ffb5068289da22db55e3fb154402",
+      "js/core/database-writer.js": "dd2e807f61f1bb7a283f92bbecd0c472dbe568430791e3164c59d3a236a33df9",
+      "js/core/dialog-lifecycle.js": "e74e0c7553e8d58bb92e8a0cbbbc1f145f06706ea700860259f00542a8a97bc6",
+      "js/core/dice-random.js": "199756108caf729f30e44bceb97f1bb33999b254abb5d90793c3c1c1fdc4f036",
+      "js/core/element-rules.js": "e886d8982c982e278c188fea9ab109ac9aca801159934a77b320a1525d2bd850",
+      "js/core/equipment-rules.js": "41dd03059054bfb43f47c3ca2ee7bdaa190f9a28d925dd50f70b03b9ba8de1eb",
+      "js/core/feat-allocation-rules.js": "6f50f6788c9080c462fef87f828d93578402a7be4b1886515da05e1db39c6c37",
+      "js/core/feat-rules.js": "9a2445d2ba93618d4738afd1ccf404dbbf1512b5cb47bdb63dab7218187d86db",
+      "js/core/firebase.js": "94ca2b56e51e8ff0562c45e8c11b1a0785e0f71beecbb835145e914f3552663a",
+      "js/core/game-data-contract.js": "656833ab60eef2c974afc8d61bc3a4f36814ac585e7333249cfdedbc2238ae81",
+      "js/core/game-data-expressions.js": "38c9995441e8f8c74cb4d3b07f2d098784101d6636677fe991b1da8f789058d5",
+      "js/core/game-data.js": "b624a92d46ceb238670ba07fe6976a8c9b89f4b2b5fe20ee2ba92976fc7619aa",
+      "js/core/grant-source-rules.js": "f5714ca31bd2a8e909703902845cda7422f45e9c3ba96600bfb2caa3604312ae",
+      "js/core/grants.js": "cdde219689ddd9ca34d44c30865494d69731e20d5855f9051ed1d43bf543a9d1",
+      "js/core/graph-compiler.js": "c573e1e6531bb7df8f0cf3027fffe129e741ac7af73355c460d982cebe71e4ff",
+      "js/core/graph-core.js": "b2d8b2003a06273de548224cdffce2541724c518be99db4ece0b5ed80879d28e",
+      "js/core/graph-extensions.js": "b3c2789e510799e562b9ff5f3091b135a10175cd6a35b977fb2216346bac3dcb",
+      "js/core/graph-reconciler.js": "8df4cb9206155da1d3928011bd157ecfd8317b141e6664e590cc7565c7adea23",
+      "js/core/keystone-graph.js": "f3137fd56d62e53fc0983841b25bbdd3f6d283741265770a1f0a061f6ee691b4",
+      "js/core/keystone-projection.js": "d8dfa7e02299493688d5ba4c50af42f3d234d1dddeccbad0422846acc8301199",
+      "js/core/keystone-rules.js": "31576e96417d3d4462c5f16d3ef98fcc06a7ac4fda7699fe9f3e41764003c203",
+      "js/core/local-game-data.js": "e74dc2897b5b909571804941585ae06e6bdb24016816d7a5c3b0c6c3920a00c9",
+      "js/core/navigation-guard.js": "b1ad3b81321a46810c65701e6ed5e00c4ae67308a9152f4f768619a52a6b3caf",
+      "js/core/option-choice-rules.js": "e9c6c4e0b0a91eae4fddaf9770799acd0a2aa771760d36c742340fd4662b798c",
+      "js/core/option-groups.js": "d3a3071b1cb614ab01e69f650cc351257f09a806e836b2f5f7af2413baa1ddc4",
+      "js/core/origin-rules.js": "0268904a6f0131d454205c6f17f7f32a7462addb818cf9017e5b2779052e6f3e",
+      "js/core/prerequisite-rules.js": "361e5d0148c40c5ef54f7a325c5b1ea9862de00751647c3bf128dc799a64ce7d",
+      "js/core/prerequisites.js": "53af0d3f46bca8d7780c69677339935a5e5044bf5bdc15a11e97c10facd5ca0f",
+      "js/core/roll-rules.js": "92c70a852fb6c26e7e1401ab5cb1793a5bec89291a1e10b9a7ccdeeacdbf82eb",
+      "js/core/save-coordinator.js": "3fbc02470958882c2130d9cb070c3224b248bce23151aaedeafd91d09d559703",
+      "js/core/save-status.js": "1ffe65918d3e0d4085e6928034e3ab292e9308c08e7312f2279dabf50faaf59d",
+      "js/core/selection-rules.js": "11d36c8b1576b8a00cb2da19d034383b5b85595836d2f54cac3dd53e2c777566",
+      "js/core/sheet-appearance.js": "3868302ff0917c3906c1038cf53c2496a28d0aeb1ad6f255d5706b133e79eea2",
+      "js/core/sheet-roll-context.js": "faecb0b30873d9cd4eb49d12f1e0f4771707cd13f3303d987181d2bbc9c67fae",
+      "js/core/sheet-state.js": "0630423ea0fdf094d5747b1246cf6552f3ab0f06ffa90427c946396329119d41",
+      "js/core/sheet-technique-projection.js": "dab08c94f052384c6b8385f7d3d09d9479b63acee4a130e75655a7b57fafd391",
+      "js/core/skill-identity.js": "7eede8276eb8af05706718ae67b5bc416378591c4a74789b42039717bb295dbe",
+      "js/core/skill-rules.js": "8304e2e7eb3171cab3ab7c6ddff32d1a9080c4b520da1b9bab35ecfb89a5f4b9",
+      "js/core/technique-grant-rules.js": "ecdb54b39d55bd65721d518a773e2bb876dbdb2c095fed356773a52e79315092",
+      "js/core/technique-ownership.js": "9c39635468a2a1ac89f73bc47a7c86b4f86cc2b61b820f7a8b283ee1898304bb",
+      "js/core/technique-rules.js": "735b7b2e23571c5508d0af93ef20397d4d342aee239c183b6499f32818de0e98",
+      "js/core/technique-utils.js": "dd183eab61a1747d9bb59bf8594cdf2a362ab59661afd38fefd9b5516153d567",
+      "js/core/trait-display.js": "462ff40c450c304685f8ed8adac490c73ff67d718a1d471a7ec2a20421bb41cf",
+      "js/core/trait-graph.js": "1bb69423a0ee5db1e7929a3db987df3876e0433618334f9dcec88c085e2e5054",
+      "js/core/trait-option-rules.js": "f651d1ffac87e44c8a341562506240943c77ed0ee4dd44fd88c81215a55ef6d0",
+      "js/core/trait-projection.js": "bbdcf5002f960b8fb42b87ffcf8b502a2d9fe1dabd3ce6dae44b0e786a0c8b26",
+      "js/core/trait-rules.js": "8b982ee615a456dbfd4e4b75f5237420de84e429f8d3047078516110d4234054",
+      "js/core/weapon-grant-display.js": "682a5fc4511dc16e63e1b2eee6b5680a7f055a33a5ec087b6d01db4db2001d3c",
+      "js/core/weapon-grant-rules.js": "81dce7b2b11f2e365325a9b4aa1232fd0f1ed390b3dd72be51ac934d37bc2cf5",
+      "js/core/weapon-utils.js": "c9d8a2e4681c9f335414deaba1aab0fff006408a70919c5ae1b5699f6d1f5407",
+      "js/pages/character-sheet.js": "1d53825321153b6c582776d385549181a06fce519c49aee8456a2a4dc26517a9",
+      "js/pages/characters.js": "ea37529d981e98568cb82c568f241df573cb3bc7f1fddd3fcfa6b2fe1f40f416",
+      "js/pages/gm_users.js": "5076570aa005b4fd1ee4146cbcc5a66e16209b6501383ca62ccc425cc5699a94",
+      "js/pages/login.js": "a2b01b844e5c7146c59f2d079616d6ef91a77b7e85f85489cf3ad62a96e8e888",
+      "js/pages/sheet-hp-control.js": "0eabfe888fcefb64804a5347e8a7bc74f416c55798dc3e3b9c066eba9752718e",
+      "js/pages/sheet-rolls.js": "a93603c7216bbfcd0d99de66eacd77c3aa2677b53b6563d6d1f61785a2c3bb88",
+      "login.html": "9a2af4cfb1bf5b8f285a91815c7f9a2e890b991c1028cf549671a183fb1e9f45",
+      "vendor/firebase/firebase-app.js": "5c4340cf32ef39ceab25e1bbf51d6a728acee9db236c9c506c6859b1abdddb9f",
+      "vendor/firebase/firebase-auth.js": "f51bd29964bc19995dd37da35d2552e6f96f3dbf25791e96bc95fce80274f64c",
+      "vendor/firebase/firebase-firestore.js": "7cdeed511876ff567973372d156386a3222b1f93e97858ea65e8a05029b37af0",
+      "vendor/firebase/firebase-storage.js": "61df3d49723603665d801bd212377c7796cc2259e163327c77854a05a1b9e816"
+    }
+  },
+  "core": {
+    "schemaVersion": 1,
+    "capturedAt": "2026-09-30T01:15:28.804Z",
+    "commit": "ae069ead383027ac7d9b6d49db039ce4931eadd1",
+    "environment": {
+      "node": "v22.22.1",
+      "platform": "win32",
+      "release": "10.0.26200",
+      "cpu": "11th Gen Intel(R) Core(TM) i7-11800H @ 2.30GHz",
+      "logicalCpus": 16
+    },
+    "fixtureSha256": "7306e885a95b9c8ba4cb3f55ded420b89d1e69ad465439db577fdc1ba30716df",
+    "catalogueSha256": "a3f3f0c8691ba6c90d066ec2f314542a8fbe18583c82854101fce627d6a52e7e",
+    "catalogueBytes": 2775498,
+    "method": "Serial Node CPU samples. Two discarded warmups per case; preparation outside timer. No DOM, network, or human confirmation time. Save-check cases include page-level repeated reconciliation, but exclude widget refresh and persistence.",
+    "results": [
+      {
+        "id": "attribute-change",
+        "samplesMs": [
+          256.844,
+          262.022,
+          270.523,
+          246.784,
+          246.165,
+          246.037,
+          238.927,
+          244.936,
+          304.557,
+          337.415,
+          318.816,
+          379.966,
+          383.462,
+          419.422,
+          356.241,
+          383.459,
+          363.243,
+          314.088,
+          329.859,
+          353.091
+        ],
+        "n": 20,
+        "medianMs": 316.452,
+        "p95Ms": 383.462,
+        "minMs": 238.927,
+        "maxMs": 419.422
+      },
+      {
+        "id": "skill-change",
+        "samplesMs": [
+          362.925,
+          387.504,
+          372.807,
+          390.347,
+          389.487,
+          368.082,
+          327.871,
+          319.332,
+          370.538,
+          421.217,
+          389.31,
+          367.007,
+          310.486,
+          332.834,
+          331.9,
+          393.815,
+          330.689,
+          354.64,
+          363.231,
+          365.406
+        ],
+        "n": 20,
+        "medianMs": 366.2065,
+        "p95Ms": 393.815,
+        "minMs": 310.486,
+        "maxMs": 421.217
+      },
+      {
+        "id": "remove-feat",
+        "samplesMs": [
+          543.36,
+          454.621,
+          497.831,
+          457.597,
+          547.441,
+          491.094,
+          523.113,
+          496.38,
+          595.047,
+          516.964,
+          422.535,
+          572.146,
+          443.722,
+          410.89,
+          479.028,
+          585.117,
+          519.915,
+          504.985,
+          489.105,
+          523.37
+        ],
+        "n": 20,
+        "medianMs": 501.408,
+        "p95Ms": 585.117,
+        "minMs": 410.89,
+        "maxMs": 595.047
+      },
+      {
+        "id": "remove-technique",
+        "samplesMs": [
+          315.224,
+          325.99,
+          385.161,
+          317.764,
+          380.083,
+          365.986,
+          421.479,
+          369.162,
+          379.755,
+          426.459,
+          341.157,
+          329.407,
+          308.23,
+          362.326,
+          338.801,
+          364.843,
+          358.981,
+          414.042,
+          356.658,
+          317.905
+        ],
+        "n": 20,
+        "medianMs": 360.6535,
+        "p95Ms": 421.479,
+        "minMs": 308.23,
+        "maxMs": 426.459
+      },
+      {
+        "id": "initial-reconciliation",
+        "samplesMs": [
+          315.002,
+          426.358,
+          298.941,
+          376.377,
+          352.536,
+          329.14,
+          352.901,
+          352.464,
+          403.277,
+          313.264,
+          298.148,
+          336.412,
+          332.578,
+          386.916,
+          353.055,
+          359.733,
+          357.912,
+          351.719,
+          287.992,
+          335.618
+        ],
+        "n": 20,
+        "medianMs": 352.0915,
+        "p95Ms": 403.277,
+        "minMs": 287.992,
+        "maxMs": 426.358
+      },
+      {
+        "id": "technique-ownership",
+        "samplesMs": [
+          27.455,
+          21.596,
+          14.862,
+          19.817,
+          25.905,
+          34.394,
+          25.997,
+          26.266,
+          26.001,
+          18.096,
+          24.333,
+          23.988,
+          20.188,
+          22.565,
+          43.573,
+          20.731,
+          29.989,
+          28.895,
+          16.557,
+          27.297
+        ],
+        "n": 20,
+        "medianMs": 25.119,
+        "p95Ms": 34.394,
+        "minMs": 14.862,
+        "maxMs": 43.573
+      },
+      {
+        "id": "sheet-techniques",
+        "samplesMs": [
+          23.747,
+          20.544,
+          17.496,
+          17.554,
+          24.302,
+          28.807,
+          16.875,
+          16.613,
+          22.922,
+          26.421,
+          23.24,
+          18.656,
+          28.315,
+          27.936,
+          29.793,
+          29.382,
+          28.896,
+          20.458,
+          18.108,
+          33.344
+        ],
+        "n": 20,
+        "medianMs": 23.493499999999997,
+        "p95Ms": 29.793,
+        "minMs": 16.613,
+        "maxMs": 33.344
+      },
+      {
+        "id": "save-snapshot-only",
+        "samplesMs": [
+          0.098,
+          0.095,
+          0.194,
+          0.235,
+          0.188,
+          0.187,
+          0.189,
+          0.22,
+          0.185,
+          0.185,
+          0.195,
+          0.263,
+          0.12,
+          0.093,
+          0.091,
+          0.091,
+          0.09,
+          0.13,
+          0.095,
+          0.091
+        ],
+        "n": 20,
+        "medianMs": 0.1575,
+        "p95Ms": 0.235,
+        "minMs": 0.09,
+        "maxMs": 0.263
+      },
+      {
+        "id": "attributes-save-checks-only",
+        "samplesMs": [
+          771.222,
+          829.663,
+          766.782,
+          723.594,
+          817.394,
+          678.883,
+          697.154,
+          674.783,
+          753.544,
+          821.13,
+          737.665,
+          745.974,
+          648.236,
+          706.889,
+          676.348,
+          724.532,
+          716.872,
+          664.988,
+          652.23,
+          703.721
+        ],
+        "n": 20,
+        "medianMs": 720.233,
+        "p95Ms": 821.13,
+        "minMs": 648.236,
+        "maxMs": 829.663
+      },
+      {
+        "id": "techniques-save-checks-only",
+        "samplesMs": [
+          1010.572,
+          1044.546,
+          1134.758,
+          1070.95,
+          1189.415,
+          1130.815,
+          1027.581,
+          1053.856,
+          1076.729,
+          1118.746,
+          1009.932,
+          1075.457,
+          1035.802,
+          1149.019,
+          1063.234,
+          1083.943,
+          1082.005,
+          1042.677,
+          1048.634,
+          1083.027
+        ],
+        "n": 20,
+        "medianMs": 1073.2035,
+        "p95Ms": 1149.019,
+        "minMs": 1009.932,
+        "maxMs": 1189.415
+      }
+    ]
+  },
+  "staticNetwork": {
+    "at": "2026-09-30T01:17:20.749Z",
+    "origin": "https://game-x-character-builder.web.app",
+    "method": "Node fetch, serial requests, first GET then five conditional GETs. Shared connection pool; no browser parsing, authentication, character database calls, or concurrency.",
+    "rows": [
+      {
+        "path": "/character-sheet.html",
+        "request": 0,
+        "mode": "first-request",
+        "status": 200,
+        "headersMs": 112,
+        "totalMs": 116,
+        "decodedBytes": 12937,
+        "contentEncoding": "br",
+        "cacheControl": "max-age=3600"
+      },
+      {
+        "path": "/character-sheet.html",
+        "request": 1,
+        "mode": "conditional-repeat",
+        "status": 304,
+        "headersMs": 9.7,
+        "totalMs": 9.7,
+        "decodedBytes": 0,
+        "contentEncoding": null,
+        "cacheControl": "max-age=3600"
+      },
+      {
+        "path": "/character-sheet.html",
+        "request": 2,
+        "mode": "conditional-repeat",
+        "status": 304,
+        "headersMs": 31.6,
+        "totalMs": 31.7,
+        "decodedBytes": 0,
+        "contentEncoding": null,
+        "cacheControl": "max-age=3600"
+      },
+      {
+        "path": "/character-sheet.html",
+        "request": 3,
+        "mode": "conditional-repeat",
+        "status": 304,
+        "headersMs": 6.8,
+        "totalMs": 6.8,
+        "decodedBytes": 0,
+        "contentEncoding": null,
+        "cacheControl": "max-age=3600"
+      },
+      {
+        "path": "/character-sheet.html",
+        "request": 4,
+        "mode": "conditional-repeat",
+        "status": 304,
+        "headersMs": 8.5,
+        "totalMs": 8.6,
+        "decodedBytes": 0,
+        "contentEncoding": null,
+        "cacheControl": "max-age=3600"
+      },
+      {
+        "path": "/character-sheet.html",
+        "request": 5,
+        "mode": "conditional-repeat",
+        "status": 304,
+        "headersMs": 11.7,
+        "totalMs": 11.7,
+        "decodedBytes": 0,
+        "contentEncoding": null,
+        "cacheControl": "max-age=3600"
+      },
+      {
+        "path": "/data/game-x/game-x-data.json",
+        "request": 0,
+        "mode": "first-request",
+        "status": 200,
+        "headersMs": 12.7,
+        "totalMs": 35.4,
+        "decodedBytes": 2775498,
+        "contentEncoding": "br",
+        "cacheControl": "max-age=3600"
+      },
+      {
+        "path": "/data/game-x/game-x-data.json",
+        "request": 1,
+        "mode": "conditional-repeat",
+        "status": 304,
+        "headersMs": 9.4,
+        "totalMs": 9.5,
+        "decodedBytes": 0,
+        "contentEncoding": null,
+        "cacheControl": "max-age=3600"
+      },
+      {
+        "path": "/data/game-x/game-x-data.json",
+        "request": 2,
+        "mode": "conditional-repeat",
+        "status": 304,
+        "headersMs": 10.3,
+        "totalMs": 10.3,
+        "decodedBytes": 0,
+        "contentEncoding": null,
+        "cacheControl": "max-age=3600"
+      },
+      {
+        "path": "/data/game-x/game-x-data.json",
+        "request": 3,
+        "mode": "conditional-repeat",
+        "status": 304,
+        "headersMs": 6.4,
+        "totalMs": 6.4,
+        "decodedBytes": 0,
+        "contentEncoding": null,
+        "cacheControl": "max-age=3600"
+      },
+      {
+        "path": "/data/game-x/game-x-data.json",
+        "request": 4,
+        "mode": "conditional-repeat",
+        "status": 304,
+        "headersMs": 8.5,
+        "totalMs": 8.5,
+        "decodedBytes": 0,
+        "contentEncoding": null,
+        "cacheControl": "max-age=3600"
+      },
+      {
+        "path": "/data/game-x/game-x-data.json",
+        "request": 5,
+        "mode": "conditional-repeat",
+        "status": 304,
+        "headersMs": 7.4,
+        "totalMs": 7.6,
+        "decodedBytes": 0,
+        "contentEncoding": null,
+        "cacheControl": "max-age=3600"
+      }
+    ]
+  },
+  "verification": {
+    "verifiedAt": "2026-09-30T01:21:15.654Z",
+    "applicationFilesUnchanged": 185,
+    "fixtureRestored": true,
+    "finalEmulatorRevision": 52,
+    "coreSamples": 200,
+    "browserRawRows": 214
+  },
+  "browser": {
+    "recoveryCutoff": "2026-09-30T01:11:00.000Z",
+    "exclusions": [
+      {
+        "at": "2026-09-30T00:59:55.350Z",
+        "reason": "Calibration: no-op attribute restoration after fill did not emit a native change."
+      },
+      {
+        "at": "2026-09-30T01:00:38.450Z",
+        "reason": "Overlapping input: the next action started before the second animation frame."
+      },
+      {
+        "at": "2026-09-30T01:00:38.453Z",
+        "reason": "Partner of the overlapping input; excluded from isolated-action summaries."
+      }
+    ],
+    "phaseNote": "The first benchmark tab crashed during the first Techniques save. Fresh tabs in the same in-app browser then ran faster. The reason for the difference is unconfirmed; phases must not be pooled or treated as an optimization.",
+    "failures": [
+      {
+        "action": "Save on Techniques",
+        "phase": "earlier-session",
+        "attempts": 1,
+        "outcome": "Tab crash; no Saved completion sample. A 55-second result wait expired. Emulator revision remained 28 with five techniques and 76 HP. No reliable crash duration or cause established."
+      }
+    ],
+    "summaries": [
+      {
+        "key": "earlier-session|/character-sheet.html|page-ready||navigate",
+        "n": 1,
+        "medianMs": 515.7,
+        "minMs": 515.7,
+        "maxMs": 515.7,
+        "samplesMs": [
+          515.7
+        ]
+      },
+      {
+        "key": "earlier-session|/character-sheet.html|keydown:hpcur||",
+        "n": 10,
+        "medianMs": 20.2,
+        "minMs": 17.4,
+        "maxMs": 28.4,
+        "samplesMs": [
+          17.7,
+          17.6,
+          17.4,
+          20.7,
+          28.4,
+          18.1,
+          25.2,
+          19.7,
+          25.8,
+          28.1
+        ]
+      },
+      {
+        "key": "earlier-session|/character-sheet.html|hp-enter-to-saved||",
+        "n": 10,
+        "medianMs": 1273.55,
+        "minMs": 1225.2,
+        "maxMs": 1311.3,
+        "samplesMs": [
+          1311.3,
+          1295.6,
+          1286.9,
+          1278.4,
+          1260.6,
+          1290.3,
+          1259.9,
+          1225.2,
+          1256.5,
+          1268.7
+        ]
+      },
+      {
+        "key": "earlier-session|/character-sheet.html|page-ready||reload",
+        "n": 10,
+        "medianMs": 355.35,
+        "minMs": 326.1,
+        "maxMs": 766,
+        "samplesMs": [
+          766,
+          405.1,
+          375.2,
+          367.9,
+          353.2,
+          354.8,
+          338.5,
+          337.1,
+          326.1,
+          355.9
+        ]
+      },
+      {
+        "key": "earlier-session|/builder/builder-attributes.html|page-ready||navigate",
+        "n": 6,
+        "medianMs": 1503,
+        "minMs": 806.8,
+        "maxMs": 1740.1,
+        "samplesMs": [
+          806.8,
+          1630.2,
+          1406.9,
+          1440.4,
+          1740.1,
+          1565.6
+        ]
+      },
+      {
+        "key": "earlier-session|/builder/builder-attributes.html|page-switch|/character-sheet.html|",
+        "n": 1,
+        "medianMs": 807.4,
+        "minMs": 807.4,
+        "maxMs": 807.4,
+        "samplesMs": [
+          807.4
+        ]
+      },
+      {
+        "key": "earlier-session|/builder/builder-attributes.html|change:agility||",
+        "n": 8,
+        "medianMs": 1278.8,
+        "minMs": 1137.4,
+        "maxMs": 1390.5,
+        "samplesMs": [
+          1390.5,
+          1205.7,
+          1299.9,
+          1255.9,
+          1302.1,
+          1275.9,
+          1281.7,
+          1137.4
+        ]
+      },
+      {
+        "key": "earlier-session|/builder/builder-attributes.html|builder-save||",
+        "n": 10,
+        "medianMs": 2502.7,
+        "minMs": 2279.4,
+        "maxMs": 2774.8,
+        "samplesMs": [
+          2430.6,
+          2485.7,
+          2620.1,
+          2774.8,
+          2502.4,
+          2724.8,
+          2503,
+          2643.5,
+          2477.1,
+          2279.4
+        ]
+      },
+      {
+        "key": "earlier-session|/builder/builder-skills.html|page-ready||navigate",
+        "n": 6,
+        "medianMs": 1661.6,
+        "minMs": 1477.4,
+        "maxMs": 1862.5,
+        "samplesMs": [
+          1862.5,
+          1675.1,
+          1477.4,
+          1689,
+          1648.1,
+          1583.8
+        ]
+      },
+      {
+        "key": "earlier-session|/builder/builder-skills.html|page-switch|/builder/builder-attributes.html|",
+        "n": 6,
+        "medianMs": 4142,
+        "minMs": 4136.3,
+        "maxMs": 4460.7,
+        "samplesMs": [
+          4431.8,
+          4139.5,
+          4142.1,
+          4460.7,
+          4136.3,
+          4141.9
+        ]
+      },
+      {
+        "key": "earlier-session|/builder/builder-skills.html|change:Society rank||",
+        "n": 10,
+        "medianMs": 1395.65,
+        "minMs": 1154.4,
+        "maxMs": 1563.3,
+        "samplesMs": [
+          1352.9,
+          1510.5,
+          1328,
+          1527.1,
+          1563.3,
+          1438.4,
+          1154.4,
+          1236,
+          1461,
+          1337.3
+        ]
+      },
+      {
+        "key": "earlier-session|/builder/builder-skills.html|builder-save||",
+        "n": 5,
+        "medianMs": 2638.4,
+        "minMs": 2437.2,
+        "maxMs": 2710.6,
+        "samplesMs": [
+          2692.6,
+          2437.2,
+          2638.4,
+          2486.6,
+          2710.6
+        ]
+      },
+      {
+        "key": "earlier-session|/builder/builder-attributes.html|page-switch|/builder/builder-skills.html|",
+        "n": 5,
+        "medianMs": 4197.2,
+        "minMs": 3989.4,
+        "maxMs": 4250.2,
+        "samplesMs": [
+          4197.2,
+          4229.4,
+          4123.9,
+          4250.2,
+          3989.4
+        ]
+      },
+      {
+        "key": "earlier-session|/builder/builder-techniques.html|page-ready||navigate",
+        "n": 1,
+        "medianMs": 10291.8,
+        "minMs": 10291.8,
+        "maxMs": 10291.8,
+        "samplesMs": [
+          10291.8
+        ]
+      },
+      {
+        "key": "earlier-session|/builder/builder-techniques.html|page-switch|/builder/builder-skills.html|",
+        "n": 1,
+        "medianMs": 12801,
+        "minMs": 12801,
+        "maxMs": 12801,
+        "samplesMs": [
+          12801
+        ]
+      },
+      {
+        "key": "earlier-session|/builder/builder-techniques.html|change:Visor Scan||",
+        "n": 4,
+        "medianMs": 27361.95,
+        "minMs": 27223.4,
+        "maxMs": 28720.4,
+        "samplesMs": [
+          28720.4,
+          27269.9,
+          27223.4,
+          27454
+        ]
+      },
+      {
+        "key": "fresh-session|/builder/builder-techniques.html|page-ready||navigate",
+        "n": 1,
+        "medianMs": 2910.4,
+        "minMs": 2910.4,
+        "maxMs": 2910.4,
+        "samplesMs": [
+          2910.4
+        ]
+      },
+      {
+        "key": "fresh-session|/builder/builder-techniques.html|builder-save||",
+        "n": 2,
+        "medianMs": 10319.35,
+        "minMs": 9995.2,
+        "maxMs": 10643.5,
+        "samplesMs": [
+          10643.5,
+          9995.2
+        ]
+      },
+      {
+        "key": "fresh-session|/builder/builder-techniques.html|change:Visor Scan||",
+        "n": 2,
+        "medianMs": 7085.8,
+        "minMs": 6972.8,
+        "maxMs": 7198.8,
+        "samplesMs": [
+          6972.8,
+          7198.8
+        ]
+      },
+      {
+        "key": "fresh-session|/builder/builder-attributes.html|page-ready||navigate",
+        "n": 6,
+        "medianMs": 635.3,
+        "minMs": 593.8,
+        "maxMs": 809.6,
+        "samplesMs": [
+          809.6,
+          593.8,
+          601.7,
+          642.6,
+          628,
+          687.2
+        ]
+      },
+      {
+        "key": "fresh-session|/builder/builder-attributes.html|change:agility||",
+        "n": 10,
+        "medianMs": 291.65,
+        "minMs": 256.7,
+        "maxMs": 351.2,
+        "samplesMs": [
+          351.2,
+          287.8,
+          319.8,
+          308.7,
+          259.2,
+          261.3,
+          256.7,
+          295.5,
+          280.6,
+          310.2
+        ]
+      },
+      {
+        "key": "fresh-session|/builder/builder-attributes.html|builder-save||",
+        "n": 5,
+        "medianMs": 580.6,
+        "minMs": 568.9,
+        "maxMs": 631.2,
+        "samplesMs": [
+          586.8,
+          631.2,
+          579.3,
+          568.9,
+          580.6
+        ]
+      },
+      {
+        "key": "fresh-session|/builder/builder-skills.html|page-ready||navigate",
+        "n": 6,
+        "medianMs": 598.3,
+        "minMs": 560.2,
+        "maxMs": 726.2,
+        "samplesMs": [
+          611.6,
+          560.2,
+          585,
+          726.2,
+          578.7,
+          688.7
+        ]
+      },
+      {
+        "key": "fresh-session|/builder/builder-skills.html|page-switch|/builder/builder-attributes.html|",
+        "n": 6,
+        "medianMs": 1273.05,
+        "minMs": 1219.8,
+        "maxMs": 1324.7,
+        "samplesMs": [
+          1319.7,
+          1228.6,
+          1219.8,
+          1324.7,
+          1263.5,
+          1282.6
+        ]
+      },
+      {
+        "key": "fresh-session|/builder/builder-skills.html|change:Society rank||",
+        "n": 10,
+        "medianMs": 266.65,
+        "minMs": 229.5,
+        "maxMs": 342.3,
+        "samplesMs": [
+          342.3,
+          236.7,
+          259.5,
+          307.9,
+          265.2,
+          268.1,
+          243.5,
+          279.9,
+          289,
+          229.5
+        ]
+      },
+      {
+        "key": "fresh-session|/builder/builder-skills.html|builder-save||",
+        "n": 5,
+        "medianMs": 657.7,
+        "minMs": 555.8,
+        "maxMs": 675.9,
+        "samplesMs": [
+          675.9,
+          657.7,
+          660.2,
+          645.4,
+          555.8
+        ]
+      },
+      {
+        "key": "fresh-session|/builder/builder-attributes.html|page-switch|/builder/builder-skills.html|",
+        "n": 5,
+        "medianMs": 1295,
+        "minMs": 1273.4,
+        "maxMs": 1395.7,
+        "samplesMs": [
+          1295,
+          1379.9,
+          1288.9,
+          1273.4,
+          1395.7
+        ]
+      },
+      {
+        "key": "fresh-session|/character-sheet.html|page-ready||navigate",
+        "n": 1,
+        "medianMs": 431.6,
+        "minMs": 431.6,
+        "maxMs": 431.6,
+        "samplesMs": [
+          431.6
+        ]
+      },
+      {
+        "key": "fresh-session|/character-sheet.html|keydown:hpcur||",
+        "n": 10,
+        "medianMs": 20.2,
+        "minMs": 16,
+        "maxMs": 26.3,
+        "samplesMs": [
+          17.6,
+          21.5,
+          16.1,
+          21.7,
+          19.5,
+          16,
+          20.9,
+          26.3,
+          25.1,
+          17.2
+        ]
+      },
+      {
+        "key": "fresh-session|/character-sheet.html|hp-enter-to-saved||",
+        "n": 10,
+        "medianMs": 1246.35,
+        "minMs": 1223.7,
+        "maxMs": 1279.9,
+        "samplesMs": [
+          1275.6,
+          1253,
+          1223.7,
+          1279.9,
+          1225.2,
+          1244.2,
+          1248,
+          1241.1,
+          1247.1,
+          1245.6
+        ]
+      },
+      {
+        "key": "fresh-session|/character-sheet.html|page-ready||reload",
+        "n": 10,
+        "medianMs": 385.25,
+        "minMs": 340.9,
+        "maxMs": 434.7,
+        "samplesMs": [
+          427.4,
+          371.4,
+          407,
+          378.2,
+          432.3,
+          434.7,
+          369.6,
+          392.3,
+          340.9,
+          362.2
+        ]
+      }
+    ],
+    "raw": [
+      {
+        "id": "page-ready",
+        "page": "/character-sheet.html",
+        "sequence": 1,
+        "at": "2026-09-30T00:57:14.240Z",
+        "durationMs": 515.7,
+        "status": "Saved",
+        "longTaskCount": 1,
+        "longTaskMs": 133,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 173.7,
+        "loadMs": 191.3,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.9,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 20.2,
+            "transferBytes": 2775798,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "keydown:hpcur",
+        "page": "/character-sheet.html",
+        "sequence": 2,
+        "at": "2026-09-30T00:57:35.269Z",
+        "durationMs": 17.7,
+        "status": "Unsaved changes",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "hp-enter-to-saved",
+        "page": "/character-sheet.html",
+        "sequence": 3,
+        "at": "2026-09-30T00:57:36.562Z",
+        "durationMs": 1311.3,
+        "status": "Saved",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "keydown:hpcur",
+        "page": "/character-sheet.html",
+        "sequence": 4,
+        "at": "2026-09-30T00:57:36.636Z",
+        "durationMs": 17.6,
+        "status": "Unsaved changes",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "hp-enter-to-saved",
+        "page": "/character-sheet.html",
+        "sequence": 5,
+        "at": "2026-09-30T00:57:37.914Z",
+        "durationMs": 1295.6,
+        "status": "Saved",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "keydown:hpcur",
+        "page": "/character-sheet.html",
+        "sequence": 6,
+        "at": "2026-09-30T00:57:37.990Z",
+        "durationMs": 17.4,
+        "status": "Unsaved changes",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "hp-enter-to-saved",
+        "page": "/character-sheet.html",
+        "sequence": 7,
+        "at": "2026-09-30T00:57:39.259Z",
+        "durationMs": 1286.9,
+        "status": "Saved",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "keydown:hpcur",
+        "page": "/character-sheet.html",
+        "sequence": 8,
+        "at": "2026-09-30T00:57:39.348Z",
+        "durationMs": 20.7,
+        "status": "Unsaved changes",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "hp-enter-to-saved",
+        "page": "/character-sheet.html",
+        "sequence": 9,
+        "at": "2026-09-30T00:57:40.606Z",
+        "durationMs": 1278.4,
+        "status": "Saved",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "keydown:hpcur",
+        "page": "/character-sheet.html",
+        "sequence": 10,
+        "at": "2026-09-30T00:57:40.709Z",
+        "durationMs": 28.4,
+        "status": "Unsaved changes",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "hp-enter-to-saved",
+        "page": "/character-sheet.html",
+        "sequence": 11,
+        "at": "2026-09-30T00:57:41.941Z",
+        "durationMs": 1260.6,
+        "status": "Saved",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "keydown:hpcur",
+        "page": "/character-sheet.html",
+        "sequence": 12,
+        "at": "2026-09-30T00:57:42.045Z",
+        "durationMs": 18.1,
+        "status": "Unsaved changes",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "hp-enter-to-saved",
+        "page": "/character-sheet.html",
+        "sequence": 13,
+        "at": "2026-09-30T00:57:43.317Z",
+        "durationMs": 1290.3,
+        "status": "Saved",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "keydown:hpcur",
+        "page": "/character-sheet.html",
+        "sequence": 14,
+        "at": "2026-09-30T00:57:43.436Z",
+        "durationMs": 25.2,
+        "status": "Unsaved changes",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "hp-enter-to-saved",
+        "page": "/character-sheet.html",
+        "sequence": 15,
+        "at": "2026-09-30T00:57:44.671Z",
+        "durationMs": 1259.9,
+        "status": "Saved",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "keydown:hpcur",
+        "page": "/character-sheet.html",
+        "sequence": 16,
+        "at": "2026-09-30T00:57:44.804Z",
+        "durationMs": 19.7,
+        "status": "Unsaved changes",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "hp-enter-to-saved",
+        "page": "/character-sheet.html",
+        "sequence": 17,
+        "at": "2026-09-30T00:57:46.009Z",
+        "durationMs": 1225.2,
+        "status": "Saved",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "keydown:hpcur",
+        "page": "/character-sheet.html",
+        "sequence": 18,
+        "at": "2026-09-30T00:57:46.157Z",
+        "durationMs": 25.8,
+        "status": "Unsaved changes",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "hp-enter-to-saved",
+        "page": "/character-sheet.html",
+        "sequence": 19,
+        "at": "2026-09-30T00:57:47.387Z",
+        "durationMs": 1256.5,
+        "status": "Saved",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "keydown:hpcur",
+        "page": "/character-sheet.html",
+        "sequence": 20,
+        "at": "2026-09-30T00:57:47.537Z",
+        "durationMs": 28.1,
+        "status": "Unsaved changes",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "hp-enter-to-saved",
+        "page": "/character-sheet.html",
+        "sequence": 21,
+        "at": "2026-09-30T00:57:48.777Z",
+        "durationMs": 1268.7,
+        "status": "Saved",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "page-ready",
+        "page": "/character-sheet.html",
+        "sequence": 1,
+        "at": "2026-09-30T00:58:08.890Z",
+        "durationMs": 766,
+        "status": "Saved",
+        "longTaskCount": 1,
+        "longTaskMs": 119,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "reload",
+        "domContentLoadedMs": 488.5,
+        "loadMs": 508.3,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.4,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 18.4,
+            "transferBytes": 0,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-ready",
+        "page": "/character-sheet.html",
+        "sequence": 1,
+        "at": "2026-09-30T00:58:09.323Z",
+        "durationMs": 405.1,
+        "status": "Saved",
+        "longTaskCount": 1,
+        "longTaskMs": 128,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "reload",
+        "domContentLoadedMs": 132.2,
+        "loadMs": 139.6,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.4,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 12.4,
+            "transferBytes": 0,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-ready",
+        "page": "/character-sheet.html",
+        "sequence": 1,
+        "at": "2026-09-30T00:58:09.734Z",
+        "durationMs": 375.2,
+        "status": "Saved",
+        "longTaskCount": 1,
+        "longTaskMs": 103,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "reload",
+        "domContentLoadedMs": 116.8,
+        "loadMs": 125.8,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.9,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 11,
+            "transferBytes": 0,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-ready",
+        "page": "/character-sheet.html",
+        "sequence": 1,
+        "at": "2026-09-30T00:58:10.130Z",
+        "durationMs": 367.9,
+        "status": "Saved",
+        "longTaskCount": 1,
+        "longTaskMs": 112,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "reload",
+        "domContentLoadedMs": 108.8,
+        "loadMs": 116.1,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.2,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 13.2,
+            "transferBytes": 0,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-ready",
+        "page": "/character-sheet.html",
+        "sequence": 1,
+        "at": "2026-09-30T00:58:10.508Z",
+        "durationMs": 353.2,
+        "status": "Saved",
+        "longTaskCount": 1,
+        "longTaskMs": 105,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "reload",
+        "domContentLoadedMs": 106.8,
+        "loadMs": 115,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.2,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 10.4,
+            "transferBytes": 0,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-ready",
+        "page": "/character-sheet.html",
+        "sequence": 1,
+        "at": "2026-09-30T00:58:10.895Z",
+        "durationMs": 354.8,
+        "status": "Saved",
+        "longTaskCount": 1,
+        "longTaskMs": 115,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "reload",
+        "domContentLoadedMs": 109.9,
+        "loadMs": 117.2,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.2,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 10.8,
+            "transferBytes": 0,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-ready",
+        "page": "/character-sheet.html",
+        "sequence": 1,
+        "at": "2026-09-30T00:58:11.260Z",
+        "durationMs": 338.5,
+        "status": "Saved",
+        "longTaskCount": 1,
+        "longTaskMs": 110,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "reload",
+        "domContentLoadedMs": 107.4,
+        "loadMs": 114.6,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.3,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 10.3,
+            "transferBytes": 0,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-ready",
+        "page": "/character-sheet.html",
+        "sequence": 1,
+        "at": "2026-09-30T00:58:11.624Z",
+        "durationMs": 337.1,
+        "status": "Saved",
+        "longTaskCount": 1,
+        "longTaskMs": 108,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "reload",
+        "domContentLoadedMs": 107.5,
+        "loadMs": 114.3,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.3,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 9.5,
+            "transferBytes": 0,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-ready",
+        "page": "/character-sheet.html",
+        "sequence": 1,
+        "at": "2026-09-30T00:58:11.976Z",
+        "durationMs": 326.1,
+        "status": "Saved",
+        "longTaskCount": 1,
+        "longTaskMs": 90,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "reload",
+        "domContentLoadedMs": 98.4,
+        "loadMs": 105.9,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.3,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 11.6,
+            "transferBytes": 0,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-ready",
+        "page": "/character-sheet.html",
+        "sequence": 1,
+        "at": "2026-09-30T00:58:12.358Z",
+        "durationMs": 355.9,
+        "status": "Saved",
+        "longTaskCount": 1,
+        "longTaskMs": 95,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "reload",
+        "domContentLoadedMs": 111,
+        "loadMs": 118.2,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.4,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 10.6,
+            "transferBytes": 0,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-ready",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 1,
+        "at": "2026-09-30T00:59:07.104Z",
+        "durationMs": 806.8,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 485,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 217.8,
+        "loadMs": 220.1,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.9,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 11.7,
+            "transferBytes": 2775798,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-switch",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 2,
+        "at": "2026-09-30T00:59:07.104Z",
+        "durationMs": 807.4,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 485,
+        "from": "/character-sheet.html",
+        "completion": "link click through destination ready; includes source save if invoked"
+      },
+      {
+        "id": "change:agility",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 3,
+        "at": "2026-09-30T00:59:55.350Z",
+        "durationMs": 1630.4,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 1286,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:agility",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 4,
+        "at": "2026-09-30T01:00:29.498Z",
+        "durationMs": 1390.5,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 1389,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:agility",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 5,
+        "at": "2026-09-30T01:00:30.728Z",
+        "durationMs": 1205.7,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 1203,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:agility",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 6,
+        "at": "2026-09-30T01:00:32.048Z",
+        "durationMs": 1299.9,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 1297,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:agility",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 7,
+        "at": "2026-09-30T01:00:33.323Z",
+        "durationMs": 1255.9,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 1254,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:agility",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 8,
+        "at": "2026-09-30T01:00:34.651Z",
+        "durationMs": 1302.1,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 1300,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:agility",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 9,
+        "at": "2026-09-30T01:00:35.951Z",
+        "durationMs": 1275.9,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 1272,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:agility",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 10,
+        "at": "2026-09-30T01:00:38.450Z",
+        "durationMs": 2471,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 1183,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:agility",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 11,
+        "at": "2026-09-30T01:00:38.453Z",
+        "durationMs": 1267.6,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 1263,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:agility",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 12,
+        "at": "2026-09-30T01:00:39.762Z",
+        "durationMs": 1281.7,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 1278,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:agility",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 13,
+        "at": "2026-09-30T01:00:40.921Z",
+        "durationMs": 1137.4,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 1135,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "click:saveBtn",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 14,
+        "at": "2026-09-30T01:00:43.322Z",
+        "durationMs": 2334,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 2331,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "builder-save",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 15,
+        "at": "2026-09-30T01:00:43.419Z",
+        "durationMs": 2430.6,
+        "status": "Saved.",
+        "longTaskCount": 1,
+        "longTaskMs": 2331,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "click:saveBtn",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 16,
+        "at": "2026-09-30T01:01:04.149Z",
+        "durationMs": 2429.3,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 2428,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "builder-save",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 17,
+        "at": "2026-09-30T01:01:04.205Z",
+        "durationMs": 2485.7,
+        "status": "Saved.",
+        "longTaskCount": 1,
+        "longTaskMs": 2428,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "click:saveBtn",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 18,
+        "at": "2026-09-30T01:01:06.905Z",
+        "durationMs": 2564.9,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 2563,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "builder-save",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 19,
+        "at": "2026-09-30T01:01:06.960Z",
+        "durationMs": 2620.1,
+        "status": "Saved.",
+        "longTaskCount": 1,
+        "longTaskMs": 2563,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "click:saveBtn",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 20,
+        "at": "2026-09-30T01:01:09.818Z",
+        "durationMs": 2720.8,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 2719,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "builder-save",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 21,
+        "at": "2026-09-30T01:01:09.872Z",
+        "durationMs": 2774.8,
+        "status": "Saved.",
+        "longTaskCount": 1,
+        "longTaskMs": 2719,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "click:saveBtn",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 22,
+        "at": "2026-09-30T01:01:12.445Z",
+        "durationMs": 2460.7,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 2459,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "builder-save",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 23,
+        "at": "2026-09-30T01:01:12.486Z",
+        "durationMs": 2502.4,
+        "status": "Saved.",
+        "longTaskCount": 1,
+        "longTaskMs": 2459,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "click:saveBtn",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 24,
+        "at": "2026-09-30T01:01:15.281Z",
+        "durationMs": 2668.8,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 2666,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "builder-save",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 25,
+        "at": "2026-09-30T01:01:15.337Z",
+        "durationMs": 2724.8,
+        "status": "Saved.",
+        "longTaskCount": 1,
+        "longTaskMs": 2666,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "click:saveBtn",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 26,
+        "at": "2026-09-30T01:01:17.922Z",
+        "durationMs": 2448,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 2446,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "builder-save",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 27,
+        "at": "2026-09-30T01:01:17.977Z",
+        "durationMs": 2503,
+        "status": "Saved.",
+        "longTaskCount": 1,
+        "longTaskMs": 2446,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "click:saveBtn",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 28,
+        "at": "2026-09-30T01:01:20.709Z",
+        "durationMs": 2596.1,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 2594,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "builder-save",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 29,
+        "at": "2026-09-30T01:01:20.756Z",
+        "durationMs": 2643.5,
+        "status": "Saved.",
+        "longTaskCount": 1,
+        "longTaskMs": 2594,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "click:saveBtn",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 30,
+        "at": "2026-09-30T01:01:23.343Z",
+        "durationMs": 2431,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 2430,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "builder-save",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 31,
+        "at": "2026-09-30T01:01:23.389Z",
+        "durationMs": 2477.1,
+        "status": "Saved.",
+        "longTaskCount": 1,
+        "longTaskMs": 2430,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "click:saveBtn",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 32,
+        "at": "2026-09-30T01:01:25.735Z",
+        "durationMs": 2220,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 2217,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "builder-save",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 33,
+        "at": "2026-09-30T01:01:25.795Z",
+        "durationMs": 2279.4,
+        "status": "Saved.",
+        "longTaskCount": 1,
+        "longTaskMs": 2217,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "page-ready",
+        "page": "/builder/builder-skills.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:01:30.472Z",
+        "durationMs": 1862.5,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 1493,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 234.6,
+        "loadMs": 259.3,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.8,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 13.9,
+            "transferBytes": 2775798,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-switch",
+        "page": "/builder/builder-skills.html",
+        "sequence": 2,
+        "at": "2026-09-30T01:01:30.472Z",
+        "durationMs": 4431.8,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 1493,
+        "from": "/builder/builder-attributes.html",
+        "completion": "link click through destination ready; includes source save if invoked"
+      },
+      {
+        "id": "change:Society rank",
+        "page": "/builder/builder-skills.html",
+        "sequence": 3,
+        "at": "2026-09-30T01:01:51.377Z",
+        "durationMs": 1352.9,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 1344,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:Society rank",
+        "page": "/builder/builder-skills.html",
+        "sequence": 4,
+        "at": "2026-09-30T01:02:19.869Z",
+        "durationMs": 1510.5,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 1503,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:Society rank",
+        "page": "/builder/builder-skills.html",
+        "sequence": 5,
+        "at": "2026-09-30T01:02:21.241Z",
+        "durationMs": 1328,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 1318,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:Society rank",
+        "page": "/builder/builder-skills.html",
+        "sequence": 6,
+        "at": "2026-09-30T01:02:22.815Z",
+        "durationMs": 1527.1,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 1519,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:Society rank",
+        "page": "/builder/builder-skills.html",
+        "sequence": 7,
+        "at": "2026-09-30T01:02:24.421Z",
+        "durationMs": 1563.3,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 1555,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:Society rank",
+        "page": "/builder/builder-skills.html",
+        "sequence": 8,
+        "at": "2026-09-30T01:02:25.899Z",
+        "durationMs": 1438.4,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 1433,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:Society rank",
+        "page": "/builder/builder-skills.html",
+        "sequence": 9,
+        "at": "2026-09-30T01:02:27.095Z",
+        "durationMs": 1154.4,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 1144,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:Society rank",
+        "page": "/builder/builder-skills.html",
+        "sequence": 10,
+        "at": "2026-09-30T01:02:28.376Z",
+        "durationMs": 1236,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 1230,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:Society rank",
+        "page": "/builder/builder-skills.html",
+        "sequence": 11,
+        "at": "2026-09-30T01:02:29.875Z",
+        "durationMs": 1461,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 1449,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:Society rank",
+        "page": "/builder/builder-skills.html",
+        "sequence": 12,
+        "at": "2026-09-30T01:02:31.267Z",
+        "durationMs": 1337.3,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 1331,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "click:saveBtn",
+        "page": "/builder/builder-skills.html",
+        "sequence": 13,
+        "at": "2026-09-30T01:02:33.966Z",
+        "durationMs": 2630.5,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 2625,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "builder-save",
+        "page": "/builder/builder-skills.html",
+        "sequence": 14,
+        "at": "2026-09-30T01:02:34.028Z",
+        "durationMs": 2692.6,
+        "status": "Saved.",
+        "longTaskCount": 1,
+        "longTaskMs": 2625,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "click:saveBtn",
+        "page": "/builder/builder-skills.html",
+        "sequence": 15,
+        "at": "2026-09-30T01:02:36.992Z",
+        "durationMs": 2380.2,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 2373,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "builder-save",
+        "page": "/builder/builder-skills.html",
+        "sequence": 16,
+        "at": "2026-09-30T01:02:37.049Z",
+        "durationMs": 2437.2,
+        "status": "Saved.",
+        "longTaskCount": 1,
+        "longTaskMs": 2373,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "click:saveBtn",
+        "page": "/builder/builder-skills.html",
+        "sequence": 17,
+        "at": "2026-09-30T01:02:39.772Z",
+        "durationMs": 2583.9,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 2577,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "builder-save",
+        "page": "/builder/builder-skills.html",
+        "sequence": 18,
+        "at": "2026-09-30T01:02:39.827Z",
+        "durationMs": 2638.4,
+        "status": "Saved.",
+        "longTaskCount": 1,
+        "longTaskMs": 2577,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "click:saveBtn",
+        "page": "/builder/builder-skills.html",
+        "sequence": 19,
+        "at": "2026-09-30T01:02:42.393Z",
+        "durationMs": 2428.9,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 2425,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "builder-save",
+        "page": "/builder/builder-skills.html",
+        "sequence": 20,
+        "at": "2026-09-30T01:02:42.451Z",
+        "durationMs": 2486.6,
+        "status": "Saved.",
+        "longTaskCount": 1,
+        "longTaskMs": 2425,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "click:saveBtn",
+        "page": "/builder/builder-skills.html",
+        "sequence": 21,
+        "at": "2026-09-30T01:02:45.204Z",
+        "durationMs": 2657.1,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 2653,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "builder-save",
+        "page": "/builder/builder-skills.html",
+        "sequence": 22,
+        "at": "2026-09-30T01:02:45.258Z",
+        "durationMs": 2710.6,
+        "status": "Saved.",
+        "longTaskCount": 1,
+        "longTaskMs": 2653,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "page-ready",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:03:15.462Z",
+        "durationMs": 1630.2,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 1379,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 163.9,
+        "loadMs": 167.8,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.6,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 12.9,
+            "transferBytes": 2775798,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-switch",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 2,
+        "at": "2026-09-30T01:03:15.463Z",
+        "durationMs": 4197.2,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 1379,
+        "from": "/builder/builder-skills.html",
+        "completion": "link click through destination ready; includes source save if invoked"
+      },
+      {
+        "id": "page-ready",
+        "page": "/builder/builder-skills.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:03:19.765Z",
+        "durationMs": 1675.1,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 1424,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 142.9,
+        "loadMs": 145.9,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 2.2,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 11.5,
+            "transferBytes": 2775798,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-switch",
+        "page": "/builder/builder-skills.html",
+        "sequence": 2,
+        "at": "2026-09-30T01:03:19.766Z",
+        "durationMs": 4139.5,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 1424,
+        "from": "/builder/builder-attributes.html",
+        "completion": "link click through destination ready; includes source save if invoked"
+      },
+      {
+        "id": "page-switch",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 2,
+        "at": "2026-09-30T01:03:24.167Z",
+        "durationMs": 4229.4,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 1188,
+        "from": "/builder/builder-skills.html",
+        "completion": "link click through destination ready; includes source save if invoked"
+      },
+      {
+        "id": "page-ready",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:03:24.166Z",
+        "durationMs": 1406.9,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 1188,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 125,
+        "loadMs": 128.1,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 3.1,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 21.5,
+            "transferBytes": 2775798,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-ready",
+        "page": "/builder/builder-skills.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:03:28.468Z",
+        "durationMs": 1477.4,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 1277,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 120.4,
+        "loadMs": 122.5,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 2,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 11.8,
+            "transferBytes": 2775798,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-switch",
+        "page": "/builder/builder-skills.html",
+        "sequence": 2,
+        "at": "2026-09-30T01:03:28.468Z",
+        "durationMs": 4142.1,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 1277,
+        "from": "/builder/builder-attributes.html",
+        "completion": "link click through destination ready; includes source save if invoked"
+      },
+      {
+        "id": "page-ready",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:03:32.748Z",
+        "durationMs": 1440.4,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 1213,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 117.7,
+        "loadMs": 121.5,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 2.1,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 14.4,
+            "transferBytes": 2775798,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-switch",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 2,
+        "at": "2026-09-30T01:03:32.748Z",
+        "durationMs": 4123.9,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 1213,
+        "from": "/builder/builder-skills.html",
+        "completion": "link click through destination ready; includes source save if invoked"
+      },
+      {
+        "id": "page-ready",
+        "page": "/builder/builder-skills.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:03:37.386Z",
+        "durationMs": 1689,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 1403,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 139.5,
+        "loadMs": 161.2,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 2,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 12.5,
+            "transferBytes": 2775798,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-switch",
+        "page": "/builder/builder-skills.html",
+        "sequence": 2,
+        "at": "2026-09-30T01:03:37.386Z",
+        "durationMs": 4460.7,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 1403,
+        "from": "/builder/builder-attributes.html",
+        "completion": "link click through destination ready; includes source save if invoked"
+      },
+      {
+        "id": "page-ready",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:03:41.783Z",
+        "durationMs": 1740.1,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 1503,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 146.4,
+        "loadMs": 149.5,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 2.4,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 16.5,
+            "transferBytes": 2775798,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-switch",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 2,
+        "at": "2026-09-30T01:03:41.784Z",
+        "durationMs": 4250.2,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 1503,
+        "from": "/builder/builder-skills.html",
+        "completion": "link click through destination ready; includes source save if invoked"
+      },
+      {
+        "id": "page-ready",
+        "page": "/builder/builder-skills.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:03:46.119Z",
+        "durationMs": 1648.1,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 1421,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 127.5,
+        "loadMs": 129.9,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 2.3,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 12.1,
+            "transferBytes": 2775798,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-switch",
+        "page": "/builder/builder-skills.html",
+        "sequence": 2,
+        "at": "2026-09-30T01:03:46.119Z",
+        "durationMs": 4136.3,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 1421,
+        "from": "/builder/builder-attributes.html",
+        "completion": "link click through destination ready; includes source save if invoked"
+      },
+      {
+        "id": "page-ready",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:03:50.259Z",
+        "durationMs": 1565.6,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 1352,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 128.7,
+        "loadMs": 132,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 2.5,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 12.3,
+            "transferBytes": 2775798,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-switch",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 2,
+        "at": "2026-09-30T01:03:50.260Z",
+        "durationMs": 3989.4,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 1352,
+        "from": "/builder/builder-skills.html",
+        "completion": "link click through destination ready; includes source save if invoked"
+      },
+      {
+        "id": "page-ready",
+        "page": "/builder/builder-skills.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:03:54.609Z",
+        "durationMs": 1583.8,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 1363,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 112.3,
+        "loadMs": 114.4,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.8,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 22.3,
+            "transferBytes": 2775798,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-switch",
+        "page": "/builder/builder-skills.html",
+        "sequence": 2,
+        "at": "2026-09-30T01:03:54.609Z",
+        "durationMs": 4141.9,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 1363,
+        "from": "/builder/builder-attributes.html",
+        "completion": "link click through destination ready; includes source save if invoked"
+      },
+      {
+        "id": "page-ready",
+        "page": "/builder/builder-techniques.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:04:17.005Z",
+        "durationMs": 10291.8,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 10059,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 128.8,
+        "loadMs": 130.6,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.8,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 11.9,
+            "transferBytes": 2775798,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-switch",
+        "page": "/builder/builder-techniques.html",
+        "sequence": 2,
+        "at": "2026-09-30T01:04:17.005Z",
+        "durationMs": 12801,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 10059,
+        "from": "/builder/builder-skills.html",
+        "completion": "link click through destination ready; includes source save if invoked"
+      },
+      {
+        "id": "change:Visor Scan",
+        "page": "/builder/builder-techniques.html",
+        "sequence": 3,
+        "at": "2026-09-30T01:05:28.247Z",
+        "durationMs": 28720.4,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 28714,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:Visor Scan",
+        "page": "/builder/builder-techniques.html",
+        "sequence": 4,
+        "at": "2026-09-30T01:06:23.874Z",
+        "durationMs": 27269.9,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 27266,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:Visor Scan",
+        "page": "/builder/builder-techniques.html",
+        "sequence": 5,
+        "at": "2026-09-30T01:07:29.840Z",
+        "durationMs": 27223.4,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 27217,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:Visor Scan",
+        "page": "/builder/builder-techniques.html",
+        "sequence": 6,
+        "at": "2026-09-30T01:09:03.550Z",
+        "durationMs": 27454,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 27451,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "page-ready",
+        "page": "/builder/builder-techniques.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:11:14.807Z",
+        "durationMs": 2910.4,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 2476,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 225,
+        "loadMs": 244.5,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 4.4,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 11.9,
+            "transferBytes": 2775798,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "click:saveBtn",
+        "page": "/builder/builder-techniques.html",
+        "sequence": 2,
+        "at": "2026-09-30T01:11:49.324Z",
+        "durationMs": 5913.8,
+        "status": "Saving...",
+        "longTaskCount": 1,
+        "longTaskMs": 5910,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "builder-save",
+        "page": "/builder/builder-techniques.html",
+        "sequence": 3,
+        "at": "2026-09-30T01:11:54.054Z",
+        "durationMs": 10643.5,
+        "status": "Saved.",
+        "longTaskCount": 2,
+        "longTaskMs": 10595,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "change:Visor Scan",
+        "page": "/builder/builder-techniques.html",
+        "sequence": 4,
+        "at": "2026-09-30T01:12:09.214Z",
+        "durationMs": 6972.8,
+        "status": "Saved.",
+        "longTaskCount": 2,
+        "longTaskMs": 6972,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:Visor Scan",
+        "page": "/builder/builder-techniques.html",
+        "sequence": 5,
+        "at": "2026-09-30T01:12:39.339Z",
+        "durationMs": 7198.8,
+        "status": "Saved.",
+        "longTaskCount": 2,
+        "longTaskMs": 7197,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "click:saveBtn",
+        "page": "/builder/builder-techniques.html",
+        "sequence": 6,
+        "at": "2026-09-30T01:12:53.176Z",
+        "durationMs": 5358.4,
+        "status": "Saving...",
+        "longTaskCount": 1,
+        "longTaskMs": 5352,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "builder-save",
+        "page": "/builder/builder-techniques.html",
+        "sequence": 7,
+        "at": "2026-09-30T01:12:57.813Z",
+        "durationMs": 9995.2,
+        "status": "Saved.",
+        "longTaskCount": 2,
+        "longTaskMs": 9947,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "page-ready",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:13:12.759Z",
+        "durationMs": 809.6,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 446,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 224.6,
+        "loadMs": 229.2,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.9,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 16,
+            "transferBytes": 2775798,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "change:agility",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 2,
+        "at": "2026-09-30T01:13:25.595Z",
+        "durationMs": 351.2,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 348,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:agility",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 3,
+        "at": "2026-09-30T01:13:25.922Z",
+        "durationMs": 287.8,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 286,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:agility",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 4,
+        "at": "2026-09-30T01:13:26.277Z",
+        "durationMs": 319.8,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 318,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:agility",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 5,
+        "at": "2026-09-30T01:13:26.619Z",
+        "durationMs": 308.7,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 307,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:agility",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 6,
+        "at": "2026-09-30T01:13:26.913Z",
+        "durationMs": 259.2,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 257,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:agility",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 7,
+        "at": "2026-09-30T01:13:27.205Z",
+        "durationMs": 261.3,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 259,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:agility",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 8,
+        "at": "2026-09-30T01:13:27.499Z",
+        "durationMs": 256.7,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 255,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:agility",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 9,
+        "at": "2026-09-30T01:13:27.839Z",
+        "durationMs": 295.5,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 294,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:agility",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 10,
+        "at": "2026-09-30T01:13:28.158Z",
+        "durationMs": 280.6,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 278,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:agility",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 11,
+        "at": "2026-09-30T01:13:28.499Z",
+        "durationMs": 310.2,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 308,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "click:saveBtn",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 12,
+        "at": "2026-09-30T01:13:29.122Z",
+        "durationMs": 524.9,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 523,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "builder-save",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 13,
+        "at": "2026-09-30T01:13:29.184Z",
+        "durationMs": 586.8,
+        "status": "Saved.",
+        "longTaskCount": 1,
+        "longTaskMs": 523,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "click:saveBtn",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 14,
+        "at": "2026-09-30T01:13:29.859Z",
+        "durationMs": 575.5,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 574,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "builder-save",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 15,
+        "at": "2026-09-30T01:13:29.915Z",
+        "durationMs": 631.2,
+        "status": "Saved.",
+        "longTaskCount": 1,
+        "longTaskMs": 574,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "click:saveBtn",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 16,
+        "at": "2026-09-30T01:13:30.593Z",
+        "durationMs": 531.1,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 530,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "builder-save",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 17,
+        "at": "2026-09-30T01:13:30.642Z",
+        "durationMs": 579.3,
+        "status": "Saved.",
+        "longTaskCount": 1,
+        "longTaskMs": 530,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "click:saveBtn",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 18,
+        "at": "2026-09-30T01:13:31.287Z",
+        "durationMs": 513.2,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 511,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "builder-save",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 19,
+        "at": "2026-09-30T01:13:31.343Z",
+        "durationMs": 568.9,
+        "status": "Saved.",
+        "longTaskCount": 1,
+        "longTaskMs": 511,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "click:saveBtn",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 20,
+        "at": "2026-09-30T01:13:32.017Z",
+        "durationMs": 525.1,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 523,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "builder-save",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 21,
+        "at": "2026-09-30T01:13:32.073Z",
+        "durationMs": 580.6,
+        "status": "Saved.",
+        "longTaskCount": 1,
+        "longTaskMs": 523,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "page-ready",
+        "page": "/builder/builder-skills.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:13:54.371Z",
+        "durationMs": 611.6,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 368,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 139.6,
+        "loadMs": 142,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 2.1,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 15.2,
+            "transferBytes": 2775798,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-switch",
+        "page": "/builder/builder-skills.html",
+        "sequence": 2,
+        "at": "2026-09-30T01:13:54.371Z",
+        "durationMs": 1319.7,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 368,
+        "from": "/builder/builder-attributes.html",
+        "completion": "link click through destination ready; includes source save if invoked"
+      },
+      {
+        "id": "change:Society rank",
+        "page": "/builder/builder-skills.html",
+        "sequence": 3,
+        "at": "2026-09-30T01:13:54.881Z",
+        "durationMs": 342.3,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 311,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:Society rank",
+        "page": "/builder/builder-skills.html",
+        "sequence": 4,
+        "at": "2026-09-30T01:13:55.162Z",
+        "durationMs": 236.7,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 230,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:Society rank",
+        "page": "/builder/builder-skills.html",
+        "sequence": 5,
+        "at": "2026-09-30T01:13:55.471Z",
+        "durationMs": 259.5,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 248,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:Society rank",
+        "page": "/builder/builder-skills.html",
+        "sequence": 6,
+        "at": "2026-09-30T01:13:55.829Z",
+        "durationMs": 307.9,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 301,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:Society rank",
+        "page": "/builder/builder-skills.html",
+        "sequence": 7,
+        "at": "2026-09-30T01:13:56.141Z",
+        "durationMs": 265.2,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 259,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:Society rank",
+        "page": "/builder/builder-skills.html",
+        "sequence": 8,
+        "at": "2026-09-30T01:13:56.454Z",
+        "durationMs": 268.1,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 258,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:Society rank",
+        "page": "/builder/builder-skills.html",
+        "sequence": 9,
+        "at": "2026-09-30T01:13:56.743Z",
+        "durationMs": 243.5,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 237,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:Society rank",
+        "page": "/builder/builder-skills.html",
+        "sequence": 10,
+        "at": "2026-09-30T01:13:57.069Z",
+        "durationMs": 279.9,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 273,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:Society rank",
+        "page": "/builder/builder-skills.html",
+        "sequence": 11,
+        "at": "2026-09-30T01:13:57.404Z",
+        "durationMs": 289,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 274,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "change:Society rank",
+        "page": "/builder/builder-skills.html",
+        "sequence": 12,
+        "at": "2026-09-30T01:13:57.678Z",
+        "durationMs": 229.5,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 222,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "click:saveBtn",
+        "page": "/builder/builder-skills.html",
+        "sequence": 13,
+        "at": "2026-09-30T01:13:58.400Z",
+        "durationMs": 624.5,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 620,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "builder-save",
+        "page": "/builder/builder-skills.html",
+        "sequence": 14,
+        "at": "2026-09-30T01:13:58.451Z",
+        "durationMs": 675.9,
+        "status": "Saved.",
+        "longTaskCount": 1,
+        "longTaskMs": 620,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "click:saveBtn",
+        "page": "/builder/builder-skills.html",
+        "sequence": 15,
+        "at": "2026-09-30T01:13:59.180Z",
+        "durationMs": 598.8,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 594,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "builder-save",
+        "page": "/builder/builder-skills.html",
+        "sequence": 16,
+        "at": "2026-09-30T01:13:59.239Z",
+        "durationMs": 657.7,
+        "status": "Saved.",
+        "longTaskCount": 1,
+        "longTaskMs": 594,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "click:saveBtn",
+        "page": "/builder/builder-skills.html",
+        "sequence": 17,
+        "at": "2026-09-30T01:13:59.957Z",
+        "durationMs": 605.1,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 600,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "builder-save",
+        "page": "/builder/builder-skills.html",
+        "sequence": 18,
+        "at": "2026-09-30T01:14:00.012Z",
+        "durationMs": 660.2,
+        "status": "Saved.",
+        "longTaskCount": 1,
+        "longTaskMs": 600,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "click:saveBtn",
+        "page": "/builder/builder-skills.html",
+        "sequence": 19,
+        "at": "2026-09-30T01:14:00.739Z",
+        "durationMs": 597.7,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 590,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "builder-save",
+        "page": "/builder/builder-skills.html",
+        "sequence": 20,
+        "at": "2026-09-30T01:14:00.787Z",
+        "durationMs": 645.4,
+        "status": "Saved.",
+        "longTaskCount": 1,
+        "longTaskMs": 590,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "click:saveBtn",
+        "page": "/builder/builder-skills.html",
+        "sequence": 21,
+        "at": "2026-09-30T01:14:01.407Z",
+        "durationMs": 505.5,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 499,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "builder-save",
+        "page": "/builder/builder-skills.html",
+        "sequence": 22,
+        "at": "2026-09-30T01:14:01.457Z",
+        "durationMs": 555.8,
+        "status": "Saved.",
+        "longTaskCount": 1,
+        "longTaskMs": 499,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "page-ready",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:14:14.588Z",
+        "durationMs": 593.8,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 361,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 132,
+        "loadMs": 135.2,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 2.5,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 13.4,
+            "transferBytes": 2775798,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-switch",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 2,
+        "at": "2026-09-30T01:14:14.588Z",
+        "durationMs": 1295,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 361,
+        "from": "/builder/builder-skills.html",
+        "completion": "link click through destination ready; includes source save if invoked"
+      },
+      {
+        "id": "page-ready",
+        "page": "/builder/builder-skills.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:14:15.997Z",
+        "durationMs": 560.2,
+        "status": "Ready.",
+        "longTaskCount": 1,
+        "longTaskMs": 301,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 118.9,
+        "loadMs": 120.9,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 2.2,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 14.1,
+            "transferBytes": 2775798,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-switch",
+        "page": "/builder/builder-skills.html",
+        "sequence": 2,
+        "at": "2026-09-30T01:14:15.998Z",
+        "durationMs": 1228.6,
+        "status": "Ready.",
+        "longTaskCount": 1,
+        "longTaskMs": 301,
+        "from": "/builder/builder-attributes.html",
+        "completion": "link click through destination ready; includes source save if invoked"
+      },
+      {
+        "id": "page-ready",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:14:17.534Z",
+        "durationMs": 601.7,
+        "status": "Ready.",
+        "longTaskCount": 1,
+        "longTaskMs": 344,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 115.7,
+        "loadMs": 118.6,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 2.3,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 14,
+            "transferBytes": 2775798,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-switch",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 2,
+        "at": "2026-09-30T01:14:17.535Z",
+        "durationMs": 1379.9,
+        "status": "Ready.",
+        "longTaskCount": 1,
+        "longTaskMs": 344,
+        "from": "/builder/builder-skills.html",
+        "completion": "link click through destination ready; includes source save if invoked"
+      },
+      {
+        "id": "page-ready",
+        "page": "/builder/builder-skills.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:14:18.931Z",
+        "durationMs": 585,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 367,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 129.1,
+        "loadMs": 131.6,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 2,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 12.2,
+            "transferBytes": 2775798,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-switch",
+        "page": "/builder/builder-skills.html",
+        "sequence": 2,
+        "at": "2026-09-30T01:14:18.932Z",
+        "durationMs": 1219.8,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 367,
+        "from": "/builder/builder-attributes.html",
+        "completion": "link click through destination ready; includes source save if invoked"
+      },
+      {
+        "id": "page-ready",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:14:20.410Z",
+        "durationMs": 642.6,
+        "status": "Ready.",
+        "longTaskCount": 1,
+        "longTaskMs": 354,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 118.1,
+        "loadMs": 121.9,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 2.6,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 26.9,
+            "transferBytes": 2775798,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-switch",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 2,
+        "at": "2026-09-30T01:14:20.410Z",
+        "durationMs": 1288.9,
+        "status": "Ready.",
+        "longTaskCount": 1,
+        "longTaskMs": 354,
+        "from": "/builder/builder-skills.html",
+        "completion": "link click through destination ready; includes source save if invoked"
+      },
+      {
+        "id": "page-switch",
+        "page": "/builder/builder-skills.html",
+        "sequence": 2,
+        "at": "2026-09-30T01:14:21.900Z",
+        "durationMs": 1324.7,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 418,
+        "from": "/builder/builder-attributes.html",
+        "completion": "link click through destination ready; includes source save if invoked"
+      },
+      {
+        "id": "page-ready",
+        "page": "/builder/builder-skills.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:14:21.899Z",
+        "durationMs": 726.2,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 418,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 153.8,
+        "loadMs": 176.5,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 2.7,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 12.3,
+            "transferBytes": 2775798,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-ready",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:14:23.350Z",
+        "durationMs": 628,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 384,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 151.3,
+        "loadMs": 154.3,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 2,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 12.9,
+            "transferBytes": 2775798,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-switch",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 2,
+        "at": "2026-09-30T01:14:23.351Z",
+        "durationMs": 1273.4,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 384,
+        "from": "/builder/builder-skills.html",
+        "completion": "link click through destination ready; includes source save if invoked"
+      },
+      {
+        "id": "page-switch",
+        "page": "/builder/builder-skills.html",
+        "sequence": 2,
+        "at": "2026-09-30T01:14:24.818Z",
+        "durationMs": 1263.5,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 349,
+        "from": "/builder/builder-attributes.html",
+        "completion": "link click through destination ready; includes source save if invoked"
+      },
+      {
+        "id": "page-ready",
+        "page": "/builder/builder-skills.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:14:24.817Z",
+        "durationMs": 578.7,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 349,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 121.3,
+        "loadMs": 124.5,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 2.2,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 26.1,
+            "transferBytes": 2775798,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-ready",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:14:26.404Z",
+        "durationMs": 687.2,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 441,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 124.5,
+        "loadMs": 129,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 2.3,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 12.7,
+            "transferBytes": 2775798,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-switch",
+        "page": "/builder/builder-attributes.html",
+        "sequence": 2,
+        "at": "2026-09-30T01:14:26.405Z",
+        "durationMs": 1395.7,
+        "status": "Ready.",
+        "longTaskCount": 2,
+        "longTaskMs": 441,
+        "from": "/builder/builder-skills.html",
+        "completion": "link click through destination ready; includes source save if invoked"
+      },
+      {
+        "id": "page-ready",
+        "page": "/builder/builder-skills.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:14:27.851Z",
+        "durationMs": 688.7,
+        "status": "Ready.",
+        "longTaskCount": 1,
+        "longTaskMs": 379,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 143.2,
+        "loadMs": 162.6,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 2.4,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 12.8,
+            "transferBytes": 2775798,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-switch",
+        "page": "/builder/builder-skills.html",
+        "sequence": 2,
+        "at": "2026-09-30T01:14:27.851Z",
+        "durationMs": 1282.6,
+        "status": "Ready.",
+        "longTaskCount": 1,
+        "longTaskMs": 379,
+        "from": "/builder/builder-attributes.html",
+        "completion": "link click through destination ready; includes source save if invoked"
+      },
+      {
+        "id": "click:saveAndOpenBtn",
+        "page": "/builder/builder-skills.html",
+        "sequence": 3,
+        "at": "2026-09-30T01:14:49.136Z",
+        "durationMs": 661.4,
+        "status": "Unsaved changes.",
+        "longTaskCount": 1,
+        "longTaskMs": 653,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "page-ready",
+        "page": "/character-sheet.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:14:49.621Z",
+        "durationMs": 431.6,
+        "status": "Saved",
+        "longTaskCount": 1,
+        "longTaskMs": 119,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "navigate",
+        "domContentLoadedMs": 151.7,
+        "loadMs": 160,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.9,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 19.5,
+            "transferBytes": 0,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "keydown:hpcur",
+        "page": "/character-sheet.html",
+        "sequence": 2,
+        "at": "2026-09-30T01:14:49.807Z",
+        "durationMs": 17.6,
+        "status": "Unsaved changes",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "hp-enter-to-saved",
+        "page": "/character-sheet.html",
+        "sequence": 3,
+        "at": "2026-09-30T01:14:51.065Z",
+        "durationMs": 1275.6,
+        "status": "Saved",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "keydown:hpcur",
+        "page": "/character-sheet.html",
+        "sequence": 4,
+        "at": "2026-09-30T01:14:51.185Z",
+        "durationMs": 21.5,
+        "status": "Unsaved changes",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "hp-enter-to-saved",
+        "page": "/character-sheet.html",
+        "sequence": 5,
+        "at": "2026-09-30T01:14:52.416Z",
+        "durationMs": 1253,
+        "status": "Saved",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "keydown:hpcur",
+        "page": "/character-sheet.html",
+        "sequence": 6,
+        "at": "2026-09-30T01:14:52.521Z",
+        "durationMs": 16.1,
+        "status": "Unsaved changes",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "hp-enter-to-saved",
+        "page": "/character-sheet.html",
+        "sequence": 7,
+        "at": "2026-09-30T01:14:53.729Z",
+        "durationMs": 1223.7,
+        "status": "Saved",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "keydown:hpcur",
+        "page": "/character-sheet.html",
+        "sequence": 8,
+        "at": "2026-09-30T01:14:53.893Z",
+        "durationMs": 21.7,
+        "status": "Unsaved changes",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "hp-enter-to-saved",
+        "page": "/character-sheet.html",
+        "sequence": 9,
+        "at": "2026-09-30T01:14:55.152Z",
+        "durationMs": 1279.9,
+        "status": "Saved",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "keydown:hpcur",
+        "page": "/character-sheet.html",
+        "sequence": 10,
+        "at": "2026-09-30T01:14:55.301Z",
+        "durationMs": 19.5,
+        "status": "Unsaved changes",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "hp-enter-to-saved",
+        "page": "/character-sheet.html",
+        "sequence": 11,
+        "at": "2026-09-30T01:14:56.506Z",
+        "durationMs": 1225.2,
+        "status": "Saved",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "keydown:hpcur",
+        "page": "/character-sheet.html",
+        "sequence": 12,
+        "at": "2026-09-30T01:14:56.655Z",
+        "durationMs": 16,
+        "status": "Unsaved changes",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "hp-enter-to-saved",
+        "page": "/character-sheet.html",
+        "sequence": 13,
+        "at": "2026-09-30T01:14:57.883Z",
+        "durationMs": 1244.2,
+        "status": "Saved",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "keydown:hpcur",
+        "page": "/character-sheet.html",
+        "sequence": 14,
+        "at": "2026-09-30T01:14:58.031Z",
+        "durationMs": 20.9,
+        "status": "Unsaved changes",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "hp-enter-to-saved",
+        "page": "/character-sheet.html",
+        "sequence": 15,
+        "at": "2026-09-30T01:14:59.258Z",
+        "durationMs": 1248,
+        "status": "Saved",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "keydown:hpcur",
+        "page": "/character-sheet.html",
+        "sequence": 16,
+        "at": "2026-09-30T01:14:59.403Z",
+        "durationMs": 26.3,
+        "status": "Unsaved changes",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "hp-enter-to-saved",
+        "page": "/character-sheet.html",
+        "sequence": 17,
+        "at": "2026-09-30T01:15:00.618Z",
+        "durationMs": 1241.1,
+        "status": "Saved",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "keydown:hpcur",
+        "page": "/character-sheet.html",
+        "sequence": 18,
+        "at": "2026-09-30T01:15:00.766Z",
+        "durationMs": 25.1,
+        "status": "Unsaved changes",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "hp-enter-to-saved",
+        "page": "/character-sheet.html",
+        "sequence": 19,
+        "at": "2026-09-30T01:15:01.988Z",
+        "durationMs": 1247.1,
+        "status": "Saved",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "keydown:hpcur",
+        "page": "/character-sheet.html",
+        "sequence": 20,
+        "at": "2026-09-30T01:15:02.122Z",
+        "durationMs": 17.2,
+        "status": "Unsaved changes",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "two animation frames after event capture; includes synchronous handlers and next-frame work",
+        "dialogOpen": false
+      },
+      {
+        "id": "hp-enter-to-saved",
+        "page": "/character-sheet.html",
+        "sequence": 21,
+        "at": "2026-09-30T01:15:03.350Z",
+        "durationMs": 1245.6,
+        "status": "Saved",
+        "longTaskCount": 0,
+        "longTaskMs": 0,
+        "completion": "Saved status plus two animation frames"
+      },
+      {
+        "id": "page-ready",
+        "page": "/character-sheet.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:15:03.886Z",
+        "durationMs": 427.4,
+        "status": "Saved",
+        "longTaskCount": 1,
+        "longTaskMs": 128,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "reload",
+        "domContentLoadedMs": 134.2,
+        "loadMs": 143.7,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.8,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 14.8,
+            "transferBytes": 0,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-ready",
+        "page": "/character-sheet.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:15:04.371Z",
+        "durationMs": 371.4,
+        "status": "Saved",
+        "longTaskCount": 1,
+        "longTaskMs": 113,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "reload",
+        "domContentLoadedMs": 124.8,
+        "loadMs": 132.1,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.5,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 11.9,
+            "transferBytes": 0,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-ready",
+        "page": "/character-sheet.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:15:04.893Z",
+        "durationMs": 407,
+        "status": "Saved",
+        "longTaskCount": 2,
+        "longTaskMs": 205,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "reload",
+        "domContentLoadedMs": 109.3,
+        "loadMs": 117.5,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.4,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 11.7,
+            "transferBytes": 0,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-ready",
+        "page": "/character-sheet.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:15:05.384Z",
+        "durationMs": 378.2,
+        "status": "Saved",
+        "longTaskCount": 1,
+        "longTaskMs": 124,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "reload",
+        "domContentLoadedMs": 115.3,
+        "loadMs": 123.3,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.4,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 19.5,
+            "transferBytes": 0,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-ready",
+        "page": "/character-sheet.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:15:05.931Z",
+        "durationMs": 432.3,
+        "status": "Saved",
+        "longTaskCount": 1,
+        "longTaskMs": 113,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "reload",
+        "domContentLoadedMs": 156.6,
+        "loadMs": 182.7,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.8,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 9.6,
+            "transferBytes": 0,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-ready",
+        "page": "/character-sheet.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:15:06.490Z",
+        "durationMs": 434.7,
+        "status": "Saved",
+        "longTaskCount": 1,
+        "longTaskMs": 148,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "reload",
+        "domContentLoadedMs": 133.7,
+        "loadMs": 142,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.7,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 11.9,
+            "transferBytes": 0,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-ready",
+        "page": "/character-sheet.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:15:06.979Z",
+        "durationMs": 369.6,
+        "status": "Saved",
+        "longTaskCount": 1,
+        "longTaskMs": 114,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "reload",
+        "domContentLoadedMs": 114.3,
+        "loadMs": 121.4,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.4,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 13.2,
+            "transferBytes": 0,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-ready",
+        "page": "/character-sheet.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:15:07.497Z",
+        "durationMs": 392.3,
+        "status": "Saved",
+        "longTaskCount": 1,
+        "longTaskMs": 126,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "reload",
+        "domContentLoadedMs": 115.9,
+        "loadMs": 123.5,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.4,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 12,
+            "transferBytes": 0,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-ready",
+        "page": "/character-sheet.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:15:07.966Z",
+        "durationMs": 340.9,
+        "status": "Saved",
+        "longTaskCount": 1,
+        "longTaskMs": 105,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "reload",
+        "domContentLoadedMs": 104.2,
+        "loadMs": 112.3,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.7,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 12,
+            "transferBytes": 0,
+            "decodedBytes": 2775498
+          }
+        ]
+      },
+      {
+        "id": "page-ready",
+        "page": "/character-sheet.html",
+        "sequence": 1,
+        "at": "2026-09-30T01:15:08.452Z",
+        "durationMs": 362.2,
+        "status": "Saved",
+        "longTaskCount": 1,
+        "longTaskMs": 119,
+        "completion": "ready UI plus two animation frames",
+        "navigationType": "reload",
+        "domContentLoadedMs": 111,
+        "loadMs": 118,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+        "viewport": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 1
+        },
+        "resources": [
+          {
+            "path": "/local-review/game-x-data.json",
+            "durationMs": 1.2,
+            "transferBytes": 309,
+            "decodedBytes": 9
+          },
+          {
+            "path": "/data/game-x/game-x-data.json",
+            "durationMs": 12.5,
+            "transferBytes": 0,
+            "decodedBytes": 2775498
+          }
+        ]
+      }
+    ]
+  }
+}
