@@ -1,6 +1,7 @@
 import { onAuth } from "../core/auth-ui.js";
 import { initAuthRedirectHandling, signInInteractive } from "../core/auth-ui.js";
 import { usingFirebaseEmulators } from "../core/firebase.js";
+import { safeLoginNextHref } from '../core/login-routing.js';
 
 const signInBtn = document.getElementById("signInBtn");
 const continueLink = document.getElementById("continueLink");
@@ -12,16 +13,8 @@ if (usingFirebaseEmulators && signInBtn) {
 }
 
 function getSafeNextHref() {
-  const next = new URLSearchParams(window.location.search).get("next");
-  if (!next) return null;
-  try {
-    const url = new URL(next, window.location.origin);
-    // Prevent open-redirects: only allow same-origin targets
-    if (url.origin !== window.location.origin) return null;
-    return url.href;
-  } catch {
-    return null;
-  }
+  return safeLoginNextHref({ next: new URLSearchParams(window.location.search).get('next'),
+    origin: window.location.origin, hash: window.location.hash });
 }
 
 function showError(msg) {

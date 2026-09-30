@@ -19,7 +19,9 @@ Do not put either value in `.env`, source files, shell scripts, screenshots, iss
 
 Google Cloud user ADC created by `gcloud auth application-default login` does not support Firebase Authentication with the default gcloud OAuth client. It requires the additional Firebase-documented custom OAuth client setup. A service-account credential supplied to ADC is therefore the simpler local option for this command.
 
-## Change GM access
+## Change Super GM access
+
+The historical `gm` custom claim is the global **Super GM** role. Preserve the existing creator account's claim. These commands grant access to all user accounts and characters; do not use them to assign an ordinary campaign GM. Campaign creators assign their GM from joined members on the Campaigns page, without custom claims or administrator intervention. See [campaigns.md](campaigns.md).
 
 First perform a read-only dry run:
 

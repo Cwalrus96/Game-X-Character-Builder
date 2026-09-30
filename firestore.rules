@@ -21,6 +21,53 @@ service cloud.firestore {
       return isGM() || isSelf(uid);
     }
 
+    function campaignPath(id) {
+      return /databases/$(database)/documents/campaigns/$(id);
+    }
+    function campaignMember(id) {
+      return signedIn() && request.auth.uid in get(campaignPath(id)).data.memberUids;
+    }
+    function campaignOwner(id) {
+      return signedIn() && get(campaignPath(id)).data.ownerUid == request.auth.uid;
+    }
+    function campaignSheetReader(uid, characterId) {
+      let link = get(/databases/$(database)/documents/users/$(uid)/characterCampaigns/$(characterId)).data;
+      let campaign = get(campaignPath(link.campaignId)).data;
+      return signedIn() && campaign.gmUid == request.auth.uid && uid in campaign.memberUids;
+    }
+    function validCampaign(data, id) {
+      return data.keys().hasAll(['name', 'ownerUid', 'gmUid', 'memberUids', 'inviteCode', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['name', 'ownerUid', 'gmUid', 'memberUids', 'inviteCode', 'createdAt', 'updatedAt'])
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 80
+        && data.ownerUid is string && data.gmUid is string
+        && data.memberUids is list && data.memberUids.size() <= 500
+        && data.memberUids.toSet().size() == data.memberUids.size()
+        && data.ownerUid in data.memberUids && data.gmUid in data.memberUids
+        && data.createdAt is timestamp && data.updatedAt == request.time
+        && data.inviteCode is string
+        && (data.inviteCode == '' || (data.inviteCode.matches('[A-F0-9]{32}')
+          && getAfter(/databases/$(database)/documents/campaignInvites/$(data.inviteCode)).data.campaignId == id));
+    }
+    function validJoin(id) {
+      let code = resource.data.inviteCode;
+      return code != ''
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['memberUids', 'updatedAt'])
+        && request.resource.data.memberUids.toSet() == resource.data.memberUids.toSet().union([request.auth.uid].toSet())
+        && getAfter(/databases/$(database)/documents/campaigns/$(id)/members/$(request.auth.uid)).data.joinCode == code;
+    }
+    function validCharacterLink(uid, characterId) {
+      let link = request.resource.data;
+      let roster = getAfter(/databases/$(database)/documents/campaigns/$(link.campaignId)/characters/$(link.rosterId)).data;
+      return link.keys().hasAll(['campaignId', 'rosterId']) && link.keys().hasOnly(['campaignId', 'rosterId'])
+        && link.campaignId is string && link.rosterId is string
+        && campaignMember(link.campaignId)
+        && exists(/databases/$(database)/documents/users/$(uid)/characters/$(characterId))
+        && roster.ownerUid == uid && roster.characterId == characterId;
+    }
+    function oldRosterRemoved() {
+      return !existsAfter(/databases/$(database)/documents/campaigns/$(resource.data.campaignId)/characters/$(resource.data.rosterId));
+    }
+
     // --- New schema ---
     // users/{uid}
     // users/{uid}/characters/{characterId}
@@ -29,7 +76,16 @@ service cloud.firestore {
       allow list: if isGM();
 
       match /characters/{characterId} {
-        allow read, write: if gmOrSelf(uid);
+        allow get: if gmOrSelf(uid) || (signedIn() && campaignSheetReader(uid, characterId));
+        allow list, write: if gmOrSelf(uid);
+      }
+
+      match /characterCampaigns/{characterId} {
+        allow read: if gmOrSelf(uid) || (signedIn() && campaignSheetReader(uid, characterId));
+        allow create: if isSelf(uid) && validCharacterLink(uid, characterId);
+        allow update: if isSelf(uid) && validCharacterLink(uid, characterId)
+          && (request.resource.data == resource.data || oldRosterRemoved());
+        allow delete: if gmOrSelf(uid) && oldRosterRemoved();
       }
 
       // Default deny for anything else under /users
@@ -44,13 +100,61 @@ service cloud.firestore {
       allow read, write: if gmOrSelf(uid);
     }
 
-    // --- Campaigns (future) ---
-    // Locked to GM-only until the campaign membership flow is implemented.
     match /campaigns/{campaignId} {
-      allow read, write: if isGM();
-      match /{subpath=**} {
-        allow read, write: if isGM();
+      // Queries must be constrained to membership. No public directory.
+      allow read: if signedIn() && request.auth.uid in resource.data.memberUids;
+      allow create: if signedIn() && validCampaign(request.resource.data, campaignId)
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.gmUid == request.auth.uid
+        && request.resource.data.memberUids == [request.auth.uid]
+        && request.resource.data.createdAt == request.time;
+      allow update: if signedIn() && validCampaign(request.resource.data, campaignId)
+        && request.resource.data.ownerUid == resource.data.ownerUid
+        && request.resource.data.createdAt == resource.data.createdAt
+        && ((resource.data.ownerUid == request.auth.uid
+          && request.resource.data.memberUids.toSet().difference(resource.data.memberUids.toSet()).size() == 0)
+        || validJoin(campaignId)
+        || (request.auth.uid in resource.data.memberUids
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['memberUids', 'updatedAt'])
+          && request.resource.data.memberUids.toSet() == resource.data.memberUids.toSet().difference([request.auth.uid].toSet())));
+
+      match /members/{uid} {
+        allow read: if campaignMember(campaignId);
+        allow create, update: if isSelf(uid)
+          && request.resource.data.keys().hasAll(['uid', 'displayName', 'joinCode', 'joinedAt'])
+          && request.resource.data.keys().hasOnly(['uid', 'displayName', 'joinCode', 'joinedAt'])
+          && request.resource.data.uid == uid
+          && request.resource.data.displayName is string
+          && request.resource.data.displayName.size() > 0 && request.resource.data.displayName.size() <= 32
+          && request.resource.data.joinedAt == request.time
+          && uid in getAfter(campaignPath(campaignId)).data.memberUids
+          && request.resource.data.joinCode != ''
+          && request.resource.data.joinCode == getAfter(campaignPath(campaignId)).data.inviteCode;
       }
+
+      match /characters/{rosterId} {
+        allow read: if campaignMember(campaignId);
+        allow create: if signedIn() && campaignMember(campaignId)
+          && request.resource.data.keys().hasAll(['ownerUid', 'characterId'])
+          && request.resource.data.keys().hasOnly(['ownerUid', 'characterId'])
+          && request.resource.data.ownerUid == request.auth.uid
+          && request.resource.data.characterId is string
+          && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)/characterCampaigns/$(request.resource.data.characterId)).data
+            == {'campaignId': campaignId, 'rosterId': rosterId};
+        allow delete: if gmOrSelf(resource.data.ownerUid)
+          && (!existsAfter(/databases/$(database)/documents/users/$(resource.data.ownerUid)/characterCampaigns/$(resource.data.characterId))
+            || getAfter(/databases/$(database)/documents/users/$(resource.data.ownerUid)/characterCampaigns/$(resource.data.characterId)).data
+              != {'campaignId': campaignId, 'rosterId': rosterId});
+      }
+    }
+
+    match /campaignInvites/{code} {
+      allow get: if signedIn() && get(campaignPath(resource.data.campaignId)).data.inviteCode == code;
+      allow create: if signedIn() && code.matches('[A-F0-9]{32}')
+        && request.resource.data.keys().hasAll(['campaignId']) && request.resource.data.keys().hasOnly(['campaignId'])
+        && getAfter(campaignPath(request.resource.data.campaignId)).data.ownerUid == request.auth.uid
+        && getAfter(campaignPath(request.resource.data.campaignId)).data.inviteCode == code;
+      allow delete: if campaignOwner(resource.data.campaignId);
     }
 
     // Default deny

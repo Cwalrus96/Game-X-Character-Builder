@@ -1,6 +1,9 @@
 import { db, storage } from "../core/firebase.js";
 import { onAuth, signOutNow, initAuthRedirectHandling, getClaims } from "../core/auth-ui.js";
-import { ensureAppTopNav } from "../core/app-nav.js";
+import { ensureAppTopNav } from "../core/app-nav.js?v=campaigns1";
+import { campaigns } from "../core/campaign-client.js";
+import { confirmCampaignChange } from '../core/confirmation-dialog.js';
+import { createNavigationGuard, installNavigationGuard } from '../core/navigation-guard.js';
 import { createDefaultCharacterDoc } from "../core/database-reader.js";
 import { sanitizeStoragePath } from "../core/data-sanitization.js";
 import { loadGameXData, getGameXClasses, getGameXOrigins } from "../core/game-data.js";
@@ -25,10 +28,20 @@ import {
 } from "/vendor/firebase/firebase-storage.js";
 
 const topbarEl = document.querySelector(".topbar");
+const pendingCampaignWrites = new Set();
+const campaignNavigation = createNavigationGuard({
+  getState: () => ({ saving: pendingCampaignWrites.size > 0 }),
+  flush: async () => { await Promise.all([...pendingCampaignWrites]); return true; },
+  navigate: href => window.location.assign(href),
+});
+installNavigationGuard({ guard: campaignNavigation });
+async function signOutAfterCampaignSave() {
+  if (await campaignNavigation.flush()) await signOutNow();
+}
 let appNav = ensureAppTopNav({
   mount: topbarEl,
   active: window.location.hash === "#profileCard" ? "profile" : "characters",
-  onSignOut: async () => signOutNow(),
+  onSignOut: signOutAfterCampaignSave,
 });
 
 const profileCard = document.getElementById("profileCard");
@@ -46,6 +59,7 @@ const gmUsersLink = document.getElementById("gmUsersLink");
 const charactersCard = document.getElementById("charactersCard");
 const charactersSub = document.getElementById("charactersSub");
 const charactersStatus = document.getElementById("charactersStatus");
+const campaignSaveStatus = document.getElementById('campaignSaveStatus');
 const charactersList = document.getElementById("charactersList");
 const charactersError = document.getElementById("charactersError");
 const createCharacterBtn = document.getElementById("createCharacterBtn");
@@ -55,6 +69,13 @@ let claims = { gm: false };
 let viewingUid = null;
 let viewingUserDoc = null;
 let unsubscribeCharacters = null;
+let unsubscribeCampaigns = null;
+let unsubscribeCampaignLinks = null;
+let ownCampaigns = [];
+let characterCampaigns = new Map();
+let latestCharacterDocs = [];
+let campaignsReady = false;
+let linksReady = false;
 const portraitUrlCache = new Map();
 let classNameByKey = new Map();
 let originNameByKey = new Map();
@@ -161,7 +182,7 @@ function renderProfile() {
     createCharacterBtn.style.cursor = "pointer";
   }
 
-  setText(profileHint, isViewingSelf ? "" : "GM View: You are browsing another user's account.");
+  setText(profileHint, isViewingSelf ? "" : "Super GM: You are browsing another user's account.");
   setText(displayNameLabel, viewingName || (isViewingSelf ? "(No display name yet)" : "(Unknown)"));
   setText(emailLabel, email);
 }
@@ -287,6 +308,7 @@ async function deleteCharacter({ charId, name, portraitPath }) {
   if (typed !== required) return;
 
   const characterRef = doc(db, "users", viewingUid, "characters", charId);
+  await campaigns.setCharacterCampaign({ uid: viewingUid, characterId: charId, campaignId: '' });
   await deleteDoc(characterRef);
 
   const cleanPortraitPath = sanitizeStoragePath(portraitPath || "");
@@ -300,7 +322,58 @@ async function deleteCharacter({ charId, name, portraitPath }) {
   }
 }
 
+function appendCampaignPicker(container, charId, name) {
+  const group = document.createElement('div');
+  group.className = 'campaign-picker';
+  const label = document.createElement('label');
+  label.textContent = 'Campaign ';
+  const select = document.createElement('select');
+  select.setAttribute('aria-label', `Campaign for ${name}`);
+  const link = characterCampaigns.get(charId);
+  const options = [{ id: '', name: 'No campaign' }, ...ownCampaigns];
+  if (link && !ownCampaigns.some(campaign => campaign.id === link.campaignId)) {
+    options.push({ id: link.campaignId, name: 'Former campaign (not shared)' });
+  }
+  for (const campaign of options) {
+    const option = document.createElement('option');
+    option.value = campaign.id; option.textContent = campaign.name; select.append(option);
+  }
+  select.value = link?.campaignId || '';
+  select.disabled = !campaignsReady || !linksReady;
+  label.append(select); group.append(label);
+  const save = document.createElement('button');
+  save.className = 'btn secondary'; save.type = 'button'; save.textContent = 'Set campaign';
+  save.disabled = select.disabled;
+  save.addEventListener('click', async () => {
+    const next = select.value;
+    const previous = link?.campaignId || '';
+    if (next === previous) return;
+    if (previous && !await confirmCampaignChange('Change this character’s campaign? The previous GM will lose access to its sheet.')) {
+      select.value = previous;
+      return;
+    }
+    save.disabled = true; select.disabled = true;
+    setText(campaignSaveStatus, 'Saving campaign…');
+    const operation = campaigns.setCharacterCampaign({ uid: currentUser.uid, characterId: charId, campaignId: next });
+    pendingCampaignWrites.add(operation);
+    try {
+      await operation;
+      setText(campaignSaveStatus, 'Campaign updated.');
+    } catch (cause) {
+      console.error(cause);
+      showError(charactersError, 'Could not change campaign. Refresh to check that you are still a member, then try again.');
+      setText(campaignSaveStatus, '');
+      save.disabled = false; select.disabled = false;
+    } finally { pendingCampaignWrites.delete(operation); }
+  });
+  group.append(save);
+  const join = document.createElement('a'); join.href = '/campaigns.html'; join.textContent = 'Join or create a campaign';
+  join.className = 'sub'; group.append(join);
+  container.append(group);
+}
+
 function renderCharacters(docs) {
+  latestCharacterDocs = docs;
   clearCharacterList();
   hide(charactersError);
   if (!docs.length) {
@@ -362,6 +435,8 @@ function renderCharacters(docs) {
     });
     right.appendChild(viewLink);
 
+    if (isViewingSelf) appendCampaignPicker(right, d.id, name);
+
     const deleteBtn = document.createElement("button");
     deleteBtn.className = "btn danger";
     deleteBtn.type = "button";
@@ -406,7 +481,7 @@ async function startCharactersListener() {
         charactersSub,
         isViewingSelf
           ? "Select a character to continue editing, or create a new one."
-          : "GM View: Select a character to open the sheet."
+          : "Super GM: Select a character to open the sheet."
       );
     },
     (err) => {
@@ -419,6 +494,7 @@ async function startCharactersListener() {
 
 async function createCharacter() {
   if (!currentUser) return;
+  if (!await campaignNavigation.flush()) return;
   const isViewingSelf = viewingUid === currentUser.uid;
   const canCreate = isViewingSelf || claims.gm;
   if (!canCreate) return;
@@ -459,6 +535,10 @@ if (createCharacterBtn) {
 }
 
 onAuth(async (user) => {
+  unsubscribeCampaigns?.(); unsubscribeCampaignLinks?.();
+  unsubscribeCharacters?.();
+  campaignsReady = false; linksReady = false;
+  ownCampaigns = []; characterCampaigns = new Map(); latestCharacterDocs = [];
   currentUser = user;
 
   if (!user) {
@@ -492,7 +572,7 @@ onAuth(async (user) => {
     active: window.location.hash === "#profileCard" ? "profile" : "characters",
     requestedUid,
     isGM: !!claims.gm,
-    onSignOut: async () => signOutNow(),
+    onSignOut: signOutAfterCampaignSave,
   });
   show(appNav.signOut);
 
@@ -503,6 +583,15 @@ onAuth(async (user) => {
   await loadViewingUserDoc();
   await loadCharacterMetadataLookups();
   renderProfile();
+
+  if (viewingUid === user.uid) {
+    unsubscribeCampaigns = campaigns.observeMine(user.uid, list => {
+      ownCampaigns = list; campaignsReady = true; renderCharacters(latestCharacterDocs);
+    }, () => showError(charactersError, 'Could not load your campaigns. Refresh to try again.'));
+    unsubscribeCampaignLinks = campaigns.observeLinks(user.uid, links => {
+      characterCampaigns = links; linksReady = true; renderCharacters(latestCharacterDocs);
+    }, () => showError(charactersError, 'Could not load character campaign links. Refresh to try again.'));
+  }
 
   await startCharactersListener();
 });

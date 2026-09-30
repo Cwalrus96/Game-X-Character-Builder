@@ -6,6 +6,7 @@
   <title>Game X Character Builder – Characters</title>
   <link rel="stylesheet" href="/css/styles.css" />
   <link rel="stylesheet" href="/css/characters.css" />
+  <link rel="stylesheet" href="/css/campaigns.css" />
 </head>
 <body data-theme="na" class="characters-home">
   <div class="page">
@@ -35,8 +36,8 @@
               <div class="name" id="displayNameLabel"></div>
               <div class="sub" id="emailLabel"></div>
             </div>
-            <span class="pill right" id="gmPill" style="display:none">GM</span>
-            <a class="btn secondary" href="/gm_users.html" id="gmUsersLink" style="display:none">GM: Users</a>
+            <span class="pill right" id="gmPill" style="display:none">Super GM</span>
+            <a class="btn secondary" href="/gm_users.html" id="gmUsersLink" style="display:none">Super GM: Users</a>
           </div>
         </div>
 
@@ -53,12 +54,13 @@
         </div>
 
         <div id="charactersStatus" class="muted status-text">Loading…</div>
+        <p id="campaignSaveStatus" class="muted" role="status" aria-live="polite"></p>
         <ul class="list" id="charactersList"></ul>
         <div id="charactersError" class="error" style="display:none"></div>
       </div>
     </div>
   </div>
 
-  <script type="module" src="/js/pages/characters.js"></script>
+  <script type="module" src="/js/pages/characters.js?v=campaigns1"></script>
 </body>
 </html>

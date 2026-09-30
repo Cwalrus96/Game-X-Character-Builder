@@ -8,11 +8,13 @@ Anything delivered to or entered in the browser can be inspected or modified by 
 
 Firebase Security Rules are the enforcement boundary:
 
-- Firestore rules govern character documents and GM-only data;
+- Firestore rules govern character documents, private campaign membership and Super GM account access;
 - Storage rules govern portrait reads/writes/deletes;
 - unknown Firestore paths are denied by default.
 
-Players normally access `users/{uid}/characters/{characterId}` for their own UID. GMs are recognized through the `gm` custom claim. Rules and queries must remain compatible: a query must be constrainable to the records its caller may read.
+Players normally access `users/{uid}/characters/{characterId}` for their own UID. The historical `gm` custom claim identifies a **Super GM** with global account and character access. A normal campaign GM is the campaign's current `gmUid`, assigned only by its immutable creator from current members. This role grants exact character-document reads through verified campaign links; it does not grant user-profile reads, character-collection listing or any character writes. Rules and queries must remain compatible: campaign listing requires `memberUids array-contains currentUid`; invite enumeration is denied. See [campaigns.md](campaigns.md).
+
+Joining requires a current 128-bit random invite code, authenticated identity and an atomic membership proof. Invite links carry the code in a fragment, including through login. Rotation/disabling invalidates earlier codes. Character links and campaign roster references are paired atomically and owned by the character's owner. Active membership and the current GM are checked at read time, so leaving/removal, reassignment and detachment revoke future authorized reads. No client can promote itself via a profile, role label or copied roster entry. The creator remains a member; a departing GM must first be replaced.
 
 The older `characters/{uid}` path remains a deliberate legacy boundary and must not be expanded casually; migration/retirement belongs in the character repository work.
 
@@ -20,12 +22,12 @@ The older `characters/{uid}` path remains a deliberate legacy boundary and must 
 
 Portraits are scoped by user/character path. Rules restrict:
 
-- authenticated owner or GM access;
+- authenticated owner/Super GM reads and writes, plus current campaign GM reads of linked characters' portraits;
 - accepted image content types;
 - upload size;
 - delete behavior separately from writes because deletes have no `request.resource`.
 
-Store only the portrait path in Firestore. Resolve download URLs through the Storage SDK.
+Store only the portrait path in Firestore. Owner/Super GM views retain the existing Storage download URL flow. Campaign GM views use authenticated `getBlob` and revoke their temporary object URL on page exit. Storage rules use exactly two Firestore documents (character link and campaign) for campaign authorization. Production rollout must verify the cross-service permission and bucket GET CORS for the app origin. Already downloaded bytes and existing bearer URLs cannot be recalled by revoking membership.
 
 ## Character write boundary
 

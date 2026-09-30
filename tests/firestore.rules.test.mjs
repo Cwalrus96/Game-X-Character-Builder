@@ -93,15 +93,15 @@ test('legacy single-document character path still respects gm-or-self access', a
   await assertFails(setDoc(doc(aliceDb, 'characters', BOB_UID), { legacy: 'intrusion' }, { merge: true }));
 });
 
-test('campaign documents remain GM-only', async () => {
+test('legacy campaign placeholders do not grant access or accept arbitrary writes', async () => {
   const aliceDb = makeAuthedContext(testEnv, ALICE_UID).firestore();
   const gmDb = makeAuthedContext(testEnv, GM_UID, { gm: true }).firestore();
 
   await assertFails(getDoc(doc(aliceDb, 'campaigns', 'camp-1')));
   await assertFails(setDoc(doc(aliceDb, 'campaigns', 'camp-1'), { touchedBy: ALICE_UID }, { merge: true }));
 
-  await assertSucceeds(getDoc(doc(gmDb, 'campaigns', 'camp-1')));
-  await assertSucceeds(setDoc(doc(gmDb, 'campaigns', 'camp-1'), { touchedBy: GM_UID }, { merge: true }));
+  await assertFails(getDoc(doc(gmDb, 'campaigns', 'camp-1')));
+  await assertFails(setDoc(doc(gmDb, 'campaigns', 'camp-1'), { touchedBy: GM_UID }, { merge: true }));
 });
 
 test('GMs can list users and access any user or character document', async () => {

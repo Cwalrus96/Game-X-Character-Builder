@@ -8,7 +8,7 @@ import {
 } from "/vendor/firebase/firebase-firestore.js";
 
 import { normalizeCharacterDoc } from "../core/database-reader.js";
-import { ensureAppTopNav } from "../core/app-nav.js";
+import { ensureAppTopNav } from "../core/app-nav.js?v=campaigns1";
 import {
   createDialogLifecycle,
   restoreDialogFocus,

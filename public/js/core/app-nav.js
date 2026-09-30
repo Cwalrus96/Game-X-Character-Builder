@@ -132,17 +132,11 @@ export function ensureAppTopNav({
   const charactersLink = addLink({ key: "characters", label: "Characters", href: charactersHref });
   const profileLink = addLink({ key: "profile", label: "Profile", href: "/characters.html#profileCard" });
 
-  const campaigns = document.createElement("button");
-  campaigns.className = "app-nav-item";
-  campaigns.type = "button";
-  campaigns.disabled = true;
-  campaigns.title = "Campaigns are not available yet.";
-  campaigns.textContent = "Campaigns";
-  nav.append(campaigns);
+  addLink({ key: "campaigns", label: "Campaigns", href: "/campaigns.html" });
 
   let gmUsersLink = null;
   if (isGM) {
-    gmUsersLink = addLink({ key: "gm-users", label: "GM Users", href: "/gm_users.html" });
+    gmUsersLink = addLink({ key: "gm-users", label: "Super GM: Users", href: "/gm_users.html" });
   }
 
   const signOut = document.createElement("button");

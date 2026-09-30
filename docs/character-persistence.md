@@ -12,6 +12,8 @@ This document defines the page-facing Firebase boundary for saved characters. Th
 
 ## Read contract
 
+Campaign sharing is external to character documents: `users/{uid}/characterCampaigns/{characterId}` points to a campaign roster entry. Joining, attaching, reassigning the GM and detaching never alter canonical characters or their revisions. Campaign roster display uses `readCharacter`; the shared sheet keeps its existing transitional read path with campaign-authorized reads and an explicit read-only mode. Campaign GMs cannot initialize or save documents, invoke builder writes or alter temporary/presentation fields. Owner and Super GM persistence behavior remains unchanged. The campaign boundary owns relationships only; see [campaigns.md](campaigns.md).
+
 `readCharacter` and `observeCharacters` perform this pipeline:
 
 ```text

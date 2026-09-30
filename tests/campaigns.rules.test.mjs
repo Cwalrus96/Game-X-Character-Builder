@@ -1,0 +1,208 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { assertFails, assertSucceeds } from '@firebase/rules-unit-testing';
+import * as api from 'firebase/firestore';
+import { getBytes, ref, uploadBytes, deleteObject } from 'firebase/storage';
+import { createCampaignStore } from '../public/js/core/campaign-store.js';
+import { createCharacterMigrationReferences } from '../public/js/core/character-migrations.js';
+import { createCharacter, patchCharacter } from '../public/js/core/database-writer.js';
+import { readCharacter } from '../public/js/core/database-reader.js';
+import { MIGRATION_GAME_DATA } from './fixtures/character-schemas.mjs';
+import { createRulesTestEnvironment, seedFirestore, seedStoragePortrait } from './rules-test-helpers.mjs';
+
+let env;
+const context = (uid, claims = {}) => env.authenticatedContext(uid, claims);
+const dbFor = uid => context(uid).firestore();
+const store = uid => createCampaignStore({ db: dbFor(uid), api });
+const campaign = (db, id) => api.doc(db, 'campaigns', id);
+const char = (db, uid = 'bob', id = 'char-2') => api.doc(db, 'users', uid, 'characters', id);
+const link = (db, uid = 'bob', id = 'char-2') => api.doc(db, 'users', uid, 'characterCampaigns', id);
+async function create(uid = 'alice', name = 'Night Watch') {
+  const id = await store(uid).create({ uid, name, displayName: uid });
+  const value = (await api.getDoc(campaign(dbFor(uid), id))).data();
+  return { id, ...value };
+}
+async function join(group, uid = 'bob') {
+  return store(uid).join({ uid, code: group.inviteCode, displayName: uid });
+}
+async function share(group, uid = 'bob', characterId = 'char-2') {
+  await store(uid).setCharacterCampaign({ uid, characterId, campaignId: group.id });
+}
+test.before(async () => { env = await createRulesTestEnvironment(); });
+test.after(async () => { await env.cleanup(); });
+test.beforeEach(async () => { await env.clearFirestore(); await env.clearStorage(); await seedFirestore(env); });
+
+test('any signed-in player can create; only membership-constrained campaign discovery works', async () => {
+  const group = await create();
+  assert.equal(group.gmUid, 'alice'); assert.deepEqual(group.memberUids, ['alice']);
+  const alice = dbFor('alice'); const bob = dbFor('bob');
+  await assertFails(api.getDocs(api.collection(alice, 'campaigns')));
+  const mine = await assertSucceeds(api.getDocs(api.query(api.collection(alice, 'campaigns'), api.where('memberUids', 'array-contains', 'alice'))));
+  assert.equal(mine.size, 1);
+  await assertFails(api.getDoc(campaign(bob, group.id)));
+  await assertFails(api.getDocs(api.collection(bob, 'campaignInvites')));
+  await assertFails(api.getDoc(api.doc(env.unauthenticatedContext().firestore(), 'campaignInvites', group.inviteCode)));
+  await assertSucceeds(api.getDoc(api.doc(bob, 'campaignInvites', group.inviteCode)));
+  const unauth = createCampaignStore({ db: env.unauthenticatedContext().firestore(), api });
+  await assertFails(unauth.create({ uid: 'intruder', name: 'No', displayName: 'No' }));
+});
+
+test('join requires the current invite proof and permits only the joining identity', async () => {
+  const group = await create(); const bob = dbFor('bob');
+  await assertFails(api.updateDoc(campaign(bob, group.id), { memberUids: api.arrayUnion('bob'), updatedAt: api.serverTimestamp() }));
+  await assertFails(store('bob').join({ uid: 'eve', code: group.inviteCode, displayName: 'Eve' }));
+  await assertSucceeds(join(group));
+  await assertSucceeds(join(group)); // idempotent accepted invite
+  const value = (await api.getDoc(campaign(bob, group.id))).data();
+  assert.deepEqual(value.memberUids, ['alice', 'bob']); assert.equal(value.gmUid, 'alice');
+  await assertFails(api.getDoc(api.doc(bob, 'users', 'alice')));
+  await assertFails(api.updateDoc(campaign(bob, group.id), { memberUids: api.arrayUnion('eve'), updatedAt: api.serverTimestamp() }));
+  await assertFails(api.setDoc(api.doc(bob, 'campaigns', group.id, 'members', 'eve'), { uid: 'eve', displayName: 'Eve', joinCode: group.inviteCode, joinedAt: api.serverTimestamp() }));
+});
+
+test('campaign and membership shapes reject extra privileges, malformed names and spoofed timestamps', async () => {
+  const group = await create(); const alice = dbFor('alice');
+  for (const patch of [{ name: '' }, { name: 'x'.repeat(81) }, { gm: true }, { memberUids: ['alice', 'alice'] }, { inviteCode: 'GUESSABLE' }]) {
+    await assertFails(api.updateDoc(campaign(alice, group.id), { ...patch, updatedAt: api.serverTimestamp() }));
+  }
+  await assertFails(api.updateDoc(campaign(alice, group.id), { name: 'Bad time', updatedAt: api.Timestamp.fromMillis(0) }));
+  const member = api.doc(alice, 'campaigns', group.id, 'members', 'alice');
+  await assertFails(api.setDoc(member, { uid: 'alice', displayName: 'Alice', joinCode: group.inviteCode, joinedAt: api.serverTimestamp(), gm: true }));
+  await assertFails(api.setDoc(member, { uid: 'alice', displayName: '', joinCode: group.inviteCode, joinedAt: api.serverTimestamp() }));
+});
+
+test('only creator assigns a current member as GM; ownership and global powers cannot be forged', async () => {
+  const group = await create(); await join(group);
+  await assertFails(store('bob').update({ id: group.id, name: group.name, gmUid: 'bob' }));
+  await assertFails(store('alice').update({ id: group.id, name: group.name, gmUid: 'outsider' }));
+  await assertFails(api.updateDoc(campaign(dbFor('alice'), group.id), { ownerUid: 'bob', updatedAt: api.serverTimestamp() }));
+  await assertSucceeds(store('alice').update({ id: group.id, name: 'Renamed', gmUid: 'bob' }));
+  await assertFails(api.getDocs(api.collection(dbFor('bob'), 'users')));
+  await assertFails(api.getDocs(api.collection(dbFor('bob'), 'users', 'alice', 'characters')));
+  await assertFails(store('bob').removeMember(group.id, 'bob'));
+  await assertFails(store('alice').removeMember(group.id, 'alice'));
+});
+
+test('rotation and disabling revoke previous invites without evicting current members', async () => {
+  const group = await create(); await join(group);
+  await assertFails(store('bob').setInvite(group.id, true));
+  await store('alice').setInvite(group.id, true);
+  await assertFails(join(group, 'eve'));
+  let updated = (await api.getDoc(campaign(dbFor('alice'), group.id))).data();
+  assert.notEqual(updated.inviteCode, group.inviteCode);
+  await assertSucceeds(join({ id: group.id, ...updated }, 'eve'));
+  const code = updated.inviteCode;
+  await store('alice').setInvite(group.id, false);
+  await assertFails(store('charlie').join({ uid: 'charlie', code, displayName: 'Charlie' }));
+  await assertSucceeds(api.getDoc(campaign(dbFor('bob'), group.id)));
+  await assertFails(api.setDoc(api.doc(dbFor('bob'), 'campaignInvites', code), { campaignId: group.id }));
+});
+
+test('sharing grants only the current GM a single-document read and preserves character bytes', async () => {
+  const group = await create(); await join(group); await join(group, 'eve');
+  const before = (await api.getDoc(char(dbFor('bob')))).data();
+  await assertSucceeds(share(group));
+  const alice = dbFor('alice'); const eve = dbFor('eve');
+  await assertSucceeds(api.getDoc(char(alice)));
+  await assertFails(api.getDoc(char(eve)));
+  await assertFails(api.getDoc(api.doc(alice, 'users', 'bob')));
+  await assertFails(api.getDocs(api.collection(alice, 'users', 'bob', 'characters')));
+  await assertFails(api.updateDoc(char(alice), { 'builder.name': 'Hacked' }));
+  await assertFails(api.updateDoc(char(alice), { 'builder.sheet.fields.hpcur': '0' }));
+  await assertFails(api.deleteDoc(char(alice)));
+  assert.deepEqual((await api.getDoc(char(dbFor('bob')))).data(), before);
+  await store('alice').update({ id: group.id, name: group.name, gmUid: 'eve' });
+  await assertFails(api.getDoc(char(alice)));
+  await assertSucceeds(api.getDoc(char(eve)));
+  await assertSucceeds(api.updateDoc(char(dbFor('bob')), { 'builder.name': 'Still owned' }));
+  assert.equal((await api.getDoc(char(eve))).data().builder.name, 'Still owned');
+});
+
+test('forged/unpaired links, foreign characters and nonmember campaigns are rejected atomically', async () => {
+  const group = await create(); const outsider = await create('eve'); await join(group);
+  const bob = dbFor('bob');
+  await assertFails(api.setDoc(link(bob), { campaignId: group.id, rosterId: 'invented' }));
+  await assertFails(api.setDoc(api.doc(bob, 'campaigns', group.id, 'characters', 'invented'), { ownerUid: 'bob', characterId: 'char-2' }));
+  await assertFails(share(outsider));
+  await assertFails(store('bob').setCharacterCampaign({ uid: 'alice', characterId: 'char-1', campaignId: group.id }));
+  await assertFails(share(group, 'bob', 'missing-character'));
+  await share(group);
+  await assertFails(api.deleteDoc(link(bob)));
+  const data = (await api.getDoc(link(bob))).data();
+  await assertFails(api.deleteDoc(api.doc(bob, 'campaigns', group.id, 'characters', data.rosterId)));
+});
+
+test('campaign sharing composes with the canonical reader and revision-aware owner saves', async () => {
+  const group = await create(); await join(group);
+  const references = createCharacterMigrationReferences(MIGRATION_GAME_DATA);
+  const ownerOptions = { ownerUid: 'bob', firestore: dbFor('bob'), firestoreApi: api, references };
+  const created = await createCharacter(ownerOptions);
+  const characterId = created.characterId;
+  const before = (await api.getDoc(char(ownerOptions.firestore, 'bob', characterId))).data();
+  await share(group, 'bob', characterId);
+  const gmOptions = { ...ownerOptions, characterId, firestore: dbFor('alice') };
+  const viewed = await readCharacter(gmOptions);
+  assert.equal(viewed.revision, created.revision);
+  assert.deepEqual(viewed.character, created.character);
+  assert.deepEqual((await api.getDoc(char(ownerOptions.firestore, 'bob', characterId))).data(), before);
+  await assertFails(patchCharacter({ ...gmOptions, expectedRevision: viewed.revision, scope: 'sheet', patch: { 'builder.sheet.fields.hpcur': '1' } }));
+  await patchCharacter({ ...ownerOptions, characterId, expectedRevision: created.revision, scope: 'builder', patch: { 'builder.name': 'Changed after sharing' } });
+  const latest = await readCharacter(gmOptions);
+  assert.equal(latest.character.builder.name, 'Changed after sharing');
+  assert.equal(latest.revision, created.revision + 1);
+  await store('bob').setCharacterCampaign({ uid: 'bob', characterId, campaignId: '' });
+  await assertFails(readCharacter(gmOptions));
+});
+
+test('switching and detaching campaigns clean reciprocal links and revoke prior GM access', async () => {
+  const first = await create(); const second = await create('eve');
+  await join(first); await join(second); await share(first);
+  const previous = (await api.getDoc(link(dbFor('bob')))).data();
+  await share(second);
+  await assertFails(api.getDoc(char(dbFor('alice'))));
+  await assertSucceeds(api.getDoc(char(dbFor('eve'))));
+  assert.equal((await api.getDoc(api.doc(dbFor('alice'), 'campaigns', first.id, 'characters', previous.rosterId))).exists(), false);
+  await store('bob').setCharacterCampaign({ uid: 'bob', characterId: 'char-2', campaignId: '' });
+  await assertFails(api.getDoc(char(dbFor('eve'))));
+  assert.equal((await api.getDocs(api.collection(dbFor('eve'), 'campaigns', second.id, 'characters'))).size, 0);
+});
+
+test('leave/removal revoke dormant links immediately; owners can detach after departure', async () => {
+  const group = await create(); await join(group); await share(group);
+  await store('bob').removeMember(group.id, 'bob');
+  await assertFails(api.getDoc(char(dbFor('alice'))));
+  await assertFails(api.getDoc(campaign(dbFor('bob'), group.id)));
+  await assertSucceeds(join(group));
+  await assertSucceeds(api.getDoc(char(dbFor('alice'))));
+  await store('alice').removeMember(group.id, 'bob');
+  await assertFails(api.getDoc(char(dbFor('alice'))));
+  await assertSucceeds(store('bob').setCharacterCampaign({ uid: 'bob', characterId: 'char-2', campaignId: '' }));
+  assert.equal((await api.getDoc(link(dbFor('bob')))).exists(), false);
+});
+
+test('Super GM retains global account, character and portrait powers without campaign membership', async () => {
+  const group = await create(); await join(group); await share(group);
+  const admin = context('admin', { gm: true }); const db = admin.firestore();
+  await assertSucceeds(api.getDocs(api.collection(db, 'users')));
+  await assertSucceeds(api.getDoc(char(db)));
+  await assertSucceeds(api.updateDoc(char(db), { 'builder.name': 'Super GM edit' }));
+  await assertSucceeds(api.getDoc(api.doc(db, 'users', 'bob')));
+  await seedStoragePortrait(env, { userId: 'bob', charId: 'char-2' });
+  await assertSucceeds(getBytes(ref(admin.storage(), 'portraits/bob/char-2/portrait.png')));
+  await assertSucceeds(createCampaignStore({ db, api }).setCharacterCampaign({ uid: 'bob', characterId: 'char-2', campaignId: '' }));
+  assert.equal((await api.getDoc(link(db))).exists(), false);
+});
+
+test('campaign portrait reads follow membership and GM changes; writes remain owner/Super GM only', async () => {
+  const group = await create(); await join(group); await join(group, 'eve'); await share(group);
+  await seedStoragePortrait(env, { userId: 'bob', charId: 'char-2' });
+  const alice = ref(context('alice').storage(), 'portraits/bob/char-2/portrait.png');
+  const eve = ref(context('eve').storage(), 'portraits/bob/char-2/portrait.png');
+  await assertSucceeds(getBytes(alice)); await assertFails(getBytes(eve));
+  await assertFails(uploadBytes(alice, new Uint8Array([1]), { contentType: 'image/png' }));
+  await assertFails(deleteObject(alice));
+  await store('alice').update({ id: group.id, name: group.name, gmUid: 'eve' });
+  await assertFails(getBytes(alice)); await assertSucceeds(getBytes(eve));
+  await store('alice').removeMember(group.id, 'bob');
+  await assertFails(getBytes(eve));
+});

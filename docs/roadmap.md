@@ -1,6 +1,6 @@
 # Implementation roadmap
 
-Last updated: 2026-09-23
+Last updated: 2026-09-30
 
 This is the living execution plan derived from the dated architecture audit. Step IDs are stable API-like identifiers for humans and agents: never rename or renumber an existing ID. Add a new ID if scope changes materially.
 
@@ -25,6 +25,20 @@ npm test
 ```
 
 For every Work Package B step, also run `npm run baseline:data` before editing. A step may add stricter preflight requirements in its own section. Live Drive access is required only where the step explicitly names `WPB-SOURCE-ACCESS` as a prerequisite.
+
+## Campaign-level work
+
+### `WPG-CAMPAIGNS`
+
+Status: `complete` (local implementation; production release separate)
+
+September 30 user-requested campaign scope runs independently of the remaining domain migration. Existing owner/Super GM character persistence and authentication are prerequisites and remain intact. Any player can create a campaign, invite members by private code/link, assign a joined member as GM, and attach an owned character from Characters. Campaign GMs can read only linked sheets; the existing global GM account becomes Super GM in the interface. No global campaign directory is permitted.
+
+Acceptance: validate private join/create/GM transitions, invitation rotation and disabling, detach/leave/removal revocation, unrelated-character denial, view-only sheet behavior and retained Super GM powers through emulator tests and local browser checks. Prove character save data/revisions remain unchanged by sharing. Update the security, architecture and campaign contracts; run `npm run test:all` plus the game-data baseline. Publish/deploy only upon separate explicit authorization. See [campaigns.md](campaigns.md).
+
+Delivered September 30: private 128-bit code/link invitations, creator-assigned GM, one campaign per character (confirmed by the user), reciprocal external links, read-only sheets and authenticated portraits, revocation, and retained global Super GM powers. Six new unit regressions and twelve emulator scenarios pass; final verification is 709 units / 34 emulator tests / 16 HTML assets plus the ten-artifact baseline. Browser checks prove create/join/sign-in, GM changes, character linking/reload, read-only controls, cancellation/focus and phone layout. Production requires matching Hosting/Firestore/Storage release approval and verification of bucket GET CORS/cross-service permission; no production operation occurred.
+
+Next: return to `WPE-DOMAIN-MIGRATION` compatibility and held supported mechanics, then `WPF-UI-SYSTEM` for shared controls, accessibility and navigation. Campaign completion does not complete those broader steps.
 
 ## Work Package A — save and preview safety
 

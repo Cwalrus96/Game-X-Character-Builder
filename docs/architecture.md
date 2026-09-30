@@ -22,12 +22,14 @@ Execution status and named steps live in [status.md](status.md) and [roadmap.md]
 Game X Character Builder is a static, Firebase-hosted web application:
 
 - Firebase Hosting serves HTML, CSS, browser ES modules, and reviewed generated game-data JSON.
-- Firebase Authentication identifies players and optional GMs.
-- Firestore stores character documents.
+- Firebase Authentication identifies players and the optional global Super GM (`gm` claim).
+- Firestore stores character documents and separately authorized campaigns and membership links.
 - Cloud Storage stores portraits.
 - A native Google Sheet is the editable source for structured rules data; the website never reads the live Sheet at runtime.
 
 The frontend deliberately has no bundler. Browser code under `public/` uses native ES modules. Node-based scripts are development/release tooling only.
+
+Campaign pages and the Characters-page sharing control use `campaign-client.js` / the injectable `campaign-store.js` for campaign membership, invitations and character links. This is a separate relationship boundary, not a second character persistence implementation. Roster character reads use the existing database reader. One external link per owned character grants its campaign's current GM read-only sheet access; no campaign fields are added to canonical character state, snapshots or revision metadata. Firebase rules enforce joins, role changes and paired links. The existing `gm` claim retains global account/character privileges and is labeled Super GM. See [campaigns.md](campaigns.md) for membership/query and release contracts.
 
 ## Architectural objective
 

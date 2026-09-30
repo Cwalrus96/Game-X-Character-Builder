@@ -1,0 +1,35 @@
+# Campaigns
+
+Status: complete locally, September 30, 2026 (`WPG-CAMPAIGNS`). Production release remains separately authorized.
+
+Any signed-in user can create a campaign. Its immutable creator (`ownerUid`) initially serves as GM and may assign any current member instead. Campaign GMs have read-only access to linked character sheets, not accounts, character collections, builder writes or portrait writes. The historical `gm` custom claim remains the separate **Super GM** privilege; ordinary campaign roles never create custom claims.
+
+Players join deliberately using a 128-bit cryptographically random code or its equivalent invite link. Only direct authenticated invite lookups are allowed; there is no campaign or invite directory. My Campaigns queries `memberUids array-contains currentUid`. The creator can replace or disable the invite. A campaign supports up to 500 members, bounding the membership document; the number of campaigns is not globally queried or capped.
+
+## Stored relationships
+
+- `campaigns/{campaignId}`: name, immutable ownerUid, gmUid, memberUids, inviteCode (empty when disabled), createdAt, updatedAt.
+- `campaigns/{campaignId}/members/{uid}`: uid, displayName, joinCode, joinedAt. Only the joining user supplies their own public display name; account email/profile documents remain private.
+- `campaignInvites/{code}`: campaignId only. Code ownership is immutable; replacement invalidates earlier codes against the campaign's current value.
+- `users/{uid}/characterCampaigns/{characterId}`: campaignId, rosterId. One campaign per character. Separate from canonical character documents and their revisions.
+- `campaigns/{campaignId}/characters/{rosterId}`: ownerUid, characterId. An atomic transaction pairs roster entries with the character link; names and sheet data come from the actual character, not a copied character model.
+
+Firestore rules validate shape, immutable ownership, invite proofs, membership transitions, GM assignment and reciprocal character links. A character read follows its link to the current campaign, verifies the requesting GM and the owner's active membership. Storage uses the same two-document authorization lookup. Other members may read campaign membership and roster references, but not other players' sheets. The creator can remove members; noncreator/non-GM members can leave. Reassign a departing GM first. The creator remains a member. Removed members' links remain dormant; joining again restores them. The UI explicitly explains this behavior. A player can detach their own character even after leaving. There is no campaign deletion/ownership-transfer feature in this step.
+
+`campaign-store.js` owns campaign and relationship persistence, not character saves. Character roster reads use the existing database reader. Campaign GM sheet routes suppress builder navigation, initialization, temporary-state autosave and appearance writes; Firebase rules independently deny writes. Owner and Super GM behavior remains compatible. Existing character documents need no migration.
+
+Character campaign changes show a save result. Page navigation and sign-out wait for pending campaign writes through the existing navigation guard. Membership-changing actions, invite replacement/disable and character switches/detachment use an accessible confirmation dialog backed by the existing dialog lifecycle; Cancel, Escape and close are side-effect free. Confirmed snapshot handling avoids opening protected children from optimistic, uncommitted membership state.
+
+## Verification
+
+The user confirmed one campaign per character. Preflight at `497f9d0` was clean: 703 unit tests, 15 HTML assets and the ten-artifact production baseline passed. Final `npm run test:all` passes **709 unit tests, 34 Firestore/Storage emulator tests and 16 HTML assets**. The ten-artifact baseline and `git diff --check` pass. Six new pure regressions cover invitation identity, input bounds, routes, role projection, confirmed listeners and safe login redirects. Twelve new emulator scenarios exercise the actual campaign store, valid/invalid shapes, authenticated joins, forged writes, role assignment/revocation, paired sharing/switches, leave/removal, canonical save/revision compatibility, portrait rules and retained Super GM access.
+
+Authenticated local browser checks cover creation; second-player join/share via the same client store; GM reassignment in both directions; restricted roster links; read-only sheet HP/notes/appearance, absent builder navigation, public member name and authenticated portrait; a signed-out invite through login; character linking and reload; detach confirmation/cancellation; Escape and restored focus; invite replacement cancellation; and 390px phone layouts without horizontal overflow. The local fixtures are `Campaign review – Night Watch`, `Campaign review – Starfall`, `Campaign Scout` and `Campaign Ranger`. Local Dev User has no Super GM claim; global permissions are verified by emulator tests. Existing imported review fixtures with inaccessible original portrait paths still emit expected thumbnail warnings; the campaign fixture's authenticated portrait loads successfully.
+
+Local preview: <http://localhost:5000/campaigns.html>. The local emulator was restarted with exported data preserved. Native browser confirmation stalled during testing, so the new campaign controls now use the tested page dialog. No production document, custom claim, source cell or generated runtime artifact was modified. No unrelated pre-existing worktree changes were present.
+
+Next named work returns to `WPE-DOMAIN-MIGRATION`: remaining compatibility-helper retirement and supported mechanics need focused character save/reload and dependency verification. `WPF-UI-SYSTEM` then consolidates controls, accessibility and navigation. This campaign feature does not complete either broader step; new source edits, data publishing and production deployment keep their separate approval boundaries.
+
+## Release boundary
+
+Local implementation and emulator verification are authorized. Production Hosting, Firestore rules and Storage rules require explicit release authorization as one compatible campaign feature. No game-data source edits, published data changes, production documents or custom claims are part of this work. Storage's cross-service Firestore access may require enabling the service permission at first production deployment; follow Firebase's [cross-service rules setup](https://firebase.google.com/docs/storage/security/rules-conditions#enhance_with_firestore). Campaign GM portrait display uses authenticated `getBlob` and a temporary object URL, following the [direct download API](https://firebase.google.com/docs/storage/web/download-files#download_data_directly_from_the_sdk). Before production release, verify bucket CORS allows GET from the deployed app origin; this configuration is not changed during local implementation. Previously downloaded data and existing bearer URLs cannot be recalled by membership changes.

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Game X – Campaigns</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="/css/characters.css" />
+  <link rel="stylesheet" href="/css/campaigns.css" />
+</head>
+<body data-theme="na" class="characters-home">
+  <div class="page">
+    <div class="topbar topbar-panel"></div>
+    <main class="campaign-layout">
+      <header><h1>Campaigns</h1><p class="muted">Bring your group together. Join with an invitation, then share a character with your GM.</p></header>
+      <p id="campaignStatus" role="status" aria-live="polite">Loading campaigns…</p>
+      <p id="campaignError" class="error" role="alert" hidden></p>
+      <section class="card" aria-labelledby="membershipTitle">
+        <h2 id="membershipTitle">Start playing</h2>
+        <label class="field-block">Your name in campaigns <input id="memberName" class="input" maxlength="32" autocomplete="nickname" required /></label>
+        <div class="campaign-start">
+          <form id="createCampaignForm">
+            <h3>Create a campaign</h3>
+            <label class="field-block">Campaign name <input id="campaignName" class="input" maxlength="80" required /></label>
+            <p class="sub">You’ll be the creator and first GM. You can assign a joined player as GM later.</p>
+            <button class="btn" type="submit">Create campaign</button>
+          </form>
+          <form id="joinCampaignForm">
+            <h3>Join a campaign</h3>
+            <label class="field-block">Invite code <input id="inviteCode" class="input" autocomplete="off" spellcheck="false" required /></label>
+            <p class="sub">Use the private code your campaign creator shared with you.</p>
+            <button class="btn secondary" type="submit">Join campaign</button>
+          </form>
+        </div>
+      </section>
+      <section class="card" aria-labelledby="myCampaignsTitle">
+        <h2 id="myCampaignsTitle">Your campaigns</h2>
+        <ul id="campaignList" class="list"></ul>
+        <p id="campaignEmpty" class="muted" hidden>You haven’t joined a campaign yet.</p>
+      </section>
+      <section id="campaignDetail" class="card" aria-live="polite" hidden></section>
+    </main>
+  </div>
+  <script type="module" src="/js/pages/campaigns.js?v=campaigns1"></script>
+</body>
+</html>

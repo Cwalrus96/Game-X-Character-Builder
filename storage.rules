@@ -15,6 +15,12 @@ service firebase.storage {
       return request.auth.uid == uid;
     }
 
+    function isCampaignGM(uid, charId) {
+      let link = firestore.get(/databases/(default)/documents/users/$(uid)/characterCampaigns/$(charId)).data;
+      let campaign = firestore.get(/databases/(default)/documents/campaigns/$(link.campaignId)).data;
+      return campaign.gmUid == request.auth.uid && uid in campaign.memberUids;
+    }
+
     // "Good enough" validation for portrait uploads.
     // - Restrict type to common raster image formats (avoid SVG for now)
     // - Restrict size to a reasonable max (5MB)
@@ -25,8 +31,7 @@ service firebase.storage {
     }
 
     match /portraits/{userId}/{charId}/{fileName} {
-      // Only the owner or a GM can read portraits.
-      allow read: if isSignedIn() && (isGM() || isSelf(userId));
+      allow read: if isSignedIn() && (isGM() || isSelf(userId) || isCampaignGM(userId, charId));
 
       // Deletion requests don't have request.resource, so validate separately.
       allow delete: if isSignedIn() && (isGM() || isSelf(userId));

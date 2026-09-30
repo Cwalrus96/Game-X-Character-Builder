@@ -1,0 +1,25 @@
+.campaign-layout { display: grid; gap: 20px; max-width: 1080px; margin: 0 auto; }
+.campaign-layout h1 { margin-bottom: 8px; }
+.campaign-layout h2 { margin-top: 0; }
+.campaign-layout .field-block { display: grid; gap: 6px; margin-bottom: 12px; min-width: 0; }
+.campaign-layout .input { width: 100%; box-sizing: border-box; min-height: 42px; min-width: 0; }
+.campaign-start { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+.campaign-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0; }
+.campaign-member { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; justify-content: space-between; }
+.campaign-invite { overflow-wrap: anywhere; padding: 14px; margin-top: 20px; background: var(--page-panel-strong); border: 1px solid var(--page-border); }
+.campaign-invite code { display: block; margin-bottom: 10px; user-select: all; font-size: 1rem; }
+.campaign-picker { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.characters-home .character-row .right { flex-wrap: wrap; }
+.characters-home .character-row .campaign-picker { flex-basis: 100%; }
+.campaign-picker select { max-width: 100%; min-height: 36px; }
+.campaign-picker label { font-size: .85rem; }
+.campaign-picker .sub { flex-basis: 100%; }
+.campaign-layout [hidden] { display: none !important; }
+.campaign-confirm { max-width: min(520px, calc(100vw - 56px)); padding: 24px; color: var(--page-text, #f4f0e8); background: var(--page-panel-strong, #191922); border: 2px solid var(--page-border, #eee); }
+.campaign-confirm::backdrop { background: rgba(0,0,0,.65); }
+@media (max-width: 680px) {
+  .campaign-start { grid-template-columns: 1fr; gap: 12px; }
+  .campaign-picker { flex-basis: 100%; }
+  .campaign-layout .card { padding: 16px; }
+  .characters-home .character-row .right { margin-left: 0; min-width: 0; }
+}

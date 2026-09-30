@@ -1,6 +1,6 @@
 import { db } from "../core/firebase.js";
 import { onAuth, signOutNow, initAuthRedirectHandling, getClaims } from "../core/auth-ui.js";
-import { ensureAppTopNav } from "../core/app-nav.js";
+import { ensureAppTopNav } from "../core/app-nav.js?v=campaigns1";
 
 import {
   collection,

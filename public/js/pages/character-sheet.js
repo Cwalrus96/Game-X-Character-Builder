@@ -47,7 +47,7 @@ import { renderGrantedWeaponHtml } from "../core/weapon-grant-display.js?v=weapo
 import { getFightingStyleProjection } from "../core/fighting-style-rules.js";
 import { renderTraitProjectionHtml } from "../core/trait-display.js";
 import { sortClassFeatureAbilitiesByLevel } from "../core/class-feature-display.js";
-import { ensureAppTopNav } from "../core/app-nav.js";
+import { ensureAppTopNav } from "../core/app-nav.js?v=campaigns1";
 import { renderBuilderNav } from "../builder/builder-nav.js";
 import {
   sanitizeCharName,
@@ -88,6 +88,7 @@ import {
 import {
   ref as storageRef,
   getDownloadURL,
+  getBlob,
 } from "/vendor/firebase/firebase-storage.js";
 
 (() => {
@@ -97,6 +98,7 @@ import {
   const urlParams = new URLSearchParams(window.location.search);
   const charIdParam = urlParams.get('charId');
   const requestedUidParam = urlParams.get('uid');
+  const campaignIdParam = urlParams.get('campaignId');
 
   if (!charIdParam) {
     window.location.replace('/characters.html');
@@ -106,6 +108,10 @@ import {
   let editingUid = null;           // resolved after auth (may be GM-selected)
   const editingCharId = charIdParam;
   let isGMUser = false;
+  let campaignReadOnly = false;
+  let campaignPlayerName = '';
+  let campaignPortraitUrl = '';
+  window.addEventListener('pagehide', () => { if (campaignPortraitUrl) URL.revokeObjectURL(campaignPortraitUrl); });
 
 // ---------- Firebase (Auth + Firestore) ----------
   let currentUser = null;
@@ -116,7 +122,7 @@ import {
   const CLOUD_SAVE_DEBOUNCE_MS = 1200;
 
   function cloudEnabled() {
-    return !!(currentUser && cloudDocRef && cloudReady);
+    return !!(currentUser && cloudDocRef && cloudReady && !campaignReadOnly);
   }
 
   async function flushPendingSheetSave() {
@@ -141,6 +147,14 @@ import {
 
     const mountEl = appNav.builderNavSlot;
     if (!mountEl || !characterDoc) return;
+    if (campaignReadOnly) {
+      const back = document.createElement('a');
+      back.className = 'btn secondary';
+      back.href = campaignIdParam ? `/campaigns.html?campaignId=${encodeURIComponent(campaignIdParam)}` : '/campaigns.html';
+      back.textContent = 'Back to campaign';
+      mountEl.append(back);
+      return;
+    }
     renderBuilderNav({
       mountEl,
       currentStepId: '',
@@ -607,6 +621,11 @@ async function renderBuilderWeaponsReadOnly(builder) {
     if (!p) return '';
     try {
       const r = storageRef(storage, p);
+      if (campaignReadOnly) {
+        if (campaignPortraitUrl) URL.revokeObjectURL(campaignPortraitUrl);
+        campaignPortraitUrl = URL.createObjectURL(await getBlob(r, 5 * 1024 * 1024));
+        return campaignPortraitUrl;
+      }
       return await getDownloadURL(r);
     } catch (e) {
       console.warn('getDownloadURL failed:', e);
@@ -622,6 +641,11 @@ async function renderBuilderWeaponsReadOnly(builder) {
       if (snap.exists()) {
         const raw = snap.data() || {};
         currentDoc = raw;
+        if (campaignReadOnly) {
+          const link = await getDoc(doc(db, 'users', editingUid, 'characterCampaigns', editingCharId));
+          const member = await getDoc(doc(db, 'campaigns', link.data().campaignId, 'members', editingUid));
+          campaignPlayerName = sanitizeText(member.data()?.displayName || 'Player', { maxLen: 32 });
+        }
 
         // Canonical read path (no legacy backfill):
         const b = (raw?.builder && typeof raw.builder === 'object') ? raw.builder : {};
@@ -688,12 +712,15 @@ async function renderBuilderWeaponsReadOnly(builder) {
         }
 
         cloudReady = true;
-        hpControl.setEnabled(true);
+        hpControl.setEnabled(!campaignReadOnly);
         sheetRolls.setReady(true);
-        sheetSettings.setReady(true);
+        sheetSettings.setReady(!campaignReadOnly);
+        if (campaignReadOnly) applyCampaignReadOnlyMode();
         sheetSaveCoordinator?.markClean();
         return;
       }
+
+      if (campaignReadOnly) throw new Error('This character is unavailable or no longer shared with you.');
 
       // No cloud doc yet → initialize from current sheet (local/default state)
       lockedAbilityNames = new Set();
@@ -809,7 +836,8 @@ async function renderBuilderWeaponsReadOnly(builder) {
         isGMUser = false;
       }
 
-      editingUid = (isGMUser && requestedUidParam) ? requestedUidParam : user.uid;
+      editingUid = requestedUidParam || user.uid;
+      campaignReadOnly = editingUid !== user.uid && !isGMUser;
       cloudDocRef = doc(db, 'users', editingUid, 'characters', editingCharId);
 
       const appNav = ensureAppTopNav({
@@ -846,6 +874,11 @@ async function renderBuilderWeaponsReadOnly(builder) {
   });
 
   function renderSheetSaveState(state = {}) {
+    if (campaignReadOnly && cloudReady) {
+      if (sheetSaveStatusEl) sheetSaveStatusEl.textContent = 'Campaign GM view · read only';
+      if (sheetSaveRetryEl) sheetSaveRetryEl.hidden = true;
+      return;
+    }
     const presentation = getSaveStatusPresentation(state);
 
     if (sheetSaveStatusEl) {
@@ -1200,7 +1233,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
       hpcur: '',
       ...(state.fields && typeof state.fields === 'object' ? state.fields : {}),
       charName: sanitizeCharName(canon?.name || ''),
-      playerName: editingUid === currentUser?.uid
+      playerName: campaignReadOnly ? campaignPlayerName : editingUid === currentUser?.uid
         ? accountDisplayName(currentUser)
         : sanitizeText(state.fields?.playerName || requestedUidParam || '', { maxLen: 120, collapse: true }),
       classSelect: classKey,
@@ -1242,6 +1275,17 @@ async function renderBuilderWeaponsReadOnly(builder) {
   function scheduleSave() {
     if (!cloudEnabled()) return;
     sheetSaveCoordinator?.markDirty();
+  }
+
+  function applyCampaignReadOnlyMode() {
+    sheetEl.querySelectorAll('input, textarea, select').forEach(control => { control.disabled = true; });
+    sheetEl.querySelectorAll('[data-action="remove"], button[id^="add"]').forEach(control => {
+      control.disabled = true; control.hidden = true;
+    });
+    const settings = document.getElementById('sheetSettingsButton');
+    if (settings) { settings.hidden = true; settings.style.display = 'none'; }
+    const hpHelp = document.getElementById('hpHelp');
+    if (hpHelp) hpHelp.textContent = 'Current HP is managed by the character’s owner.';
   }
 
   // ---------- Repeatable list utility (for Pass 2+) ----------
