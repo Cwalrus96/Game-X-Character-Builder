@@ -70,6 +70,13 @@ test("damage bands round down half damage and include every attainable critical 
   assert.equal(buildDamageBands(13, 5, { normalCritical: true }).at(-1).damage, 13);
 });
 
+test("on-hit damage is omitted from failures and included once before critical multiplication", () => {
+  const bands = buildDamageBands(13, 6, { onHitDamageBonus: 6 });
+  assert.deepEqual(bands.map(row => row.damage), [0, 6, 19, 38, 57, 76]);
+  assert.equal(buildDamageBands(13, 6, { normalCritical: true, onHitDamageBonus: 6 }).at(-1).damage, 19);
+  for (const onHitDamageBonus of [-1, 1.5, "6", NaN, Infinity]) assert.throws(() => buildDamageBands(13, 6, { onHitDamageBonus }));
+});
+
 test("compact damage formulas parse rank growth, weapon growth, area and Energy X", () => {
   for (const text of ["3 + Hits; +3 damage per rank above 0.", "3 + Hits, +3 damage per rank above 0", "3 + Hits; +3 damage per rank above 0, to each creature in the area."]) {
     const parsed = parseDamageFormula(text);

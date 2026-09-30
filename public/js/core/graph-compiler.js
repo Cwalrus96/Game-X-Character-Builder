@@ -11,6 +11,7 @@ import {
 import { resolveGrantChoiceIds } from "./choice-identity.js";
 import { projectTechniqueOwnership } from "./technique-ownership.js";
 import { getActiveCharacterGrantSources } from "./grant-source-rules.js";
+import { getFightingStylePrerequisiteEvidence } from "./fighting-style-rules.js";
 import { getDirectTechniqueGrantKeys, isTechniqueChoiceGrant, getTechniqueGrantSelectionState } from "./technique-grant-rules.js";
 import {
   getBondAllocationState,
@@ -991,6 +992,11 @@ function createCompilerContext({ character, gameData, registry, graph, classesBy
         if (evidenceId) graph.addEdge({ kind: "satisfies", from: evidenceId, to: requirementNodeId }, { path: `${path}.${index}` });
         for (const traitId of getTraitPrerequisiteEvidence(prerequisite, traitProjection)) {
           graph.addEdge({ kind: "satisfies", from: traitId, to: requirementNodeId }, { path: `${path}.${index}` });
+        }
+        for (const styleId of getFightingStylePrerequisiteEvidence(prerequisite, gameData, character.builder)) {
+          // Origin requirements may precede the active Class option. Edges allow
+          // forward references and finalization verifies both endpoints exist.
+          graph.addEdge({ kind: "satisfies", from: styleId, to: requirementNodeId }, { path: `${path}.${index}` });
         }
         const usesWeapons = rule => ["weapon", "weapon-set"].includes(rule.type) || (rule.type === "any" && rule.alternatives.some(usesWeapons));
         if (usesWeapons(prerequisite)) for (const weapon of traitProjection.weapons || []) {

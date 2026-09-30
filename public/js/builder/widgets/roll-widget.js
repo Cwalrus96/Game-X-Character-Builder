@@ -1,12 +1,14 @@
 import { ATTR_KEYS, labelForAttrKey } from "../../core/character-rules.js";
 import { escapeHtml } from "../../core/data-sanitization.js";
-import { buildDicePool, resolveDicePool, resolveRollOutcome, buildDamageBands } from "../../core/roll-rules.js";
+import { buildDicePool, resolveDicePool, resolveRollOutcome, buildDamageBands } from "../../core/roll-rules.js?v=weapon-styles1";
 import { calculateAttackDamage, parseDamageFormula, getDamagePumping } from "../../core/damage-rules.js";
-import { getRollSkills, getRollAttribute, getTechniqueRollChoices } from "../../core/sheet-roll-context.js?v=sheet-rolls2";
+import { getRollSkills, getRollAttribute, getTechniqueRollChoices } from "../../core/sheet-roll-context.js?v=weapon-styles3";
+import { getFightingStyleProjection } from "../../core/fighting-style-rules.js?v=weapon-styles3";
 import { randomDieFace } from "../../core/dice-random.js";
 import { restoreDialogFocus } from "../../core/dialog-lifecycle.js";
 import { renderDiceResults } from "./components/dice-view.js";
 import { normalizeAppearance } from "../../core/sheet-appearance.js";
+import { renderFightingStyleConditions, renderFightingStyleNotes } from "./components/roll-style-display.js?v=weapon-styles3";
 
 const esc = value => escapeHtml(String(value ?? ""));
 const option = (value, label) => `<option value="${esc(value)}">${esc(label)}</option>`;
@@ -30,6 +32,10 @@ export function createRollDialog({ nextFace = randomDieFace, onAppearanceChange 
         </div>
         <p id="roll-attribute-note" class="roll-help"></p>
         <p id="roll-defense" class="roll-help" hidden></p>
+        <fieldset id="roll-style-context" class="roll-style-context" hidden><legend>Fighting Style context</legend>
+          <p class="roll-help">Confirm conditions for this roll. Applied bonuses are already included; do not enter them again below.</p>
+          <div id="roll-style-conditions"></div><div id="roll-style-notes"></div>
+        </fieldset>
         <div class="roll-grid" id="roll-energy-fields">
           ${numberField("roll-energy", "Energy spent (X)", 0, "For formulas that explicitly include X.")}
           ${numberField("roll-pumping", "Additional pumping Energy", 0)}
@@ -58,6 +64,7 @@ export function createRollDialog({ nextFace = randomDieFace, onAppearanceChange 
         <div id="roll-faces" class="roll-faces" aria-label="Individual dice results"></div>
         <label class="roll-field roll-tn" for="roll-tn">TN <span class="roll-help">(optional)</span><input id="roll-tn" type="text" inputmode="numeric" autocomplete="off" placeholder="—" title="Changing TN uses these same dice and Hits."/></label>
         <p id="roll-outcome" role="status" aria-live="polite"></p>
+        <div id="roll-result-style-notes"></div>
         <div id="roll-damage"></div>
         <div class="roll-result-actions"><button type="button" class="sheet-roll-button" id="roll-again">Roll again</button><label class="roll-motion"><input type="checkbox" id="roll-animate"/> Animate dice</label></div>
       </section>
@@ -94,6 +101,29 @@ export function createRollDialog({ nextFace = randomDieFace, onAppearanceChange 
   function selectedSkill() { return el("roll-skill").value === "" ? null : skills[Number(el("roll-skill").value)] || null; }
   function showError(message = "") { el("roll-error").textContent = message; el("roll-error").hidden = !message; }
 
+  function styleConditions() {
+    return Object.fromEntries([...el("roll-style-conditions").querySelectorAll("[data-roll-style-condition]")]
+      .map(input => [input.dataset.rollStyleCondition, input.checked]));
+  }
+
+  function styleProjection(conditions = styleConditions()) {
+    const skill = selectedSkill();
+    const rollKind = skill?.attributes?.length === 2 ? "defense" : choice.profile?.defense || choice.profile?.damage ? "attack" : "check";
+    return { ...getFightingStyleProjection(request.gameData, request.builder, {
+      weapon: choice.weapon, profile: choice.profile, attackKind: choice.attackKind, rollKind, conditions,
+    }), conditions };
+  }
+
+  function updateStyleConditions({ reset = false } = {}) {
+    const conditions = reset ? {} : styleConditions();
+    const projection = styleProjection(conditions);
+    const focusedCondition = document.activeElement?.dataset?.rollStyleCondition;
+    el("roll-style-context").hidden = !projection.conditionChoices.length && !projection.reminders.length;
+    el("roll-style-conditions").innerHTML = renderFightingStyleConditions(projection, conditions);
+    if (focusedCondition) [...el("roll-style-conditions").querySelectorAll("[data-roll-style-condition]")]
+      .find(input => input.dataset.rollStyleCondition === focusedCondition)?.focus({ preventScroll: true });
+  }
+
   function configuration() {
     if (!choice) throw new Error("Choose an available attack.");
     const skill = selectedSkill();
@@ -101,8 +131,10 @@ export function createRollDialog({ nextFace = randomDieFace, onAppearanceChange 
     if (!choice.noRoll && (!skill || !ATTR_KEYS.includes(attributeKey))) throw new Error("Choose an Attribute and Skill before rolling.");
     const rank = skill?.rank ?? 0;
     const attribute = choice.noRoll ? 0 : Number(request.builder.attributes?.[attributeKey] ?? 0);
+    const styles = styleProjection();
     const modifiers = ["roll-circumstance", "roll-equipment", "roll-status", "roll-other"].map(id => readNumber(id, { half: true }));
     modifiers.push(choice.adjustments?.dice || 0);
+    modifiers.push(styles.rollEffects.defenseDiceBonus || 0);
     const pool = buildDicePool({ attribute, skillRank: choice.noRoll ? 0 : rank, modifiers: choice.noRoll ? [] : modifiers });
     const damageArgs = { profile: choice.profile, skillRank: rank, weaponRank: choice.weapon?.rank ?? null,
       energy: el("roll-energy").disabled ? 0 : readNumber("roll-energy"),
@@ -111,7 +143,8 @@ export function createRollDialog({ nextFace = randomDieFace, onAppearanceChange 
     const damage = calculateAttackDamage({ ...damageArgs, hits: 0 });
     return { title: request.technique?.techniqueName || `${labelForAttrKey(attributeKey)} (${skill?.name || "Skill"})`,
       source: choice.label, attributeKey, skill: skill ? { name: skill.name, rank } : null, pool, damageArgs,
-      noRoll: choice.noRoll, profiles: choice.profiles, normalCritical: el("roll-critical-mode").value === "normal", damagePreview: damage };
+      noRoll: choice.noRoll, profiles: choice.profiles, normalCritical: el("roll-critical-mode").value === "normal", damagePreview: damage,
+      styles: { ...styles, triggeredEffects: styleProjection({ ...styles.conditions, criticalSuccess: true }).triggeredEffects } };
   }
 
   function poolText(pool) {
@@ -121,6 +154,7 @@ export function createRollDialog({ nextFace = randomDieFace, onAppearanceChange 
   function preview() {
     try {
       const config = configuration();
+      el("roll-style-notes").innerHTML = renderFightingStyleNotes(config.styles);
       const pool = config.pool;
       el("roll-pool").textContent = config.noRoll ? "This technique has no independent roll."
         : pool.reason || `${labelForAttrKey(config.attributeKey)} ${pool.attribute} + ${config.skill.name} ${pool.skillRank}${pool.adjustment ? ` ${pool.adjustment >= 0 ? "+" : "−"} ${Math.abs(pool.adjustment)} modifier dice` : ""} → ${poolText(pool)}`;
@@ -128,12 +162,13 @@ export function createRollDialog({ nextFace = randomDieFace, onAppearanceChange 
       showError();
     } catch (error) {
       el("roll-pool").textContent = "";
+      el("roll-style-notes").innerHTML = choice ? renderFightingStyleNotes(styleProjection()) : "";
       el("roll-submit").disabled = true;
       showError(el("roll-skill").value && el("roll-attribute").value ? error.message : "");
     }
   }
 
-  function updateSkill() {
+  function updateSkill({ resetStyles = false } = {}) {
     const skill = selectedSkill();
     const attribute = getRollAttribute(choice.profile, skill, request.builder, request.gameData);
     const allowed = attribute.fixed ? [attribute.key] : skill?.attributes || ATTR_KEYS;
@@ -150,6 +185,7 @@ export function createRollDialog({ nextFace = randomDieFace, onAppearanceChange 
     el("roll-pumping").disabled = pumping.perEnergy <= 0;
     el("roll-pumping").closest("label").hidden = pumping.perEnergy <= 0;
     el("roll-energy-fields").hidden = !formula.energyVariable && pumping.perEnergy <= 0;
+    updateStyleConditions({ reset: resetStyles });
     preview();
   }
 
@@ -184,6 +220,7 @@ export function createRollDialog({ nextFace = randomDieFace, onAppearanceChange 
     el("roll-energy").value = "0";
     el("roll-pumping").value = "0";
     renderRules(choice.profiles);
+    updateStyleConditions({ reset: true });
     updateSkill();
   }
 
@@ -197,6 +234,7 @@ export function createRollDialog({ nextFace = randomDieFace, onAppearanceChange 
     try {
       const tn = readNumber("roll-tn", { blank: null });
       const outcome = current.config.noRoll ? null : resolveRollOutcome(current.roll.hits, tn);
+      el("roll-result-style-notes").innerHTML = renderFightingStyleNotes(current.config.styles, { criticalSuccess: outcome?.key === "criticalSuccess", includeConditions: true });
       el("roll-tn").setAttribute("aria-invalid", "false");
       current.tn = tn;
       el("roll-outcome").textContent = outcome
@@ -211,9 +249,12 @@ export function createRollDialog({ nextFace = randomDieFace, onAppearanceChange 
         return;
       }
       const breakdown = damage.parts.map(part => `${esc(part.label)} ${part.value}`).join(" + ");
-      let html = `<p class="roll-damage-summary"><strong>Full damage: ${damage.total}</strong><span class="roll-help">Before armor / resistance</span></p>`;
+      const bands = current.config.noRoll ? [] : buildDamageBands(damage.total, current.roll.hits, {
+        normalCritical: current.config.normalCritical, onHitDamageBonus: current.config.styles.rollEffects.damageBonus || 0,
+      });
+      const successDamage = bands.find(band => band.key === "success")?.damage ?? damage.total;
+      let html = `<p class="roll-damage-summary"><strong>Full damage: ${successDamage}</strong><span class="roll-help">Before armor / resistance</span></p>`;
       if (!current.config.noRoll) {
-        const bands = buildDamageBands(damage.total, current.roll.hits, { normalCritical: current.config.normalCritical });
         html += `<div class="roll-table-wrap"><table class="roll-damage-table"><thead><tr><th scope="col">Outcome</th><th scope="col">Margin</th><th scope="col">Damage</th></tr></thead><tbody>${bands.map(band => {
           const active = outcome?.key === band.key && (band.key !== "criticalSuccess" || outcome.criticals === band.tier);
           return `<tr ${active ? 'class="roll-selected" aria-current="true"' : ""}><th scope="row">${active ? "✓ " : ""}${band.label}</th><td>${band.margin}</td><td><strong>${band.damage}</strong></td></tr>`;
@@ -221,9 +262,10 @@ export function createRollDialog({ nextFace = randomDieFace, onAppearanceChange 
         const effectBands = bands.filter((band, i) => bands.findIndex(other => other.key === band.key) === i && effects(band.key));
         if (effectBands.length) html += `<details><summary>Outcome effects</summary>${effectBands.map(band => `<p class="roll-band-effects"><strong>${esc(band.key === "criticalSuccess" ? "Critical success" : band.label)}:</strong> ${esc(effects(band.key))}</p>`).join("")}</details>`;
       }
-      html += `<details><summary>Damage calculation</summary><p class="roll-help">${breakdown} = ${damage.total}</p></details>`;
+      html += `<details><summary>Damage calculation</summary><p class="roll-help">${breakdown} = ${damage.total}${current.config.styles.rollEffects.damageBonus ? ` before the +${current.config.styles.rollEffects.damageBonus} Fighting Style bonus on a hit` : ""}</p></details>`;
       el("roll-damage").innerHTML = html;
     } catch (error) {
+      el("roll-result-style-notes").innerHTML = renderFightingStyleNotes(current.config.styles, { includeConditions: true });
       el("roll-tn").setAttribute("aria-invalid", "true");
       el("roll-outcome").hidden = false;
       el("roll-outcome").textContent = error.message;
@@ -273,7 +315,8 @@ export function createRollDialog({ nextFace = randomDieFace, onAppearanceChange 
   el("roll-submit").addEventListener("click", roll);
   el("roll-again").addEventListener("click", event => roll(event, current?.config));
   el("roll-attack").addEventListener("change", updateChoice);
-  el("roll-skill").addEventListener("change", updateSkill);
+  el("roll-skill").addEventListener("change", () => updateSkill({ resetStyles: true }));
+  el("roll-style-conditions").addEventListener("change", () => { updateStyleConditions(); preview(); });
   el("roll-setup").addEventListener("input", preview);
   el("roll-setup").addEventListener("change", preview);
   el("roll-tn").addEventListener("input", renderOutcome);

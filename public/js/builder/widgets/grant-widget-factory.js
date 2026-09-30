@@ -137,6 +137,8 @@ export function createGrantWidgets({
           choice: grantChoiceState?.getChoice(choiceId),
           weaponBases,
           weaponEnhancements,
+          gameData,
+          getBuilder,
           forcedEnhancements,
           getGrantChoices,
           getExistingWeapons,

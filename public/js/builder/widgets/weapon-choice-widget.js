@@ -5,10 +5,10 @@ import { EquipmentChoiceWidget } from "./equipment-choice-widget.js?v=choices5";
 import { weaponMatchesGrant } from "../../core/weapon-grant-rules.js";
 
 export class WeaponChoiceWidget extends EquipmentChoiceWidget {
-  constructor(page, { grant, choice, weaponBases, weaponEnhancements, forcedEnhancements = [], getGrantChoices = null, getExistingWeapons = null, onChange, scope = "dynamic" } = {}) {
+  constructor(page, { grant, choice, weaponBases, weaponEnhancements, gameData = null, getBuilder = null, forcedEnhancements = [], getGrantChoices = null, getExistingWeapons = null, onChange, scope = "dynamic" } = {}) {
     const choiceId = sanitizeText(grant?.choiceId || choice?.choiceId, { maxLen: 96, collapse: true });
     super(page, { id: `weapon-choice:${choiceId}`, scope, element: document.createElement("div") });
-    Object.assign(this, { grant, choice, choiceId, weaponBases, weaponEnhancements, forcedEnhancements, getGrantChoices, getExistingWeapons, onChange });
+    Object.assign(this, { grant, choice, choiceId, weaponBases, weaponEnhancements, gameData, getBuilder, forcedEnhancements, getGrantChoices, getExistingWeapons, onChange });
     this.render();
   }
   getSavePatch({ currentDoc = {}, currentPatch = {}, grantChoices = null } = {}) {
@@ -21,7 +21,7 @@ export class WeaponChoiceWidget extends EquipmentChoiceWidget {
     const rank = Number.parseInt(String(this.grant?.rank ?? 1), 10) || 1;
     const options = getSelectableWeaponBases(this.weaponBases, { maxRank: rank, allowGrantedOnly: true })
       .filter(definition => weaponMatchesGrant(definition, this.grant)).sort((a, b) => String(a.name).localeCompare(String(b.name)));
-    this.element.innerHTML = this.errorHtml() + this.renderWeaponChoice({ id: this.choiceId, options, weaponBases: this.weaponBases,
+    this.element.innerHTML = this.errorHtml() + this.renderWeaponChoice({ id: this.choiceId, options, weaponBases: this.weaponBases, gameData: this.gameData, builder: this.getBuilder?.(),
       weapon: { ...choice, rank: Number(choice?.rank || rank), enhancements: choice?.enhancements || this.forcedEnhancements }, rank, enhancements: this.forcedEnhancements,
       help: this.forcedEnhancements.length ? `Granted enhancement: ${this.forcedEnhancements.map(entry => getEnhancementDef(this.weaponEnhancements, entry.enhancementKey)?.name || entry.enhancementKey).join(", ")}` : "",
       onChange: weaponKey => this.onChange?.({ type: "weapon", weaponKey, rank }),

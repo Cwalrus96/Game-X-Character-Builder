@@ -14,7 +14,7 @@ import { computeGrantedSkillsState } from "../../core/skill-rules.js";
 import { isGameDataRecordSelectable } from "../../core/selection-rules.js";
 import { isSourceOwnedWeapon } from "../../core/grants.js";
 import { projectCharacterTraits } from "../../core/trait-projection.js";
-import { renderGrantedWeaponHtml } from "../../core/weapon-grant-display.js?v=natural-weapons2";
+import { renderGrantedWeaponHtml } from "../../core/weapon-grant-display.js?v=weapon-styles1";
 import {
   MAX_WEAPON_SLOTS,
   computeEnhancementCapacity,
@@ -157,7 +157,7 @@ export class EquipmentWidget extends EquipmentChoiceWidget {
     return `<article class="optionRow equipmentWeaponRow">
       <div class="cardHeaderRow"><h3>${escapeHtml(weapon.customName || definition?.name || weapon.weaponKey)}</h3>${sourceOwned ? '<span class="pill">Granted weapon</span>' : ""}</div>
       ${sourceOwned ? '<p class="help">Weapon type and rank come from its granting feature. Add or change optional enhancements here.</p>' : ""}
-      ${this.renderWeaponChoice({ id: `${weapon.id}:base`, options: bases, weapon, weaponBases: this.weaponBases, rank: weapon.rank, allowEmpty: false, disabled: sourceOwned,
+      ${this.renderWeaponChoice({ id: `${weapon.id}:base`, options: bases, weapon, weaponBases: this.weaponBases, gameData: this.gameData, builder: this.character.builder, rank: weapon.rank, allowEmpty: false, disabled: sourceOwned,
         onChange: key => this.#changeWeaponBase(weapon.id, key),
       })}
       <div class="equipmentGrid">
@@ -186,7 +186,7 @@ export class EquipmentWidget extends EquipmentChoiceWidget {
     elements.equipmentStatusHint.textContent = this.weapons.length || derived.length ? "Ready." : "No weapons selected.";
     const visible = this.#visibleWeapons().sort((a, b) => String(a.name).localeCompare(String(b.name)));
     const draft = getWeaponDef(this.weaponBases, this.draftWeaponKey);
-    elements.weaponBaseSelect.innerHTML = this.renderWeaponChoice({ id: "equipment-new-weapon", options: visible, weaponBases: this.weaponBases,
+    elements.weaponBaseSelect.innerHTML = this.renderWeaponChoice({ id: "equipment-new-weapon", options: visible, weaponBases: this.weaponBases, gameData: this.gameData, builder: this.character.builder,
       weapon: draft ? { weaponKey: draft.weaponKey, rank: Number(draft.minRank || 0), enhancements: [] } : null,
       onChange: key => { this.draftWeaponKey = key; return { ok: true }; },
     });

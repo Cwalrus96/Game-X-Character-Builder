@@ -3,6 +3,7 @@ import { sanitizeText, sanitizeStringArray } from "./data-sanitization.js";
 import { canonicalSkillName } from "./skill-identity.js";
 import { choiceReferenceLabel } from "./choice-identity.js";
 import { RUNTIME_PREREQUISITE_TYPES } from "./game-data-contract.js";
+import { getActiveFightingStyles, applyFightingStyleWeaponTags } from "./fighting-style-rules.js";
 import {
   formatExpressionDiagnostic,
   normalizeExpressionObject,
@@ -315,7 +316,7 @@ export function createPrerequisiteContext(input = {}) {
   const classKey = sanitizeText(builder.classKey || "", { maxLen: 64, collapse: true });
   const originKey = sanitizeText(builder.originKey || "", { maxLen: 64, collapse: true });
 
-  return {
+  const context = {
     builder,
     gameData,
     syntaxVersion: Number(source.syntaxVersion ?? source.expressionSyntaxVersion ?? gameData.expressionSyntaxVersion ?? 2),
@@ -347,7 +348,27 @@ export function createPrerequisiteContext(input = {}) {
     weapons: source.weapons ?? collectWeapons(builder, gameData),
     resolveChoice: typeof source.resolveChoice === "function" ? source.resolveChoice : null,
     deferUnresolvedChoices: !!source.deferUnresolvedChoices,
+    skipFightingStyleTags: source.skipFightingStyleTags === true,
   };
+  if (!context.skipFightingStyleTags && classKey === "weapon-master" && valuesFor(builder.selectedClassFeatureOptions).includes("barrage-style")) {
+    const styles = getActiveFightingStyles(gameData, builder, context);
+    const projectWeapon = weapon => {
+      const tags = applyFightingStyleWeaponTags(valuesFor(weapon.effectiveTags || weapon.tags).length
+        ? valuesFor(weapon.effectiveTags || weapon.tags) : weaponBaseTags(gameData, weapon.weaponKey), styles);
+      return { ...weapon, tags, effectiveTags: tags };
+    };
+    context.weapons = context.weapons.map(projectWeapon);
+    context.choices = new Map([...context.choices].map(([key, choice]) => [key,
+      choice?.weaponKey ? projectWeapon(choice) : choice]));
+    if (context.resolveChoice) {
+      const resolveChoice = context.resolveChoice;
+      context.resolveChoice = (choiceRef, currentContext) => {
+        const choice = resolveChoice(choiceRef, currentContext);
+        return choice?.weaponKey && !currentContext?.skipFightingStyleTags ? projectWeapon(choice) : choice;
+      };
+    }
+  }
+  return context;
 }
 
 function getChoice(ctx, choiceRef) {

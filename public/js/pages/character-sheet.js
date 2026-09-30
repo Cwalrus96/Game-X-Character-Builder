@@ -36,14 +36,15 @@ import {
   renderTagChipsHtml,
   summarizeWeaponProfilesHtml,
   renderEnhancementDetailHtml,
-} from "../core/weapon-utils.js?v=sheet-rolls7";
+} from "../core/weapon-utils.js?v=weapon-styles1";
 import { renderTechniqueProfileHtml } from "../core/technique-utils.js?v=sheet-rolls7";
 import { projectCharacterTraits } from "../core/trait-projection.js";
 import { projectSheetTechniques } from "../core/sheet-technique-projection.js";
 import { projectCharacterKeystones } from "../core/keystone-projection.js";
 import { decodeStoredCharacter } from "../core/character-persistence.js?v=wpe6";
 import { createCharacterMigrationReferences } from "../core/character-migrations.js?v=wpe6";
-import { renderGrantedWeaponHtml } from "../core/weapon-grant-display.js?v=sheet-rolls7";
+import { renderGrantedWeaponHtml } from "../core/weapon-grant-display.js?v=weapon-styles1";
+import { getFightingStyleProjection } from "../core/fighting-style-rules.js";
 import { renderTraitProjectionHtml } from "../core/trait-display.js";
 import { sortClassFeatureAbilitiesByLevel } from "../core/class-feature-display.js";
 import { ensureAppTopNav } from "../core/app-nav.js";
@@ -67,7 +68,7 @@ import {
 import { createSaveCoordinator } from "../core/save-coordinator.js";
 import { getSaveStatusPresentation } from "../core/save-status.js";
 import { createSheetHpControl } from "./sheet-hp-control.js";
-import { createSheetRolls } from "./sheet-rolls.js?v=dice3d1";
+import { createSheetRolls } from "./sheet-rolls.js?v=weapon-styles1";
 import { createSheetSettings } from "../builder/widgets/sheet-settings.js";
 import {
   createNavigationGuard,
@@ -500,10 +501,11 @@ async function renderBuilderWeaponsReadOnly(builder) {
       const weaponDef = getWeaponDef(weaponBases, weapon.weaponKey);
       const displayName = sanitizeText(weapon.customName || weaponDef?.name || weapon.weaponKey || `Weapon ${index + 1}`, { maxLen: 160, collapse: true });
       const baseName = sanitizeText(weaponDef?.name || weapon.weaponKey || "", { maxLen: 160, collapse: true });
-      const tags = getEffectiveTags(weapon, weaponBases);
+      const fightingStyle = getFightingStyleProjection(gameData, b, { weapon: { ...weapon, effectiveTags: getEffectiveTags(weapon, weaponBases) } });
+      const tags = fightingStyle.effectiveWeaponTags;
       const slotCost = computeWeaponSlotCost(weapon, weaponBases);
       const profilesHtml = weaponDef
-        ? summarizeWeaponProfilesHtml(weaponDef, weapon.rank, { renderRollButton: technique => sheetRolls.buttonFor(technique, { weaponId: weapon.id || `sheet-weapon-${index}` }) }).replace(/equipmentMetaList/g, 'weapon-profile-list')
+        ? summarizeWeaponProfilesHtml(weaponDef, weapon.rank, { weapon, fightingStyle, renderRollButton: technique => sheetRolls.buttonFor(technique, { weaponId: weapon.id || `sheet-weapon-${index}` }) }).replace(/equipmentMetaList/g, 'weapon-profile-list')
         : '<div class="muted">Unknown weapon base.</div>';
       const enhancements = Array.isArray(weapon.enhancements) ? weapon.enhancements : [];
       const enhancementsHtml = enhancements.length

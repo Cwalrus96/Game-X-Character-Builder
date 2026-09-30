@@ -40,18 +40,20 @@ export function resolveRollOutcome(hits, targetNumber) {
   return Object.freeze({ key, label, margin, criticals, multiplier: criticals ? 1 + criticals : margin >= 0 ? 1 : margin >= -3 ? 0.5 : 0 });
 }
 
-export function buildDamageBands(fullDamage, hits, { normalCritical = false } = {}) {
+export function buildDamageBands(fullDamage, hits, { normalCritical = false, onHitDamageBonus = 0 } = {}) {
   requireRollNumber(fullDamage, "Damage", { max: 1000000 });
+  requireRollNumber(onHitDamageBonus, "On-hit damage bonus", { max: 1000000 });
   requireRollNumber(hits, "Hits", { max: 100000 });
+  const hitDamage = fullDamage + onHitDamageBonus;
   const rows = [
     { key: "criticalFailure", label: "Critical failure", margin: "−4 or less", damage: 0, multiplier: 0 },
     { key: "failure", label: "Failure", margin: "−3 to −1", damage: Math.floor(fullDamage / 2), multiplier: 0.5 },
-    { key: "success", label: "Success", margin: "0 to +2", damage: fullDamage, multiplier: 1 },
+    { key: "success", label: "Success", margin: "0 to +2", damage: hitDamage, multiplier: 1 },
   ];
   // Include every attainable tier with nonnegative TN, plus the first three for reference.
   for (let tier = 1; tier <= Math.max(3, Math.floor(hits / 3)); tier += 1) {
     rows.push({ key: "criticalSuccess", tier, label: `Critical success ×${normalCritical ? 1 : tier + 1}`,
-      margin: `+${tier * 3} to +${tier * 3 + 2}`, damage: fullDamage * (normalCritical ? 1 : tier + 1), multiplier: normalCritical ? 1 : tier + 1 });
+      margin: `+${tier * 3} to +${tier * 3 + 2}`, damage: hitDamage * (normalCritical ? 1 : tier + 1), multiplier: normalCritical ? 1 : tier + 1 });
   }
   return rows;
 }

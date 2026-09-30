@@ -4,6 +4,7 @@ import { renderTagChipsHtml, renderTechniqueProfileHtml } from "./technique-util
 import { canonicalSkillName, RANGED_WEAPONS_SKILL } from "./skill-identity.js";
 import { isGameDataRecordSelectable } from "./selection-rules.js";
 import { PRIMAL_ELEMENTS } from "./element-rules.js";
+import { getWeaponAttackProfile } from "./weapon-attack-rules.js";
 
 export const MAX_WEAPON_SLOTS = 4;
 
@@ -200,7 +201,7 @@ export function formatAttackLine(profile, weaponRank) {
   return pump ? `${baseLine} ${pump}.` : baseLine;
 }
 
-export function summarizeWeaponProfilesHtml(weaponDef, weaponRank, { renderRollButton = () => "" } = {}) {
+export function summarizeWeaponProfilesHtml(weaponDef, weaponRank, { weapon = null, fightingStyle = null, renderRollButton = () => "" } = {}) {
   const profiles = Array.isArray(weaponDef?.profiles) ? weaponDef.profiles : [];
   const blocks = [];
 
@@ -210,17 +211,28 @@ export function summarizeWeaponProfilesHtml(weaponDef, weaponRank, { renderRollB
     let heading = rawName || "Profile";
     if (type === "criticalEffect") heading = `Critical Effect — ${rawName || "Critical Effect"}`;
     if (type === "alternateUse") heading = `Alternate Use — ${rawName || "Alternate Use"}`;
-    blocks.push(renderTechniqueProfileHtml(profile, { rankValue: weaponRank, heading, headingTag: "div", headingClass: "combat-profile-title", showRank: false, gameData: { techniques: profiles }, rollButtonHtml: renderRollButton(profile) }));
+    blocks.push(renderTechniqueProfileHtml(getWeaponAttackProfile(profile, weapon, { profiles }), { rankValue: weaponRank, heading, headingTag: "div", headingClass: "combat-profile-title", showRank: false, gameData: { techniques: profiles }, rollButtonHtml: renderRollButton(profile) }));
   }
 
   if (!blocks.length && weaponDef?.description) {
     blocks.push(`<div class="combat-profile"><div class="combat-profile-line">${safeHtmlText(sanitizeText(weaponDef.description, { maxLen: 1200, collapse: true }), 1200)}</div></div>`);
   }
 
-  return `<div class="equipmentMetaList">${blocks.join("")}</div>`;
+  return `<div class="equipmentMetaList">${blocks.join("")}${renderWeaponStyleDetailsHtml(fightingStyle)}</div>`;
 }
 
 export { renderTagChipsHtml, renderTechniqueProfileHtml as renderCombatProfileHtml };
+
+/** Display derived play benefits without inventing Technique acquisitions or rolls. */
+export function renderWeaponStyleDetailsHtml(projection) {
+  if (!projection) return "";
+  const reminders = (projection.reminders || []).map(reminder => {
+    const style = projection.activeStyles.find(entry => entry.key === reminder.styleKey);
+    return `<div class="combat-profile-line"><strong>${safeHtmlText(style?.name || "Fighting Style", 200)}:</strong> ${safeHtmlText(reminder.text, 2000)}</div>`;
+  }).join("");
+  const actions = (projection.grantedActions || []).map(action => `<div class="combat-profile"><div class="combat-profile-title">${safeHtmlText(action.name, 200)}</div><div class="combat-profile-line">${safeHtmlText(action.description, 2000)}</div></div>`).join("");
+  return reminders + actions;
+}
 
 export function renderEnhancementDetailHtml(enhancementDef, enhancement, { collapsible = false } = {}) {
   const label = sanitizeText(enhancementDef?.name || enhancement?.enhancementKey || "Unknown Enhancement", { maxLen: 120, collapse: true });

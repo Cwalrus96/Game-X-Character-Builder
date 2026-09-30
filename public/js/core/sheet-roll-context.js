@@ -6,6 +6,8 @@ import { evaluatePrerequisite } from "./prerequisite-rules.js";
 import { isGameDataRecordExecutable } from "./selection-rules.js";
 import { getEffectiveTags } from "./weapon-utils.js";
 import { parseDamageFormula } from "./damage-rules.js";
+import { getWeaponAttackProfile, getWeaponBasicAttacks, getWeaponAttackKind } from "./weapon-attack-rules.js";
+import { getFightingStyleProjection } from "./fighting-style-rules.js";
 
 const DEFENSE_ATTRIBUTES = Object.freeze({ rank_physdef: ["strength", "agility"], rank_mentdef: ["intellect", "willpower"], rank_spiritdef: ["attunement", "heart"] });
 const sameSkill = (a, b) => canonicalSkillKey(a) === canonicalSkillKey(b);
@@ -82,11 +84,15 @@ export function getTechniqueRollAdjustments(profiles) {
 export function getTechniqueRollChoices({ technique, gameData, builder, weaponId = "", provider = null }) {
   const skills = getRollSkills(gameData, builder);
   const initial = createTechniqueContext({ gameData, builder });
-  const weapons = initial.weapons.map((weapon, index) => ({ ...weapon,
-    id: weapon.id || `sheet-weapon-${index}`,
-    tags: getEffectiveTags(weapon, gameData.weaponBases),
-    name: weapon.customName || weapon.name || (gameData.weaponBases || []).find(base => base.weaponKey === weapon.weaponKey)?.name || weapon.weaponKey,
-  }));
+  const weapons = initial.weapons.map((weapon, index) => {
+    const effectiveTags = getEffectiveTags(weapon, gameData.weaponBases);
+    const fightingStyle = getFightingStyleProjection(gameData, builder, { weapon: { ...weapon, effectiveTags } });
+    return { ...weapon,
+      id: weapon.id || `sheet-weapon-${index}`,
+      tags: fightingStyle.effectiveWeaponTags, effectiveTags: fightingStyle.effectiveWeaponTags,
+      name: weapon.customName || weapon.name || (gameData.weaponBases || []).find(base => base.weaponKey === weapon.weaponKey)?.name || weapon.weaponKey,
+    };
+  });
   const context = { ...initial, weapons, skillRanks: new Map([...initial.skillRanks, ...skills.map(skill => [skill.name, skill.rank])]) };
   const choices = [], diagnostics = [];
   const byKey = new Map((gameData.techniques || []).map(row => [row.techniqueKey, row]));
@@ -96,7 +102,7 @@ export function getTechniqueRollChoices({ technique, gameData, builder, weaponId
     const keys = weapon.techniqueKeys || base?.techniqueKeys || [];
     // Offer direct damaging attacks explicitly linked to this weapon. If more
     // than one qualifies, the player chooses; source ordering is not a rule.
-    return keys.map(key => byKey.get(key)).filter(row => row && row.rollRequired === true && !row.basicAttack?.length && row.damage);
+    return getWeaponBasicAttacks(keys.map(key => byKey.get(key)));
   };
 
   function visit(profile, selectedWeapon, overrides = {}, ancestors = []) {
@@ -134,12 +140,9 @@ export function getTechniqueRollChoices({ technique, gameData, builder, weaponId
       const supplied = weapon?.derived ? { skillName: weapon.associatedSkill, rank: weapon.rank, weaponId: weapon.id, sourceLabel: weapon.sourceLabel }
         : provider && (!provider.weaponId || provider.weaponId === weapon?.id) ? provider : null;
       const options = performances(profile, scoped, supplied, skills);
-      let resolved = { ...profile, ...overrides };
-      if (resolved.attribute === "Weapon Attribute" && weapon) {
-        const attributes = [...new Set(basicOptions(weapon).map(row => row.attribute).filter(Boolean))];
-        if (attributes.length === 1) resolved.attribute = attributes[0];
-      }
+      const resolved = getWeaponAttackProfile(profile, weapon, { profiles: weapon ? basicOptions(weapon) : [], overrides });
       choices.push({ id: `${choices.length}`, profile: resolved, profiles: chain, weapon,
+        attackKind: getWeaponAttackKind(chain),
         label: [profile.techniqueName, weapon?.name].filter(Boolean).join(" · "),
         skills: options.length ? options : skills, manualSkill: !options.length,
         noRoll: profile.rollRequired === false,

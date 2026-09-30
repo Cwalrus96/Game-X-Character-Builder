@@ -4,13 +4,13 @@ import { getEnhancementSelectionSpecs, renderEnhancementDetailHtml } from "../..
 
 /** Equipment and grant editors compose the same item pickers, with injected Rules options. */
 export class EquipmentChoiceWidget extends CatalogueWidget {
-  renderWeaponChoice({ id, options, weapon, weaponBases, rank = null, enhancements = [], ...config }) {
+  renderWeaponChoice({ id, options, weapon, weaponBases, gameData = null, builder = null, rank = null, enhancements = [], ...config }) {
     const retained = weaponBases.find(entry => entry.weaponKey === weapon?.weaponKey && !options.some(option => option.weaponKey === entry.weaponKey));
     const visible = (retained ? [...options, retained] : [...options]).sort((a, b) => String(a.name).localeCompare(String(b.name)));
     return this.renderChoice({ id, label: "Weapon", placeholder: "Choose a weapon…", emptyLabel: "No weapon selected", value: weapon?.weaponKey,
       ...config,
       options: visible.map(definition => ({ key: definition.weaponKey, name: definition.name, disabled: definition === retained,
-        contentHtml: renderSelectedWeaponHtml({ choiceId: `${id}:preview:${definition.weaponKey}`, weaponBases, label: "Weapon details",
+        contentHtml: renderSelectedWeaponHtml({ choiceId: `${id}:preview:${definition.weaponKey}`, weaponBases, gameData, builder, label: "Weapon details",
           weapon: definition.weaponKey === weapon?.weaponKey ? weapon : { weaponKey: definition.weaponKey, rank: rank ?? Number(definition.minRank || 0), enhancements } }),
       })),
     });
