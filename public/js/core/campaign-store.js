@@ -54,12 +54,24 @@ export function createCampaignStore({ db, api, readCharacter }) {
       batch.update(campaignRef(id), { name: campaignName(name), gmUid, updatedAt: serverTimestamp() });
       await batch.commit();
     },
+    async deleteCampaign(id) {
+      await runTransaction(db, async transaction => {
+        const ref = campaignRef(id);
+        const current = await transaction.get(ref);
+        if (!current.exists() || current.data().deletedAt) return;
+        const { ownerUid, inviteCode } = current.data();
+        // A minimal, immutable tombstone prevents reuse of this ID from reviving
+        // old memberships or character access. No character document is changed.
+        transaction.set(ref, { ownerUid, deletedAt: serverTimestamp() });
+        if (inviteCode) transaction.delete(doc(db, 'campaignInvites', inviteCode));
+      });
+    },
     async updateSettings(id, settings, { expectedSettings } = {}) {
       const next = normalizeCampaignSettings(settings);
       await runTransaction(db, async transaction => {
         const ref = campaignRef(id);
         const current = await transaction.get(ref);
-        if (!current.exists()) throw new Error('Campaign no longer exists.');
+        if (!current.exists() || current.data().deletedAt) throw new Error('Campaign no longer exists.');
         if (expectedSettings !== undefined && JSON.stringify(normalizeCampaignSettings(current.data().settings)) !== JSON.stringify(normalizeCampaignSettings(expectedSettings))) {
           throw new Error('Campaign settings changed in another tab. Reload before saving again.');
         }
@@ -73,7 +85,7 @@ export function createCampaignStore({ db, api, readCharacter }) {
       let campaign;
       try { campaign = await read(campaignRef(link.data().campaignId)); }
       catch (error) { if (error.code === 'permission-denied') return null; throw error; }
-      if (!campaign.exists() || !campaign.data().memberUids.includes(uid)) return null;
+      if (!campaign.exists() || !campaign.data().memberUids?.includes(uid)) return null;
       return { id: campaign.id, name: campaign.data().name, settings: normalizeCampaignSettings(campaign.data().settings) };
     },
     async setInvite(id, enabled) {
@@ -81,7 +93,7 @@ export function createCampaignStore({ db, api, readCharacter }) {
       await runTransaction(db, async transaction => {
         const ref = campaignRef(id);
         const snapshot = await transaction.get(ref);
-        if (!snapshot.exists()) throw new Error('Campaign no longer exists.');
+        if (!snapshot.exists() || snapshot.data().deletedAt) throw new Error('Campaign no longer exists.');
         const previous = snapshot.data().inviteCode;
         transaction.update(ref, { inviteCode: next, updatedAt: serverTimestamp() });
         if (previous) transaction.delete(doc(db, 'campaignInvites', previous));
@@ -111,7 +123,7 @@ export function createCampaignStore({ db, api, readCharacter }) {
         if (newRoster) {
           const target = await transaction.get(campaignRef(campaignId));
           const character = await transaction.get(doc(db, 'users', uid, 'characters', characterId));
-          if (!target.exists() || !character.exists()) throw new Error('Campaign or character is unavailable.');
+          if (!target.exists() || target.data().deletedAt || !character.exists()) throw new Error('Campaign or character is unavailable.');
           const conflicts = campaignCompatibility(target.data().settings, character.data().builder);
           if (conflicts.length) throw new Error(`This character’s ${conflicts.join(' and ')} ${conflicts.length > 1 ? 'are' : 'is'} unavailable in ${target.data().name}. Change ${conflicts.length > 1 ? 'them' : 'it'} before adding the character.`);
         }

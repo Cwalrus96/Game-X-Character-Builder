@@ -1,9 +1,9 @@
 import { db } from '../core/firebase.js';
 import { doc, getDoc } from '/vendor/firebase/firebase-firestore.js';
 import { onAuth, getClaims, signOutNow, initAuthRedirectHandling } from '../core/auth-ui.js';
-import { ensureAppTopNav } from '../core/app-nav.js?v=campaigns1';
-import { campaigns } from '../core/campaign-client.js';
-import { confirmCampaignChange } from '../core/confirmation-dialog.js';
+import { ensureAppTopNav } from '../core/app-nav.js?v=mobile-menu1';
+import { campaigns } from '../core/campaign-client.js?v=campaign-delete1';
+import { confirmCampaignChange } from '../core/confirmation-dialog.js?v=campaign-delete1';
 import { createNavigationGuard, installNavigationGuard } from '../core/navigation-guard.js';
 import { campaignRole, campaignSheetUrl, campaignInviteUrl, formatInviteCode } from '../core/campaign-model.js';
 import { loadGameXData } from '../core/game-data.js';
@@ -64,7 +64,8 @@ async function act(control, action) {
 function selectCampaign(id) {
   selectedId = id;
   const url = new URL(location.href);
-  url.searchParams.set('campaignId', id);
+  if (id) url.searchParams.set('campaignId', id);
+  else url.searchParams.delete('campaignId');
   history.replaceState(null, '', url);
   renderMine();
 }
@@ -178,6 +179,23 @@ async function renderDetail(campaign) {
     add.href = `/characters.html?campaignId=${encodeURIComponent(campaign.id)}`; root.append(add);
     if (!role.gm) root.append(element('p', 'Only the GM can open other players’ sheets.', 'sub'));
     const roster = element('ul', undefined, 'list'); root.append(roster);
+    if (role.creator) {
+      const deletion = element('section', undefined, 'campaign-delete');
+      deletion.append(element('h3', 'Delete campaign'),
+        element('p', 'Only the creator can delete this campaign. Players keep their characters and learned skills.', 'sub'),
+        button('Delete campaign', async () => {
+          if (!await confirmCampaignChange(`Are you sure you want to delete “${campaign.name}”? Everyone will lose access to this campaign and its invitation will stop working. Players keep their characters and learned skills. This cannot be undone.`, {
+            title: 'Delete campaign?', confirmText: 'Delete campaign',
+          })) return 'Campaign not deleted.';
+          stopRoster?.(); stopRoster = null;
+          try { await campaigns.deleteCampaign(campaign.id); }
+          catch (cause) { renderMine(); throw cause; }
+          selectCampaign(null);
+          $('campaignName').focus();
+          return 'Campaign deleted. Players’ characters have been preserved.';
+        }));
+      root.append(deletion);
+    }
     let rosterVersion = 0;
     stopRoster = campaigns.observeRoster(campaign.id, async entries => {
       const current = ++rosterVersion;
@@ -201,7 +219,12 @@ async function renderDetail(campaign) {
       }));
       if (version !== detailVersion || current !== rosterVersion) return;
       roster.replaceChildren(...(rows.length ? rows : [element('li', 'No characters linked yet.', 'muted')]));
-    }, showError);
+    }, cause => {
+      if (version !== detailVersion) return;
+      // Membership/deletion snapshots also remove this view. Do not flash an
+      // error if child authorization is revoked just before that snapshot arrives.
+      if (cause?.code !== 'permission-denied') showError(cause);
+    });
   } catch (cause) { if (version === detailVersion) showError(cause); }
 }
 

@@ -3,7 +3,7 @@ import { createDialogLifecycle, restoreDialogFocus } from './dialog-lifecycle.js
 let lifecycle;
 
 /** Shared, keyboard-accessible confirmation. Closing or superseding always cancels. */
-export function confirmCampaignChange(message) {
+export function confirmCampaignChange(message, { title: titleText = 'Confirm campaign change', confirmText = 'Confirm change' } = {}) {
   if (!lifecycle) {
     const dialog = document.createElement('dialog');
     dialog.className = 'campaign-confirm';
@@ -17,7 +17,12 @@ export function confirmCampaignChange(message) {
     const confirm = document.createElement('button'); confirm.type = 'button'; confirm.className = 'btn'; confirm.textContent = 'Confirm change';
     controls.append(cancel, confirm); dialog.append(title, description, controls); document.body.append(dialog);
     lifecycle = createDialogLifecycle({
-      onOpen(context) { description.textContent = context.message; dialog.showModal(); cancel.focus(); },
+      onOpen(context) {
+        title.textContent = context.titleText;
+        confirm.textContent = context.confirmText;
+        description.textContent = context.message;
+        dialog.showModal(); cancel.focus();
+      },
       onClose(context, detail) { dialog.close(); restoreDialogFocus(context.opener, detail); },
     });
     cancel.addEventListener('click', () => lifecycle.settle(false, { reason: 'cancel' }));
@@ -26,5 +31,5 @@ export function confirmCampaignChange(message) {
     dialog.addEventListener('close', () => lifecycle.settle(false, { reason: 'closed' }));
     window.addEventListener('pagehide', () => lifecycle.settle(false, { reason: 'navigation' }));
   }
-  return lifecycle.request({ message, opener: document.activeElement });
+  return lifecycle.request({ message, titleText, confirmText, opener: document.activeElement });
 }

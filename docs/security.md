@@ -22,6 +22,8 @@ Campaign settings are optional, bounded, strictly shaped campaign fields. The cr
 
 ## Storage boundary
 
+Campaign deletion is an owner-only transition to an immutable `ownerUid`/`deletedAt` tombstone, with atomic active-invite deletion. Active role/membership fields are removed, so existing sheet and portrait checks immediately deny campaign access. Only the creator may read the tombstone for safe retries; no one can restore it or reuse its ID through client writes. Dormant child records stay inaccessible; character owners can remove or switch their own paired links. Deletion grants no character-write or portrait-write permission. Server rules permit normal character editing after the campaign becomes inactive.
+
 Portraits are scoped by user/character path. Rules restrict:
 
 - authenticated owner/Super GM reads and writes, plus current campaign GM reads of linked characters' portraits;

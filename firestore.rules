@@ -104,7 +104,7 @@ service cloud.firestore {
       let settings = group.get('settings', {});
       let next = request.resource.data.get('builder', {});
       let previous = resource.data.get('builder', {});
-      return !(uid in group.memberUids)
+      return !(uid in group.get('memberUids', []))
         || ((next.get('classKey', '') == previous.get('classKey', '') || !(next.get('classKey', '') in settings.get('unavailableClassKeys', [])))
           && (next.get('originKey', '') == previous.get('originKey', '') || !(next.get('originKey', '') in settings.get('unavailableOriginKeys', []))));
     }
@@ -160,14 +160,26 @@ service cloud.firestore {
     match /campaigns/{campaignId} {
       // Queries must be constrained to membership. No public directory.
       allow get: if (isGM() && resource.data.memberUids is list && resource.data.ownerUid is string)
-        || (signedIn() && request.auth.uid in resource.data.memberUids);
+        || (signedIn() && request.auth.uid in resource.data.memberUids)
+        || (signedIn() && resource.data.ownerUid == request.auth.uid && 'deletedAt' in resource.data);
       allow list: if signedIn() && request.auth.uid in resource.data.memberUids;
       allow create: if signedIn() && validCampaign(request.resource.data, campaignId)
         && request.resource.data.ownerUid == request.auth.uid
         && request.resource.data.gmUid == request.auth.uid
         && request.resource.data.memberUids == [request.auth.uid]
         && request.resource.data.createdAt == request.time;
+      // Deletion removes all active campaign fields in one bounded transaction.
+      // Keeping its ID reserved prevents old child records/links being revived.
+      allow update: if signedIn() && resource.data.ownerUid == request.auth.uid
+        && !('deletedAt' in resource.data)
+        && request.resource.data.keys().hasAll(['ownerUid', 'deletedAt'])
+        && request.resource.data.keys().hasOnly(['ownerUid', 'deletedAt'])
+        && request.resource.data.ownerUid == resource.data.ownerUid
+        && request.resource.data.deletedAt == request.time
+        && (resource.data.inviteCode == ''
+          || !existsAfter(/databases/$(database)/documents/campaignInvites/$(resource.data.inviteCode)));
       allow update: if signedIn() && validCampaign(request.resource.data, campaignId)
+        && !('deletedAt' in resource.data)
         && request.resource.data.ownerUid == resource.data.ownerUid
         && request.resource.data.createdAt == resource.data.createdAt
         && ((resource.data.ownerUid == request.auth.uid

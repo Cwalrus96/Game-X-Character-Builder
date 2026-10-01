@@ -1,4 +1,4 @@
-import { campaigns } from './campaign-client.js';
+import { campaigns } from './campaign-client.js?v=campaign-delete1';
 import { loadGameXData } from './game-data.js';
 import { campaignSettingsFingerprint } from './campaign-settings.js';
 

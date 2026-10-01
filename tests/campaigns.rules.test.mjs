@@ -33,6 +33,69 @@ test.before(async () => { env = await createRulesTestEnvironment(); });
 test.after(async () => { await env.cleanup(); });
 test.beforeEach(async () => { await env.clearFirestore(); await env.clearStorage(); await seedFirestore(env); });
 
+test('only the creator can delete a campaign; deletion cannot be forged or reversed', async () => {
+  const group = await create(); await join(group); await join(group, 'eve');
+  await store('alice').update({ id: group.id, name: group.name, gmUid: 'bob' });
+  for (const uid of ['bob', 'eve', 'outsider']) await assertFails(store(uid).deleteCampaign(group.id));
+  const superStore = createCampaignStore({ db: context('super', { gm: true }).firestore(), api });
+  await assertFails(superStore.deleteCampaign(group.id));
+  const alice = dbFor('alice');
+  const tombstone = { ownerUid: 'alice', deletedAt: api.serverTimestamp() };
+  // The current invitation must be removed atomically, and ownership is immutable.
+  await assertFails(api.setDoc(campaign(alice, group.id), tombstone));
+  const forged = api.writeBatch(alice);
+  forged.set(campaign(alice, group.id), { ...tombstone, ownerUid: 'bob' });
+  forged.delete(api.doc(alice, 'campaignInvites', group.inviteCode));
+  await assertFails(forged.commit());
+  await assertSucceeds(store('alice').deleteCampaign(group.id));
+  await assertSucceeds(store('alice').deleteCampaign(group.id)); // Safe retry after an uncertain response.
+  const deleted = (await api.getDoc(campaign(alice, group.id))).data();
+  assert.deepEqual(Object.keys(deleted).sort(), ['deletedAt', 'ownerUid']);
+  for (const uid of ['alice', 'bob', 'eve']) {
+    const db = dbFor(uid);
+    assert.equal((await api.getDocs(api.query(api.collection(db, 'campaigns'), api.where('memberUids', 'array-contains', uid)))).size, 0);
+    await assertFails(api.getDocs(api.collection(db, 'campaigns', group.id, 'members')));
+    await assertFails(api.getDocs(api.collection(db, 'campaigns', group.id, 'characters')));
+  }
+  await assertFails(api.getDoc(api.doc(dbFor('bob'), 'campaignInvites', group.inviteCode)));
+  await assertFails(join(group));
+  await assert.rejects(store('alice').setInvite(group.id, true), /no longer exists/);
+  await assertFails(api.deleteDoc(campaign(alice, group.id)));
+  const { id, ...original } = group;
+  for (const uid of ['alice', 'bob']) await assertFails(api.setDoc(campaign(dbFor(uid), id), { ...original, updatedAt: api.serverTimestamp() }));
+});
+
+test('deletion revokes GM sheets and portraits, preserves character data and permits switching', async () => {
+  const group = await create(); await join(group); await share(group);
+  const bob = dbFor('bob'); const alice = dbFor('alice');
+  await api.updateDoc(char(bob), { 'builder.sheet.repeatables.settingSkills': [{ skill: 'Piloting', rank: '2' }] });
+  await store('alice').updateSettings(group.id, settingsFixture());
+  const before = (await api.getDoc(char(bob))).data();
+  await seedStoragePortrait(env, { userId: 'bob', charId: 'char-2' });
+  const portrait = ref(context('alice').storage(), 'portraits/bob/char-2/portrait.png');
+  await assertSucceeds(getBytes(portrait));
+  await store('alice').deleteCampaign(group.id);
+  await assertFails(api.getDoc(char(alice)));
+  await assertFails(getBytes(portrait));
+  await assertSucceeds(getBytes(ref(context('bob').storage(), 'portraits/bob/char-2/portrait.png')));
+  assert.deepEqual((await api.getDoc(char(bob))).data(), before);
+  assert.equal(await store('bob').characterContext({ uid: 'bob', characterId: 'char-2', fresh: true }), null);
+  await assertSucceeds(api.updateDoc(char(bob), { 'builder.classKey': 'wizard', 'builder.originKey': 'alien' }));
+  const other = await create('eve'); await join(other); await assertSucceeds(share(other));
+  assert.equal((await api.getDoc(link(bob))).data().campaignId, other.id);
+  await assertSucceeds(api.getDoc(char(dbFor('eve'))));
+  await assertFails(api.getDoc(char(alice)));
+});
+
+test('deletion also supports disabled invites and detaching a dormant character link', async () => {
+  const group = await create(); await join(group); await share(group);
+  await store('alice').setInvite(group.id, false);
+  await assertSucceeds(store('alice').deleteCampaign(group.id));
+  await assertSucceeds(store('bob').setCharacterCampaign({ uid: 'bob', characterId: 'char-2', campaignId: '' }));
+  assert.equal((await api.getDoc(link(dbFor('bob')))).exists(), false);
+  await assertSucceeds(api.getDoc(char(dbFor('bob'))));
+});
+
 test('creator and assigned GM manage validated settings; players and outsiders cannot', async () => {
   const group = await create(); await join(group); await join(group, 'eve');
   const settings = settingsFixture();

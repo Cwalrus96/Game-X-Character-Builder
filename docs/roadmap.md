@@ -28,6 +28,12 @@ For every Work Package B step, also run `npm run baseline:data` before editing. 
 
 ## Campaign-level work
 
+### `WPG-CAMPAIGN-DELETE`
+
+Status: `complete` (local implementation, October 1)
+
+Creator-only deletion reuses the shared campaign confirmation and store/navigation boundaries. An atomic tombstone plus invite removal ends membership/GM access without changing character documents or portraits, prevents ID reuse, and permits owners to detach/switch dormant links. Cancel/Escape are side-effect free. Three new emulator scenarios pass; total verification is 716 units / 40 emulator tests / 16 HTML assets plus the ten-artifact baseline. Browser confirmation/cancellation and live removal are verified on a disposable local campaign. See [campaigns.md](campaigns.md) for retained-record semantics and release boundaries. Next broader work remains `WPE-DOMAIN-MIGRATION`, then `WPF-UI-SYSTEM`; this extension does not close either step. Production requires a separate explicit release instruction.
+
 ### `WPG-CAMPAIGN-SETTINGS`
 
 Status: `complete` (local implementation, October 1)
