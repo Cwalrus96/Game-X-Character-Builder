@@ -1,6 +1,6 @@
 # Campaigns
 
-Status: complete locally, September 30, 2026 (`WPG-CAMPAIGNS`). Production release remains separately authorized.
+Status: complete locally September 30 and released October 1, 2026 (`WPG-CAMPAIGNS`). [Release verification](campaign-release-2026-10-01.md) records the user's explicit authorization, live rules and portrait configuration.
 
 Any signed-in user can create a campaign. Its immutable creator (`ownerUid`) initially serves as GM and may assign any current member instead. Campaign GMs have read-only access to linked character sheets, not accounts, character collections, builder writes or portrait writes. The historical `gm` custom claim remains the separate **Super GM** privilege; ordinary campaign roles never create custom claims.
 
@@ -31,5 +31,7 @@ Local preview: <http://localhost:5000/campaigns.html>. The local emulator was re
 Next named work returns to `WPE-DOMAIN-MIGRATION`: remaining compatibility-helper retirement and supported mechanics need focused character save/reload and dependency verification. `WPF-UI-SYSTEM` then consolidates controls, accessibility and navigation. This campaign feature does not complete either broader step; new source edits, data publishing and production deployment keep their separate approval boundaries.
 
 ## Release boundary
+
+October 1 release authorization was received and fulfilled for Hosting, Firestore/Storage rules, portrait GET CORS and cross-service permission. All 196 live assets and active rules match the tested package. The paragraph below records the original implementation boundary; later releases still need their own authorization.
 
 Local implementation and emulator verification are authorized. Production Hosting, Firestore rules and Storage rules require explicit release authorization as one compatible campaign feature. No game-data source edits, published data changes, production documents or custom claims are part of this work. Storage's cross-service Firestore access may require enabling the service permission at first production deployment; follow Firebase's [cross-service rules setup](https://firebase.google.com/docs/storage/security/rules-conditions#enhance_with_firestore). Campaign GM portrait display uses authenticated `getBlob` and a temporary object URL, following the [direct download API](https://firebase.google.com/docs/storage/web/download-files#download_data_directly_from_the_sdk). Before production release, verify bucket CORS allows GET from the deployed app origin; this configuration is not changed during local implementation. Previously downloaded data and existing bearer URLs cannot be recalled by membership changes.
