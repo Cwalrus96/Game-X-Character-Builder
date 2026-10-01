@@ -23,3 +23,12 @@
   .campaign-layout .card { padding: 16px; }
   .characters-home .character-row .right { margin-left: 0; min-width: 0; }
 }
+.campaign-settings { margin-block: 1rem; }
+.campaign-settings summary { cursor: pointer; font-weight: 700; padding-block: .5rem; }
+.campaign-settings fieldset { min-width: 0; margin-block: .8rem; border: 1px solid var(--border, #555); border-radius: .5rem; padding: .8rem; }
+.campaign-setting-choice { display: flex; gap: .6rem; align-items: baseline; padding-block: .3rem; }
+.campaign-setting-choice input { flex: 0 0 auto; width: auto; }
+.campaign-setting-skills .input { box-sizing: border-box; width: 100%; }
+.campaign-settings .sub { overflow-wrap: anywhere; }
+.campaign-setting-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .2rem .8rem; }
+.campaign-setting-choice span { overflow-wrap: anywhere; }

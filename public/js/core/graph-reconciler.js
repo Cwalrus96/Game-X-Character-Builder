@@ -2,6 +2,7 @@ import { decodeCharacter } from "./character-codec.js?v=wpe1";
 import { fitAttributesToPointBudget } from "./character-rules.js?v=wpe3";
 import { buildCharacterSkillProjection } from "./character-skill-projection.js?v=wpe13";
 import { fitSkillsToRules } from "./skill-rules.js?v=wpe13";
+import { campaignChoiceImpacts } from './campaign-settings.js';
 import { fitBondsToRules } from "./bond-rules.js?v=wpe5";
 import { getExpectedSelectionIssue } from "./choice-capacity.js";
 import { buildGeneratedWeaponsFromGrantChoices, isSourceOwnedWeapon } from "./grants.js";
@@ -1125,6 +1126,12 @@ export function reconcileCharacterGraph({
   const previousDecoded = previousCharacter ? decodeCharacter(previousCharacter) : { ok: false };
   const previousGraph = previousDecoded.ok ? compiler.compile(previousDecoded.value) : null;
   const previousBuilder = previousDecoded.ok ? previousDecoded.value.builder : original.builder;
+
+  for (const item of campaignChoiceImpacts(gameData, original.builder, previousBuilder)) addImpact(impacts, item);
+  if ([...impacts.values()].some(item => item.category === 'error')) {
+    return frozenGraphClone({ ok: false, converged: false, iterations: 0, character: original,
+      graph: compiler.compile(original), previousGraph, affectedNodeIds: [], impacts: finalizedImpacts(impacts) });
+  }
 
   for (let iteration = 1; iteration <= maxIterations; iteration += 1) {
     iterations = iteration;

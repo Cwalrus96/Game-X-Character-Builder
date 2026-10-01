@@ -37,7 +37,8 @@ service cloud.firestore {
     }
     function validCampaign(data, id) {
       return data.keys().hasAll(['name', 'ownerUid', 'gmUid', 'memberUids', 'inviteCode', 'createdAt', 'updatedAt'])
-        && data.keys().hasOnly(['name', 'ownerUid', 'gmUid', 'memberUids', 'inviteCode', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['name', 'ownerUid', 'gmUid', 'memberUids', 'inviteCode', 'createdAt', 'updatedAt', 'settings'])
+        && (!('settings' in data) || validCampaignSettings(data.settings))
         && data.name is string && data.name.size() > 0 && data.name.size() <= 80
         && data.ownerUid is string && data.gmUid is string
         && data.memberUids is list && data.memberUids.size() <= 500
@@ -55,6 +56,58 @@ service cloud.firestore {
         && request.resource.data.memberUids.toSet() == resource.data.memberUids.toSet().union([request.auth.uid].toSet())
         && getAfter(/databases/$(database)/documents/campaigns/$(id)/members/$(request.auth.uid)).data.joinCode == code;
     }
+    function validKeyList(values) {
+      return values is list && values.size() <= 50 && values.toSet().size() == values.size()
+        && (values.size() == 0 || (values.join('|').matches('[a-zA-Z0-9_-]{1,64}([|][a-zA-Z0-9_-]{1,64})*')
+          && values.join('|').split('[|]') == values));
+    }
+    function validSettingSkillAt(skills, index) {
+      return skills.size() <= index || validSettingSkill(skills[index]);
+    }
+    function validSettingSkill(skill) {
+      return skill is map && skill.keys().hasOnly(['name', 'description'])
+        && skill.name is string && skill.name.size() > 0 && skill.name.size() <= 96
+        && skill.description is string && skill.description.size() <= 1000;
+    }
+    function validCampaignSettings(data) {
+      return data is map && data.keys().hasAll(['unavailableClassKeys', 'unavailableOriginKeys', 'settingSkills'])
+        && data.keys().hasOnly(['unavailableClassKeys', 'unavailableOriginKeys', 'settingSkills'])
+        && validKeyList(data.unavailableClassKeys) && validKeyList(data.unavailableOriginKeys)
+        && data.settingSkills is list && data.settingSkills.size() <= 10
+        && validSettingSkillAt(data.settingSkills, 0)
+        && validSettingSkillAt(data.settingSkills, 1)
+        && validSettingSkillAt(data.settingSkills, 2)
+        && validSettingSkillAt(data.settingSkills, 3)
+        && validSettingSkillAt(data.settingSkills, 4)
+        && validSettingSkillAt(data.settingSkills, 5)
+        && validSettingSkillAt(data.settingSkills, 6)
+        && validSettingSkillAt(data.settingSkills, 7)
+        && validSettingSkillAt(data.settingSkills, 8)
+        && validSettingSkillAt(data.settingSkills, 9);
+    }
+    function compatibleCampaignCharacter(group, builder) {
+      let settings = group.get('settings', {});
+      return !(builder.get('classKey', '') in settings.get('unavailableClassKeys', []))
+        && !(builder.get('originKey', '') in settings.get('unavailableOriginKeys', []));
+    }
+    function allowedCampaignCharacterUpdate(uid, characterId) {
+      let linkPath = /databases/$(database)/documents/users/$(uid)/characterCampaigns/$(characterId);
+      return !exists(linkPath) || allowedLinkedCharacterUpdate(uid, get(linkPath).data.campaignId);
+    }
+    function allowedCampaignCharacterCreate(uid, characterId) {
+      let linkPath = /databases/$(database)/documents/users/$(uid)/characterCampaigns/$(characterId);
+      return !existsAfter(linkPath) || compatibleCampaignCharacter(
+        get(campaignPath(getAfter(linkPath).data.campaignId)).data, request.resource.data.get('builder', {}));
+    }
+    function allowedLinkedCharacterUpdate(uid, campaignId) {
+      let group = get(campaignPath(campaignId)).data;
+      let settings = group.get('settings', {});
+      let next = request.resource.data.get('builder', {});
+      let previous = resource.data.get('builder', {});
+      return !(uid in group.memberUids)
+        || ((next.get('classKey', '') == previous.get('classKey', '') || !(next.get('classKey', '') in settings.get('unavailableClassKeys', [])))
+          && (next.get('originKey', '') == previous.get('originKey', '') || !(next.get('originKey', '') in settings.get('unavailableOriginKeys', []))));
+    }
     function validCharacterLink(uid, characterId) {
       let link = request.resource.data;
       let roster = getAfter(/databases/$(database)/documents/campaigns/$(link.campaignId)/characters/$(link.rosterId)).data;
@@ -62,6 +115,8 @@ service cloud.firestore {
         && link.campaignId is string && link.rosterId is string
         && campaignMember(link.campaignId)
         && exists(/databases/$(database)/documents/users/$(uid)/characters/$(characterId))
+        && compatibleCampaignCharacter(get(campaignPath(link.campaignId)).data,
+          getAfter(/databases/$(database)/documents/users/$(uid)/characters/$(characterId)).data.get('builder', {}))
         && roster.ownerUid == uid && roster.characterId == characterId;
     }
     function oldRosterRemoved() {
@@ -77,7 +132,9 @@ service cloud.firestore {
 
       match /characters/{characterId} {
         allow get: if gmOrSelf(uid) || (signedIn() && campaignSheetReader(uid, characterId));
-        allow list, write: if gmOrSelf(uid);
+        allow list, delete: if gmOrSelf(uid);
+        allow create: if isGM() || (isSelf(uid) && allowedCampaignCharacterCreate(uid, characterId));
+        allow update: if isGM() || (isSelf(uid) && allowedCampaignCharacterUpdate(uid, characterId));
       }
 
       match /characterCampaigns/{characterId} {
@@ -102,7 +159,9 @@ service cloud.firestore {
 
     match /campaigns/{campaignId} {
       // Queries must be constrained to membership. No public directory.
-      allow read: if signedIn() && request.auth.uid in resource.data.memberUids;
+      allow get: if (isGM() && resource.data.memberUids is list && resource.data.ownerUid is string)
+        || (signedIn() && request.auth.uid in resource.data.memberUids);
+      allow list: if signedIn() && request.auth.uid in resource.data.memberUids;
       allow create: if signedIn() && validCampaign(request.resource.data, campaignId)
         && request.resource.data.ownerUid == request.auth.uid
         && request.resource.data.gmUid == request.auth.uid
@@ -114,6 +173,8 @@ service cloud.firestore {
         && ((resource.data.ownerUid == request.auth.uid
           && request.resource.data.memberUids.toSet().difference(resource.data.memberUids.toSet()).size() == 0)
         || validJoin(campaignId)
+        || (resource.data.gmUid == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['settings', 'updatedAt']))
         || (request.auth.uid in resource.data.memberUids
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['memberUids', 'updatedAt'])
           && request.resource.data.memberUids.toSet() == resource.data.memberUids.toSet().difference([request.auth.uid].toSet())));

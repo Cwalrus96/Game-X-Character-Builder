@@ -1,4 +1,5 @@
 import { campaignName, createInviteCode, normalizeInviteCode, publicMemberName } from './campaign-model.js';
+import { normalizeCampaignSettings, campaignCompatibility } from './campaign-settings.js';
 
 /** Campaign relationships only. Canonical character reads/saves remain in database-reader/writer. */
 export function createCampaignStore({ db, api, readCharacter }) {
@@ -23,12 +24,12 @@ export function createCampaignStore({ db, api, readCharacter }) {
           if (!snap.metadata.hasPendingWrites) onChange(new Map(snapshotRows(snap).map(item => [item.id, item])));
         }, onError);
     },
-    async create({ uid, name, displayName }) {
+    async create({ uid, name, displayName, settings = {} }) {
       const ref = doc(collection(db, 'campaigns'));
       const code = createInviteCode();
       const batch = writeBatch(db);
       batch.set(ref, { name: campaignName(name), ownerUid: uid, gmUid: uid, memberUids: [uid], inviteCode: code,
-        createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+        settings: normalizeCampaignSettings(settings), createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
       batch.set(doc(db, 'campaignInvites', code), { campaignId: ref.id });
       batch.set(doc(ref, 'members', uid), { uid, displayName: publicMemberName(displayName), joinCode: code, joinedAt: serverTimestamp() });
       await batch.commit();
@@ -52,6 +53,28 @@ export function createCampaignStore({ db, api, readCharacter }) {
       const batch = writeBatch(db);
       batch.update(campaignRef(id), { name: campaignName(name), gmUid, updatedAt: serverTimestamp() });
       await batch.commit();
+    },
+    async updateSettings(id, settings, { expectedSettings } = {}) {
+      const next = normalizeCampaignSettings(settings);
+      await runTransaction(db, async transaction => {
+        const ref = campaignRef(id);
+        const current = await transaction.get(ref);
+        if (!current.exists()) throw new Error('Campaign no longer exists.');
+        if (expectedSettings !== undefined && JSON.stringify(normalizeCampaignSettings(current.data().settings)) !== JSON.stringify(normalizeCampaignSettings(expectedSettings))) {
+          throw new Error('Campaign settings changed in another tab. Reload before saving again.');
+        }
+        transaction.update(ref, { settings: next, updatedAt: serverTimestamp() });
+      });
+    },
+    async characterContext({ uid, characterId, fresh = false }) {
+      const read = fresh ? (api.getDocFromServer || getDoc) : getDoc;
+      const link = await read(linkRef(uid, characterId));
+      if (!link.exists()) return null;
+      let campaign;
+      try { campaign = await read(campaignRef(link.data().campaignId)); }
+      catch (error) { if (error.code === 'permission-denied') return null; throw error; }
+      if (!campaign.exists() || !campaign.data().memberUids.includes(uid)) return null;
+      return { id: campaign.id, name: campaign.data().name, settings: normalizeCampaignSettings(campaign.data().settings) };
     },
     async setInvite(id, enabled) {
       const next = enabled ? createInviteCode() : '';
@@ -85,6 +108,13 @@ export function createCampaignStore({ db, api, readCharacter }) {
       await runTransaction(db, async transaction => {
         const previous = await transaction.get(ref);
         if (previous.exists() && previous.data().campaignId === campaignId) return;
+        if (newRoster) {
+          const target = await transaction.get(campaignRef(campaignId));
+          const character = await transaction.get(doc(db, 'users', uid, 'characters', characterId));
+          if (!target.exists() || !character.exists()) throw new Error('Campaign or character is unavailable.');
+          const conflicts = campaignCompatibility(target.data().settings, character.data().builder);
+          if (conflicts.length) throw new Error(`This character’s ${conflicts.join(' and ')} ${conflicts.length > 1 ? 'are' : 'is'} unavailable in ${target.data().name}. Change ${conflicts.length > 1 ? 'them' : 'it'} before adding the character.`);
+        }
         if (previous.exists()) transaction.delete(rosterRef(previous.data().campaignId, previous.data().rosterId));
         if (newRoster) {
           transaction.set(ref, { campaignId, rosterId: newRoster.id });

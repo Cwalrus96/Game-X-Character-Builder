@@ -1,3 +1,4 @@
+import { loadCharacterGameData, assertCharacterCampaignCurrent } from '../core/character-campaign-context.js';
 import {
   clearError,
   confirmSaveWarnings,
@@ -16,7 +17,6 @@ import { EquipmentWidget } from "./widgets/equipment-widget.js?v=choices5";
 import { VisitBuilderStep } from "../core/character-commands.js?v=wpe2";
 import { readCharacter } from "../core/database-reader.js?v=wpe6";
 import { replaceCharacter } from "../core/database-writer.js?v=wpe1";
-import { loadGameXData } from "../core/game-data.js";
 import { reconcileCharacterGraph } from "../core/graph-reconciler.js?v=natural-weapons2";
 
 const CURRENT_STEP_ID = "equipment";
@@ -112,7 +112,7 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
     console.error(saved.error);
     showError(elements.error, saved.error?.code === "character-revision-conflict"
       ? "This character changed in another tab. Reload before saving again."
-      : "Could not save equipment.");
+      : saved.error?.code === 'campaign-context-changed' ? saved.error.message : "Could not save equipment.");
     setStatus(elements.status, "Error.");
     return false;
   }
@@ -133,7 +133,7 @@ async function main() {
       errorEl: elements.error,
     });
     setStatus(elements.status, "Loading game data...");
-    gameData = await loadGameXData({ cache: "no-store" });
+    gameData = await loadCharacterGameData({ ownerUid: ctx.editingUid, characterId: ctx.charId, cache: 'no-store' });
     setStatus(elements.status, "Loading character...");
     const loaded = await readCharacter({
       ownerUid: ctx.editingUid,
@@ -147,6 +147,7 @@ async function main() {
       metadata: loaded.metadata,
       gameData,
       confirmImpacts: confirmCharacterChange,
+      beforeSave: () => assertCharacterCampaignCurrent(gameData),
       onCommandRejected: ({ errors }) => {
         showError(elements.error, errors.join(" ") || "That equipment change is not valid.");
         setStatus(elements.status, "Change rejected.");

@@ -1,6 +1,7 @@
 // public/builder-techniques.js
 // Techniques selection step. Technique-specific behavior lives in TechniquesWidget.
 
+import { loadCharacterGameData, assertCharacterCampaignCurrent } from '../core/character-campaign-context.js';
 import {
   initBuilderAuth,
   openCharacterSheet,
@@ -23,7 +24,6 @@ import { readCharacter } from "../core/database-reader.js?v=wpe6";
 import { replaceCharacter } from "../core/database-writer.js?v=wpe1";
 import { reconcileCharacterGraph } from "../core/graph-reconciler.js?v=natural-weapons2";
 import {
-  loadGameXData,
   getGameXTechniques,
   buildTechniqueIndexes,
 } from "../core/game-data.js";
@@ -136,7 +136,7 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
     console.error(saved.error);
     showError(errorEl, saved.error?.code === "character-revision-conflict"
       ? "This character changed in another tab. Reload before saving again."
-      : "Could not save.");
+      : saved.error?.code === 'campaign-context-changed' ? saved.error.message : "Could not save.");
     setStatus(statusEl, "Error.");
     return false;
   }
@@ -165,7 +165,7 @@ async function main() {
     });
 
     setStatus(statusEl, "Loading game data...");
-    gameData = await loadGameXData({ cache: "no-store" });
+    gameData = await loadCharacterGameData({ ownerUid: ctx.editingUid, characterId: ctx.charId, cache: 'no-store' });
     techIndexes = buildTechniqueIndexes(getGameXTechniques(gameData));
 
     setStatus(statusEl, "Loading character...");
@@ -181,6 +181,7 @@ async function main() {
       metadata: loaded.metadata,
       gameData,
       confirmImpacts: confirmCharacterChange,
+      beforeSave: () => assertCharacterCampaignCurrent(gameData),
       onCommandRejected: ({ errors }) => showError(errorEl, errors.join(" ") || "That change is not valid."),
       onStateChange: (state) => {
         currentDoc = state.working;

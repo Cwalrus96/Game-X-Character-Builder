@@ -131,6 +131,8 @@ If the feature supplying an overlay disappears, reconciliation removes only that
 
 ## Save and navigation behavior
 
+Campaign-linked session pages load an immutable campaign context with game data. Class and Origin omit campaign-unavailable new options while retaining existing selections with a warning. Setting Skills project campaign-defined untrained choices into the normal skill allocation widget; paid ranks use existing commands and the shared point budget/caps. Before save, an injected page guard re-reads the server context and stops with a reload explanation if settings/membership changed. It preserves the pending character state. Campaign membership linking separately requires compatible class/origin choices and is enforced in Firebase rules. See [campaigns.md](campaigns.md).
+
 - `Save` may persist an incomplete but structurally valid character after presenting informational warnings for fields editable on the current page. Blocking errors and destructive impacts caused by the current proposal remain applicable across page boundaries.
 - `Next`, `Previous`, direct step links, Characters/Profile links, and “Save & Open Character Sheet” all use the same page flush boundary.
 - Saves are serialized. Edits made while a save is in flight remain dirty until a later successful flush.

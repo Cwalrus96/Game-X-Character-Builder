@@ -157,6 +157,8 @@ export function computeKnownCombatSkillsAndGrants(gameData, builder) {
   const state = builder && typeof builder === "object" ? builder : {};
   const collection = skillGrantCollection(data, state);
   const knownCombatSkills = new Set(CORE_COMBAT_SKILLS);
+  for (const skill of data.campaignContext?.settings?.settingSkills || []) knownCombatSkills.add(skill.name);
+  for (const skill of state.sheet?.repeatables?.settingSkills || []) knownCombatSkills.add(canonicalSkillName(skill.skill));
   const grantedTechniqueNames = new Set();
   const cls = getGameXClasses(data).find((entry) => entry?.classKey === state.classKey);
   if (cls) {
@@ -217,7 +219,7 @@ export function computeGrantedSkillsState(gameData, builder) {
 export function getCombatSkillRanks(gameData, builder) {
   const granted = computeGrantedSkillsState(gameData, builder);
   const ranks = new Map();
-  for (const row of [...granted.grantedCombatSkills, ...(builder?.sheet?.repeatables?.combatSkillsExtra || [])]) {
+  for (const row of [...granted.grantedCombatSkills, ...(builder?.sheet?.repeatables?.combatSkillsExtra || []), ...(builder?.sheet?.repeatables?.settingSkills || [])]) {
     const name = canonicalSkillName(row.skill).toLowerCase();
     ranks.set(name, Math.max(ranks.get(name) || 0, numericRank(row.rank)));
   }
@@ -323,6 +325,19 @@ function allocationRecords(gameData, builder, granted) {
     if (representedUtilityKeys.has(utilityKey)) continue;
     const name = utilityOptionByKey.get(utilityKey)?.label || utilityKey;
     setting.push({ domain: "setting", key: name.toLowerCase(), name, rank: 1, storedRank: "", grantedRank: 1, editable: true, cap: capFor(name), path: "builder.sheet.repeatables.settingSkills", index: -1, virtual: true });
+  }
+  // Campaign availability supplies untrained choices, never free training or saved rows.
+  for (const skill of gameData?.campaignContext?.settings?.settingSkills || []) {
+    const key = canonicalSkillKey(skill.name);
+    const existing = [...fixed, ...combat, ...coreCombat, ...setting].find(record => canonicalSkillKey(record.name) === key);
+    if (existing) {
+      existing.campaignSkill = true;
+      existing.description = skill.description;
+      continue;
+    }
+    setting.push({ domain: 'setting', key: skill.name.toLowerCase(), name: skill.name, description: skill.description,
+      campaignSkill: true, rank: 0, storedRank: '', grantedRank: 0, editable: true, cap: capFor(skill.name),
+      path: 'builder.sheet.repeatables.settingSkills', index: -1, virtual: true });
   }
   return { fixed, combat, coreCombat, setting, utility, baseCap };
 }

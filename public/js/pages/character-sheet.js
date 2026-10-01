@@ -1,3 +1,4 @@
+import { loadCharacterGameData } from '../core/character-campaign-context.js';
 import {
   doc,
   getDoc,
@@ -21,7 +22,6 @@ import {
 } from "../core/character-rules.js";
 import {
   loadGameXClasses,
-  loadGameXData,
   loadGameXOrigins,
   getGameXWeaponBases,
   getGameXWeaponEnhancements,
@@ -421,7 +421,7 @@ setNumberFieldByName('hpmax', hpmax);
 
   async function ensureTechniqueData() {
     if (!_gameXDataForTechniques) {
-      _gameXDataForTechniques = await loadGameXData({ cache: "no-store" });
+      _gameXDataForTechniques = await loadCharacterGameData({ ownerUid: editingUid, characterId: editingCharId, cache: 'no-store' });
     }
     return { gameData: _gameXDataForTechniques };
   }
@@ -668,7 +668,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
         const sheetFields = (b?.sheet?.fields && typeof b.sheet.fields === 'object') ? b.sheet.fields : {};
         const sheetOnlyFields = pickSheetOnlyFields(sheetFields);
         const repeatables = (b?.sheet?.repeatables && typeof b.sheet.repeatables === 'object') ? b.sheet.repeatables : {};
-        const gameData = await loadGameXData();
+        const { gameData } = await ensureTechniqueData();
         sheetRolls.setCharacter({ gameData, builder: { ...b, attributes: attrs } });
         applyReadOnlySkillState(gameData, b);
         const selectedTechniques = Array.isArray(b?.selectedTechniques) ? b.selectedTechniques : [];
@@ -749,7 +749,7 @@ async function renderBuilderWeaponsReadOnly(builder) {
 
       await setDoc(cloudDocRef, baseline, { merge: true });
       currentDoc = baseline;
-      sheetRolls.setCharacter({ gameData: await loadGameXData(), builder: baseline.builder });
+      sheetRolls.setCharacter({ gameData: (await ensureTechniqueData()).gameData, builder: baseline.builder });
 
       renderBuilderTechniquesReadOnly(baseline);
       renderBuilderWeaponsReadOnly((baseline && baseline.builder) ? baseline.builder : {});

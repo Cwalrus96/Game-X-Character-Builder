@@ -1,6 +1,8 @@
 // public/builder-class.js
 // Class selection step: class, level, primary attribute, class feature options, and feats.
 
+import { loadCharacterGameData, assertCharacterCampaignCurrent } from '../core/character-campaign-context.js';
+import { campaignChoiceUnavailable } from '../core/campaign-settings.js';
 import {
   initBuilderAuth,
   openCharacterSheet,
@@ -25,7 +27,7 @@ import { LevelChoiceWidget } from "./widgets/level-choice-widget.js?v=wpe1";
 import { OptionGroupWidget } from "./widgets/option-group-widget.js?v=choices4";
 import { PrimaryAttributeWidget } from "./widgets/primary-attribute-widget.js?v=wpe1";
 
-import { loadGameXData, getGameXClasses, getGameXClassFeatures, getGameXWeaponBases, getGameXWeaponEnhancements } from "../core/game-data.js?v=keystone1";
+import { getGameXClasses, getGameXClassFeatures, getGameXWeaponBases, getGameXWeaponEnhancements } from "../core/game-data.js?v=keystone1";
 
 import { ATTR_KEYS, clampLevel, coerceAttrKey, labelForAttrKey } from "../core/character-rules.js?v=wpe1";
 import { SetClass, SetGrantChoices, VisitBuilderStep } from "../core/character-commands.js?v=wpe1";
@@ -118,6 +120,7 @@ function getClassByKey(classKey) {
 
 function classSelectableInfo(classObj) {
   if (!classObj) return { ok: false, reason: "Missing class data." };
+  if (campaignChoiceUnavailable(gameData, 'classKey', classObj.classKey)) return { ok: false, reason: 'Unavailable in this campaign. Existing choice preserved; discuss it with your GM.' };
 
   const missing = [];
   const req = ["primaryAttributeA", "primaryAttributeB", "hpProgression", "combatTechniqueSkill"];
@@ -217,7 +220,7 @@ function getSaveIssues() {
   } else {
     const selectable = classSelectableInfo(cls);
     if (!selectable.ok) {
-      warnings.push("This class is marked Coming Soon (data may be incomplete).");
+      warnings.push(selectable.reason || "This class is marked Coming Soon (data may be incomplete).");
     }
 
     const allowedPrimary = getAllowedPrimaryAttributes(cls);
@@ -475,7 +478,7 @@ async function saveClassStep({ openSheetAfter = false, intent = "save" } = {}) {
     console.error(saved.error);
     showError(errorEl, saved.error?.code === "character-revision-conflict"
       ? "This character changed in another tab. Reload before saving again."
-      : "Could not save.");
+      : saved.error?.code === 'campaign-context-changed' ? saved.error.message : "Could not save.");
     setStatus(statusEl, "Error.");
     return false;
   }
@@ -512,7 +515,7 @@ async function main() {
       errorEl,
     });
 
-    gameData = await loadGameXData();
+    gameData = await loadCharacterGameData({ ownerUid: ctx.editingUid, characterId: ctx.charId, cache: 'no-store' });
     weaponBases = getGameXWeaponBases(gameData).slice().sort(compareByName);
     weaponEnhancements = getGameXWeaponEnhancements(gameData).slice().sort(compareByName);
     const loaded = await readCharacter({
@@ -527,6 +530,7 @@ async function main() {
       metadata: loaded.metadata,
       gameData,
       confirmImpacts: confirmCharacterChange,
+      beforeSave: () => assertCharacterCampaignCurrent(gameData),
       onCommandRejected: ({ errors }) => showError(errorEl, errors.join(" ") || "That change is not valid."),
       onStateChange: (state) => {
         currentDoc = state.working;

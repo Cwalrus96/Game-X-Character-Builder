@@ -1,6 +1,6 @@
 import { SetOrigin, SetOriginKeystone } from "../../core/character-commands.js?v=wpe4";
 import { escapeHtml } from "../../core/data-sanitization.js";
-import { getOriginSelectionState } from "../../core/origin-rules.js";
+import { getOriginSelectionState } from "../../core/origin-rules.js?v=campaign-settings1";
 import { appendRuleDetails } from "./rule-details.js";
 import { KeystoneWidget } from "./text-choice-widget.js";
 
@@ -71,11 +71,11 @@ export class OriginWidget {
     const { originSelect, originSummary, originDetails, originStatusHint } = this.elements;
     originSelect.innerHTML = '<option value="">Select an origin…</option>';
     for (const origin of state.options) {
-      if (!origin.selectable && origin.key !== state.originKey) continue;
+      if ((!origin.selectable || origin.campaignUnavailable) && origin.key !== state.originKey) continue;
       const option = document.createElement("option");
       option.value = origin.key;
       option.textContent = origin.name;
-      option.disabled = !origin.selectable;
+      option.disabled = !origin.selectable || origin.campaignUnavailable;
       originSelect.appendChild(option);
     }
     originSelect.value = state.originKey;
@@ -93,7 +93,7 @@ export class OriginWidget {
     }
     originSummary.className = "builderItem";
     originSummary.innerHTML = `<div class="builderItemTitle">${escapeHtml(selected.name)}</div><div class="builderItemMeta">${escapeHtml(statusLabel(selected.status))}</div><div class="builderItemBody">${escapeHtml(selected.summary || selected.description)}</div>`;
-    originStatusHint.textContent = statusLabel(selected.status);
+    originStatusHint.textContent = selected.campaignUnavailable ? 'Unavailable in this campaign. Existing choice preserved; discuss it with your GM.' : statusLabel(selected.status);
     const features = selected.features.length
       ? `<section class="builderItem"><div class="builderItemTitle">Features</div><div class="optionList" style="margin-top:8px;">${selected.features.map((feature, index) => `<div class="optionRow"><div><div class="optionTitle">${escapeHtml(feature.name)}</div><div class="optionDesc">${escapeHtml(feature.description)}</div><div data-origin-traits="${index}"></div></div></div>`).join("")}</div></section>`
       : "";

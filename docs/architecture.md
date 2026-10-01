@@ -33,6 +33,8 @@ Campaign pages and the Characters-page sharing control use `campaign-client.js` 
 
 ## Architectural objective
 
+Campaign settings extend the relationship boundary with per-character catalogue context. `character-campaign-context.js` is a page loading/coordinating adapter, not a Rules or graph dependency. It combines campaign reads with the shared catalogue without mutating global game data. `campaign-settings.js` owns pure choice compatibility; graph reconciliation reports new forbidden acquisitions as errors while preserving existing choices with warnings. Shared Skill Rules projects untrained campaign skills and ordinary paid overlays; no campaign-specific training formula or character persistence implementation is added. Session pages inject a pre-save server-context check; the pure CharacterSession and graph remain free of Firebase. See [campaigns.md](campaigns.md).
+
 The builder is moving from page-owned mutable state toward a complete in-memory character session and dependency graph.
 
 The finished architecture must reconstruct the entire character from persisted Firebase data plus unsaved session commands. Every meaningful selection is represented by a graph node that records:

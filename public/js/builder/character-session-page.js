@@ -23,12 +23,14 @@ export class CharacterSessionPage {
     revision = 0,
     metadata = {},
     gameData,
+    beforeSave = null,
     confirmImpacts = null,
     onCommandRejected = null,
     onStateChange = null,
   } = {}) {
     this.confirmImpacts = typeof confirmImpacts === "function" ? confirmImpacts : null;
     this.gameData = gameData;
+    this.beforeSave = beforeSave;
     this.onCommandRejected = typeof onCommandRejected === "function" ? onCommandRejected : null;
     this.onStateChange = typeof onStateChange === "function" ? onStateChange : null;
     this.widgets = new Map();
@@ -127,6 +129,7 @@ export class CharacterSessionPage {
       return { ok: false, snapshot: null, error, state: this.getState() };
     }
     try {
+      await this.beforeSave?.();
       const result = await saveCharacter(snapshot);
       const state = this.session.acknowledgeSave(snapshot.saveId, {
         revision: result.revision,

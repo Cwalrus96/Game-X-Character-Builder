@@ -361,7 +361,7 @@ function appendCampaignPicker(container, charId, name) {
       setText(campaignSaveStatus, 'Campaign updated.');
     } catch (cause) {
       console.error(cause);
-      showError(charactersError, 'Could not change campaign. Refresh to check that you are still a member, then try again.');
+      showError(charactersError, cause?.message || 'Could not change campaign. Refresh to check that you are still a member, then try again.');
       setText(campaignSaveStatus, '');
       save.disabled = false; select.disabled = false;
     } finally { pendingCampaignWrites.delete(operation); }

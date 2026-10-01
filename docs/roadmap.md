@@ -28,6 +28,14 @@ For every Work Package B step, also run `npm run baseline:data` before editing. 
 
 ## Campaign-level work
 
+### `WPG-CAMPAIGN-SETTINGS`
+
+Status: `complete` (local implementation, October 1)
+
+Add campaign creation/edit settings for unavailable classes/origins and custom Setting Skills with names/descriptions. The user requires compatible class/origin choices before attaching a character. Creator and assigned GM manage settings; ordinary members read them. Shared skill Rules, graph, persistence and sheet rolls must treat learned Setting Skills like other paid skills. Existing campaigns default to unrestricted settings. Later settings changes preserve existing characters with warnings and never silently remove paid training. Verify server authorization/compatibility, stale context, immutable catalogue, skill costs/caps/dependencies and local browser create/edit/save/reload/mobile flows. Production remains unchanged until explicitly authorized. This extension does not complete `WPE-DOMAIN-MIGRATION` or `WPF-UI-SYSTEM`.
+
+Delivered: create/edit/read settings, strict compatible linking and character updates, 10 bounded custom skills sharing ordinary training and rolling, unchanged character persistence, retained existing choices and stale-save protection. Final checks: **716 units / 37 emulator tests / 16 HTML assets**, ten-artifact baseline and whitespace checks. Local browser evidence and exact semantics are in [campaigns.md](campaigns.md). Next: `WPE-DOMAIN-MIGRATION` compatibility and supported-mechanics acceptance, followed by `WPF-UI-SYSTEM` controls/accessibility/navigation consolidation. Future production release and source edits retain their separate authorization boundaries.
+
 ### `WPG-CAMPAIGNS`
 
 Status: `complete` (released October 1 under explicit authorization)

@@ -18,6 +18,8 @@ Joining requires a current 128-bit random invite code, authenticated identity an
 
 The older `characters/{uid}` path remains a deliberate legacy boundary and must not be expanded casually; migration/retirement belongs in the character repository work.
 
+Campaign settings are optional, bounded, strictly shaped campaign fields. The creator and assigned GM may update them; an assigned GM's additional update permission is restricted to `settings` and `updatedAt`. Membership joins cannot smuggle settings changes. Character attachment checks actual class/origin compatibility using the post-write character, preserving atomic link pairing. Linked owners may retain an existing newly banned choice but cannot switch to another unavailable one, including by deleting/recreating the character. Character grants, costs and learned skill validity continue to use the existing client Rules/codec boundaries; campaign settings never authorize another player's writes. A Super GM may get a known valid campaign to display a character's setting context, while unrestricted campaign enumeration stays denied.
+
 ## Storage boundary
 
 Portraits are scoped by user/character path. Rules restrict:

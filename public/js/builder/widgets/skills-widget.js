@@ -107,6 +107,7 @@ export class SkillsWidget {
         const skill = sanitizeText(row.querySelector('[data-field="skill"]')?.value, { maxLen: 96, collapse: true });
         const rank = String(row.querySelector('[data-field="rank"]')?.value || "");
         const grantedFloor = Number(row.dataset.grantedFloor || 0);
+        if (row.dataset.campaignSkill && Number(rank || 0) <= grantedFloor) return null;
         if (grantedFloor > 0 && Number(rank || 0) <= grantedFloor) return null;
         return { skill, rank };
       })
@@ -165,6 +166,8 @@ export class SkillsWidget {
       const rank = row.querySelector('[data-field="rank"]');
       const remove = row.querySelector('[data-action="remove"]');
       name.value = record.name;
+      name.setAttribute('aria-label', `${record.name} skill name`);
+      rank.setAttribute('aria-label', `${record.name} rank`);
       rank.innerHTML = rankOptions(record.grantedRank ? String(record.rank) : record.storedRank, record.maximumAssignable, { minimum: record.minimumAssignable });
       if (record.grantedRank) {
         row.dataset.grantedFloor = String(record.grantedRank);
@@ -172,6 +175,17 @@ export class SkillsWidget {
         name.title = "This skill is supplied by the class; only its paid rank increase is editable.";
         remove.disabled = true;
         remove.title = "Change the class utility skill choice to remove this granted rank.";
+      }
+      if (record.campaignSkill) {
+        row.dataset.campaignSkill = 'true';
+        name.disabled = true;
+        name.title = record.description || 'Available from your campaign.';
+        remove.remove();
+        if (record.description) {
+          const description = document.createElement('span');
+          description.className = 'sub'; description.textContent = record.description;
+          row.append(description);
+        }
       }
       container.appendChild(node);
       this.#bindEditableRow(row, domain);

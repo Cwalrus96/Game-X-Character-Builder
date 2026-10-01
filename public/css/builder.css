@@ -962,6 +962,8 @@ textarea {
 .skill-chip-static {
   grid-template-columns: minmax(0, 1fr) minmax(0, 140px);
 }
+.skill-chip[data-campaign-skill] { grid-template-columns: minmax(0, 1fr) minmax(0, 140px); }
+.skill-chip[data-campaign-skill] > .sub { grid-column: 1 / -1; white-space: normal; overflow-wrap: anywhere; }
 
 .skill-chip-label,
 .skill-chip-value {

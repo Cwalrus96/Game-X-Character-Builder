@@ -1,3 +1,4 @@
+import { loadCharacterGameData, assertCharacterCampaignCurrent } from '../core/character-campaign-context.js';
 import {
   clearError,
   confirmSaveWarnings,
@@ -16,7 +17,6 @@ import { BondsKeystonesWidget } from "./widgets/bonds-keystones-widget.js?v=choi
 import { VisitBuilderStep } from "../core/character-commands.js?v=wpe5";
 import { readCharacter } from "../core/database-reader.js?v=wpe6";
 import { replaceCharacter } from "../core/database-writer.js?v=wpe1";
-import { loadGameXData } from "../core/game-data.js";
 import { reconcileCharacterGraph } from "../core/graph-reconciler.js?v=natural-weapons2";
 
 const CURRENT_STEP_ID = "bonds-keystones";
@@ -104,7 +104,7 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
   if (!saved.ok) {
     showError(elements.error, saved.error?.code === "character-revision-conflict"
       ? "This character changed in another tab. Reload before saving again."
-      : "Could not save Bonds and Keystones.");
+      : saved.error?.code === 'campaign-context-changed' ? saved.error.message : "Could not save Bonds and Keystones.");
     setStatus(elements.status, "Error.");
     return false;
   }
@@ -120,7 +120,7 @@ async function main() {
   try {
     ctx = await initBuilderAuth({ signOutBtn: elements.signOutBtn, gmHintEl: elements.gmHint, statusEl: elements.status, errorEl: elements.error });
     setStatus(elements.status, "Loading game data...");
-    gameData = await loadGameXData({ cache: "no-store" });
+    gameData = await loadCharacterGameData({ ownerUid: ctx.editingUid, characterId: ctx.charId, cache: 'no-store' });
     const loaded = await readCharacter({ ownerUid: ctx.editingUid, characterId: ctx.charId, gameData });
     currentDoc = loaded.character;
     page = new CharacterSessionPage({
@@ -129,6 +129,7 @@ async function main() {
       metadata: loaded.metadata,
       gameData,
       confirmImpacts: confirmCharacterChange,
+      beforeSave: () => assertCharacterCampaignCurrent(gameData),
       onCommandRejected: ({ errors }) => { showError(elements.error, errors.join(" ") || "That Bond change is not valid."); setStatus(elements.status, "Change rejected."); },
       onStateChange: (state) => { currentDoc = state.working; clearError(elements.error); setStatus(elements.status, "Unsaved changes."); },
     });

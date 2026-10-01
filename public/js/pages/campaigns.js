@@ -6,6 +6,8 @@ import { campaigns } from '../core/campaign-client.js';
 import { confirmCampaignChange } from '../core/confirmation-dialog.js';
 import { createNavigationGuard, installNavigationGuard } from '../core/navigation-guard.js';
 import { campaignRole, campaignSheetUrl, campaignInviteUrl, formatInviteCode } from '../core/campaign-model.js';
+import { loadGameXData } from '../core/game-data.js';
+import { createCampaignSettingsEditor } from './campaign-settings-editor.js';
 
 const $ = id => document.getElementById(id);
 const status = $('campaignStatus');
@@ -18,6 +20,8 @@ let stopRoster = null;
 let detailVersion = 0;
 let busy = false;
 let pendingAction = null;
+let gameData = null;
+let createSettings = null;
 const navigation = createNavigationGuard({
   getState: () => ({ saving: !!pendingAction }),
   flush: async () => { await pendingAction; return true; },
@@ -94,6 +98,19 @@ async function renderDetail(campaign) {
     const memberName = uid => members.find(member => member.uid === uid)?.displayName || 'Player';
     const role = campaignRole(campaign, user.uid);
     root.replaceChildren(element('h2', campaign.name), element('p', `GM: ${memberName(campaign.gmUid)}${role.gm ? ' (you)' : ''}`));
+    const settingsForm = element('form');
+    const settingsEditor = createCampaignSettingsEditor({ gameData, settings: campaign.settings, readOnly: !role.creator && !role.gm });
+    settingsForm.append(settingsEditor.element);
+    if (role.creator || role.gm) {
+      const saveSettings = element('button', 'Save settings', 'btn'); saveSettings.type = 'submit';
+      settingsEditor.element.append(saveSettings);
+      settingsForm.addEventListener('submit', event => { event.preventDefault(); void act(saveSettings, async () => {
+        const settings = settingsEditor.read();
+        if (!await confirmCampaignChange('Save these campaign settings? New character additions must be compatible. Existing characters keep their class, origin and learned skills; newly unavailable choices show a warning.')) return 'No settings changed.';
+        await campaigns.updateSettings(campaign.id, settings, { expectedSettings: campaign.settings || {} }); return 'Campaign settings saved.';
+      }); });
+    }
+    root.append(settingsForm);
     if (role.creator) {
       const form = element('form');
       const nameLabel = element('label', 'Campaign name', 'field-block');
@@ -193,7 +210,10 @@ if (pendingCode) $('inviteCode').value = pendingCode;
 $('createCampaignForm').addEventListener('submit', event => {
   event.preventDefault();
   void act(event.submitter, async () => {
-    const id = await campaigns.create({ uid: user.uid, name: $('campaignName').value, displayName: $('memberName').value });
+    if (!createSettings) throw new Error('Campaign settings are still loading.');
+    const id = await campaigns.create({ uid: user.uid, name: $('campaignName').value, displayName: $('memberName').value, settings: createSettings.read() });
+    createSettings = createCampaignSettingsEditor({ gameData });
+    $('createCampaignSettings').replaceChildren(createSettings.element);
     $('campaignName').value = ''; selectCampaign(id); return 'Campaign created. Share its invite with your players.';
   });
 });
@@ -222,6 +242,9 @@ onAuth(async signedIn => {
     } });
     nav.signOut.style.display = '';
     const profile = await getDoc(doc(db, 'users', user.uid));
+    gameData = await loadGameXData();
+    createSettings = createCampaignSettingsEditor({ gameData });
+    $('createCampaignSettings').replaceChildren(createSettings.element);
     $('memberName').value = profile.data()?.displayName || user.displayName || '';
     stopMine = campaigns.observeMine(user.uid, list => {
       mine = list;

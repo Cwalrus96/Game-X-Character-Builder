@@ -1,3 +1,4 @@
+import { loadCharacterGameData, assertCharacterCampaignCurrent } from '../core/character-campaign-context.js';
 import {
   clearError,
   confirmSaveWarnings,
@@ -16,7 +17,6 @@ import { SkillsWidget } from "./widgets/skills-widget.js?v=skills-controls1";
 import { VisitBuilderStep } from "../core/character-commands.js?v=wpe4";
 import { readCharacter } from "../core/database-reader.js?v=wpe6";
 import { replaceCharacter } from "../core/database-writer.js?v=wpe1";
-import { loadGameXData } from "../core/game-data.js";
 import { reconcileCharacterGraph } from "../core/graph-reconciler.js?v=natural-weapons2";
 
 const CURRENT_STEP_ID = "skills";
@@ -85,7 +85,7 @@ async function saveBuilder({ openSheetAfter = false, intent = "save" } = {}) {
   }
   const saved = await page.save((snapshot) => replaceCharacter({ ownerUid: ctx.editingUid, characterId: ctx.charId, character: snapshot.character, expectedRevision: snapshot.expectedRevision }));
   if (!saved.ok) {
-    showError(elements.error, saved.error?.code === "character-revision-conflict" ? "This character changed in another tab. Reload before saving again." : "Could not save skills.");
+    showError(elements.error, saved.error?.code === "character-revision-conflict" ? "This character changed in another tab. Reload before saving again." : saved.error?.code === 'campaign-context-changed' ? saved.error.message : "Could not save skills.");
     setStatus(elements.status, "Error.");
     return false;
   }
@@ -101,12 +101,13 @@ async function main() {
   try {
     ctx = await initBuilderAuth({ signOutBtn: elements.signOutBtn, gmHintEl: elements.gmHint, statusEl: elements.status, errorEl: elements.error });
     setStatus(elements.status, "Loading game data...");
-    gameData = await loadGameXData({ cache: "no-store" });
+    gameData = await loadCharacterGameData({ ownerUid: ctx.editingUid, characterId: ctx.charId, cache: 'no-store' });
     const loaded = await readCharacter({ ownerUid: ctx.editingUid, characterId: ctx.charId, gameData });
     currentDoc = loaded.character;
     page = new CharacterSessionPage({
       character: loaded.character, revision: loaded.revision, metadata: loaded.metadata, gameData,
       confirmImpacts: confirmCharacterChange,
+      beforeSave: () => assertCharacterCampaignCurrent(gameData),
       onCommandRejected: ({ errors }) => { showError(elements.error, errors.join(" ") || "That skill change is not valid."); setStatus(elements.status, "Change rejected."); },
       onStateChange: (state) => { currentDoc = state.working; clearError(elements.error); setStatus(elements.status, "Unsaved changes."); },
     });

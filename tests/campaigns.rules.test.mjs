@@ -17,6 +17,7 @@ const store = uid => createCampaignStore({ db: dbFor(uid), api });
 const campaign = (db, id) => api.doc(db, 'campaigns', id);
 const char = (db, uid = 'bob', id = 'char-2') => api.doc(db, 'users', uid, 'characters', id);
 const link = (db, uid = 'bob', id = 'char-2') => api.doc(db, 'users', uid, 'characterCampaigns', id);
+const settingsFixture = () => ({ unavailableClassKeys: ['wizard'], unavailableOriginKeys: ['alien'], settingSkills: [{ name: 'Starship Piloting', description: 'Navigate the stars.' }] });
 async function create(uid = 'alice', name = 'Night Watch') {
   const id = await store(uid).create({ uid, name, displayName: uid });
   const value = (await api.getDoc(campaign(dbFor(uid), id))).data();
@@ -31,6 +32,68 @@ async function share(group, uid = 'bob', characterId = 'char-2') {
 test.before(async () => { env = await createRulesTestEnvironment(); });
 test.after(async () => { await env.cleanup(); });
 test.beforeEach(async () => { await env.clearFirestore(); await env.clearStorage(); await seedFirestore(env); });
+
+test('creator and assigned GM manage validated settings; players and outsiders cannot', async () => {
+  const group = await create(); await join(group); await join(group, 'eve');
+  const settings = settingsFixture();
+  await assertSucceeds(store('alice').updateSettings(group.id, settings));
+  await assert.rejects(store('alice').updateSettings(group.id, {}, { expectedSettings: {} }), /changed in another tab/);
+  await assertFails(store('bob').updateSettings(group.id, { ...settings, unavailableClassKeys: [] }));
+  await store('alice').update({ id: group.id, name: group.name, gmUid: 'bob' });
+  await assertSucceeds(store('bob').updateSettings(group.id, { ...settings, unavailableClassKeys: [] }));
+  await assertFails(store('eve').updateSettings(group.id, settings));
+  await assertFails(store('outsider').updateSettings(group.id, settings));
+  await assertFails(store('bob').update({ id: group.id, name: 'Spoof', gmUid: 'bob' }));
+  for (const invalid of [{ ...settings, settingSkills: [{}] }, { ...settings, settingSkills: [{ name: 1, description: '' }] }, { ...settings, unavailableClassKeys: [4] }, { ...settings, unavailableOriginKeys: [null] }, { ...settings, arbitrary: true }]) {
+    await assertFails(api.updateDoc(campaign(dbFor('alice'), group.id), { settings: invalid, updatedAt: api.serverTimestamp() }));
+  }
+  // Upper bound exercises the Security Rules expression budget as well as size.
+  await assertSucceeds(store('alice').updateSettings(group.id, { ...settings, settingSkills: Array.from({ length: 10 }, (_, i) => ({ name: `Skill ${i}`, description: 'x'.repeat(1000) })) }));
+});
+
+test('incompatible character attachment and forged atomic links fail without removing an existing link', async () => {
+  const group = await create(); const other = await create('eve'); await join(group); await join(other);
+  await share(other);
+  await store('alice').updateSettings(group.id, settingsFixture());
+  const bob = dbFor('bob');
+  await api.updateDoc(char(bob), { 'builder.classKey': 'wizard', 'builder.originKey': 'alien' });
+  await assert.rejects(share(group), /class and origin.*unavailable/);
+  assert.equal((await api.getDoc(link(bob))).data().campaignId, other.id);
+  const previous = (await api.getDoc(link(bob))).data();
+  const forged = api.writeBatch(bob);
+  forged.delete(api.doc(bob, 'campaigns', previous.campaignId, 'characters', previous.rosterId));
+  forged.set(link(bob), { campaignId: group.id, rosterId: 'forged' });
+  forged.set(api.doc(bob, 'campaigns', group.id, 'characters', 'forged'), { ownerUid: 'bob', characterId: 'char-2' });
+  await assertFails(forged.commit());
+  assert.equal((await api.getDoc(link(bob))).data().campaignId, other.id);
+  await api.updateDoc(char(bob), { 'builder.classKey': 'warrior', 'builder.originKey': 'human' });
+  await assertSucceeds(share(group));
+  await assertFails(api.updateDoc(char(bob), { 'builder.classKey': 'wizard' }));
+  await assertFails(api.updateDoc(char(bob), { 'builder.originKey': 'alien' }));
+  await assertSucceeds(api.updateDoc(char(bob), { 'builder.name': 'Still editable' }));
+  const before = (await api.getDoc(char(bob))).data();
+  await api.deleteDoc(char(bob));
+  await assertFails(api.setDoc(char(bob), { ...before, builder: { ...before.builder, classKey: 'wizard' } }));
+  await assertSucceeds(api.setDoc(char(bob), before));
+});
+
+test('settings defaults, linked context and revocation preserve paid skills and old characters', async () => {
+  const group = await create(); await join(group);
+  const bob = dbFor('bob');
+  await api.updateDoc(char(bob), { 'builder.classKey': 'wizard', 'builder.sheet.repeatables.settingSkills': [{ skill: 'Starship Piloting', rank: '1' }] });
+  await share(group);
+  assert.equal((await store('bob').characterContext({ uid: 'bob', characterId: 'char-2' })).settings.settingSkills.length, 0);
+  await store('alice').updateSettings(group.id, settingsFixture());
+  const context = await store('bob').characterContext({ uid: 'bob', characterId: 'char-2' });
+  assert.equal(context.settings.settingSkills[0].name, 'Starship Piloting');
+  await assertSucceeds(api.updateDoc(char(bob), { 'builder.name': 'Existing class retained' }));
+  assert.equal((await api.getDoc(char(bob))).data().builder.classKey, 'wizard');
+  const superStore = createCampaignStore({ db: env.authenticatedContext('super', { gm: true }).firestore(), api });
+  assert.equal((await superStore.characterContext({ uid: 'bob', characterId: 'char-2' })).id, group.id);
+  await store('alice').removeMember(group.id, 'bob');
+  assert.equal(await store('bob').characterContext({ uid: 'bob', characterId: 'char-2' }), null);
+  assert.deepEqual((await api.getDoc(char(bob))).data().builder.sheet.repeatables.settingSkills, [{ skill: 'Starship Piloting', rank: '1' }]);
+});
 
 test('any signed-in player can create; only membership-constrained campaign discovery works', async () => {
   const group = await create();
@@ -125,7 +188,7 @@ test('forged/unpaired links, foreign characters and nonmember campaigns are reje
   await assertFails(api.setDoc(api.doc(bob, 'campaigns', group.id, 'characters', 'invented'), { ownerUid: 'bob', characterId: 'char-2' }));
   await assertFails(share(outsider));
   await assertFails(store('bob').setCharacterCampaign({ uid: 'alice', characterId: 'char-1', campaignId: group.id }));
-  await assertFails(share(group, 'bob', 'missing-character'));
+  await assert.rejects(share(group, 'bob', 'missing-character'), /unavailable/);
   await share(group);
   await assertFails(api.deleteDoc(link(bob)));
   const data = (await api.getDoc(link(bob))).data();

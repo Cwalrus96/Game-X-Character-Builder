@@ -1,5 +1,6 @@
 import { sanitizeText } from "./data-sanitization.js";
 import { isGameDataRecordSelectable } from "./selection-rules.js";
+import { campaignChoiceUnavailable } from './campaign-settings.js';
 
 function freeze(value) {
   if (Array.isArray(value)) value.forEach(freeze);
@@ -14,6 +15,7 @@ export function getOriginSelectionState(gameData, builder) {
     name: sanitizeText(origin?.name, { maxLen: 160, collapse: true }) || "Origin",
     status: sanitizeText(origin?.status, { maxLen: 32, collapse: true }),
     selectable: isGameDataRecordSelectable(origin),
+    campaignUnavailable: campaignChoiceUnavailable(gameData, 'originKey', origin.originKey),
     summary: sanitizeText(origin?.summary, { maxLen: 4000, collapse: true }),
     description: sanitizeText(origin?.description, { maxLen: 4000, collapse: true }),
     examples: Array.isArray(origin?.examples) ? origin.examples.map(String) : [],

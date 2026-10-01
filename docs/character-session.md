@@ -73,6 +73,8 @@ Impact codes, paths, node identities, and before/after values are authoritative 
 
 ## Save snapshots and revisions
 
+Campaign-aware pages supply an optional `CharacterSessionPage.beforeSave` callback. It checks the current campaign membership/settings against the context used for reconciliation before calling the writer. A mismatch rejects the save and preserves working edits; the player must reload before saving. This is page orchestration, not a Firebase dependency in `CharacterSession`. Firebase Rules separately enforce class/origin compatibility at the persistence boundary.
+
 `createSaveSnapshot()` captures the exact accepted working value and current expected persistence revision. A pending proposal must be decided first, and only one save may be active.
 
 The page coordinates the separate database boundary: it requests a save snapshot, passes that exact character and expected revision to the database writer, then acknowledges the returned revision. `CharacterSession` does not import or call Firebase. On success, `acknowledgeSave()` requires the matching save identity and exactly the next revision. Persisted state advances to the snapshot that was actually written. If the user accepted another edit while that write was in flight, working state keeps that newer edit and remains dirty. A rejected save clears only the in-flight marker; it does not discard working edits.
