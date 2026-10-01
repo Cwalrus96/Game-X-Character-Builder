@@ -47,8 +47,8 @@ import { renderGrantedWeaponHtml } from "../core/weapon-grant-display.js?v=weapo
 import { getFightingStyleProjection } from "../core/fighting-style-rules.js";
 import { renderTraitProjectionHtml } from "../core/trait-display.js";
 import { sortClassFeatureAbilitiesByLevel } from "../core/class-feature-display.js";
-import { ensureAppTopNav } from "../core/app-nav.js?v=campaigns1";
-import { renderBuilderNav } from "../builder/builder-nav.js";
+import { ensureAppTopNav } from "../core/app-nav.js?v=mobile-menu1";
+import { renderBuilderNav } from "../builder/builder-nav.js?v=mobile-menu1";
 import {
   sanitizeCharName,
   sanitizeStoragePath,

@@ -1,4 +1,4 @@
-@import url('./site-core.css');
+@import url('./site-core.css?v=mobile-menu2');
 
 .gm-users-page {
   --gm-panel: #f7f2ea;

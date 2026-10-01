@@ -9,8 +9,8 @@ import {
   openCharacterSheet,
   setStatus,
   showError,
-} from "./builder-common.js?v=wpe2";
-import { renderBuilderNavMounts } from "./builder-nav.js?v=natural-weapons2";
+} from "./builder-common.js?v=mobile-menu1";
+import { renderBuilderNavMounts } from "./builder-nav.js?v=mobile-menu1";
 import { getBuilderStepInformationalMessages } from "./builder-step-impacts.js?v=wpe11";
 import { CharacterSessionPage } from "./character-session-page.js?v=natural-weapons2";
 import { OriginWidget } from "./widgets/origin-widget.js?v=campaign-settings2";

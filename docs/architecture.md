@@ -19,6 +19,8 @@ Execution status and named steps live in [status.md](status.md) and [roadmap.md]
 
 ## Product shape
 
+`app-nav.js` owns the responsive app header across Characters, Campaigns, Super GM, builder and sheet pages. Mobile disclosure controls wrap the existing destinations and builder mount, without creating another navigation/save policy. `site-core.css` owns its layout; sheet appearance only adjusts its surface colors. The previous sheet-only static-header exception is retired because the shared collapsed header is now compact.
+
 Game X Character Builder is a static, Firebase-hosted web application:
 
 - Firebase Hosting serves HTML, CSS, browser ES modules, and reviewed generated game-data JSON.

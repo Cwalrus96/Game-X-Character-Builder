@@ -12,9 +12,9 @@ import {
   confirmCharacterChange,
   ensureBuilderShellUi,
   markBuilderNavigationClean,
-} from "./builder-common.js?v=wpe2";
+} from "./builder-common.js?v=mobile-menu1";
 
-import { renderBuilderNavMounts } from "./builder-nav.js?v=natural-weapons2";
+import { renderBuilderNavMounts } from "./builder-nav.js?v=mobile-menu1";
 import { getBuilderStepInformationalMessages } from "./builder-step-impacts.js?v=wpe11";
 import { CharacterSessionPage } from "./character-session-page.js?v=natural-weapons2";
 import { TechniquesWidget } from "./widgets/techniques-widget.js?v=skill-groups1";

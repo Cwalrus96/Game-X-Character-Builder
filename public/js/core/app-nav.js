@@ -3,6 +3,58 @@
  * Keep global destinations here so page chrome does not drift over time.
  */
 
+const mobileMenus = new WeakMap();
+
+function enableMobileMenu(topbar, toggle, nav, builderNavSlot, brand) {
+  mobileMenus.get(topbar)?.();
+  const mobile = window.matchMedia('(max-width: 760px)');
+  let open = false;
+  function render() {
+    toggle.hidden = !mobile.matches;
+    nav.hidden = builderNavSlot.hidden = mobile.matches && !open;
+    toggle.setAttribute('aria-expanded', String(mobile.matches && open));
+    toggle.setAttribute('aria-label', open ? 'Close navigation menu' : 'Open navigation menu');
+    topbar.classList.toggle('app-topbar--menu-open', mobile.matches && open);
+  }
+  function close(restoreFocus = false) {
+    open = false;
+    render();
+    if (restoreFocus && mobile.matches) toggle.focus();
+  }
+  const onToggle = () => { open = !open; render(); };
+  const onKey = event => {
+    if (event.key === 'Escape' && mobile.matches && open) {
+      event.preventDefault(); close(true);
+    }
+  };
+  // A navigation/save dialog must retain its visible opener for cancellation.
+  const onOutside = event => {
+    if (!topbar.contains(event.target) && !event.target.closest?.('dialog[open]')) close();
+  };
+  const onFocus = event => {
+    if (event.relatedTarget && !topbar.contains(event.relatedTarget)
+      && !event.relatedTarget.closest?.('dialog[open]')) close();
+  };
+  const onResize = () => {
+    const hadHiddenFocus = topbar.contains(document.activeElement) && document.activeElement !== brand;
+    close();
+    if (hadHiddenFocus) (mobile.matches ? toggle : brand).focus();
+  };
+  toggle.addEventListener('click', onToggle);
+  topbar.addEventListener('keydown', onKey);
+  topbar.addEventListener('focusout', onFocus);
+  document.addEventListener('pointerdown', onOutside);
+  mobile.addEventListener('change', onResize);
+  mobileMenus.set(topbar, () => {
+    toggle.removeEventListener('click', onToggle);
+    topbar.removeEventListener('keydown', onKey);
+    topbar.removeEventListener('focusout', onFocus);
+    document.removeEventListener('pointerdown', onOutside);
+    mobile.removeEventListener('change', onResize);
+  });
+  render();
+}
+
 function enableFloatingTopNav(topbar) {
   if (!topbar || topbar.dataset.appFloatingNav === "true") return;
   topbar.dataset.appFloatingNav = "true";
@@ -29,6 +81,13 @@ function enableFloatingTopNav(topbar) {
   const updateFromScroll = () => {
     const currentY = Math.max(0, window.scrollY || 0);
     const delta = currentY - lastY;
+
+    if (window.matchMedia('(max-width: 760px)').matches) {
+      setCollapsed(false);
+      lastY = currentY;
+      downDistance = upDistance = 0;
+      return;
+    }
 
     if (window.performance.now() < suppressUntil) {
       lastY = currentY;
@@ -112,6 +171,7 @@ export function ensureAppTopNav({
   mainRow.append(brand);
 
   const nav = document.createElement("nav");
+  nav.id = 'appMainNav';
   nav.className = "app-nav";
   nav.setAttribute("aria-label", "Main navigation");
 
@@ -150,12 +210,21 @@ export function ensureAppTopNav({
   }
   nav.append(signOut);
 
-  mainRow.append(nav);
+  const menuToggle = document.createElement('button');
+  menuToggle.className = 'app-nav-item app-menu-toggle';
+  menuToggle.type = 'button';
+  menuToggle.setAttribute('aria-controls', 'appMainNav appBuilderNavSlot');
+  const icon = document.createElement('span');
+  icon.setAttribute('aria-hidden', 'true');
+  icon.textContent = '☰';
+  menuToggle.append(icon);
+  mainRow.append(menuToggle, nav);
 
   const builderNavSlot = document.createElement("div");
   builderNavSlot.className = "app-builder-nav-slot";
   builderNavSlot.id = "appBuilderNavSlot";
 
   topbar.append(mainRow, builderNavSlot);
-  return { topbar, mainRow, nav, builderNavSlot, charactersLink, profileLink, gmUsersLink, signOut };
+  enableMobileMenu(topbar, menuToggle, nav, builderNavSlot, brand);
+  return { topbar, mainRow, nav, builderNavSlot, charactersLink, profileLink, gmUsersLink, signOut, menuToggle };
 }

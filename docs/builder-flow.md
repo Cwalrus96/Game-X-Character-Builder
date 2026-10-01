@@ -41,6 +41,8 @@ Current order:
 
 ## Navigation contract
 
+At widths up to 760px, the shared app header is one 54px bar with the brand and a 44px hamburger button. The existing main links and builder-step surface are disclosed together; hidden links are removed from keyboard traversal. Escape closes the menu and returns focus to its button; outside interaction or focus departure closes it, except while a navigation/save dialog needs its opener for cancellation. The expanded header scrolls within the viewport. Desktop navigation and the existing save/dirty-navigation callbacks remain unchanged. Sheet and builder use the same component, including read-only campaign back links. Asset versions keep cached pages on the matching shared navigation module.
+
 `public/js/builder/builder-nav.js` renders the shared orientation/navigation surface:
 
 - current step uses `aria-current="step"`;

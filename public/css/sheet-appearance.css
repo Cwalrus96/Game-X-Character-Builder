@@ -99,8 +99,7 @@
 .character-sheet-page .roll-dialog { width: min(390px, calc(100% - 24px)); max-width: calc(100% - 24px); }
 @media (max-width: 520px) { .sheet-settings { top: 12px; right: 12px; max-height: calc(100dvh - 24px); } #identity_title { font-size: 1.15em; } }
 @media (max-width: 680px) {
-  /* The stacked navigation must not cover the sheet on phones, especially with large text. */
-  .character-sheet-page .app-topbar { position: static !important; }
+  /* Shared phone navigation is now one compact, expandable bar. */
   #sheet #resources td { border-radius: var(--sheet-radius); }
   #sheet #resources td::before {
     padding: 5px 8px; border-bottom: 1px solid var(--primary-color); border-radius: var(--sheet-radius);

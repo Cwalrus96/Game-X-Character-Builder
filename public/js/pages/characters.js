@@ -1,7 +1,7 @@
 import { db, storage } from "../core/firebase.js";
 import { onAuth, signOutNow, initAuthRedirectHandling, getClaims } from "../core/auth-ui.js";
-import { ensureAppTopNav } from "../core/app-nav.js?v=campaigns1";
-import { campaigns } from "../core/campaign-client.js";
+import { ensureAppTopNav } from "../core/app-nav.js?v=mobile-menu1";
+import { campaigns } from "../core/campaign-client.js?v=campaign-delete1";
 import { confirmCampaignChange } from '../core/confirmation-dialog.js';
 import { createNavigationGuard, installNavigationGuard } from '../core/navigation-guard.js';
 import { createDefaultCharacterDoc } from "../core/database-reader.js";

@@ -310,30 +310,70 @@ body > * {
 }
 
 @media (max-width: 760px) {
+  .characters-home .page { margin-top: 0 !important; }
+  body:has(.app-topbar) { padding-top: 0 !important; margin-top: 0; }
   .app-topbar {
-    align-items: stretch;
-    flex-direction: column;
-    top: 6px;
-    max-width: calc(100vw - 16px);
-    width: calc(100% - 16px);
+    top: 0;
+    max-width: 100%;
+    width: 100%;
+    padding: 4px 12px !important;
+    gap: 0 !important;
+    margin-bottom: 12px !important;
+    border-width: 0 0 2px;
+    max-height: 90vh;
+    max-height: 90dvh;
+    overflow-y: auto !important;
+    box-shadow: none;
     clip-path: none;
+    transform: none !important;
+    opacity: 1 !important;
   }
 
   .app-topbar-main {
-    align-items: stretch;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 44px;
+    align-items: center;
+    gap: 0 12px;
   }
 
-  .app-brand {
-    white-space: normal;
+  .app-topbar .app-brand {
+    font-size: 1.35rem;
+    white-space: nowrap;
+    transform: none;
+    opacity: 1;
+  }
+
+  .app-menu-toggle {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    font-size: 26px;
+    line-height: 1;
+    box-shadow: none;
   }
 
   .app-nav {
-    justify-content: stretch;
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    padding: 12px 2px;
+    gap: 8px;
   }
 
-  .app-nav-item {
-    flex: 1 1 140px;
+  .app-topbar .app-nav-item {
+    min-height: 44px;
+    font-size: 1rem;
+    white-space: normal;
+  }
+
+  .app-topbar .app-menu-toggle { font-size: 26px; }
+
+  .app-topbar .app-builder-nav-slot {
+    max-height: none;
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+    padding-bottom: 8px;
   }
 
   .app-builder-nav-slot .builderNav {
@@ -344,6 +384,19 @@ body > * {
 
   .app-builder-nav-slot .builderStepList {
     overflow: visible;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-content: stretch;
+  }
+
+  .app-builder-nav-slot .builderStep {
+    min-height: 44px;
+  }
+
+  .app-builder-nav-slot .builderStepLabel a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
   }
 
   .app-builder-nav-slot .builderNavControl {
@@ -359,3 +412,5 @@ body > * {
     justify-content: center;
   }
 }
+
+.app-topbar [hidden] { display: none !important; }

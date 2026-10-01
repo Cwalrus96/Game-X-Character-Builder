@@ -1,4 +1,4 @@
-@import url('./site-core.css');
+@import url('./site-core.css?v=mobile-menu2');
 
 .login-page {
   --login-panel: rgba(18, 18, 24, 0.94);
