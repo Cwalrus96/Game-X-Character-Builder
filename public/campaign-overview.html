@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Game X – GM Overview</title>
+  <link rel="stylesheet" href="/css/styles.css?v=mobile-menu2" />
+  <link rel="stylesheet" href="/css/characters.css?v=mobile-menu2" />
+  <link rel="stylesheet" href="/css/campaigns.css?v=campaign-overview2" />
+</head>
+<body data-theme="na" class="characters-home">
+  <div class="page">
+    <div class="topbar topbar-panel"></div>
+    <main class="campaign-layout campaign-overview">
+      <div class="campaign-actions"><a id="campaignBack" class="btn secondary" href="/campaigns.html">← Campaign</a><a id="campaignSettingsLink" class="btn secondary" hidden>Campaign Settings</a></div>
+      <header><h1 id="overviewTitle">GM Overview</h1><p>Live saved sheet values · recent rolls</p></header>
+      <p id="campaignStatus" role="status" aria-live="polite">Loading campaign…</p>
+      <p id="campaignError" class="error" role="alert" hidden></p>
+      <p id="overviewEmpty" hidden>No characters linked yet. Add characters from the campaign page.</p>
+      <div id="overviewCharacters" class="overview-grid"></div>
+    </main>
+  </div>
+  <script type="module" src="/js/pages/campaign-overview.js?v=campaign-overview4"></script>
+</body>
+</html>

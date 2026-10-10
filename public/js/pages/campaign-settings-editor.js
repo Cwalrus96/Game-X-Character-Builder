@@ -11,6 +11,7 @@ function node(tag, text, className) {
 export function createCampaignSettingsEditor({ gameData, settings = {}, readOnly = false }) {
   const value = normalizeCampaignSettings(settings);
   const root = node('details', '', 'campaign-settings');
+  root.open = true;
   root.append(node('summary', 'Campaign Settings'));
   root.append(node('p', 'Mark choices unavailable for this setting. Characters must have a compatible class and origin before being added.', 'sub'));
   const controls = {};

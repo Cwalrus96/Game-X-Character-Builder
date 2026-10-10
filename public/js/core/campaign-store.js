@@ -164,7 +164,9 @@ export function createCampaignStore({ db, api, readCharacter }) {
       return snapshotRows(await getDocs(collection(db, 'campaigns', id, 'members')));
     },
     observeRoster(id, onChange, onError) {
-      return onSnapshot(collection(db, 'campaigns', id, 'characters'), snap => onChange(snapshotRows(snap)), onError);
+      return onSnapshot(collection(db, 'campaigns', id, 'characters'), { includeMetadataChanges: true }, snap => {
+        if (!snap.metadata.hasPendingWrites) onChange(snapshotRows(snap));
+      }, onError);
     },
     async character(entry) {
       return readCharacter({ ownerUid: entry.ownerUid, characterId: entry.characterId });

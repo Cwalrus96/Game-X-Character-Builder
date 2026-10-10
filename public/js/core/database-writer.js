@@ -15,6 +15,7 @@ import {
 
 import { loadGameXData } from "./game-data.js";
 import { isAppearanceValue } from "./sheet-appearance.js";
+import { validateCharacterRollData } from './character-roll-history.js';
 import { createCharacterMigrationReferences } from "./character-migrations.js";
 import {
   CharacterPersistenceError,
@@ -71,6 +72,30 @@ async function resolveMigrationReferences({ references, gameData } = {}) {
 async function resolveFirestore(firestore) {
   if (firestore) return firestore;
   return (await import("./firebase.js")).db;
+}
+
+/** Idempotent activity writes never change the parent character or its revision. */
+export async function saveCharacterRoll({ ownerUid, characterId, rollId, data,
+  firestore = null, firestoreApi = DEFAULT_FIRESTORE_API } = {}) {
+  const uid = requireCharacterIdentity(ownerUid, 'ownerUid');
+  const id = requireCharacterIdentity(characterId, 'characterId');
+  const activityId = requireCharacterIdentity(rollId, 'rollId');
+  const value = validateCharacterRollData(data);
+  const db = await resolveFirestore(firestore);
+  const ref = firestoreApi.doc(db, 'users', uid, 'characters', id, 'rolls', activityId);
+  await firestoreApi.runTransaction(db, async transaction => {
+    const snapshot = await transaction.get(ref);
+    if (!snapshot.exists()) {
+      transaction.set(ref, { ...value, actorUid: uid, createdAt: firestoreApi.serverTimestamp() });
+      return;
+    }
+    const previous = snapshot.data();
+    if (previous.actorUid !== uid || Object.keys(value).some(key => key !== 'targetNumber'
+      && JSON.stringify(previous[key]) !== JSON.stringify(value[key]))) {
+      throw new Error('A saved roll cannot be replaced with a different result.');
+    }
+    if (previous.targetNumber !== value.targetNumber) transaction.update(ref, { targetNumber: value.targetNumber });
+  });
 }
 
 function requireExistingSnapshot(snapshot) {

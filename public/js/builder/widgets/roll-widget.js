@@ -14,7 +14,7 @@ const esc = value => escapeHtml(String(value ?? ""));
 const option = (value, label) => `<option value="${esc(value)}">${esc(label)}</option>`;
 const numberField = (id, label, value = 0, help = "") => `<label class="roll-field" for="${id}">${label}<input id="${id}" type="text" autocomplete="off" value="${value}"/>${help ? `<small>${help}</small>` : ""}</label>`;
 
-export function createRollDialog({ nextFace = randomDieFace, onAppearanceChange = () => {} } = {}) {
+export function createRollDialog({ nextFace = randomDieFace, onAppearanceChange = () => {}, onRollResult = () => {}, createId = () => crypto.randomUUID() } = {}) {
   const dialog = document.createElement("dialog");
   dialog.className = "roll-dialog";
   dialog.setAttribute("aria-labelledby", "roll-title");
@@ -236,7 +236,9 @@ export function createRollDialog({ nextFace = randomDieFace, onAppearanceChange 
       const outcome = current.config.noRoll ? null : resolveRollOutcome(current.roll.hits, tn);
       el("roll-result-style-notes").innerHTML = renderFightingStyleNotes(current.config.styles, { criticalSuccess: outcome?.key === "criticalSuccess", includeConditions: true });
       el("roll-tn").setAttribute("aria-invalid", "false");
+      const changed = current.tn !== tn;
       current.tn = tn;
+      if (changed && !current.config.noRoll) onRollResult(current);
       el("roll-outcome").textContent = outcome
         ? `${outcome.label} against TN ${tn} · margin ${outcome.margin >= 0 ? "+" : ""}${outcome.margin}`
         : current.config.noRoll ? "No target number is needed." : "";
@@ -300,11 +302,12 @@ export function createRollDialog({ nextFace = randomDieFace, onAppearanceChange 
       const config = savedConfig || configuration();
       const result = resolveDicePool(config.pool, nextFace);
       const damage = calculateAttackDamage({ ...config.damageArgs, hits: result.hits });
-      const record = { id: ++nextId, config: structuredClone(config), roll: result, damage, tn: null };
+      const record = { id: ++nextId, historyId: createId(), config: structuredClone(config), roll: result, damage, tn: null };
       history.unshift(record);
       history.splice(10);
       showError();
       showResult(record, { animate: true });
+      if (!config.noRoll) onRollResult(record);
       el("roll-history").hidden = false;
       el("roll-history-list").innerHTML = history.map(item => `<button class="roll-history-item" type="button" data-roll-history="${item.id}">${esc(item.config.title)} · ${item.config.noRoll ? "No roll" : `${item.roll.hits} Hits`}</button>`).join("");
       el("roll-total").focus({ preventScroll: true });
@@ -330,6 +333,7 @@ export function createRollDialog({ nextFace = randomDieFace, onAppearanceChange 
   dialog.addEventListener("close", () => restoreDialogFocus(opener));
 
   return {
+    clearHistory() { history.length = 0; current = null; el('roll-history').hidden = true; el('roll-history-list').replaceChildren(); },
     setAppearance(value) {
       const next = normalizeAppearance(value);
       const changed = ["diceTheme", "diceEffects", "animateDice"].some(key => next[key] !== appearance[key]);

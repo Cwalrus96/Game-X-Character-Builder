@@ -127,6 +127,41 @@ service cloud.firestore {
       return !existsAfter(/databases/$(database)/documents/campaigns/$(resource.data.campaignId)/characters/$(resource.data.rosterId));
     }
 
+    function validRollFaceAt(data, index) {
+      return data.dice.size() <= index || (data.dice[index] is int && data.dice[index] >= 1 && data.dice[index] <= 6);
+    }
+    function rollFaceHits(data, index) {
+      return data.dice.size() <= index ? 0 : int((data.dice[index] - 1) / 2);
+    }
+    function rollNumber(value, maximum) {
+      return value is int && value >= 0 && value <= maximum;
+    }
+    function validRoll(data, uid) {
+      return data.keys().hasAll(['label', 'attributeKey', 'attributeValue', 'skillName', 'skillRank', 'modifierDice',
+          'dice', 'coin', 'automaticHits', 'hits', 'targetNumber', 'fullDamage', 'onHitDamageBonus', 'normalCritical', 'actorUid', 'createdAt'])
+        && data.keys().hasOnly(['label', 'attributeKey', 'attributeValue', 'skillName', 'skillRank', 'modifierDice',
+          'dice', 'coin', 'automaticHits', 'hits', 'targetNumber', 'fullDamage', 'onHitDamageBonus', 'normalCritical', 'actorUid', 'createdAt'])
+        && data.actorUid == uid && data.createdAt is timestamp
+        && data.label is string && data.label.size() > 0 && data.label.size() <= 240
+        && data.skillName is string && data.skillName.size() > 0 && data.skillName.size() <= 96
+        && data.attributeKey in ['strength', 'agility', 'intellect', 'willpower', 'attunement', 'heart']
+        && rollNumber(data.attributeValue, 9999) && rollNumber(data.skillRank, 9999)
+        && data.modifierDice is number && data.modifierDice >= -1000 && data.modifierDice <= 1000
+        && data.modifierDice * 2 == int(data.modifierDice * 2)
+        && rollNumber(data.automaticHits, 100000) && rollNumber(data.hits, 100000)
+        && data.dice is list && data.dice.size() <= 10
+        && validRollFaceAt(data, 0) && validRollFaceAt(data, 1) && validRollFaceAt(data, 2) && validRollFaceAt(data, 3)
+        && validRollFaceAt(data, 4) && validRollFaceAt(data, 5) && validRollFaceAt(data, 6) && validRollFaceAt(data, 7)
+        && validRollFaceAt(data, 8) && validRollFaceAt(data, 9)
+        && (data.coin == null || rollNumber(data.coin, 1))
+        && data.hits == rollFaceHits(data, 0) + rollFaceHits(data, 1) + rollFaceHits(data, 2) + rollFaceHits(data, 3)
+          + rollFaceHits(data, 4) + rollFaceHits(data, 5) + rollFaceHits(data, 6) + rollFaceHits(data, 7)
+          + rollFaceHits(data, 8) + rollFaceHits(data, 9) + (data.coin == null ? 0 : data.coin) + data.automaticHits
+        && (data.targetNumber == null || rollNumber(data.targetNumber, 100000))
+        && (data.fullDamage == null || rollNumber(data.fullDamage, 1000000))
+        && rollNumber(data.onHitDamageBonus, 1000000) && data.normalCritical is bool;
+    }
+
     // --- New schema ---
     // users/{uid}
     // users/{uid}/characters/{characterId}
@@ -139,6 +174,19 @@ service cloud.firestore {
         allow list, delete: if gmOrSelf(uid);
         allow create: if isGM() || (isSelf(uid) && allowedCampaignCharacterCreate(uid, characterId));
         allow update: if isGM() || (isSelf(uid) && allowedCampaignCharacterUpdate(uid, characterId));
+
+        match /rolls/{rollId} {
+          allow read: if exists(/databases/$(database)/documents/users/$(uid)/characters/$(characterId))
+            && (gmOrSelf(uid) || (signedIn() && campaignSheetReader(uid, characterId)));
+          allow create: if isSelf(uid)
+            && exists(/databases/$(database)/documents/users/$(uid)/characters/$(characterId))
+            && validRoll(request.resource.data, uid) && request.resource.data.createdAt == request.time;
+          // Results remain immutable; a player can supply or correct the TN afterward.
+          allow update: if isSelf(uid)
+            && exists(/databases/$(database)/documents/users/$(uid)/characters/$(characterId))
+            && validRoll(request.resource.data, uid)
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['targetNumber']);
+        }
       }
 
       match /characterCampaigns/{characterId} {

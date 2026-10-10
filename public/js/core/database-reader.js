@@ -10,6 +10,7 @@ import {
   doc,
   getDoc,
   onSnapshot,
+  query, orderBy, limit,
 } from "../../vendor/firebase/firebase-firestore.js";
 
 import { loadGameXData } from "./game-data.js";
@@ -42,12 +43,14 @@ import {
 } from "./character-rules.js";
 
 import { CHARACTER_SCHEMA_VERSION } from "./database-writer.js";
+import { validateCharacterRollData, RECENT_CHARACTER_ROLL_LIMIT } from './character-roll-history.js';
 
 const DEFAULT_FIRESTORE_API = Object.freeze({
   collection,
   doc,
   getDoc,
   onSnapshot,
+  query, orderBy, limit,
 });
 
 async function resolveMigrationReferences({ references, gameData } = {}) {
@@ -118,6 +121,43 @@ export async function readCharacter({
     firestoreApi.doc(resolvedFirestore, "users", uid, "characters", id),
   );
   return decodeSnapshot(snapshot, { ownerUid: uid, references: resolvedReferences });
+}
+
+/** Confirmed live reads use the same migration/codec boundary as one-shot reads. */
+export async function observeCharacter({ ownerUid, characterId, references = null, gameData = null,
+  onChange, onError, firestore = null, firestoreApi = DEFAULT_FIRESTORE_API } = {}) {
+  const uid = requireCharacterIdentity(ownerUid, 'ownerUid');
+  const id = requireCharacterIdentity(characterId, 'characterId');
+  const resolvedReferences = await resolveMigrationReferences({ references, gameData });
+  const db = await resolveFirestore(firestore);
+  return firestoreApi.onSnapshot(firestoreApi.doc(db, 'users', uid, 'characters', id),
+    { includeMetadataChanges: true }, snapshot => {
+      if (snapshot.metadata.hasPendingWrites) return;
+      try { onChange(decodeSnapshot(snapshot, { ownerUid: uid, references: resolvedReferences })); }
+      catch (error) { onError?.(error); }
+    }, onError);
+}
+
+/** Private, bounded activity reads; activity is separate from canonical state. */
+export async function observeCharacterRolls({ ownerUid, characterId, onChange, onError,
+  firestore = null, firestoreApi = DEFAULT_FIRESTORE_API } = {}) {
+  const uid = requireCharacterIdentity(ownerUid, 'ownerUid');
+  const id = requireCharacterIdentity(characterId, 'characterId');
+  const db = await resolveFirestore(firestore);
+  const ref = firestoreApi.query(firestoreApi.collection(db, 'users', uid, 'characters', id, 'rolls'),
+    firestoreApi.orderBy('createdAt', 'desc'), firestoreApi.limit(RECENT_CHARACTER_ROLL_LIMIT));
+  return firestoreApi.onSnapshot(ref, { includeMetadataChanges: true }, snapshot => {
+    if (snapshot.metadata.hasPendingWrites) return;
+    const rolls = [], invalid = [];
+    for (const item of snapshot.docs) {
+      try {
+        const { actorUid, createdAt, ...data } = item.data();
+        if (actorUid !== uid || !timestampMillis(createdAt)) throw new Error('Invalid roll metadata.');
+        rolls.push({ id: item.id, createdAt: timestampMillis(createdAt), data: validateCharacterRollData(data) });
+      } catch (error) { invalid.push({ id: item.id, error }); }
+    }
+    onChange({ rolls, invalid });
+  }, onError);
 }
 
 /**

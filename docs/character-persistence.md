@@ -16,13 +16,23 @@ Campaign sharing is external to character documents: `users/{uid}/characterCampa
 
 The invitation attachment page lists owned characters through `observeCharacters`, using the same codec/migrations as other canonical reads. Campaign deletion removes reciprocal relationship records while preserving every character document/revision and portrait; no character migration or save is part of deletion. Interrupted relationship cleanup is retryable by the creator after access has already been revoked.
 
-`readCharacter` and `observeCharacters` perform this pipeline:
+`readCharacter`, `observeCharacters` and the exact-document `observeCharacter` perform this pipeline:
 
 ```text
 raw Firestore document -> CharacterMigrations -> CharacterCodec -> exact v6 state + metadata
 ```
 
 Recognized historical documents migrate only in memory. A read never writes the migrated result to Firebase. Invalid, unresolved, future-version, owner-mismatched, or malformed documents fail with structured diagnostics instead of being defaulted or sanitized.
+
+The campaign overview uses `observeCharacter` for each authorized roster reference, accepting confirmed snapshots and rejecting invalid canonical documents without changing them. A subsequent valid snapshot can recover the card. It never lists another player's character collection or writes a derived projection. Parent metadata is returned separately so a stable-path portrait replacement can refresh on a confirmed character update.
+
+## Separate roll activity
+
+`users/{uid}/characters/{characterId}/rolls/{historyId}` stores new owner-generated sheet rolls independently of the parent schema-6 character. The existing reader/writer own this boundary. Each record contains the strict 14-field result DTO plus immutable `actorUid` and server `createdAt`: label, attribute/skill context, modifier, up to ten d6 faces, optional half-die coin, automatic Hits, total Hits, optional TN/base damage, on-hit bonus and normal-critical behavior. Narrow activity validation verifies bounds and the face/coin/automatic-Hit sum; it does not duplicate whole-character validation. Shared roll Rules derive outcome/damage from the immutable result.
+
+The recorder captures the result immediately, serializes/coalesces writes, retains failures and retries the same UUID. `saveCharacterRoll` creates a server-timestamped record transactionally; an identical retry is idempotent, and only `targetNumber` can subsequently change. Character data, `revision` and parent `updatedAt` remain untouched. Only the actual character owner records activity; borrowed GM/Super GM rolls remain local. The sheet displays a separate save/retry status and flushes both activity and sheet queues through existing navigation/sign-out guards.
+
+`observeCharacterRolls` subscribes to the exact child collection ordered newest-first with a limit of ten. It accepts confirmed snapshots, isolates malformed records and returns timestamps separately. Historical widget-only results cannot be recovered. Individual records and reads are bounded; stored history currently remains retained without automatic pruning. Deleting the parent makes leftover activity inaccessible through Rules; this extension introduces no character deletion or retention job. See [campaigns.md](campaigns.md#live-gm-overview-october-10-local-extension).
 
 Known v4 account-import envelopes are supported, including their obsolete import timestamps, duplicate derived ability-name snapshots, and source-owned class-option answers whose old display/composite identities can be proven against reviewed game data. Identity-bearing repeated records are preserved. The reader still fails closed for unknown fields, ambiguous owners, or references that cannot be proven.
 

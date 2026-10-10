@@ -68,7 +68,7 @@ export function createCampaignPage() {
           onSignOut: async () => { if (await navigation.flush()) await signOutNow(); } });
         nav.signOut.style.display = '';
         const profile = await getDoc(doc(db, 'users', user.uid));
-        await onReady(user, profile.data()?.displayName || user.displayName || '');
+        await onReady(user, profile.data()?.displayName || user.displayName || '', claims);
       } catch (cause) { showError(cause); }
     });
   }

@@ -28,6 +28,16 @@ For every Work Package B step, also run `npm run baseline:data` before editing. 
 
 ## Campaign-level work
 
+### `WPG-CAMPAIGN-OVERVIEW`
+
+Status: `complete` (local implementation, October 10)
+
+Make Campaign Settings prominent at creation and in details, and add a dedicated live GM overview. Show every actively linked character's name/portrait, level/class, current/maximum HP, all three full defenses, Keystones from every source, current Strain/Overstrained, conditions and recent sheet rolls, with full-sheet links. Reuse shared character Rules/projections, canonical reads, private campaign authorization and save/navigation behavior. Recent rolls need separate bounded activity records because the existing history is session-only; never add roll data to canonical characters or change their revisions.
+
+Acceptance: unit coverage for shared vitals, every Keystone source, roll activity validation/queue/retry and exact live reads; emulator coverage for owner recording, current GM/Super GM reads, non-GM denial, role/membership/link revocation and unchanged character data. Browser checks must prove live HP/conditions/Strain/roll updates without reload, full-sheet navigation, settings visibility, revocation and phone layout. Run `npm run test:all` and the ten-artifact baseline. No source edits or production release are authorized. Broader `WPE-DOMAIN-MIGRATION` remains next before `WPF-UI-SYSTEM`.
+
+Delivered: prominent expanded settings and a dedicated live overview covering every requested field/full-sheet link. Shared Rules/canonical reads avoid duplicate character models, and owner-only saved roll activity stays outside parent documents/revisions. Serialized retry/TN edits, exact scoped reads and prompt access revocation are verified. Final checks pass **729 units / 50 emulator tests / 19 HTML assets**, unchanged ten-artifact baseline and whitespace checks. Browser checks cover live vitals/conditions/rolls/TN/name/level/portrait, read-only sheet navigation, GM demotion/restoration and 390px/320px fit. All 44 pre-existing characters remain unchanged; [evidence and retention/local recovery limits](campaigns.md#live-gm-overview-october-10-local-extension). No source or production changes. Next `WPE-DOMAIN-MIGRATION` verifies remaining compatibility helpers and supported-mechanics save/reload/dependency behavior, using the existing session/graph foundation; `WPF-UI-SYSTEM` then consolidates controls, accessibility and navigation. Those steps retain separate source, publication and deployment approval boundaries.
+
 ### `WPG-CAMPAIGN-FLOW`
 
 Status: `complete` (local implementation, October 10)

@@ -18,6 +18,10 @@ Joining requires a current 128-bit random invite code, authenticated identity an
 
 The older `characters/{uid}` path remains a deliberate legacy boundary and must not be expanded casually; migration/retirement belongs in the character repository work.
 
+New sheet roll activity is confined to `users/{uid}/characters/{characterId}/rolls/{historyId}`. Reads require an existing parent and its owner, Super GM or current linked campaign GM; ordinary members and former GMs are denied. Only the actual owner may create activity, including when the reader has Super GM access. Firebase validates the exact result shape, each dice face, half-die modifier, bounds, calculated Hits, actor identity and server creation timestamp. Updates may change only a valid TN; immutable result replacement and deletes are denied. Activity transactions never update the parent character or its revision. Results are player-submitted sheet activity, not server-generated random outcomes.
+
+The overview subscribes to the campaign root and active roster as well as each exact character/activity path. Root role or membership changes promptly clear cached cards and revoke portrait object URLs; child denial also removes the card. Rules continue to independently enforce subsequent reads. Cross-document activity listener revocation is tested with the next activity change as well as fresh denied reads; the root listener avoids relying on that timing to clear the interface.
+
 Campaign settings are optional, bounded, strictly shaped campaign fields. The creator and assigned GM may update them; an assigned GM's additional update permission is restricted to `settings` and `updatedAt`. Membership joins cannot smuggle settings changes. Character attachment checks actual class/origin compatibility using the post-write character, preserving atomic link pairing. Linked owners may retain an existing newly banned choice but cannot switch to another unavailable one, including by deleting/recreating the character. Character grants, costs and learned skill validity continue to use the existing client Rules/codec boundaries; campaign settings never authorize another player's writes. A Super GM may get a known valid campaign to display a character's setting context, while unrestricted campaign enumeration stays denied.
 
 ## Storage boundary
@@ -32,6 +36,8 @@ Portraits are scoped by user/character path. Rules restrict:
 - delete behavior separately from writes because deletes have no `request.resource`.
 
 Store only the portrait path in Firestore. Owner/Super GM views retain the existing Storage download URL flow. Campaign GM views use authenticated `getBlob` and revoke their temporary object URL on page exit. Storage rules use exactly two Firestore documents (character link and campaign) for campaign authorization. Production rollout must verify the cross-service permission and bucket GET CORS for the app origin. Already downloaded bytes and existing bearer URLs cannot be recalled by revoking membership.
+
+The campaign overview also uses authenticated `getBlob` for all portraits, with a five-MiB bound, object URL cleanup and async identity guards. It refreshes a stable Storage path when confirmed parent metadata changes and clears images on access revocation.
 
 ## Character write boundary
 

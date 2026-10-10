@@ -30,6 +30,15 @@ export function campaignDetailUrl(id) {
   return `/campaign.html?${new URLSearchParams({ campaignId: id })}`;
 }
 
+export function campaignOverviewUrl(id) {
+  return `/campaign-overview.html?${new URLSearchParams({ campaignId: id })}`;
+}
+
+export function canUseCampaignOverview(campaign, uid, isSuperGM = false) {
+  const role = campaignRole(campaign, uid);
+  return !campaign?.deletedAt && role.member && (role.gm || isSuperGM);
+}
+
 export function campaignJoinUrl({ characterId, campaignId } = {}) {
   const params = new URLSearchParams();
   if (characterId) params.set('charId', characterId);

@@ -57,11 +57,12 @@ test('campaign and link listeners wait for authorized writes before exposing dep
   const changes = [];
   store.observeMine('alice', value => changes.push(value));
   store.observeLinks('alice', value => changes.push(value));
+  store.observeRoster('campaign', value => changes.push(value));
   const pending = { docs: [], metadata: { hasPendingWrites: true } };
   listeners.forEach(listener => listener(pending));
   assert.deepEqual(changes, []);
   listeners.forEach(listener => listener({ ...pending, metadata: { hasPendingWrites: false } }));
-  assert.deepEqual(changes, [[], new Map()]);
+  assert.deepEqual(changes, [[], new Map(), []]);
 });
 
 test('campaign invitation survives sign-in without exposing its code as a query parameter', () => {

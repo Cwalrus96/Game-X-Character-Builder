@@ -1,14 +1,15 @@
-import { campaigns } from '../core/campaign-client.js?v=campaign-flow1';
+import { campaigns } from '../core/campaign-client.js?v=campaign-overview1';
 import { confirmCampaignChange } from '../core/confirmation-dialog.js?v=campaign-delete1';
-import { campaignRole, campaignSheetUrl, campaignInviteUrl, campaignDetailUrl, campaignJoinUrl, formatInviteCode } from '../core/campaign-model.js';
+import { campaignRole, campaignSheetUrl, campaignInviteUrl, campaignDetailUrl, campaignOverviewUrl, canUseCampaignOverview, campaignJoinUrl, formatInviteCode } from '../core/campaign-model.js?v=campaign-overview1';
 import { loadGameXData } from '../core/game-data.js';
-import { createCampaignSettingsEditor } from './campaign-settings-editor.js';
-import { createCampaignPage, element } from './campaign-page-ui.js';
+import { createCampaignSettingsEditor } from './campaign-settings-editor.js?v=campaign-overview1';
+import { createCampaignPage, element } from './campaign-page-ui.js?v=campaign-overview1';
 
 const $ = id => document.getElementById(id);
 const { status, showError, act, button, start } = createCampaignPage();
 const detailPage = location.pathname === '/campaign.html';
 let user = null;
+let isSuperGM = false;
 let mine = [];
 const selectedId = new URLSearchParams(location.search).get('campaignId');
 let stopMine = null;
@@ -53,7 +54,13 @@ async function renderDetail(campaign) {
     const memberName = uid => members.find(member => member.uid === uid)?.displayName || 'Player';
     const role = campaignRole(campaign, user.uid);
     root.replaceChildren(element('h2', campaign.name), element('p', `GM: ${memberName(campaign.gmUid)}${role.gm ? ' (you)' : ''}`));
+    if (canUseCampaignOverview(campaign, user.uid, isSuperGM)) {
+      const overview = element('a', 'GM Overview · Live character stats', 'btn');
+      overview.href = campaignOverviewUrl(campaign.id);
+      root.append(overview);
+    }
     const settingsForm = element('form');
+    settingsForm.id = 'campaignSettings';
     const settingsEditor = createCampaignSettingsEditor({ gameData, settings: campaign.settings, readOnly: !role.creator && !role.gm });
     settingsForm.append(settingsEditor.element);
     if (role.creator || role.gm) {
@@ -154,7 +161,7 @@ async function renderDetail(campaign) {
       const active = entries.filter(entry => campaign.memberUids.includes(entry.ownerUid));
       const rows = await Promise.all(active.map(async entry => {
         const row = element('li');
-        if (role.gm || entry.ownerUid === user.uid) {
+        if (role.gm || isSuperGM || entry.ownerUid === user.uid) {
           try {
             const result = await campaigns.character(entry);
             const link = element('a', result.character.builder.name || '(Unnamed character)', 'btn secondary');
@@ -192,8 +199,9 @@ $('createCampaignForm')?.addEventListener('submit', event => {
     return { navigateTo: campaignDetailUrl(id), message: 'Campaign created.' };
   });
 });
-await start(async (signedIn, displayName) => {
+await start(async (signedIn, displayName, claims) => {
   user = signedIn;
+  isSuperGM = !!claims.gm;
   gameData = await loadGameXData();
   if (detailPage) {
     if (!selectedId) { status.textContent = 'Choose a campaign from Your campaigns.'; return; }

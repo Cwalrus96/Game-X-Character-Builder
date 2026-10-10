@@ -1,18 +1,18 @@
 import { escapeHtml } from "../core/data-sanitization.js";
 import { isGameDataRecordExecutable } from "../core/selection-rules.js";
 import { canonicalSkillKey } from "../core/skill-identity.js";
-import { createRollDialog } from "../builder/widgets/roll-widget.js?v=weapon-styles3";
+import { createRollDialog } from "../builder/widgets/roll-widget.js?v=campaign-overview1";
 
 /** Sheet coordinator only: roll controls never participate in character saves. */
-export function createSheetRolls({ root = document, createDialog = createRollDialog, onAppearanceChange } = {}) {
+export function createSheetRolls({ root = document, createDialog = createRollDialog, onAppearanceChange, onRollResult } = {}) {
   const requests = new Map();
   let character = null, ready = false, sequence = 0;
-  const dialog = createDialog({ onAppearanceChange });
+  const dialog = createDialog({ onAppearanceChange, onRollResult });
 
   function setReady(value) {
     ready = Boolean(value);
     root.querySelectorAll("[data-sheet-roll], [data-roll-attribute], [data-roll-skill]").forEach(button => { button.disabled = !ready; });
-    if (!ready) dialog.close?.();
+    if (!ready) { dialog.close?.(); dialog.clearHistory?.(); }
   }
   function open(request, opener) {
     if (ready && character) dialog.open({ ...character, ...request }, opener);

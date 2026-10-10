@@ -9,7 +9,7 @@ import {
 import { db, storage } from "../core/firebase.js";
 import { onAuth, getClaims, signOutNow } from "../core/auth-ui.js";
 
-import { CHARACTER_SCHEMA_VERSION, saveCharacterPatch } from "../core/database-writer.js";
+import { CHARACTER_SCHEMA_VERSION, saveCharacterPatch } from "../core/database-writer.js?v=campaign-overview1";
 import {
   ATTR_KEYS,
   labelForAttrKey,
@@ -66,9 +66,12 @@ import {
   pickTemporarySheetRepeatables,
 } from "../core/sheet-state.js";
 import { createSaveCoordinator } from "../core/save-coordinator.js";
+import { createRollHistoryRecorder } from '../core/roll-history-recorder.js';
+import { saveCharacterRoll } from '../core/database-writer.js?v=campaign-overview1';
+import { projectCharacterVitals } from '../core/character-vitals.js';
 import { getSaveStatusPresentation } from "../core/save-status.js";
 import { createSheetHpControl } from "./sheet-hp-control.js";
-import { createSheetRolls } from "./sheet-rolls.js?v=weapon-styles1";
+import { createSheetRolls } from "./sheet-rolls.js?v=campaign-overview1";
 import { createSheetSettings } from "../builder/widgets/sheet-settings.js";
 import {
   createNavigationGuard,
@@ -78,11 +81,6 @@ import {
 import {
   getAttributeEffectiveCap,
   normalizeAttributes,
-  computeSpeed,
-  computePhysicalDefense,
-  computeMentalDefense,
-  computeSpiritDefense,
-  computeMaxHP,
 } from "../core/character-rules.js";
 
 import {
@@ -119,6 +117,7 @@ import {
   let cloudReady = false;
   let currentDoc = null;
   let sheetSaveCoordinator = null;
+  let rollHistoryRecorder = null;
   const CLOUD_SAVE_DEBOUNCE_MS = 1200;
 
   function cloudEnabled() {
@@ -126,8 +125,8 @@ import {
   }
 
   async function flushPendingSheetSave() {
-    if (!sheetSaveCoordinator) return true;
-    return await sheetSaveCoordinator.flush();
+    const results = await Promise.all([sheetSaveCoordinator?.flush() ?? true, rollHistoryRecorder?.flush() ?? true]);
+    return results.every(Boolean);
   }
 
   function renderSheetBuilderNav(characterDoc) {
@@ -393,22 +392,10 @@ import {
     const canon = buildCanonicalFromForm(allFields);
 
     try {
-      const speed = computeSpeed(canon.attributes);
-const physdef = computePhysicalDefense({ attributes: canon.attributes, trainingRank: readOnlySkillFields.rank_physdef });
-const mentdef = computeMentalDefense({ attributes: canon.attributes, trainingRank: readOnlySkillFields.rank_mentdef });
-const spiritdef = computeSpiritDefense({ attributes: canon.attributes, trainingRank: readOnlySkillFields.rank_spiritdef });
-
-setNumberFieldByName('speed', speed);
-setNumberFieldByName('physdef', physdef);
-setNumberFieldByName('mentdef', mentdef);
-setNumberFieldByName('spiritdef', spiritdef);
-
-const hpmax = await computeMaxHP({ level: canon.level, classKey: canon.classKey, attributes: canon.attributes });
-
-if (seq !== derivedSeq) return; // stale
-
-setNumberFieldByName('hpmax', hpmax);
-} catch (e) {
+      const vitals = projectCharacterVitals({ builder: { ...currentDoc?.builder, ...canon }, gameData: (await ensureTechniqueData()).gameData });
+      if (seq !== derivedSeq) return;
+      for (const [field, key] of [['speed', 'speed'], ['physdef', 'physicalDefense'], ['mentdef', 'mentalDefense'], ['spiritdef', 'spiritualDefense'], ['hpmax', 'maxHP']]) setNumberFieldByName(field, vitals[key]);
+    } catch (e) {
       // Best-effort UI update; don't break the sheet.
       if (seq !== derivedSeq) return;
       console.warn('Derived field update failed:', e);
@@ -862,7 +849,14 @@ async function renderBuilderWeaponsReadOnly(builder) {
   const classSelect = document.getElementById('classSelect');
   const sheetSaveStatusEl = document.getElementById('sheetSaveStatus');
   const sheetSaveRetryEl = document.getElementById('sheetSaveRetry');
-  const sheetRolls = createSheetRolls({ onAppearanceChange: (key, value) => sheetSettings.change(key, value) });
+  const sheetRolls = createSheetRolls({
+    onAppearanceChange: (key, value) => sheetSettings.change(key, value),
+    onRollResult: record => {
+      // A borrowed sheet can roll locally, but only its owner records activity.
+      if (!cloudReady || editingUid !== currentUser?.uid) return;
+      rollHistoryRecorder.record({ ownerUid: editingUid, characterId: editingCharId, record });
+    },
+  });
   const sheetSettings = createSheetSettings({
     button: document.getElementById('sheetSettingsButton'),
     onChange: values => { sheetRolls.setAppearance(values); scheduleSave(); },
@@ -906,9 +900,25 @@ async function renderBuilderWeaponsReadOnly(builder) {
     onStateChange: renderSheetSaveState,
   });
 
+  rollHistoryRecorder = createRollHistoryRecorder({ saveRoll: saveCharacterRoll, debounceMs: 250,
+    onStateChange: state => {
+      const status = document.getElementById('rollSaveStatus');
+      const retry = document.getElementById('rollSaveRetry');
+      status.hidden = state.status === 'idle';
+      status.dataset.state = state.status;
+      status.textContent = state.error ? 'Roll history could not be saved.' : state.saving || state.dirty ? 'Saving roll history…' : 'Roll history saved';
+      status.title = state.error?.message || '';
+      retry.hidden = !state.error; retry.disabled = state.saving;
+    },
+  });
+  document.getElementById('rollSaveRetry').addEventListener('click', () => { void rollHistoryRecorder.retry(); });
+
   const sheetNavigationGuard = createNavigationGuard({
     flush: flushPendingSheetSave,
-    getState: () => sheetSaveCoordinator?.getState() || {},
+    getState: () => {
+      const sheet = sheetSaveCoordinator?.getState() || {}, rolls = rollHistoryRecorder?.getState() || {};
+      return { dirty: sheet.dirty || rolls.dirty, saving: sheet.saving || rolls.saving };
+    },
     navigate: (href) => window.location.assign(href),
   });
   installNavigationGuard({ guard: sheetNavigationGuard });

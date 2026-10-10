@@ -325,9 +325,18 @@ export function computeSpiritDefense({ attributes, trainingRank } = {}) {
 
 // This math comes from the game rules, and should NOT be changed
 export async function computeMaxHP({ level, classKey, attributes } = {}) {
+  return computeMaxHPWithModel({ level, attributes, hpModel: await getClassHpModel(classKey) });
+}
+
+/** Synchronous catalogue-based variant; the sheet and campaign use the same math. */
+export function computeMaxHPFromProgression({ level, attributes, hpProgression } = {}) {
+  const tier = normalizeHpProgressionLabel(hpProgression) || 'low';
+  return computeMaxHPWithModel({ level, attributes, hpModel: HP_MODELS[tier] || HP_MODELS.low });
+}
+
+function computeMaxHPWithModel({ level, attributes, hpModel }) {
   const L = clampLevel(level ?? 1);
   const attrs = normalizeAttributes(attributes || {});
-  const hpModel = await getClassHpModel(classKey);
   const str = Number.isFinite(attrs.strength) ? attrs.strength : 0;
   return Math.round(hpModel.base + (hpModel.per * (L - 1)) + (str * (L + 2)));
 }
