@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Game X – Add to Campaign</title>
+  <link rel="stylesheet" href="/css/styles.css?v=mobile-menu2" />
+  <link rel="stylesheet" href="/css/characters.css?v=mobile-menu2" />
+  <link rel="stylesheet" href="/css/campaigns.css?v=campaign-flow1" />
+</head>
+<body data-theme="na" class="characters-home">
+  <div class="page">
+    <div class="topbar topbar-panel"></div>
+    <main class="campaign-layout">
+      <header><h1>Add to Campaign</h1><p class="muted">Use a private invitation, then choose one of your characters to share.</p></header>
+      <a class="btn secondary campaign-back" href="/characters.html">← Your characters</a>
+      <p id="campaignStatus" role="status" aria-live="polite">Loading…</p>
+      <p id="campaignError" class="error" role="alert" hidden></p>
+      <form id="joinCampaignForm" class="card">
+        <h2>Enter campaign code</h2>
+        <label class="field-block">Your name in this campaign <input id="memberName" class="input" maxlength="32" autocomplete="nickname" required /></label>
+        <label class="field-block">Invite code <input id="inviteCode" class="input" autocomplete="off" spellcheck="false" required /></label>
+        <p class="sub">Ask the campaign creator for their private code or invite link.</p>
+        <button class="btn" type="submit">Join campaign</button>
+      </form>
+      <section id="addCharacterPanel" class="card" hidden>
+        <h2 id="joinCampaignTitle"></h2>
+        <p>Choose one of your characters. Each character can belong to one campaign at a time.</p>
+        <form id="addCharacterForm">
+          <div class="field-block"><label for="characterChoice">Your character</label><select id="characterChoice" class="input" required></select></div>
+          <p id="characterCompatibility" class="sub" role="status"></p>
+          <button id="addCharacterButton" class="btn" type="submit" disabled>Add to Campaign</button>
+        </form>
+        <p id="noCharacters" class="muted" hidden>No characters yet. <a href="/characters.html">Create a character</a>, then return here to add it.</p>
+        <a id="openCampaign" class="btn secondary" href="/campaigns.html">Open campaign</a>
+      </section>
+    </main>
+  </div>
+  <script type="module" src="/js/pages/campaign-join.js?v=campaign-flow1"></script>
+</body>
+</html>

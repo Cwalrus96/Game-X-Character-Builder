@@ -12,9 +12,9 @@
 .campaign-picker { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .characters-home .character-row .right { flex-wrap: wrap; }
 .characters-home .character-row .campaign-picker { flex-basis: 100%; }
-.campaign-picker select { max-width: 100%; min-height: 36px; }
-.campaign-picker label { font-size: .85rem; }
-.campaign-picker .sub { flex-basis: 100%; }
+.campaign-back { justify-self: start; }
+#openCampaign { margin-top: 12px; }
+.campaign-picker .sub { overflow-wrap: anywhere; }
 .campaign-layout [hidden] { display: none !important; }
 .campaign-confirm { max-width: min(520px, calc(100vw - 56px)); padding: 24px; color: var(--page-text, #f4f0e8); background: var(--page-panel-strong, #191922); border: 2px solid var(--page-border, #eee); }
 .campaign-confirm::backdrop { background: rgba(0,0,0,.65); }

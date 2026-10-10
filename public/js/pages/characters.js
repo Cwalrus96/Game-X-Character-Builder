@@ -1,7 +1,8 @@
 import { db, storage } from "../core/firebase.js";
 import { onAuth, signOutNow, initAuthRedirectHandling, getClaims } from "../core/auth-ui.js";
 import { ensureAppTopNav } from "../core/app-nav.js?v=mobile-menu1";
-import { campaigns } from "../core/campaign-client.js?v=campaign-delete1";
+import { campaigns } from "../core/campaign-client.js?v=campaign-flow1";
+import { campaignDetailUrl, campaignJoinUrl } from '../core/campaign-model.js';
 import { confirmCampaignChange } from '../core/confirmation-dialog.js';
 import { createNavigationGuard, installNavigationGuard } from '../core/navigation-guard.js';
 import { createDefaultCharacterDoc } from "../core/database-reader.js";
@@ -322,53 +323,41 @@ async function deleteCharacter({ charId, name, portraitPath }) {
   }
 }
 
-function appendCampaignPicker(container, charId, name) {
+function appendCampaignActions(container, charId, name) {
+  const add = document.createElement('a');
+  add.href = campaignJoinUrl({ characterId: charId });
+  add.className = 'btn secondary'; add.textContent = 'Add to Campaign';
+  add.setAttribute('aria-label', `Add ${name} to a campaign`);
+  container.append(add);
+  const link = characterCampaigns.get(charId);
+  if (!link) return;
   const group = document.createElement('div');
   group.className = 'campaign-picker';
-  const label = document.createElement('label');
-  label.textContent = 'Campaign ';
-  const select = document.createElement('select');
-  select.setAttribute('aria-label', `Campaign for ${name}`);
-  const link = characterCampaigns.get(charId);
-  const options = [{ id: '', name: 'No campaign' }, ...ownCampaigns];
-  if (link && !ownCampaigns.some(campaign => campaign.id === link.campaignId)) {
-    options.push({ id: link.campaignId, name: 'Former campaign (not shared)' });
-  }
-  for (const campaign of options) {
-    const option = document.createElement('option');
-    option.value = campaign.id; option.textContent = campaign.name; select.append(option);
-  }
-  select.value = link?.campaignId || '';
-  select.disabled = !campaignsReady || !linksReady;
-  label.append(select); group.append(label);
+  const campaign = ownCampaigns.find(item => item.id === link.campaignId);
+  const current = document.createElement(campaign ? 'a' : 'span');
+  current.textContent = campaign ? `Campaign: ${campaign.name}` : 'Former campaign (not shared)';
+  if (campaign) current.href = campaignDetailUrl(campaign.id);
+  current.className = 'sub'; group.append(current);
   const save = document.createElement('button');
-  save.className = 'btn secondary'; save.type = 'button'; save.textContent = 'Set campaign';
-  save.disabled = select.disabled;
+  save.className = 'btn secondary'; save.type = 'button'; save.textContent = 'Remove from Campaign';
+  save.disabled = !campaignsReady || !linksReady;
   save.addEventListener('click', async () => {
-    const next = select.value;
-    const previous = link?.campaignId || '';
-    if (next === previous) return;
-    if (previous && !await confirmCampaignChange('Change this character’s campaign? The previous GM will lose access to its sheet.')) {
-      select.value = previous;
-      return;
-    }
-    save.disabled = true; select.disabled = true;
+    if (!await confirmCampaignChange('Remove this character from its campaign? The GM will lose access to its sheet.')) return;
+    save.disabled = true;
     setText(campaignSaveStatus, 'Saving campaign…');
-    const operation = campaigns.setCharacterCampaign({ uid: currentUser.uid, characterId: charId, campaignId: next });
+    const operation = campaigns.setCharacterCampaign({ uid: currentUser.uid, characterId: charId, campaignId: '' });
     pendingCampaignWrites.add(operation);
     try {
       await operation;
-      setText(campaignSaveStatus, 'Campaign updated.');
+      setText(campaignSaveStatus, 'Character removed from campaign.');
     } catch (cause) {
       console.error(cause);
       showError(charactersError, cause?.message || 'Could not change campaign. Refresh to check that you are still a member, then try again.');
       setText(campaignSaveStatus, '');
-      save.disabled = false; select.disabled = false;
+      save.disabled = false;
     } finally { pendingCampaignWrites.delete(operation); }
   });
   group.append(save);
-  const join = document.createElement('a'); join.href = '/campaigns.html'; join.textContent = 'Join or create a campaign';
-  join.className = 'sub'; group.append(join);
   container.append(group);
 }
 
@@ -435,7 +424,7 @@ function renderCharacters(docs) {
     });
     right.appendChild(viewLink);
 
-    if (isViewingSelf) appendCampaignPicker(right, d.id, name);
+    if (isViewingSelf) appendCampaignActions(right, d.id, name);
 
     const deleteBtn = document.createElement("button");
     deleteBtn.className = "btn danger";

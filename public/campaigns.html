@@ -26,12 +26,11 @@
             <div id="createCampaignSettings"></div>
             <button class="btn" type="submit">Create campaign</button>
           </form>
-          <form id="joinCampaignForm">
+          <div>
             <h3>Join a campaign</h3>
-            <label class="field-block">Invite code <input id="inviteCode" class="input" autocomplete="off" spellcheck="false" required /></label>
             <p class="sub">Use the private code your campaign creator shared with you.</p>
-            <button class="btn secondary" type="submit">Join campaign</button>
-          </form>
+            <a class="btn secondary" href="/campaign-join.html">Enter campaign code</a>
+          </div>
         </div>
       </section>
       <section class="card" aria-labelledby="myCampaignsTitle">
@@ -39,9 +38,8 @@
         <ul id="campaignList" class="list"></ul>
         <p id="campaignEmpty" class="muted" hidden>You haven’t joined a campaign yet.</p>
       </section>
-      <section id="campaignDetail" class="card" aria-live="polite" hidden></section>
     </main>
   </div>
-  <script type="module" src="/js/pages/campaigns.js?v=mobile-campaign-delete1"></script>
+  <script type="module" src="/js/pages/campaigns.js?v=campaign-flow1"></script>
 </body>
 </html>

@@ -30,6 +30,10 @@ service cloud.firestore {
     function campaignOwner(id) {
       return signedIn() && get(campaignPath(id)).data.ownerUid == request.auth.uid;
     }
+    function deletedCampaignOwner(id) {
+      let group = get(campaignPath(id)).data;
+      return signedIn() && 'deletedAt' in group && group.ownerUid == request.auth.uid;
+    }
     function campaignSheetReader(uid, characterId) {
       let link = get(/databases/$(database)/documents/users/$(uid)/characterCampaigns/$(characterId)).data;
       let campaign = get(campaignPath(link.campaignId)).data;
@@ -138,11 +142,12 @@ service cloud.firestore {
       }
 
       match /characterCampaigns/{characterId} {
-        allow read: if gmOrSelf(uid) || (signedIn() && campaignSheetReader(uid, characterId));
+        allow read: if gmOrSelf(uid) || (signedIn() && campaignSheetReader(uid, characterId))
+          || deletedCampaignOwner(resource.data.campaignId);
         allow create: if isSelf(uid) && validCharacterLink(uid, characterId);
         allow update: if isSelf(uid) && validCharacterLink(uid, characterId)
           && (request.resource.data == resource.data || oldRosterRemoved());
-        allow delete: if gmOrSelf(uid) && oldRosterRemoved();
+        allow delete: if (gmOrSelf(uid) || deletedCampaignOwner(resource.data.campaignId)) && oldRosterRemoved();
       }
 
       // Default deny for anything else under /users
@@ -192,7 +197,8 @@ service cloud.firestore {
           && request.resource.data.memberUids.toSet() == resource.data.memberUids.toSet().difference([request.auth.uid].toSet())));
 
       match /members/{uid} {
-        allow read: if campaignMember(campaignId);
+        allow read: if campaignMember(campaignId) || deletedCampaignOwner(campaignId);
+        allow delete: if deletedCampaignOwner(campaignId);
         allow create, update: if isSelf(uid)
           && request.resource.data.keys().hasAll(['uid', 'displayName', 'joinCode', 'joinedAt'])
           && request.resource.data.keys().hasOnly(['uid', 'displayName', 'joinCode', 'joinedAt'])
@@ -206,7 +212,7 @@ service cloud.firestore {
       }
 
       match /characters/{rosterId} {
-        allow read: if campaignMember(campaignId);
+        allow read: if campaignMember(campaignId) || deletedCampaignOwner(campaignId);
         allow create: if signedIn() && campaignMember(campaignId)
           && request.resource.data.keys().hasAll(['ownerUid', 'characterId'])
           && request.resource.data.keys().hasOnly(['ownerUid', 'characterId'])
@@ -214,7 +220,7 @@ service cloud.firestore {
           && request.resource.data.characterId is string
           && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)/characterCampaigns/$(request.resource.data.characterId)).data
             == {'campaignId': campaignId, 'rosterId': rosterId};
-        allow delete: if gmOrSelf(resource.data.ownerUid)
+        allow delete: if (gmOrSelf(resource.data.ownerUid) || deletedCampaignOwner(campaignId))
           && (!existsAfter(/databases/$(database)/documents/users/$(resource.data.ownerUid)/characterCampaigns/$(resource.data.characterId))
             || getAfter(/databases/$(database)/documents/users/$(resource.data.ownerUid)/characterCampaigns/$(resource.data.characterId)).data
               != {'campaignId': campaignId, 'rosterId': rosterId});

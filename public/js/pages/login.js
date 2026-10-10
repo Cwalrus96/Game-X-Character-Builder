@@ -1,7 +1,7 @@
 import { onAuth } from "../core/auth-ui.js";
 import { initAuthRedirectHandling, signInInteractive } from "../core/auth-ui.js";
 import { usingFirebaseEmulators } from "../core/firebase.js";
-import { safeLoginNextHref } from '../core/login-routing.js';
+import { safeLoginNextHref } from '../core/login-routing.js?v=campaign-flow1';
 
 const signInBtn = document.getElementById("signInBtn");
 const continueLink = document.getElementById("continueLink");

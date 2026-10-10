@@ -54,8 +54,11 @@ test('only the creator can delete a campaign; deletion cannot be forged or rever
   for (const uid of ['alice', 'bob', 'eve']) {
     const db = dbFor(uid);
     assert.equal((await api.getDocs(api.query(api.collection(db, 'campaigns'), api.where('memberUids', 'array-contains', uid)))).size, 0);
-    await assertFails(api.getDocs(api.collection(db, 'campaigns', group.id, 'members')));
-    await assertFails(api.getDocs(api.collection(db, 'campaigns', group.id, 'characters')));
+    for (const kind of ['members', 'characters']) {
+      const request = api.getDocs(api.collection(db, 'campaigns', group.id, kind));
+      if (uid === 'alice') assert.equal((await assertSucceeds(request)).size, 0);
+      else await assertFails(request);
+    }
   }
   await assertFails(api.getDoc(api.doc(dbFor('bob'), 'campaignInvites', group.inviteCode)));
   await assertFails(join(group));
@@ -79,6 +82,7 @@ test('deletion revokes GM sheets and portraits, preserves character data and per
   await assertFails(getBytes(portrait));
   await assertSucceeds(getBytes(ref(context('bob').storage(), 'portraits/bob/char-2/portrait.png')));
   assert.deepEqual((await api.getDoc(char(bob))).data(), before);
+  assert.equal((await api.getDoc(link(bob))).exists(), false);
   assert.equal(await store('bob').characterContext({ uid: 'bob', characterId: 'char-2', fresh: true }), null);
   await assertSucceeds(api.updateDoc(char(bob), { 'builder.classKey': 'wizard', 'builder.originKey': 'alien' }));
   const other = await create('eve'); await join(other); await assertSucceeds(share(other));
@@ -87,10 +91,11 @@ test('deletion revokes GM sheets and portraits, preserves character data and per
   await assertFails(api.getDoc(char(alice)));
 });
 
-test('deletion also supports disabled invites and detaching a dormant character link', async () => {
+test('deletion cleans links with disabled invites and later detachment is harmless', async () => {
   const group = await create(); await join(group); await share(group);
   await store('alice').setInvite(group.id, false);
   await assertSucceeds(store('alice').deleteCampaign(group.id));
+  assert.equal((await api.getDoc(link(dbFor('bob')))).exists(), false);
   await assertSucceeds(store('bob').setCharacterCampaign({ uid: 'bob', characterId: 'char-2', campaignId: '' }));
   assert.equal((await api.getDoc(link(dbFor('bob')))).exists(), false);
   await assertSucceeds(api.getDoc(char(dbFor('bob'))));
@@ -304,6 +309,88 @@ test('leave/removal revoke dormant links immediately; owners can detach after de
   await assertFails(api.getDoc(char(dbFor('alice'))));
   await assertSucceeds(store('bob').setCharacterCampaign({ uid: 'bob', characterId: 'char-2', campaignId: '' }));
   assert.equal((await api.getDoc(link(dbFor('bob')))).exists(), false);
+});
+
+test('deletion pages through active and removed players without changing any character data', async () => {
+  const group = await create(); await join(group); await join(group, 'eve');
+  const before = new Map();
+  for (let index = 0; index < 8; index++) {
+    const uid = index < 6 ? 'bob' : 'eve'; const id = `hero-${index}`; const db = dbFor(uid);
+    const value = { ownerUid: uid, builder: { name: `Hero ${index}`, sheet: { repeatables: { settingSkills: [{ skill: 'Lore', rank: '2' }] } } },
+      revision: index, sheet: { hpCurrent: 3, notes: 'Preserve play state.' }, portrait: 'unchanged' };
+    await env.withSecurityRulesDisabled(async admin => api.setDoc(char(admin.firestore(), uid, id), value));
+    before.set(`${uid}/${id}`, value); await share(group, uid, id);
+  }
+  await store('alice').removeMember(group.id, 'eve');
+  await env.withSecurityRulesDisabled(async admin => {
+    // More than one member-cleanup page, including historical member records.
+    const db = admin.firestore(); const batch = api.writeBatch(db);
+    for (let index = 0; index < 21; index++) batch.set(api.doc(db, 'campaigns', group.id, 'members', `former-${index}`), { uid: `former-${index}` });
+    await batch.commit();
+  });
+  await store('alice').deleteCampaign(group.id);
+  for (const [key, value] of before) {
+    const [uid, id] = key.split('/'); const db = dbFor(uid);
+    assert.deepEqual((await api.getDoc(char(db, uid, id))).data(), value);
+    assert.equal((await api.getDoc(link(db, uid, id))).exists(), false);
+  }
+  for (const kind of ['members', 'characters']) assert.equal((await api.getDocs(api.collection(dbFor('alice'), 'campaigns', group.id, kind))).size, 0);
+});
+
+test('interrupted deletion revokes sharing immediately and creator can resume link cleanup', async () => {
+  const group = await create(); await join(group); await share(group);
+  const bob = dbFor('bob'); const alice = dbFor('alice');
+  const before = (await api.getDoc(char(bob))).data();
+  const interrupted = createCampaignStore({ db: alice, api: { ...api, getDocsFromServer: async () => { throw new Error('Connection interrupted'); } } });
+  await assert.rejects(interrupted.deleteCampaign(group.id), error => error.code === 'campaign-deletion-incomplete');
+  assert.equal((await api.getDoc(link(bob))).exists(), true);
+  await assertFails(api.getDoc(char(alice)));
+  await assertFails(join(group, 'eve'));
+  await assertFails(store('bob').deleteCampaign(group.id));
+  await store('alice').deleteCampaign(group.id);
+  assert.equal((await api.getDoc(link(bob))).exists(), false);
+  assert.deepEqual((await api.getDoc(char(bob))).data(), before);
+});
+
+test('a concurrent character move during deletion preserves the new campaign link', async () => {
+  const group = await create(); await join(group); await share(group);
+  const other = await create('eve'); await join(other);
+  let moved = false;
+  const cleanup = createCampaignStore({ db: dbFor('alice'), api: { ...api, getDocsFromServer: async request => {
+    const snapshot = await api.getDocsFromServer(request);
+    if (!moved && snapshot.docs[0]?.ref.path.includes('/characterCampaigns/')) {
+      moved = true; await share(other);
+    }
+    return snapshot;
+  } } });
+  await cleanup.deleteCampaign(group.id);
+  assert.equal(moved, true);
+  assert.equal((await api.getDoc(link(dbFor('bob')))).data().campaignId, other.id);
+  await assertSucceeds(api.getDoc(char(dbFor('eve'))));
+  await assertFails(api.getDoc(char(dbFor('alice'))));
+});
+
+test('cleanup permissions expose only deleted-campaign relationships and never character writes', async () => {
+  const group = await create(); await join(group); await share(group);
+  await store('alice').update({ id: group.id, name: group.name, gmUid: 'bob' });
+  const other = await create('eve'); await join(other);
+  await api.setDoc(char(dbFor('bob'), 'bob', 'other-hero'), { ownerUid: 'bob', builder: { name: 'Other hero' } });
+  await share(other, 'bob', 'other-hero');
+  const alice = dbFor('alice'); const bob = dbFor('bob');
+  const rosterId = (await api.getDoc(link(bob))).data().rosterId;
+  await assertFails(api.getDoc(link(alice)));
+  await assertFails(api.deleteDoc(link(alice)));
+  await api.updateDoc(char(bob), { 'builder.name': 'Keep me' });
+  const interrupted = createCampaignStore({ db: alice, api: { ...api, getDocsFromServer: async () => { throw new Error('Interrupted'); } } });
+  await assert.rejects(interrupted.deleteCampaign(group.id));
+  await assertSucceeds(api.getDoc(link(alice)));
+  await assertFails(api.getDocs(api.collection(alice, 'users', 'bob', 'characterCampaigns')));
+  await assertFails(api.deleteDoc(link(alice))); // Reciprocal deletion is required.
+  await assertFails(api.deleteDoc(api.doc(alice, 'campaigns', group.id, 'characters', rosterId)));
+  await assertFails(api.updateDoc(char(alice), { 'builder.name': 'Unauthorized' }));
+  await assertFails(api.deleteDoc(char(alice)));
+  await assertFails(api.getDocs(api.collection(dbFor('eve'), 'campaigns', group.id, 'characters')));
+  await store('alice').deleteCampaign(group.id);
 });
 
 test('Super GM retains global account, character and portrait powers without campaign membership', async () => {

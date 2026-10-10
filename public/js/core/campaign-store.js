@@ -4,13 +4,58 @@ import { normalizeCampaignSettings, campaignCompatibility } from './campaign-set
 /** Campaign relationships only. Canonical character reads/saves remain in database-reader/writer. */
 export function createCampaignStore({ db, api, readCharacter }) {
   const { collection, doc, getDoc, getDocs, onSnapshot, query, where, writeBatch,
-    runTransaction, serverTimestamp, arrayUnion, arrayRemove } = api;
+    runTransaction, serverTimestamp, arrayUnion, arrayRemove, limit, documentId } = api;
   const campaignRef = id => doc(db, 'campaigns', id);
   const linkRef = (uid, id) => doc(db, 'users', uid, 'characterCampaigns', id);
   const rosterRef = (id, rosterId) => doc(db, 'campaigns', id, 'characters', rosterId);
   const snapshotRows = snap => snap.docs.map(item => ({ ...item.data(), id: item.id }));
+  const serverRows = api.getDocsFromServer || getDocs;
+
+  async function removeDeletedCampaignLinks(id) {
+    // Small paired batches stay inside the Rules access budget. Each query only
+    // exposes links to this deleted campaign, never a player's other campaigns.
+    while (true) {
+      let page = await serverRows(query(collection(db, 'campaigns', id, 'characters'), limit(5)));
+      if (page.empty) break;
+      for (let attempt = 0; ; attempt++) {
+        const batch = writeBatch(db);
+        for (const entry of page.docs) {
+          const { ownerUid, characterId } = entry.data();
+          const links = await serverRows(query(collection(db, 'users', ownerUid, 'characterCampaigns'),
+            where('campaignId', '==', id), where(documentId(), '==', characterId), limit(1)));
+          const current = links.docs[0];
+          if (current?.data().rosterId === entry.id) batch.delete(current.ref);
+          batch.delete(entry.ref);
+        }
+        try { await batch.commit(); break; }
+        catch (error) {
+          // A player may switch while cleanup is in progress. Refresh filtered
+          // links rather than deleting a link that now belongs to another group.
+          if (error.code !== 'permission-denied' || attempt >= 2) throw error;
+          page = await serverRows(query(collection(db, 'campaigns', id, 'characters'), limit(5)));
+          if (page.empty) break;
+        }
+      }
+    }
+    while (true) {
+      const page = await serverRows(query(collection(db, 'campaigns', id, 'members'), limit(20)));
+      if (page.empty) break;
+      const batch = writeBatch(db);
+      page.docs.forEach(entry => batch.delete(entry.ref));
+      await batch.commit();
+    }
+  }
 
   return {
+    async get(id) {
+      const snapshot = await getDoc(campaignRef(id));
+      return snapshot.exists() ? { ...snapshot.data(), id: snapshot.id } : null;
+    },
+    observeCampaign(id, onChange, onError) {
+      return onSnapshot(campaignRef(id), { includeMetadataChanges: true }, snapshot => {
+        if (!snapshot.metadata.hasPendingWrites) onChange(snapshot.exists() ? { ...snapshot.data(), id: snapshot.id } : null);
+      }, onError);
+    },
     observeMine(uid, onChange, onError) {
       return onSnapshot(query(collection(db, 'campaigns'), where('memberUids', 'array-contains', uid)),
         { includeMetadataChanges: true }, snap => {
@@ -55,16 +100,26 @@ export function createCampaignStore({ db, api, readCharacter }) {
       await batch.commit();
     },
     async deleteCampaign(id) {
-      await runTransaction(db, async transaction => {
+      const exists = await runTransaction(db, async transaction => {
         const ref = campaignRef(id);
         const current = await transaction.get(ref);
-        if (!current.exists() || current.data().deletedAt) return;
+        if (!current.exists()) return false;
+        if (current.data().deletedAt) return true;
         const { ownerUid, inviteCode } = current.data();
         // A minimal, immutable tombstone prevents reuse of this ID from reviving
         // old memberships or character access. No character document is changed.
         transaction.set(ref, { ownerUid, deletedAt: serverTimestamp() });
         if (inviteCode) transaction.delete(doc(db, 'campaignInvites', inviteCode));
+        return true;
       });
+      if (exists) {
+        try { await removeDeletedCampaignLinks(id); }
+        catch (cause) {
+          const error = new Error('The campaign is deleted, but some links still need to be removed. Use Finish deletion to retry.', { cause });
+          error.code = 'campaign-deletion-incomplete';
+          throw error;
+        }
+      }
     },
     async updateSettings(id, settings, { expectedSettings } = {}) {
       const next = normalizeCampaignSettings(settings);

@@ -1,6 +1,6 @@
 # Implementation roadmap
 
-Last updated: 2026-10-01
+Last updated: 2026-10-10
 
 This is the living execution plan derived from the dated architecture audit. Step IDs are stable API-like identifiers for humans and agents: never rename or renumber an existing ID. Add a new ID if scope changes materially.
 
@@ -27,6 +27,16 @@ npm test
 For every Work Package B step, also run `npm run baseline:data` before editing. A step may add stricter preflight requirements in its own section. Live Drive access is required only where the step explicitly names `WPB-SOURCE-ACCESS` as a prerequisite.
 
 ## Campaign-level work
+
+### `WPG-CAMPAIGN-FLOW`
+
+Status: `complete` (local implementation, October 10)
+
+Replace inline campaign details with a dedicated page. Characters offers Add to Campaign beside Edit/View; a private-code page or invitation link lets the owner select a character, without listing campaigns. Reuse existing authentication, confirmation, navigation, campaign settings and relationship persistence. Creator deletion revokes sharing immediately, removes both relationship records, and preserves all character documents, revisions, skills, play state and portraits. Interrupted cleanup must be retryable and concurrent moves must preserve the new campaign link.
+
+Acceptance: verify routes, signed-out invitation continuation, code attachment, owned-character selection, incompatible choices, switching/cancellation, creator-only deletion, paged cleanup/retry/concurrency and exact character preservation in emulator tests and a local browser. Run the full suite, asset checks and unchanged data baseline. Production remains a separate authorization boundary. Next broader work remains `WPE-DOMAIN-MIGRATION`, then `WPF-UI-SYSTEM`.
+
+Delivered: separate details, code/link attachment with canonical owned-character reads, existing route compatibility and creator-only cleanup with retry/concurrency protection. The complete suite passes **716 units / 44 emulator tests / 18 HTML assets**, ten-artifact baseline and whitespace checks. Authenticated browser checks cover the requested flow and 390px layout; all 40 local character documents remain unchanged. No unrelated or production data changed. See [campaigns.md](campaigns.md) for evidence and deletion's immutable tombstone. `WPE-DOMAIN-MIGRATION` next verifies remaining compatibility and supported mechanics; `WPF-UI-SYSTEM` then consolidates controls, accessibility and navigation. Their source/publication/deployment boundaries remain separate.
 
 ### `WPG-CAMPAIGN-DELETE`
 

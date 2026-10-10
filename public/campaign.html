@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Game X – Campaign</title>
+  <link rel="stylesheet" href="/css/styles.css?v=mobile-menu2" />
+  <link rel="stylesheet" href="/css/characters.css?v=mobile-menu2" />
+  <link rel="stylesheet" href="/css/campaigns.css?v=campaign-flow1" />
+</head>
+<body data-theme="na" class="characters-home">
+  <div class="page">
+    <div class="topbar topbar-panel"></div>
+    <main class="campaign-layout">
+      <a class="btn secondary campaign-back" href="/campaigns.html">← Your campaigns</a>
+      <p id="campaignStatus" role="status" aria-live="polite">Loading campaign…</p>
+      <p id="campaignError" class="error" role="alert" hidden></p>
+      <section id="campaignDetail" class="card" aria-live="polite" hidden></section>
+    </main>
+  </div>
+  <script type="module" src="/js/pages/campaigns.js?v=campaign-flow1"></script>
+</body>
+</html>

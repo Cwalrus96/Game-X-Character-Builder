@@ -20,10 +20,21 @@ export function formatInviteCode(code) {
 }
 
 export function campaignInviteUrl(code, origin) {
-  const url = new URL('/campaigns.html', origin);
+  const url = new URL('/campaign-join.html', origin);
   // Fragments are not sent to Hosting or included in HTTP referrers.
   url.hash = new URLSearchParams({ join: normalizeInviteCode(code) }).toString();
   return url.href;
+}
+
+export function campaignDetailUrl(id) {
+  return `/campaign.html?${new URLSearchParams({ campaignId: id })}`;
+}
+
+export function campaignJoinUrl({ characterId, campaignId } = {}) {
+  const params = new URLSearchParams();
+  if (characterId) params.set('charId', characterId);
+  if (campaignId) params.set('campaignId', campaignId);
+  return `/campaign-join.html${params.size ? `?${params}` : ''}`;
 }
 
 export function campaignSheetUrl({ ownerUid, characterId, campaignId }) {

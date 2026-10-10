@@ -1,74 +1,21 @@
-import { db } from '../core/firebase.js';
-import { doc, getDoc } from '/vendor/firebase/firebase-firestore.js';
-import { onAuth, getClaims, signOutNow, initAuthRedirectHandling } from '../core/auth-ui.js';
-import { ensureAppTopNav } from '../core/app-nav.js?v=mobile-menu1';
-import { campaigns } from '../core/campaign-client.js?v=campaign-delete1';
+import { campaigns } from '../core/campaign-client.js?v=campaign-flow1';
 import { confirmCampaignChange } from '../core/confirmation-dialog.js?v=campaign-delete1';
-import { createNavigationGuard, installNavigationGuard } from '../core/navigation-guard.js';
-import { campaignRole, campaignSheetUrl, campaignInviteUrl, formatInviteCode } from '../core/campaign-model.js';
+import { campaignRole, campaignSheetUrl, campaignInviteUrl, campaignDetailUrl, campaignJoinUrl, formatInviteCode } from '../core/campaign-model.js';
 import { loadGameXData } from '../core/game-data.js';
 import { createCampaignSettingsEditor } from './campaign-settings-editor.js';
+import { createCampaignPage, element } from './campaign-page-ui.js';
 
 const $ = id => document.getElementById(id);
-const status = $('campaignStatus');
-const error = $('campaignError');
+const { status, showError, act, button, start } = createCampaignPage();
+const detailPage = location.pathname === '/campaign.html';
 let user = null;
 let mine = [];
-let selectedId = new URLSearchParams(location.search).get('campaignId');
+const selectedId = new URLSearchParams(location.search).get('campaignId');
 let stopMine = null;
 let stopRoster = null;
 let detailVersion = 0;
-let busy = false;
-let pendingAction = null;
 let gameData = null;
 let createSettings = null;
-const navigation = createNavigationGuard({
-  getState: () => ({ saving: !!pendingAction }),
-  flush: async () => { await pendingAction; return true; },
-  navigate: href => location.assign(href),
-});
-installNavigationGuard({ guard: navigation });
-
-function element(tag, text, className) {
-  const node = document.createElement(tag);
-  if (text !== undefined) node.textContent = text;
-  if (className) node.className = className;
-  return node;
-}
-function button(label, action, secondary = true) {
-  const node = element('button', label, `btn${secondary ? ' secondary' : ''}`);
-  node.type = 'button';
-  node.addEventListener('click', () => act(node, action));
-  return node;
-}
-function showError(cause) {
-  console.error(cause);
-  error.textContent = cause?.code === 'permission-denied'
-    ? 'Access changed or this invite is no longer valid. Refresh your campaigns or ask the creator for a current code.'
-    : cause?.message || 'Could not complete the campaign request. Please try again.';
-  error.hidden = false;
-}
-async function act(control, action) {
-  if (busy) return;
-  busy = true;
-  control.disabled = true;
-  error.hidden = true;
-  status.textContent = 'Saving…';
-  try {
-    pendingAction = Promise.resolve().then(action);
-    const message = await pendingAction;
-    status.textContent = message || 'Saved.';
-  } catch (cause) { status.textContent = ''; showError(cause); }
-  finally { pendingAction = null; busy = false; control.disabled = false; if (control.isConnected) control.focus({ preventScroll: true }); }
-}
-function selectCampaign(id) {
-  selectedId = id;
-  const url = new URL(location.href);
-  if (id) url.searchParams.set('campaignId', id);
-  else url.searchParams.delete('campaignId');
-  history.replaceState(null, '', url);
-  renderMine();
-}
 function renderMine() {
   const list = $('campaignList');
   list.replaceChildren();
@@ -76,14 +23,11 @@ function renderMine() {
   for (const campaign of mine) {
     const row = element('li');
     const role = campaignRole(campaign, user.uid);
-    const open = element('button', campaign.name, 'btn secondary');
-    open.type = 'button';
-    open.addEventListener('click', () => selectCampaign(campaign.id));
-    open.setAttribute('aria-pressed', String(campaign.id === selectedId));
+    const open = element('a', campaign.name, 'btn secondary');
+    open.href = campaignDetailUrl(campaign.id);
     row.append(open, element('span', ` ${role.creator ? 'Creator · ' : ''}${role.gm ? 'GM' : 'Player'}`, 'sub'));
     list.append(row);
   }
-  void renderDetail(mine.find(item => item.id === selectedId));
 }
 async function renderDetail(campaign) {
   const version = ++detailVersion;
@@ -91,7 +35,17 @@ async function renderDetail(campaign) {
   const root = $('campaignDetail');
   root.replaceChildren();
   root.hidden = !campaign;
-  if (!campaign) return;
+  if (!campaign) { status.textContent = 'Campaign unavailable.'; return; }
+  status.textContent = '';
+  if (campaign.deletedAt) {
+    root.append(element('h2', 'Campaign deleted'), element('p', 'Sharing has ended. Finish removing any remaining campaign links; characters and learned skills are preserved.'),
+      button('Finish deletion', async () => {
+        await campaigns.deleteCampaign(campaign.id);
+        return { navigateTo: '/campaigns.html', message: 'Campaign links removed.' };
+      }));
+    return;
+  }
+  document.title = `${campaign.name} – Game X`;
   root.append(element('h2', campaign.name), element('p', 'Loading members…', 'muted'));
   try {
     const members = (await campaigns.members(campaign.id)).filter(member => campaign.memberUids.includes(member.uid));
@@ -175,8 +129,8 @@ async function renderDetail(campaign) {
     }));
     if (role.gm && !role.creator) root.append(element('p', 'Ask the creator to assign another GM before leaving.', 'sub'));
     root.append(element('h3', 'Characters'));
-    const add = element('a', 'Add your character from Characters', 'btn secondary');
-    add.href = `/characters.html?campaignId=${encodeURIComponent(campaign.id)}`; root.append(add);
+    const add = element('a', 'Add your character', 'btn secondary');
+    add.href = campaignJoinUrl({ campaignId: campaign.id }); root.append(add);
     if (!role.gm) root.append(element('p', 'Only the GM can open other players’ sheets.', 'sub'));
     const roster = element('ul', undefined, 'list'); root.append(roster);
     if (role.creator) {
@@ -189,10 +143,8 @@ async function renderDetail(campaign) {
           })) return 'Campaign not deleted.';
           stopRoster?.(); stopRoster = null;
           try { await campaigns.deleteCampaign(campaign.id); }
-          catch (cause) { renderMine(); throw cause; }
-          selectCampaign(null);
-          $('campaignName').focus();
-          return 'Campaign deleted. Players’ characters have been preserved.';
+          catch (cause) { void renderDetail(await campaigns.get(campaign.id)); throw cause; }
+          return { navigateTo: '/campaigns.html', message: 'Campaign deleted. Players’ characters have been preserved.' };
         }));
       root.append(deletion);
     }
@@ -229,51 +181,34 @@ async function renderDetail(campaign) {
 }
 
 const pendingCode = new URLSearchParams(location.hash.slice(1)).get('join');
-if (pendingCode) $('inviteCode').value = pendingCode;
-$('createCampaignForm').addEventListener('submit', event => {
+// Retain previously shared/bookmarked routes without keeping inline details.
+if (!detailPage && pendingCode) location.replace(`${campaignJoinUrl()}${location.hash}`);
+else if (!detailPage && selectedId) location.replace(campaignDetailUrl(selectedId));
+$('createCampaignForm')?.addEventListener('submit', event => {
   event.preventDefault();
   void act(event.submitter, async () => {
     if (!createSettings) throw new Error('Campaign settings are still loading.');
     const id = await campaigns.create({ uid: user.uid, name: $('campaignName').value, displayName: $('memberName').value, settings: createSettings.read() });
-    createSettings = createCampaignSettingsEditor({ gameData });
-    $('createCampaignSettings').replaceChildren(createSettings.element);
-    $('campaignName').value = ''; selectCampaign(id); return 'Campaign created. Share its invite with your players.';
+    return { navigateTo: campaignDetailUrl(id), message: 'Campaign created.' };
   });
 });
-$('joinCampaignForm').addEventListener('submit', event => {
-  event.preventDefault();
-  void act(event.submitter, async () => {
-    const id = await campaigns.join({ uid: user.uid, code: $('inviteCode').value, displayName: $('memberName').value });
-    $('inviteCode').value = '';
-    history.replaceState(null, '', location.pathname + location.search);
-    selectCampaign(id); return 'Campaign joined. Add a character from Characters when you’re ready.';
-  });
-});
-await initAuthRedirectHandling();
-onAuth(async signedIn => {
-  stopMine?.(); stopRoster?.();
+await start(async (signedIn, displayName) => {
   user = signedIn;
-  if (!user) {
-    // Keep invitation secrets in the fragment, including across sign-in.
-    location.replace(`/login.html?next=${encodeURIComponent(location.pathname + location.search)}${location.hash}`);
-    return;
-  }
-  try {
-    const claims = await getClaims(user);
-    const nav = ensureAppTopNav({ active: 'campaigns', isGM: claims.gm, onSignOut: async () => {
-      if (await navigation.flush()) await signOutNow();
-    } });
-    nav.signOut.style.display = '';
-    const profile = await getDoc(doc(db, 'users', user.uid));
-    gameData = await loadGameXData();
+  gameData = await loadGameXData();
+  if (detailPage) {
+    if (!selectedId) { status.textContent = 'Choose a campaign from Your campaigns.'; return; }
+    stopMine = campaigns.observeCampaign(selectedId, campaign => { void renderDetail(campaign); }, cause => {
+      stopRoster?.(); stopRoster = null; ++detailVersion;
+      $('campaignDetail').hidden = true; status.textContent = ''; showError(cause);
+    });
+  } else {
     createSettings = createCampaignSettingsEditor({ gameData });
     $('createCampaignSettings').replaceChildren(createSettings.element);
-    $('memberName').value = profile.data()?.displayName || user.displayName || '';
+    $('memberName').value = displayName;
     stopMine = campaigns.observeMine(user.uid, list => {
       mine = list;
-      if (!selectedId && list.length) selectedId = list[0].id;
-      if (status.textContent === 'Loading campaigns…') status.textContent = pendingCode && $('inviteCode').value ? 'Your invite is ready. Choose Join campaign to accept it.' : '';
+      if (status.textContent === 'Loading campaigns…') status.textContent = '';
       renderMine();
     }, showError);
-  } catch (cause) { showError(cause); }
-});
+  }
+}, () => { stopMine?.(); stopRoster?.(); ++detailVersion; });

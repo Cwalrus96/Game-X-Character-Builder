@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { campaignName, normalizeInviteCode, createInviteCode, formatInviteCode,
-  campaignInviteUrl, campaignSheetUrl, campaignRole, publicMemberName } from '../public/js/core/campaign-model.js';
+  campaignInviteUrl, campaignDetailUrl, campaignJoinUrl, campaignSheetUrl, campaignRole, publicMemberName } from '../public/js/core/campaign-model.js';
 import { createCampaignStore } from '../public/js/core/campaign-store.js';
 import { safeLoginNextHref } from '../public/js/core/login-routing.js';
 
@@ -23,12 +23,21 @@ test('campaign inputs are bounded without silently changing identity or truncati
 });
 test('invite secrets use URL fragments; sheet identifiers cannot inject parameters', () => {
   const invite = new URL(campaignInviteUrl('a'.repeat(32), 'https://example.test'));
-  assert.equal(invite.pathname, '/campaigns.html'); assert.equal(invite.search, '');
+  assert.equal(invite.pathname, '/campaign-join.html'); assert.equal(invite.search, '');
   assert.equal(new URLSearchParams(invite.hash.slice(1)).get('join'), 'A'.repeat(32));
   const sheet = new URL(campaignSheetUrl({ ownerUid: 'u&admin=true', characterId: 'hero/#1', campaignId: 'c?x' }), invite);
   assert.equal(sheet.searchParams.get('uid'), 'u&admin=true');
   assert.equal(sheet.searchParams.get('charId'), 'hero/#1');
   assert.equal(sheet.searchParams.get('admin'), null);
+  const detail = new URL(campaignDetailUrl('group&admin=true'), invite);
+  assert.equal(detail.pathname, '/campaign.html');
+  assert.equal(detail.searchParams.get('campaignId'), 'group&admin=true');
+  assert.equal(detail.searchParams.get('admin'), null);
+  const join = new URL(campaignJoinUrl({ characterId: 'hero/#1', campaignId: 'group&admin=true' }), invite);
+  assert.equal(join.pathname, '/campaign-join.html');
+  assert.equal(join.searchParams.get('charId'), 'hero/#1');
+  assert.equal(join.searchParams.get('campaignId'), 'group&admin=true');
+  assert.equal(campaignJoinUrl(), '/campaign-join.html');
 });
 test('campaign roles require current membership and do not imply a global role', () => {
   const campaign = { ownerUid: 'alice', gmUid: 'bob', memberUids: ['alice', 'bob', 'eve'] };
@@ -59,6 +68,8 @@ test('campaign invitation survives sign-in without exposing its code as a query 
   const hash = '#join=' + 'A'.repeat(32);
   const result = new URL(safeLoginNextHref({ next: '/campaigns.html', origin: 'https://example.test', hash }));
   assert.equal(result.hash, hash); assert.equal(result.search, '');
+  const join = new URL(safeLoginNextHref({ next: '/campaign-join.html?charId=hero', origin: 'https://example.test', hash }));
+  assert.equal(join.hash, hash); assert.equal(join.searchParams.get('charId'), 'hero');
   const character = safeLoginNextHref({ next: '/character-sheet.html?charId=hero', origin: 'https://example.test', hash });
   assert.equal(character, 'https://example.test/character-sheet.html?charId=hero');
   for (const next of ['https://evil.test', '//evil.test/campaigns.html', 'javascript:alert(1)', null]) {
